@@ -1,6 +1,6 @@
 #!/bin/bash
 MAIN_SANDBOX_V="901d451a"
-APPLE_SANDBOX_V="cc4f24db"
+APPLE_SANDBOX_V="385c33f6"
 TZ_NODE_VERSION=$(docker exec -it pascaligo-template-sandbox tezos-node --version)
 NODE_BOOTSTRAPPED=$(docker exec -it pascaligo-template-sandbox tezos-client bootstrapped)
 until [[ "$TZ_NODE_VERSION" == *"$MAIN_SANDBOX_V"* && "$NODE_BOOTSTRAPPED" == *"Node is bootstrapped."* ]] || [[ "$TZ_NODE_VERSION" == *"$APPLE_SANDBOX_V"* && "$NODE_BOOTSTRAPPED" == *"Node is bootstrapped."* ]];

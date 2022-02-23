@@ -1,5 +1,5 @@
 {
-  "name": "pascaligo-template-dapp-contracts",
+  "name": "mavryk-oracles-contracts",
   "version": "1.0.0",
   "description": "",
   "devDependencies": {
@@ -26,8 +26,6 @@
     "pre-compile-m1": "ts-node scripts/cli.ts compile -o contracts/compiled -m true -c",
     "pre-compile-all": "rm -rf ./contracts/compiled && ts-node scripts/cli.ts compile -p contracts/main -o contracts/compiled",
     "pre-compile-all-m1": "rm -rf ./contracts/compiled && ts-node scripts/cli.ts compile -p contracts/main -o contracts/compiled -m true",
-    "compile-lambdas": "ts-node scripts/cli.ts compile-lambda -j contracts/partials/governance/governanceLambdaIndex.json -c contracts/main/governance.ligo",
-    "compile-lambda-parameters": "ts-node scripts/cli.ts compile-lambda-parameters -j contracts/partials/governance/governanceLambdaParameters.json -c contracts/main/governance.ligo",
     "compile": "yarn pre-compile-all && rm -rf ./build && ts-node scripts/cli.ts compile -f json -o build ",
     "compile-m1": "yarn pre-compile-all-m1 && rm -rf ./build && ts-node scripts/cli.ts compile -f json -o build -m true ",
     "migrate": "ts-mocha --paths test/deploy/00_test_deployments.spec.ts --bail --timeout 300000",
@@ -41,7 +39,7 @@
     "pytest-only": "pytest -s",
     "clean": "rm -rf ./build && rm -rf contracts/compiled && rm -rf ./deployments"
   },
-  "author": "matej.sima@stove-labs.com",
+  "author": "tim@tezosdynamics.com",
   "license": "MIT",
   "config": {
     "commitizen": {

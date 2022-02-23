@@ -1,40 +1,34 @@
-# Tezos starter kit
-<img src="https://stove-labs.com/logo_transparent.png" width="100px"/>
-
-![npm test workflow](https://github.com/stove-labs/tezos-starter-kit/workflows/Delphi/badge.svg?branch=dev)
-
-## What is the tezos-starter-kit?
-
-The Tezos starter kit provides a *truffle box* with reasonable defaults to kick start your smart contract development experience. It includes a ready to use archive sandbox node with RPC & CORS configured.
+# Mavryk Oracles 
 
 ## Dependencies
 
 - **Docker** - used to run a local Tezos node together with the LIGO compiler (If you're on linux, follow the post-installation steps as well)
 - **Node.js v12** - Javascript runtime environment that we'll use for testing and deployment
 - **LIGO** - High level programming language for the Tezos blockchain
-- **truffle@tezos** - Testing framework, originally built for Ethereum that now includes support for Tezos.
-- **ganache-cli@tezos** - Part of the Truffle suite of blockchain development tools. It creates isolated sandboxes using Flextesa to automate reproducible tests with faster networks.
+- **Taquito with Typescript & PyTezos** - Testing frameworks for Tezos
 
 
 ## Getting started
 
-> Make sure to use node `v12`.
+> Make sure to use node `v12 (at least)`.
 
 **Unbox the starter kit & install the dependencies**
 ```shell
-$ git clone https://github.com/stove-labs/tezos-starter-kit
-$ cd tezos-starter-kit
+$ git clone https://github.com/mavrykfinance/mavryk-oracles.git
+$ cd mavryk-oracles/src/contracts
 $ npm i
 ```
 
-**Compile the example contract**
+Note: All relevant npm scripts have a version for running on Apple Silicon, adjust accordingly  
+
+**Start up the local Mavryk Sandbox node**
 ```shell
-$ npm run compile
+$ npm run start-sandbox
 ```
 
-**Start the local sandbox node**
+**Compile the example contracts**
 ```shell
-$ npm run sandbox:start
+$ npm run compile
 ```
 
 **Migrate the compiled contracts**
@@ -42,16 +36,16 @@ $ npm run sandbox:start
 $ npm run migrate
 ```
 
-**Run the contract tests**
+**OR migrate to the Hangzhou test net**
 ```shell
-$ npm run test
+$ npm run test-net-deploy
 ```
 
-**Watch project files and recompile/remigrate/retest**
+**Run specific tests or specific test files**
 ```shell
-$ npm run compile:watch
-$ npm run migrate:watch
-$ npm run test:watch
+$ npm run test-full
+$ npm run test-single-file <file-path>
+$ npm run test-only
 ```
 
 ## Sandbox management
@@ -62,7 +56,7 @@ Archive mode sandbox Tezos node is provided within this box with RPC exposed at 
 #### Commands
 
 ```shell
-$ npm run sandbox:start
+$ npm run start-sandboc
 ```
 
 #### Available accounts
@@ -72,12 +66,4 @@ $ npm run sandbox:start
 |bob   |tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6   |edpkurPsQ8eUApnLUJ9ZPDvu98E8VNj4KtJa1aZr16Cr5ow5VHKnz4   |edsk3RFfvaFaxbHx8BMtEW1rKQcPtDML3LXjNqMNLCzC3wLC1bWbAt   |
 |baker |  tz1W15VdfAc1ePgrGMyimCz1skJvY6hvMyiu | edpkuqBgimykYEEfcDAVrwguoUoQku2amoeGQoZLv4qVsWCzTWcM1u | edsk3TRzqPksMdn9YSgr5kBPEgj6WmKYA1QgzqjRVdFTzy9gi9vbzE |
 
-
-## Usage with public testnets (Carthagenet, Delphinet ...)
-
-In order to use your migration scripts with a different network than your local sandbox, you can specify an optional `--network` argument.
-
-Make sure to [claim a new account at the faucet](https://faucet.tzalpha.net), and replace the `faucet.json` file with the new one downloaded previously.
-```shell
-$ npm run migrate -- --network delphinet
-```
+We have also added 6 other accounts from the normal 4, they are all found in src/contracts/scripts/sandbox/accounts.js  

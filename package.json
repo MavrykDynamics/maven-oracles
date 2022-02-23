@@ -1,6 +1,8 @@
 {
-  "name": "mavryk-app",
-  "version": "2.0.0",
+  "name": "mavryk-oracles-app",
+  "version": "1.0.0",
+  "author": "alex@tezosdynamics.com",
+  "license": "MIT",
   "scripts": {
     "prettier": "prettier -l '**/*.{js,jsx,ts,tsx,json,md}'"
   },
