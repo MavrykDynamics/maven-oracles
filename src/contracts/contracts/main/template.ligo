@@ -14,6 +14,27 @@ block {
     // Steps Overview:
     // 1. 
     // 2. 
+
+    // Intercontract call with Callback operation with Multiple parameters
+    // fetch and update MVK balance, and send satellite info (e.g. name, desc, fee) to callback 
+    // const registerAsSatelliteCompleteCallback : contract(registerAsSatelliteCompleteParamsType) = Tezos.self("%registerAsSatelliteComplete");
+    // const getSatelliteBalanceOperation : operation = Tezos.transaction(
+    //     (Tezos.sender, name, description, image, satelliteFee, registerAsSatelliteCompleteCallback),
+    //     0tez, 
+    //     getSatelliteBalance(doormanAddress)
+    //     );
+    // const operations : list(operation) = list [getSatelliteBalanceOperation];
+
+    // Intercontract call with Callback operation with one parameter
+    // const undelegateFromSatelliteCompleteCallback : contract(nat) = Tezos.self("%undelegateFromSatelliteComplete");
+    // const checkVMvkBalanceOperation : operation = Tezos.transaction(
+    //     (Tezos.sender, undelegateFromSatelliteCompleteCallback),
+    //      0tez, 
+    //      fetchStakedMvkBalance(doormanAddress)
+    //      );
+    
+    // const operations : list(operation) = list [checkVMvkBalanceOperation];
+
     skip
 
 } with (noOperations, s)
