@@ -2,10 +2,10 @@
     (or (address %addWhiteListedContract) (address %removeWhiteListedContract)) ;
   storage
     (pair (pair (pair (address %owner) (int %percentOracleTrust))
-                (pair (int %round) (big_map %roundResult (pair int address) int)))
-          (big_map %whiteListedContract address bool)) ;
+                (pair (int %round) (map %roundResult (pair int address) int)))
+          (map %whiteListedContract address bool)) ;
   code { NIL operation ;
-         LAMBDA (pair address (big_map address bool)) bool { UNPAIR ; MEM } ;
+         LAMBDA (pair address (map address bool)) bool { UNPAIR ; MEM } ;
          LAMBDA
            address
            unit
