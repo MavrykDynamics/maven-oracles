@@ -1,45 +1,53 @@
 { parameter
     (or (address %addWhiteListedContract) (address %removeWhiteListedContract)) ;
   storage
-    (pair (pair (int %percentOracleTrust) (int %round))
-          (pair (big_map %roundResult (pair int address) int)
-                (big_map %whiteListedContract address bool))) ;
+    (pair (pair (pair (address %owner) (int %percentOracleTrust))
+                (pair (int %round) (big_map %roundResult (pair int address) int)))
+          (big_map %whiteListedContract address bool)) ;
   code { NIL operation ;
          LAMBDA (pair address (big_map address bool)) bool { UNPAIR ; MEM } ;
-         DIG 2 ;
+         LAMBDA
+           address
+           unit
+           { SENDER ;
+             COMPARE ;
+             NEQ ;
+             IF { PUSH string "Only owner can do this action" ; FAILWITH } { UNIT } } ;
+         DIG 3 ;
          UNPAIR ;
          IF_LEFT
            { SWAP ;
              DUP ;
              DUG 2 ;
              CDR ;
-             CDR ;
              SWAP ;
              DUP ;
              DUG 2 ;
              PAIR ;
-             DIG 3 ;
+             DIG 4 ;
              SWAP ;
              EXEC ;
-             NOT ;
-             IF { DROP 3 ;
+             IF { DROP 4 ;
                   PUSH string "You can't add an already present whitelisted contract" ;
                   FAILWITH }
                 { SWAP ;
                   DUP ;
                   DUG 2 ;
-                  CDR ;
+                  CAR ;
+                  CAR ;
+                  CAR ;
+                  DIG 3 ;
+                  SWAP ;
+                  EXEC ;
+                  DROP ;
+                  SWAP ;
+                  DUP ;
+                  DUG 2 ;
                   CDR ;
                   PUSH bool True ;
                   SOME ;
                   DIG 2 ;
                   UPDATE ;
-                  SWAP ;
-                  DUP ;
-                  DUG 2 ;
-                  CDR ;
-                  CAR ;
-                  PAIR ;
                   SWAP ;
                   CAR ;
                   PAIR ;
@@ -49,32 +57,35 @@
              DUP ;
              DUG 2 ;
              CDR ;
-             CDR ;
              SWAP ;
              DUP ;
              DUG 2 ;
              PAIR ;
-             DIG 3 ;
+             DIG 4 ;
              SWAP ;
              EXEC ;
-             IF { DROP 3 ;
+             NOT ;
+             IF { DROP 4 ;
                   PUSH string "You can't remove a not present whitelisted contract" ;
                   FAILWITH }
                 { SWAP ;
                   DUP ;
                   DUG 2 ;
-                  CDR ;
+                  CAR ;
+                  CAR ;
+                  CAR ;
+                  DIG 3 ;
+                  SWAP ;
+                  EXEC ;
+                  DROP ;
+                  SWAP ;
+                  DUP ;
+                  DUG 2 ;
                   CDR ;
                   SWAP ;
                   NONE bool ;
                   SWAP ;
                   UPDATE ;
-                  SWAP ;
-                  DUP ;
-                  DUG 2 ;
-                  CDR ;
-                  CAR ;
-                  PAIR ;
                   SWAP ;
                   CAR ;
                   PAIR ;
