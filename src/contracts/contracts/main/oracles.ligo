@@ -1,28 +1,24 @@
 type id is int;
-(*type observationsType is map ((int * address), int);*)
-type observationsDataType is map (address, int);
-type observationsType is map (int, observationsDataType);
-
+type observationsByAddressDataType is map (address, int);
+type observationsByAddressType is map (int, observationsByAddressDataType);
+type observationsByPriceDataType is map (int, int);
+type observationsByPriceType is map (int, observationsByPriceDataType);
 type whiteListedContractType is map (address, bool);
-type roundResultResponse is
-  record [
-    round: bytes;
-    price: int;
-    percentOracleResponse: int;
-  ];
-type ownerType is address;
 type setObservationType is 
   record [
     roundId: int;
     price: int;
   ];
+type ownerType is address;
 
 type storage is
   record [
     whiteListedContract: whiteListedContractType;
     round: int;
-    percentOracleTrust: int;
-    observations: observationsType;
+    percentOracleTrust: nat;
+    lastCompletedRoundPrice: int;
+    observations: observationsByAddressType;
+    observationsByPrice: observationsByPriceType;
     owner: ownerType;
   ];
 
@@ -60,11 +56,44 @@ function checkIfEnoughObservationForRound(const round: int; const store: storage
   if round =/= store.round then True
   else False
 
-function getObservationsData(const store : storage) : observationsDataType is
-  case Map.find_opt(store.round, store.observations) of
+function getObservationsData(const round: int; const observations: observationsByAddressType) : observationsByAddressDataType is
+  case Map.find_opt(round, observations) of
     Some (v) -> v
-  | None -> (failwith ("No round here") : observationsDataType)
+  | None -> (failwith ("No round here") : observationsByAddressDataType)
   end
+
+function getObservationsPrice(const price: int; const myMap: observationsByPriceDataType) : int is
+  case Map.find_opt(price, myMap) of
+    Some (v) -> (v+1)
+  | None -> 1
+  end
+
+function mapToMap (var m : observationsByAddressDataType) : observationsByPriceDataType is block {
+  var empty : observationsByPriceDataType := map [];
+  for _key -> value in map m block {
+      var temp: int := getObservationsPrice(value, empty);
+      empty := Map.update(value, Some (temp), empty);
+  }
+} with (empty)
+
+(* 
+function getMedianFromMap (var m : observationsByPriceDataType; const sizeMap: nat) : int is block {
+  const isEven: bool = (sizeMap mod 2n) = 0n;  
+  const medianIndex: nat = (sizeMap / 2n);
+  var i: nat := 0n;
+  var median: int := 0;
+  if isEven then {
+    for _key -> value in map m block {
+      if (i - 1n = medianIndex) then median := value else if (i = medianIndex) then median := (median + value) / 2 else skip;
+      i := i + 1n;
+    }
+  } else {
+    for _key -> value in map m block {
+      if (i = medianIndex) then median := value else skip;
+      i := i + 1n;
+    }
+  }
+} with (median) *)
 
 (* Entry Points*)
 
@@ -86,19 +115,29 @@ function requestRateUpdate(const store: storage): return is
   block{
     checkOwnership(store);
     const newRound: int = store.round + 1;
-    const emptyMap : observationsDataType = map [];
-    const updatedObservations: observationsType = Map.add(( newRound ), emptyMap, store.observations);
-  } with (noOperations, store with record[round=newRound; observations=updatedObservations])
+    const emptyMap : observationsByAddressDataType = map [];
+    const emptyMapPrice : observationsByPriceDataType = map [];
+    const updatedObservations: observationsByAddressType = Map.add(( newRound ), emptyMap, store.observations);
+    const updatedObservationsByPrice: observationsByPriceType = Map.add(( newRound ), emptyMapPrice, store.observationsByPrice);
+  } with (noOperations, store with record[round=newRound; observations=updatedObservations; observationsByPrice=updatedObservationsByPrice])
 
 function setObservation(const params: setObservationType; const store: storage): return is
   block{
-    checkIfWhiteListed(store);
-    checkIfCorrectRound(params.roundId, store);
-   const observationsDataUpdated: observationsDataType = Map.update(( Tezos.sender ), Some( params.price ), getObservationsData(store));
-   const updatedObservations: observationsType = Map.update(( params.roundId ), Some( observationsDataUpdated ), store.observations);
-  
-  (* TODO:  if (enoughObservationForRound(roundId)) { setRoundAsComplete(roundId) } *)
-  } with (noOperations, store with record[observations=updatedObservations])
+   checkIfWhiteListed(store);
+   checkIfCorrectRound(params.roundId, store);
+   (* TODO: check if oracle not already set observation*)
+   const observationsDataUpdated: observationsByAddressDataType = Map.update(( Tezos.sender ), Some( params.price ), getObservationsData(store.round, store.observations));
+   const updatedObservations: observationsByAddressType = Map.update(( params.roundId ), Some( observationsDataUpdated ), store.observations);
+   var observationsByPriceDataUpdated: observationsByPriceDataType := mapToMap(observationsDataUpdated);
+   const updatedObservationsByPrice: observationsByPriceType = Map.update(( params.roundId ), Some( observationsByPriceDataUpdated ), store.observationsByPrice);
+(*
+   const oracleWhiteListedSize: nat = Map.size (store.whiteListedContract);
+   const numberOfObservationForRound: nat = Map.size (getObservationsData(store.round, updatedObservations));
+   if (numberOfObservationForRound >= (oracleWhiteListedSize * store.percentOracleTrust / abs (100))) then {
+     const lastCompletedRoundPrice: int = getMedianFromMap(observationsByPriceDataUpdated, numberOfObservationForRound);
+   }
+   else skip *)
+  } with (noOperations, store with record[observations=updatedObservations; observationsByPrice= updatedObservationsByPrice])
 
 function main (const action : action; const storage : storage) : list(operation) * storage is
   case action of
@@ -114,8 +153,14 @@ To add as STORAGE field to deplopy on https://ide.ligolang.org/
 record [
   whiteListedContract=map[
     (("tz1KqTpEZ7Yob7QbPE4Hy4Wo8fHG8LhKxZSx" : address)) -> True];
+  observationsByPrice=map[
+    0 -> 
+      map[
+    (0 : int) -> 1]   
+    ];
   round=0;
-  percentOracleTrust=1;
+  price=0;
+  percentOracleTrust=100n;
   owner= ("tz1e3CMVjAUZF1CbbnSZXhAae5fFxDdc6pSh": address);
   observations=map[
     0 -> 
