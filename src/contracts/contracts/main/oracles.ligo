@@ -4,6 +4,13 @@ type observationsByAddressType is map (int, observationsByAddressDataType);
 type observationsByPriceDataType is map (int, int);
 type observationsByPriceType is map (int, observationsByPriceDataType);
 type whiteListedContractType is map (address, bool);
+type lastCompletedRoundPriceType is
+  record [
+    round: int;
+    price: int;
+    percentOracleResponse: nat;
+    decimals: int;
+  ];
 type setObservationType is 
   record [
     roundId: int;
@@ -15,8 +22,9 @@ type storage is
   record [
     whiteListedContract: whiteListedContractType;
     round: int;
+    decimals: int;
     percentOracleTrust: nat;
-    lastCompletedRoundPrice: int;
+    lastCompletedRoundPrice: lastCompletedRoundPriceType;
     observations: observationsByAddressType;
     owner: ownerType;
   ];
@@ -46,8 +54,6 @@ function checkOwnership(const store: storage): unit is
 function checkIfWhiteListed(const store: storage): unit is
   if not Map.mem(Tezos.sender, store.whiteListedContract) then failwith("Only authorized oracle contract can do this action")
   else unit
-
-
 
 function checkIfCorrectRound(const round: int; const store: storage): unit is
   if round =/= store.round then failwith("Wrong round number")
@@ -129,18 +135,25 @@ function setObservation(const params: setObservationType; const store: storage):
    checkIfWhiteListed(store);
    checkIfCorrectRound(params.roundId, store);
    checkIfOracleAlreadyAnswered(params.roundId, store);
+
    const observationsDataUpdated: observationsByAddressDataType = Map.update(( Tezos.sender ), Some( params.price ), getObservationsData(store.round, store.observations));
    const updatedObservations: observationsByAddressType = Map.update(( params.roundId ), Some( observationsDataUpdated ), store.observations);
-   var observationsByPriceDataUpdated: observationsByPriceDataType := mapToMap(observationsDataUpdated);
-
    const oracleWhiteListedSize: nat = Map.size (store.whiteListedContract);
    const numberOfObservationForRound: nat = Map.size (getObservationsData(store.round, updatedObservations));
+
    var newLastCompletedRoundPrice := store.lastCompletedRoundPrice;
    if (numberOfObservationForRound >= (oracleWhiteListedSize * store.percentOracleTrust / abs (100))) then {
-     newLastCompletedRoundPrice:= getMedianFromMap(observationsByPriceDataUpdated, numberOfObservationForRound);
-   }
-   else skip 
+    const median: int = getMedianFromMap(mapToMap(observationsDataUpdated), numberOfObservationForRound);
+    newLastCompletedRoundPrice := record [
+    round= store.round;
+    price= median;
+    percentOracleResponse= numberOfObservationForRound / oracleWhiteListedSize * 100n;
+    decimals= store.decimals;
+    ];
+   } else skip 
   } with (noOperations, store with record[observations=updatedObservations; lastCompletedRoundPrice = newLastCompletedRoundPrice])
+
+ (* TODO: getLastPrice entrypoint *)
 
 function main (const action : action; const storage : storage) : list(operation) * storage is
   case action of
@@ -155,10 +168,19 @@ To add as STORAGE field to deplopy on https://ide.ligolang.org/
 
 record [
   whiteListedContract=map[
-    (("tz1KqTpEZ7Yob7QbPE4Hy4Wo8fHG8LhKxZSx" : address)) -> True];
+    (("tz1KqTpEZ7Yob7QbPE4Hy4Wo8fHG8LhKxZSx" : address)) -> True;
+    (("tz1e3CMVjAUZF1CbbnSZXhAae5fFxDdc6pSh" : address)) -> True;
+    (("tz1ihvnEowDw3xZ96jVRJpsdMCZVo59Cbmoa" : address)) -> True
+    ];
   round=0;
-  lastCompletedRoundPrice=0;
+  decimals=8;
   percentOracleTrust=100n;
+  lastCompletedRoundPrice=record [
+      round= 0; 
+      price= 0; 
+      percentOracleResponse= 0n; 
+      decimals=8;
+      ];
   owner= ("tz1e3CMVjAUZF1CbbnSZXhAae5fFxDdc6pSh": address);
   observations=map[
     0 -> 
