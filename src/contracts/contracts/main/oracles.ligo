@@ -35,12 +35,18 @@ type isWhiteListedContractParams is address
 type updateWhiteListedContractParams is address
 type requestRateUpdateParams is unit
 type setObservationParams is setObservationType
+type getLastCompletedRoundPriceParams is contract(lastCompletedRoundPriceType)
+type updateDecimalsParams is int
+type updatePercentOracleTrustParams is nat
 
 type action is
     AddWhiteListedContract of updateWhiteListedContractParams
   | RemoveWhiteListedContract of updateWhiteListedContractParams
   | RequestRateUpdate of requestRateUpdateParams
   | SetObservation of setObservationParams
+  | GetLastCompletedRoundPrice of getLastCompletedRoundPriceParams
+  | UpdateDecimals of updateDecimalsParams
+  | UpdatePercentOracleTrust of updatePercentOracleTrustParams
 
 (* Internal Fonctions *)
 
@@ -153,14 +159,32 @@ function setObservation(const params: setObservationType; const store: storage):
    } else skip 
   } with (noOperations, store with record[observations=updatedObservations; lastCompletedRoundPrice = newLastCompletedRoundPrice])
 
- (* TODO: getLastPrice entrypoint *)
+  function getLastCompletedRoundPrice(const getLastCompletedRoundPriceParams: getLastCompletedRoundPriceParams; const store: storage) : return is
+    (list[Tezos.transaction(store.lastCompletedRoundPrice, 0tez, getLastCompletedRoundPriceParams)], store)
+
+  function updateDecimals(const newDecimals: int; const store: storage): return is
+    block{
+      checkOwnership(store);
+    } with (noOperations, store with record[decimals=newDecimals])
+
+  function updatePercentOracleTrust(const newPercentOracleTrust: nat; const store: storage): return is
+    block{
+      checkOwnership(store);
+    } with (noOperations, store with record[percentOracleTrust=newPercentOracleTrust])
+
+
 
 function main (const action : action; const storage : storage) : list(operation) * storage is
   case action of
-  | AddWhiteListedContract(c) -> addWhiteListedContract(c, storage)
-  | RemoveWhiteListedContract(c) -> removeWhiteListedContract(c, storage)
-  | RequestRateUpdate(_u) -> requestRateUpdate(storage)
-  | SetObservation(params) -> setObservation(params, storage)
+  | AddWhiteListedContract (c) -> addWhiteListedContract(c, storage)
+  | RemoveWhiteListedContract (c) -> removeWhiteListedContract(c, storage)
+  | RequestRateUpdate (_u) -> requestRateUpdate(storage)
+  | SetObservation (params) -> setObservation(params, storage)
+  | GetLastCompletedRoundPrice (params) -> getLastCompletedRoundPrice(params, storage)
+  | UpdateDecimals (params) -> updateDecimals(params, storage)
+  | UpdatePercentOracleTrust (params) -> updatePercentOracleTrust(params, storage)
+
+
   end;
 
 (*
