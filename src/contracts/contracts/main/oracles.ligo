@@ -9,6 +9,12 @@ type lastCompletedRoundPriceType is
     round: int;
     price: int;
     percentOracleResponse: nat;
+  ];
+type lastCompletedRoundPriceReturnType is
+  record [
+    round: int;
+    price: int;
+    percentOracleResponse: nat;
     decimals: int;
   ];
 type setObservationType is 
@@ -35,7 +41,7 @@ type isWhiteListedContractParams is address
 type updateWhiteListedContractParams is address
 type requestRateUpdateParams is unit
 type setObservationParams is setObservationType
-type getLastCompletedRoundPriceParams is contract(lastCompletedRoundPriceType)
+type getLastCompletedRoundPriceParams is contract(lastCompletedRoundPriceReturnType)
 type updateDecimalsParams is int
 type updatePercentOracleTrustParams is nat
 
@@ -101,12 +107,20 @@ function getMedianFromMap (var m : observationsByPriceDataType; const sizeMap: n
   var median: int := 0;
   if isEven then {
     for key -> _value in map m block {
-      if (abs (indexLoop - 1n) = medianIndex) then median := key else if (indexLoop = medianIndex) then median := (median + key) / 2n else median := median;
-      indexLoop := indexLoop + 1n;
+      if (abs (indexLoop - 1n) = medianIndex) then 
+        median := key 
+      else if (indexLoop = medianIndex) then 
+        median := (median + key) / 2n 
+      else 
+        median := median;
+        indexLoop := indexLoop + 1n;
     }
   } else {
     for key -> _value in map m block {
-      if (indexLoop = medianIndex) then median := key else median := median;
+      if (indexLoop = medianIndex) then 
+        median := key 
+      else 
+        median := median;
       indexLoop := indexLoop + 1n;
     }
   }
@@ -154,13 +168,29 @@ function setObservation(const params: setObservationType; const store: storage):
     round= store.round;
     price= median;
     percentOracleResponse= numberOfObservationForRound / oracleWhiteListedSize * 100n;
-    decimals= store.decimals;
     ];
    } else skip 
   } with (noOperations, store with record[observations=updatedObservations; lastCompletedRoundPrice = newLastCompletedRoundPrice])
 
-  function getLastCompletedRoundPrice(const getLastCompletedRoundPriceParams: getLastCompletedRoundPriceParams; const store: storage) : return is
-    (list[Tezos.transaction(store.lastCompletedRoundPrice, 0tez, getLastCompletedRoundPriceParams)], store)
+
+  [@view] function lastCompletedRoundPrice (const _ : unit ; const store: storage) : lastCompletedRoundPriceReturnType is block {
+    const withDecimal : lastCompletedRoundPriceReturnType = record [
+      price= store.lastCompletedRoundPrice.price;
+      percentOracleResponse= store.lastCompletedRoundPrice.percentOracleResponse;
+      round= store.lastCompletedRoundPrice.round;
+      decimals= store.decimals;
+    ]
+  } with (withDecimal)
+
+  function getLastCompletedRoundPrice(const getLastCompletedRoundPriceParams: getLastCompletedRoundPriceParams; const store: storage) : return is block {
+    const withDecimal : lastCompletedRoundPriceReturnType = record [
+      price= store.lastCompletedRoundPrice.price;
+      percentOracleResponse= store.lastCompletedRoundPrice.percentOracleResponse;
+      round= store.lastCompletedRoundPrice.round;
+      decimals= store.decimals;
+    ]
+  } with ((list[Tezos.transaction(withDecimal, 0tez, getLastCompletedRoundPriceParams)], store))
+
 
   function updateDecimals(const newDecimals: int; const store: storage): return is
     block{
@@ -202,8 +232,7 @@ record [
   lastCompletedRoundPrice=record [
       round= 0; 
       price= 0; 
-      percentOracleResponse= 0n; 
-      decimals=8;
+      percentOracleResponse= 0n;
       ];
   owner= ("tz1e3CMVjAUZF1CbbnSZXhAae5fFxDdc6pSh": address);
   observations=map[

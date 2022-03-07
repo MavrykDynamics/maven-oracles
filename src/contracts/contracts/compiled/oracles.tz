@@ -9,16 +9,15 @@
   storage
     (pair (pair (pair (int %decimals)
                       (pair %lastCompletedRoundPrice
-                         (pair (int %decimals) (nat %percentOracleResponse))
-                         (pair (int %price) (int %round))))
+                         (pair (nat %percentOracleResponse) (int %price))
+                         (int %round)))
                 (pair (map %observations int (map address int)) (address %owner)))
           (pair (pair (nat %percentOracleTrust) (int %round))
                 (map %whiteListedContract address bool))) ;
   code { NIL operation ;
          LAMBDA (pair address (map address bool)) bool { UNPAIR ; MEM } ;
          LAMBDA
-           (pair (pair (pair int (pair (pair int nat) (pair int int)))
-                       (pair (map int (map address int)) address))
+           (pair (pair (pair int (pair (pair nat int) int)) (pair (map int (map address int)) address))
                  (pair (pair nat int) (map address bool)))
            unit
            { CAR ;
@@ -91,10 +90,30 @@
                      NIL operation ;
                      DIG 2 ;
                      PUSH mutez 0 ;
-                     DIG 4 ;
+                     DUP 5 ;
                      CAR ;
                      CAR ;
                      CDR ;
+                     CDR ;
+                     DUP 6 ;
+                     CAR ;
+                     CAR ;
+                     CDR ;
+                     CAR ;
+                     CDR ;
+                     PAIR ;
+                     DUP 6 ;
+                     CAR ;
+                     CAR ;
+                     CDR ;
+                     CAR ;
+                     CAR ;
+                     DIG 6 ;
+                     CAR ;
+                     CAR ;
+                     CAR ;
+                     PAIR ;
+                     PAIR ;
                      TRANSFER_TOKENS ;
                      CONS ;
                      PAIR } }
@@ -418,18 +437,13 @@
                           CAR ;
                           CDR ;
                           SWAP ;
-                          PAIR ;
                           PUSH nat 100 ;
-                          DIG 3 ;
-                          DIG 3 ;
+                          DIG 4 ;
+                          DIG 4 ;
                           EDIV ;
                           IF_NONE { PUSH string "DIV by 0" ; FAILWITH } {} ;
                           CAR ;
                           MUL ;
-                          DUP 4 ;
-                          CAR ;
-                          CAR ;
-                          CAR ;
                           PAIR ;
                           PAIR }
                         { SWAP ; DIG 3 ; DROP 3 ; SWAP ; DUP ; DUG 2 ; CAR ; CAR ; CDR } ;
@@ -514,5 +528,38 @@
                  CAR ;
                  PAIR ;
                  SWAP ;
-                 PAIR } } } }
+                 PAIR } } } ;
+  view "lastCompletedRoundPrice"
+       unit
+       (pair (pair (int %decimals) (nat %percentOracleResponse))
+             (pair (int %price) (int %round)))
+       { CDR ;
+         DUP ;
+         CAR ;
+         CAR ;
+         CDR ;
+         CDR ;
+         SWAP ;
+         DUP ;
+         DUG 2 ;
+         CAR ;
+         CAR ;
+         CDR ;
+         CAR ;
+         CDR ;
+         PAIR ;
+         SWAP ;
+         DUP ;
+         DUG 2 ;
+         CAR ;
+         CAR ;
+         CDR ;
+         CAR ;
+         CAR ;
+         DIG 2 ;
+         CAR ;
+         CAR ;
+         CAR ;
+         PAIR ;
+         PAIR } }
 
