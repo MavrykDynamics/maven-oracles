@@ -132,7 +132,7 @@ export class DeviationTriggerService implements OnModuleInit {
 
     const {
       config: {
-        deviationRewardAmountXTZ,
+        deviationRewardAmountXtz,
         minimalTezosAmountDeviationTrigger: tezStake,
         perthousandDeviationTrigger: thresholdPerthousand,
         decimals,
@@ -188,9 +188,9 @@ export class DeviationTriggerService implements OnModuleInit {
 
       const estimate = await toolkit.estimate.transfer(transferParams);
 
-      if (deviationRewardAmountXTZ.lt(new BigNumber(estimate.totalCost))) {
+      if (deviationRewardAmountXtz.lt(new BigNumber(estimate.totalCost))) {
         this.logger.warn(
-          `XTZ Reward (${deviationRewardAmountXTZ.toString()}) is lower than estimated gas cost (${
+          `XTZ Reward (${deviationRewardAmountXtz.toString()}) is lower than estimated gas cost (${
             estimate.totalCost
           })`
         );

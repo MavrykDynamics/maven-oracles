@@ -11,9 +11,9 @@ import { ContractView } from '@taquito/taquito/dist/types/contract/contract';
 export type aggregatorConfigType = {
   decimals: BigNumber;
   percentOracleThreshold: BigNumber;
-  rewardAmountXTZ: BigNumber;
-  rewardAmountMVK: BigNumber;
-  deviationRewardAmountXTZ: BigNumber;
+  rewardAmountXtz: BigNumber;
+  rewardAmountStakedMvk: BigNumber;
+  deviationRewardAmountXtz: BigNumber;
   minimalTezosAmountDeviationTrigger: BigNumber;
   perthousandDeviationTrigger: BigNumber;
   maintainer: string;

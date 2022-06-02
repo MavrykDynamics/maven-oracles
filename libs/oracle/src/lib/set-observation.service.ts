@@ -226,7 +226,7 @@ export class SetObservationService implements OnModuleInit {
       round,
       observationCommits,
       switchBlock,
-      config: {rewardAmountXTZ, decimals},
+      config: {rewardAmountXtz, decimals},
     }: AggregatorStorage = await aggregator.storage();
 
     if (observationCommits === undefined || observationCommits === null) {
@@ -274,9 +274,9 @@ export class SetObservationService implements OnModuleInit {
 
     // TODO: this shoud also take into account that the reward is for commit + reveal, not just commit.
 
-    if (rewardAmountXTZ.lt(new BigNumber(estimate.totalCost))) {
+    if (rewardAmountXtz.lt(new BigNumber(estimate.totalCost))) {
       this.logger.warn(
-        `XTZ Reward (${rewardAmountXTZ.toString()}) is lower than estimated gas cost (${
+        `XTZ Reward (${rewardAmountXtz.toString()}) is lower than estimated gas cost (${
           estimate.totalCost
         })`
       );
@@ -313,7 +313,7 @@ export class SetObservationService implements OnModuleInit {
       switchBlock,
       observationCommits,
       observationReveals,
-      config: {rewardAmountXTZ},
+      config: {rewardAmountXtz},
     }: AggregatorStorage = await aggregator.storage();
 
     if (
@@ -380,9 +380,9 @@ export class SetObservationService implements OnModuleInit {
 
     const estimate = await toolkit.estimate.transfer(op);
 
-    if (rewardAmountXTZ.lt(new BigNumber(estimate.totalCost))) {
+    if (rewardAmountXtz.lt(new BigNumber(estimate.totalCost))) {
       this.logger.warn(
-        `XTZ Reward (${rewardAmountXTZ.toString()}) is lower than estimated gas cost (${
+        `XTZ Reward (${rewardAmountXtz.toString()}) is lower than estimated gas cost (${
           estimate.totalCost
         })`
       );
