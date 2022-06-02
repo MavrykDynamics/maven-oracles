@@ -134,10 +134,10 @@ export class WithdrawService implements OnModuleInit {
     const aggregator = await this.commonService.getAggregator(
       aggregatorSmartContractAddress
     );
-    const { oracleRewardsXTZ }: AggregatorStorage = await aggregator.storage();
-    const pkh = await this.commonService.getPkh();
+    const { oracleRewardXtz }: AggregatorStorage = await aggregator.storage();
+    const pkh = this.commonService.getPkh();
 
-    const reward = oracleRewardsXTZ.get(pkh);
+    const reward = oracleRewardXtz.get(pkh);
 
     if (reward === undefined) {
       return null;
@@ -151,7 +151,7 @@ export class WithdrawService implements OnModuleInit {
     return {
       kind: OpKind.TRANSACTION,
       ...aggregator.methods
-        .withdrawRewardXTZ(this.oracleWithdrawAddress)
+        .withdrawRewardXtz(this.oracleWithdrawAddress)
         .toTransferParams(),
     };
   }
@@ -163,10 +163,10 @@ export class WithdrawService implements OnModuleInit {
       aggregatorSmartContractAddress
     );
 
-    const { oracleRewardsMVK } = await aggregator.storage();
-    const pkh = await this.commonService.getPkh();
+    const { oracleRewardStakedMvk } = await aggregator.storage();
+    const pkh = this.commonService.getPkh();
 
-    const reward = oracleRewardsMVK.get(pkh);
+    const reward = oracleRewardStakedMvk.get(pkh);
 
     if (reward === undefined) {
       // Oracle do not have any reward to withdraw
@@ -181,7 +181,7 @@ export class WithdrawService implements OnModuleInit {
     return {
       kind: OpKind.TRANSACTION,
       ...aggregator.methods
-        .withdrawRewardMVK(this.oracleWithdrawAddress)
+        .withdrawRewardStakedMvk(this.oracleWithdrawAddress)
         .toTransferParams(),
     };
   }

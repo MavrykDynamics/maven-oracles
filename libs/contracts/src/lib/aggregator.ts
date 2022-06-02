@@ -21,8 +21,8 @@ export type aggregatorConfigType = {
 };
 export type AggregatorStorage = {
   oracleAddresses: MichelsonMap<string, string>;
-  oracleRewardsMVK: MichelsonMap<string, BigNumber>;
-  oracleRewardsXTZ: MichelsonMap<string, BigNumber>;
+  oracleRewardStakedMvk: MichelsonMap<string, BigNumber>;
+  oracleRewardXtz: MichelsonMap<string, BigNumber>;
   mvkTokenAddress: string;
   round: BigNumber;
   roundStart: string;
@@ -101,8 +101,8 @@ type AggregatorContractMethods<T extends ContractProvider | Wallet> = {
     rewardAmountXTZ: BigNumber,
     rewardAmountMVK: BigNumber
   ) => ContractMethod<T>;
-  withdrawRewardXTZ: (address: string) => ContractMethod<T>;
-  withdrawRewardMVK: (address: string) => ContractMethod<T>;
+  withdrawRewardXtz: (address: string) => ContractMethod<T>;
+  withdrawRewardStakedMvk: (address: string) => ContractMethod<T>;
 };
 
 type AggregatorContractMethodObject<T extends ContractProvider | Wallet> =
