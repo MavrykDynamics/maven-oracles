@@ -27,15 +27,15 @@ jobs:
         run: |
           yarn install --frozen-lockfile
 
-      - run: nx workspace-lint
+      - run: npx nx workspace-lint
 
-      - run: nx format:check
+      - run: npx nx format:check
 
-      - run: nx run-many --target=lint --all
+      - run: npx nx run-many --target=lint --all
 
-      - run: nx affected --target=test --parallel=3 --ci --code-coverage
+      - run: npx nx affected --target=test --parallel=3 --ci --code-coverage
 
-      - run: nx affected --target=build --parallel=3
+      - run: npx nx affected --target=build --parallel=3
 
   build-docker-image:
     name: Build base image
