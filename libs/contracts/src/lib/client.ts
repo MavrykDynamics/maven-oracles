@@ -15,7 +15,7 @@ export type ClientStorage = {
   };
 };
 
-type ClientContractMethods<T extends ContractProvider | Wallet> = {};
+type ClientContractMethods<T extends ContractProvider | Wallet> = never;
 
 type ClientContractMethodObject<T extends ContractProvider | Wallet> = Record<
   string,
