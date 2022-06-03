@@ -44,7 +44,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
 
@@ -54,14 +53,6 @@ jobs:
 
       - name: Available platforms
         run: echo ${{ steps.buildx.outputs.platforms }}
-
-      - name: Cache Docker layers
-        uses: actions/cache@v3
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-
 
       #- name: Login to DockerHub
       #  uses: docker/login-action@v2
@@ -77,11 +68,6 @@ jobs:
           #push: true
           file: apps/oracle-node/Dockerfile
           tags: tezosdynamics/mavryk-oracle:${{ github.sha }}
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
           platforms: linux/amd64,linux/arm64,linux/arm/v7,linux/arm/v6
-
-      - name: Move cache
-        run: |
-          rm -rf /tmp/.buildx-cache
-          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
