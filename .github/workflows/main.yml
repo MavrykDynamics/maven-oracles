@@ -65,7 +65,7 @@ jobs:
           context: .
           push: true
           file: apps/oracle-node/Dockerfile
-          tags: tezosdynamics/mavryk-oracle:${{ github.sha }}
+          tags: tezosdynamics/mavryk-oracle:${{ github.sha }},tezosdynamics/mavryk-oracle:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
           platforms: linux/amd64,linux/arm/v7
