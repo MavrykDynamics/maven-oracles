@@ -17,11 +17,14 @@
     "strictNullChecks": true,
     "baseUrl": ".",
     "paths": {
-      "@mavryk-oracle-node/maintainer": ["libs/maintainer/src/index.ts"],
+      "@mavryk-oracle-node/alphavantage-fetcher": [
+        "libs/alphavantage-fetcher/src/index.ts"
+      ],
       "@mavryk-oracle-node/coingecko-fetcher": [
         "libs/coingecko-fetcher/src/index.ts"
       ],
       "@mavryk-oracle-node/contracts": ["libs/contracts/src/index.ts"],
+      "@mavryk-oracle-node/maintainer": ["libs/maintainer/src/index.ts"],
       "@mavryk-oracle-node/messari-fetcher": [
         "libs/messari-fetcher/src/index.ts"
       ],
