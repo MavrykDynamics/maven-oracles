@@ -8,11 +8,11 @@ import { OnChainView } from '@taquito/taquito/dist/types/contract/contract-metho
 import { ContractView } from '@taquito/taquito/dist/types/contract/contract';
 import BigNumber from 'bignumber.js';
 
-
 export type AggregatorFactoryStorage = {
   admin: string;
   mvkTokenAddress: string;
   trackedSatellite: string[];
+
   trackedAggregators: MichelsonMap<any, string>;
 };
 
@@ -24,6 +24,7 @@ type AggregatorFactoryContractMethods<T extends ContractProvider | Wallet> = {
     mvkTokenAddress: string,
 
     // aggregatorConfigType
+
     decimals: BigNumber,
     deviationRewardAmountXTZ: BigNumber,
     maintainer: string,

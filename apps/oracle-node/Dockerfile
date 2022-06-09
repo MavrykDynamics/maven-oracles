@@ -11,13 +11,15 @@ RUN find apps ! -name "package.json" ! -name "project.json" -type f | xargs rm
 
 FROM node:16.14.0-alpine3.14 AS build
 
+RUN apk add g++ make py3-pip
+
 USER node
 WORKDIR /home/node
 
 COPY --from=only-package-json --chown=node:node /home/node/ .
 COPY --chown=node:node package.json yarn.lock ./
 
-RUN yarn --frozen-lockfile
+RUN yarn install --frozen-lockfile --network-timeout 1000000
 
 COPY --chown=node:node apps ./apps
 COPY --chown=node:node libs ./libs
@@ -27,6 +29,8 @@ RUN yarn build
 
 FROM node:16.14.0-alpine3.14 AS prod-deps
 
+RUN apk add g++ make py3-pip
+
 USER node
 WORKDIR /home/node
 
@@ -34,7 +38,7 @@ COPY --from=only-package-json --chown=node:node /home/node/ .
 COPY --chown=node:node package.json yarn.lock ./
 
 
-RUN yarn --production --frozen-lockfile
+RUN yarn install --production --frozen-lockfile --network-timeout 1000000
 
 FROM node:16.14.0-alpine3.14 AS final
 
