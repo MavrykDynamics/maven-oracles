@@ -55,9 +55,12 @@ export class WithdrawService implements OnModuleInit {
     const ops = await Promise.all(
       Array.from(aggregators.entries()).map(
         async ([pair, aggregatorSmartContractAddress]) => {
-          const ops = await this.withdrawFromAggregator(pair, aggregatorSmartContractAddress);
+          const ops = await this.withdrawFromAggregator(
+            pair,
+            aggregatorSmartContractAddress
+          );
 
-          return ops.map(op => ({
+          return ops.map((op) => ({
             pair,
             op,
           }));
@@ -65,7 +68,9 @@ export class WithdrawService implements OnModuleInit {
       )
     );
 
-    const notNullPairAndOps = this.commonService.filterNotNullOpPair(ops.flat());
+    const notNullPairAndOps = this.commonService.filterNotNullOpPair(
+      ops.flat()
+    );
 
     if (notNullPairAndOps.length === 0) {
       return;
@@ -73,20 +78,20 @@ export class WithdrawService implements OnModuleInit {
 
     this.logger.verbose(
       `Withdrawing from pairs: ${notNullPairAndOps
-        .map(pairAndOp => `${pairAndOp.pair[0]}/${pairAndOp.pair[1]}`)
+        .map((pairAndOp) => `${pairAndOp.pair[0]}/${pairAndOp.pair[1]}`)
         .join(', ')}`
     );
 
     await this.mutex.runExclusive(async () => {
       const result = await this.txManagerService.addBatch(
         this.commonService.getPkh(),
-        notNullPairAndOps.map(pairAndOp => pairAndOp.op)
+        notNullPairAndOps.map((pairAndOp) => pairAndOp.op)
       );
       switch (result.type) {
         case 'success':
           this.logger.log(
             `Withdrew on ${notNullPairAndOps.length} pairs: ${notNullPairAndOps
-              .map(pairAndOp => `${pairAndOp.pair[0]}/${pairAndOp.pair[1]}`)
+              .map((pairAndOp) => `${pairAndOp.pair[0]}/${pairAndOp.pair[1]}`)
               .join(', ')}`
           );
           break;

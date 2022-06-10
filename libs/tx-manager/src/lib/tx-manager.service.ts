@@ -1,6 +1,6 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { WalletParamsWithKind } from '@taquito/taquito/dist/types/wallet/wallet';
-import { TezosToolkit } from '@taquito/taquito';
+import { PollingSubscribeProvider, TezosToolkit } from '@taquito/taquito';
 import { TxManagerConfig } from './tx-manager.config';
 import { filter, firstValueFrom, Subject } from 'rxjs';
 import { BatchWalletOperation } from '@taquito/taquito/dist/types/wallet/batch-operation';
@@ -49,7 +49,7 @@ export class TxManagerService implements OnModuleInit {
 
   onModuleInit() {
     this.logger.verbose(
-      `Using confirmation polling interval: ${this.txManagerConfig.confirmationPollingIntervalSecond}s`
+      `Using confirmation polling interval: ${this.txManagerConfig.pollingIntervalMilliseconds}s`
     );
     this.logger.verbose(`Using signer: ${this.txManagerConfig.signerUrl}`);
 
@@ -186,11 +186,13 @@ export class TxManagerService implements OnModuleInit {
 
     toolkit.setProvider({
       signer: new RemoteSigner(pkh, this.txManagerConfig.signerUrl),
-      config: {
-        confirmationPollingIntervalSecond:
-          this.txManagerConfig.confirmationPollingIntervalSecond,
-      },
     });
+    toolkit.setStreamProvider(
+      toolkit.getFactory(PollingSubscribeProvider)({
+        pollingIntervalMilliseconds:
+          this.txManagerConfig.pollingIntervalMilliseconds * 1000,
+      })
+    );
 
     this.tezosToolkit.set(pkh, toolkit);
 
