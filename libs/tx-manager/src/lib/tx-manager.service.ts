@@ -186,12 +186,14 @@ export class TxManagerService implements OnModuleInit {
 
     toolkit.setProvider({
       signer: new RemoteSigner(pkh, this.txManagerConfig.signerUrl),
-      stream: toolkit.getFactory(PollingSubscribeProvider)({
+    });
+
+    toolkit.setStreamProvider(
+      toolkit.getFactory(PollingSubscribeProvider)({
         pollingIntervalMilliseconds:
           this.txManagerConfig.pollingIntervalMilliseconds,
-      }),
-      config: {},
-    });
+      })
+    );
 
     this.tezosToolkit.set(pkh, toolkit);
 

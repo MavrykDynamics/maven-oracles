@@ -9,6 +9,7 @@ import {
 import { Mutex } from 'async-mutex';
 import { TxManagerService } from '@mavryk-oracle-node/tx-manager';
 import { CronExpression } from '@nestjs/schedule';
+import { WalletParamsWithKind } from '@taquito/taquito/dist/types/wallet/wallet';
 
 @Injectable()
 export class RequestRateUpdateService implements OnModuleInit {
@@ -25,7 +26,9 @@ export class RequestRateUpdateService implements OnModuleInit {
     }
 
     if (maintainerConfig.maintainerPkh === '') {
-      throw new Error('Maintainer pkh must be set (MAINTAINER_PKH env variable)');
+      throw new Error(
+        'Maintainer pkh must be set (MAINTAINER_PKH env variable)'
+      );
     }
 
     if (maintainerConfig.aggregatorFactorySmartContractAddress === '') {
@@ -52,7 +55,9 @@ export class RequestRateUpdateService implements OnModuleInit {
   }
 
   async onModuleInit(): Promise<void> {
-    this.logger.verbose(`Using maintainer address: ${this.maintainerConfig.maintainerPkh}`);
+    this.logger.verbose(
+      `Using maintainer address: ${this.maintainerConfig.maintainerPkh}`
+    );
     this.logger.verbose(
       `Using AggregatorFactory address: ${this.maintainerConfig.aggregatorFactorySmartContractAddress}`
     );
@@ -64,63 +69,126 @@ export class RequestRateUpdateService implements OnModuleInit {
       return;
     }
 
-    const toolkit = await this.txManagerService.getTezosToolkit(
-      this.maintainerConfig.maintainerPkh
-    );
-    const aggregators = await this.getAggregators();
+    const aggregators = await this.getAggregatorsAddresses();
 
     await this.mutex.runExclusive(async () => {
-      for (const [pair, address] of aggregators) {
-        const aggregator = await toolkit.contract.at<
-          AggregatorContractAbstraction<ContractProvider>
-        >(address);
+      const pairAndOp = await Promise.all(
+        Array.from(aggregators.entries()).map(
+          async ([pair, aggregatorSmartContractAddress]) => {
+            return {
+              pair,
+              op: await this.getRequestRateUpdateOpOrNull(
+                pair,
+                aggregatorSmartContractAddress
+              ),
+            };
+          }
+        )
+      );
 
-        const {
-          round,
-          lastCompletedRoundPrice: { round: lastCompletedRound },
-          roundStart
-        } = await aggregator.storage();
+      const notNullPairAndOps = this.filterNotNullOpPair(pairAndOp);
 
-        const minutesSinceLastRound =
-          (Date.now() - Date.parse(roundStart)) / (60 * 1000);
+      if (notNullPairAndOps.length === 0) {
+        return;
+      }
 
-        this.logger.debug(
-          `Minutes since last round ${lastCompletedRound} (started at ${roundStart}): ${minutesSinceLastRound}`
-        );
+      this.logger.verbose(
+        `Sending requestRateUpdate: ${notNullPairAndOps.length} batched observation operations`
+      );
 
-        if (minutesSinceLastRound < this.maintainerConfig.roundDurationMinutes) {
-          // Wait before starting new round
-          return;
-        }
+      const result = await this.txManagerService.addBatch(
+        this.maintainerConfig.maintainerPkh,
+        notNullPairAndOps.map((pairAndOp) => pairAndOp.op)
+      );
 
-        const result = await this.txManagerService.addBatch(
-          this.maintainerConfig.maintainerPkh,
-          [
-            {
-              kind: OpKind.TRANSACTION,
-              ...aggregator.methods.requestRateUpdate().toTransferParams(),
-            },
-          ]
-        );
+      switch (result.type) {
+        case 'success':
+          this.logger.log(
+            `Request new round on ${
+              notNullPairAndOps.length
+            } pairs: ${notNullPairAndOps
+              .map((pairAndOp) => `${pairAndOp.pair[0]}/${pairAndOp.pair[1]}`)
+              .join(', ')}`
+          );
 
-        switch (result.type) {
-          case 'success':
-            this.logger.log(`Request rate update: Requested for pair ${pair}. Previous round was ${round}`);
-            break;
-          case 'error':
-            this.logger.error(
-              `Request rate update: Failed to request rate update for pair ${pair}: ${result.error.toString()}`
-            );
-        }
+          break;
+        case 'error':
+          this.logger.log(
+            `Failed to request new round on ${
+              notNullPairAndOps.length
+            } pairs: ${notNullPairAndOps
+              .map((pairAndOp) => `${pairAndOp.pair[0]}/${pairAndOp.pair[1]}`)
+              .join(', ')}`
+          );
       }
     });
   }
 
-  private async getAggregators(): Promise<Map<string, string>> {
+  public filterNotNullOpPair<T>(
+    arr: { pair: [string, string]; op: T | null }[]
+  ): { pair: [string, string]; op: T }[] {
+    return arr.filter((op) => op.op !== null) as {
+      pair: [string, string];
+      op: T;
+    }[];
+  }
+
+  private async getRequestRateUpdateOpOrNull(
+    pair: [string, string],
+    aggregatorSmartContractAddress: string
+  ): Promise<WalletParamsWithKind | null> {
+    try {
+      return await this._getRequestRateUpdateOpOrNull(
+        pair,
+        aggregatorSmartContractAddress
+      );
+    } catch (e) {
+      this.logger.error(
+        `Error while trying to set observationCommit on pair ${pair[0]}/${
+          pair[1]
+        }: ${e.toString()}`
+      );
+
+      return null;
+    }
+  }
+
+  private async _getRequestRateUpdateOpOrNull(
+    pair: [string, string],
+    aggregatorSmartContractAddress: string
+  ): Promise<WalletParamsWithKind | null> {
+    const aggregator = await this.getAggregator(aggregatorSmartContractAddress);
+
+    const {
+      round,
+      lastCompletedRoundPrice: { round: lastCompletedRound },
+      roundStart,
+    } = await aggregator.storage();
+
+    const minutesSinceLastRound =
+      (Date.now() - Date.parse(roundStart)) / (60 * 1000);
+
+    this.logger.debug(
+      `Last ${pair[0]}/${pair[1]} round (#${lastCompletedRound}) was ${minutesSinceLastRound} ago, at ${roundStart}`
+    );
+
+    if (minutesSinceLastRound < this.maintainerConfig.roundDurationMinutes) {
+      // Wait before starting new round
+      return null;
+    }
+
+    return {
+      kind: OpKind.TRANSACTION,
+      ...aggregator.methods.requestRateUpdate().toTransferParams(),
+    };
+  }
+
+  public async getAggregatorFactory(): Promise<
+    AggregatorFactoryContractAbstraction<ContractProvider>
+  > {
     const toolkit = await this.txManagerService.getTezosToolkit(
       this.maintainerConfig.maintainerPkh
     );
-
     let aggregatorFactory: AggregatorFactoryContractAbstraction<ContractProvider>;
     try {
       aggregatorFactory = await toolkit.contract.at<
@@ -128,21 +196,56 @@ export class RequestRateUpdateService implements OnModuleInit {
       >(this.maintainerConfig.aggregatorFactorySmartContractAddress);
     } catch (e) {
       this.logger.error(
-        `Error while aggregator factory fetching contract ${JSON.stringify(e)}`
+        `Error while fetching aggregator factory smart contract at ${
+          this.maintainerConfig.aggregatorFactorySmartContractAddress
+        } ${JSON.stringify(e)}`
       );
-      return new Map();
+      throw e;
     }
 
-    const storage = await aggregatorFactory.storage();
+    return aggregatorFactory;
+  }
 
-    const pairs = Array.from(await storage.trackedAggregators.entries());
+  private async getAggregatorsAddresses(): Promise<
+    Map<[string, string], string>
+  > {
+    const aggregatorFactory = await this.getAggregatorFactory();
+    const { trackedAggregators } = await aggregatorFactory.storage();
 
-    const aggregators: Map<string, string> = new Map<string, string>();
+    const pairs = Array.from(await trackedAggregators.entries());
 
-    for (const pair of pairs) {
-      aggregators.set(`${pair[0][0]}/${pair[0][1]}`, pair[1]);
+    const aggregators: Map<[string, string], string> = new Map<
+      [string, string],
+      string
+    >();
+
+    for (const [pair, address] of pairs) {
+      aggregators.set([pair[0], pair[1]], address);
     }
 
     return aggregators;
+  }
+
+  public async getAggregator(
+    aggregatorSmartContractAddress: string
+  ): Promise<AggregatorContractAbstraction<ContractProvider>> {
+    const toolkit = await this.txManagerService.getTezosToolkit(
+      this.maintainerConfig.maintainerPkh
+    );
+    let aggregator: AggregatorContractAbstraction<ContractProvider>;
+    try {
+      aggregator = await toolkit.contract.at<
+        AggregatorContractAbstraction<ContractProvider>
+      >(aggregatorSmartContractAddress);
+    } catch (e) {
+      this.logger.error(
+        `Error while fetching aggregator smart contract at ${aggregatorSmartContractAddress} ${JSON.stringify(
+          e
+        )}`
+      );
+      throw e;
+    }
+
+    return aggregator;
   }
 }
