@@ -16,6 +16,22 @@ To follow this guide you will need
 - Launch it and install Raspberry Pi OS on your SD card. Make sure to have a way to login to your Raspberry Pi (either ssh or login/password) in the imager options
 - Put your SD card in the Rasberry Pi and plug it
 
+## Install Docker
+
+Here is the fast install instructions:
+```
+curl -fsSL https://get.docker.com -o get-docker.sh
+
+sh ./get-docker.sh
+
+sudo usermod -aG docker $USER
+newgrp docker
+```
+
+
+See [manual install instructions](https://docs.docker.com/engine/install/debian/)
+ 
+
 ## Install Mavryk oracle
 
 - Login to your Raspberry pi using ssh or login/password
