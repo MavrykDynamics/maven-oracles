@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { MessariFetcherService } from '@mavryk-oracle-node/messari-fetcher';
 import { CoingeckoFetcherService } from '@mavryk-oracle-node/coingecko-fetcher';
+import { AlphavantageFetcherService } from '@mavryk-oracle-node/alphavantage-fetcher';
 import { PriceFetcher } from '@mavryk-oracle-node/price-fetcher';
 import { OracleConfig } from './oracle.config';
 import BigNumber from 'bignumber.js';
@@ -14,6 +15,7 @@ export class PriceService {
   constructor(
     private readonly messariFetcherService: MessariFetcherService,
     private readonly coingeckoFectcherService: CoingeckoFetcherService,
+    private readonly alphavantageFetcherService: AlphavantageFetcherService,
     private readonly oracleConfig: OracleConfig,
     private readonly commonService: CommonService
   ) {
@@ -22,7 +24,7 @@ export class PriceService {
         'YOU ARE USING FAKE PRICES, DO NOT DO THIS IN PRODUCTION'
       );
     }
-    this.priceFetchers = [messariFetcherService, coingeckoFectcherService];
+    this.priceFetchers = [messariFetcherService, coingeckoFectcherService, alphavantageFetcherService];
   }
 
   public async getPrice(
@@ -57,7 +59,11 @@ export class PriceService {
           );
           return null;
         }
-
+        this.logger.debug(
+          `Price fetcher ${
+            pf.constructor.name
+          } answered price [${price}] on pair ${pair[0]}/${pair[1]}`
+        );
         return price;
       })
     );

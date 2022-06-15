@@ -7,4 +7,11 @@ export class AlphavantageFetcherConfig {
     format: String,
   })
   public alphavantageApiKey: string;
+
+  @Property({
+    default: 1,
+    env: 'ALPHAVANTAGE_INTERVAL',
+    format: Number,
+  })
+  public alphavantageInterval: number;
 }

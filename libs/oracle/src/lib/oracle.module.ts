@@ -6,6 +6,7 @@ import { ConfigModule } from './config.module';
 import { PriceService } from './price.service';
 import { MessariFetcherModule } from '@mavryk-oracle-node/messari-fetcher';
 import { CoingeckoFetcherModule } from '@mavryk-oracle-node/coingecko-fetcher';
+import { AlphavantageFetcherModule } from '@mavryk-oracle-node/alphavantage-fetcher';
 import { WithdrawService } from './withdraw.service';
 import { TxManagerModule } from '@mavryk-oracle-node/tx-manager';
 import { DeviationTriggerService } from './deviation-trigger.service';
@@ -18,6 +19,7 @@ import { CommitStorageService } from './commit-storage.service';
     ConfigModule.forConfig(OracleConfig),
     MessariFetcherModule,
     CoingeckoFetcherModule,
+    AlphavantageFetcherModule,
     TxManagerModule,
   ],
   controllers: [],

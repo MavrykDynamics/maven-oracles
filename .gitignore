@@ -41,3 +41,4 @@ Thumbs.db
 
 .contracts.env
 .api-keys.env
+.env

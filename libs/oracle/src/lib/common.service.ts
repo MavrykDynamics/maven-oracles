@@ -1,6 +1,4 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { MessariFetcherService } from '@mavryk-oracle-node/messari-fetcher';
-import { CoingeckoFetcherService } from '@mavryk-oracle-node/coingecko-fetcher';
 import { OracleConfig } from './oracle.config';
 import {
   AggregatorContractAbstraction,
@@ -16,8 +14,6 @@ export class CommonService implements OnModuleInit {
   private readonly logger = new Logger(CommonService.name);
 
   constructor(
-    private readonly messariFetcherService: MessariFetcherService,
-    private readonly coingeckoFectcherService: CoingeckoFetcherService,
     private readonly txManagerService: TxManagerService,
     private readonly oracleConfig: OracleConfig
   ) {

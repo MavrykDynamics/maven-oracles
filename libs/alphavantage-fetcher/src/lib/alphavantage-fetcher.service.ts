@@ -10,7 +10,6 @@ import BigNumber from 'bignumber.js';
 export class AlphavantageFetcherService implements PriceFetcher {
   private readonly logger = new Logger(AlphavantageFetcherService.name);
   private readonly baseUrl = 'https://www.alphavantage.co/query?function=CRYPTO_INTRADAY';
-  private readonly avantageInterval = 1; // 1min, 5min, 15min, 30min, 60min
 
   constructor(
     private readonly httpService: HttpService,
@@ -26,16 +25,10 @@ export class AlphavantageFetcherService implements PriceFetcher {
   async getPrice([pair1, pair2]: [string, string]): Promise<BigNumber> {
     const vsCurrency = pair1.toLowerCase();
     const coin = pair2.toLowerCase();
-
     let response: AxiosResponse;
     try {
       const response$ = this.httpService.get(
-        `${this.baseUrl}&symbol=${coin}&market=${vsCurrency}&interval=${this.avantageInterval}min&apikey=${this.config.alphavantageApiKey}`,
-        // {
-        //   headers: {
-        //     'x-alphavantage-api-key': this.config.alphavantageApiKey,
-        //   },
-        // }
+        `${this.baseUrl}&symbol=${coin}&market=${vsCurrency}&interval=${this.config.alphavantageInterval}min&apikey=${this.config.alphavantageApiKey}`,
       );
 
       response = await firstValueFrom(response$);
@@ -45,20 +38,20 @@ export class AlphavantageFetcherService implements PriceFetcher {
       );
     }
 
-    const priceList = response.data?.[`Time Series Crypto (${this.avantageInterval}min)`];
+    const priceList = response.data?.[`Time Series Crypto (${this.config.alphavantageInterval}min)`];
     const priceObject =  priceList[Object.keys(priceList)[0]];
-    const priceHigh = priceObject["2. high"];
-    const priceLow = priceObject["3. low"];
-    const price = (priceHigh + priceLow) / 2;
 
-    if (price === undefined || price === null) {
+    const priceHigh = new BigNumber(priceObject["2. high"]);
+    const priceLow = new BigNumber(priceObject["3. low"]);
+    const price = (priceHigh.plus(priceLow)).dividedBy(2);
+
+    if (price === undefined || price === null || isNaN(price.toNumber())) {
       this.logger.verbose(
         `Could not parse price from response: ${JSON.stringify(response)}`
       );
       this.logger.error('Could not parse price from response');
       throw new Error('Could not parse price from response');
     }
-
-    return new BigNumber(price);
+    return price;
   }
 }
