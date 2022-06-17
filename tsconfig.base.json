@@ -24,11 +24,9 @@
         "libs/coingecko-fetcher/src/index.ts"
       ],
       "@mavryk-oracle-node/contracts": ["libs/contracts/src/index.ts"],
-      "@mavryk-oracle-node/maintainer": ["libs/maintainer/src/index.ts"],
       "@mavryk-oracle-node/messari-fetcher": [
         "libs/messari-fetcher/src/index.ts"
       ],
-      "@mavryk-oracle-node/oracle": ["libs/oracle/src/index.ts"],
       "@mavryk-oracle-node/price-fetcher": ["libs/price-fetcher/src/index.ts"],
       "@mavryk-oracle-node/tx-manager": ["libs/tx-manager/src/index.ts"]
     }

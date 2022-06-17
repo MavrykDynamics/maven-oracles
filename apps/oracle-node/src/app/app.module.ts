@@ -5,8 +5,6 @@ import {
   NestModule,
 } from '@nestjs/common';
 
-import { MaintainerModule } from '@mavryk-oracle-node/maintainer';
-import { OracleModule } from '@mavryk-oracle-node/oracle';
 import { ModuleMetadata } from '@nestjs/common/interfaces/modules/module-metadata.interface';
 
 @Module({
@@ -17,17 +15,6 @@ import { ModuleMetadata } from '@nestjs/common/interfaces/modules/module-metadat
 export class AppModule implements NestModule {
   public static forRoot(): DynamicModule {
     const imports: ModuleMetadata['imports'] = [];
-
-    if (process.env['ENABLE_MAINTAINER_MODE'] === 'true') {
-      imports.push(MaintainerModule);
-    }
-
-    if (
-      process.env['ENABLE_ORACLE_MODE'] === undefined ||
-      process.env['ENABLE_ORACLE_MODE'] === 'true'
-    ) {
-      imports.push(OracleModule);
-    }
 
     return {
       module: AppModule,

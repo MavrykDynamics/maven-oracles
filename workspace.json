@@ -4,9 +4,7 @@
     "alphavantage-fetcher": "libs/alphavantage-fetcher",
     "coingecko-fetcher": "libs/coingecko-fetcher",
     "contracts": "libs/contracts",
-    "maintainer": "libs/maintainer",
     "messari-fetcher": "libs/messari-fetcher",
-    "oracle": "libs/oracle",
     "oracle-node": "apps/oracle-node",
     "price-fetcher": "libs/price-fetcher",
     "tx-manager": "libs/tx-manager"
