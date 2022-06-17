@@ -1,6 +1,7 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
+    "esModuleInterop": true,
     "rootDir": ".",
     "sourceMap": true,
     "declaration": false,
@@ -10,26 +11,12 @@
     "importHelpers": true,
     "target": "es2015",
     "module": "esnext",
-    "lib": ["es2017", "dom"],
+    "lib": ["es2015", "es2017", "dom"],
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "strictNullChecks": true,
     "baseUrl": ".",
-    "paths": {
-      "@mavryk-oracle-node/alphavantage-fetcher": [
-        "libs/alphavantage-fetcher/src/index.ts"
-      ],
-      "@mavryk-oracle-node/coingecko-fetcher": [
-        "libs/coingecko-fetcher/src/index.ts"
-      ],
-      "@mavryk-oracle-node/contracts": ["libs/contracts/src/index.ts"],
-      "@mavryk-oracle-node/messari-fetcher": [
-        "libs/messari-fetcher/src/index.ts"
-      ],
-      "@mavryk-oracle-node/price-fetcher": ["libs/price-fetcher/src/index.ts"],
-      "@mavryk-oracle-node/tx-manager": ["libs/tx-manager/src/index.ts"]
-    }
   },
   "exclude": ["node_modules", "tmp"]
 }

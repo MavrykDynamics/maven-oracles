@@ -18,12 +18,14 @@ fi
 
 docker-compose up -d flextesa
 
-sleep 10 # Wait for flextesa to be up
-
-(cd $PRJT_ROOT/../mavryk-dapp/src/contracts/ && yarn migrate)
-
-cat $PRJT_ROOT/../mavryk-dapp/src/contracts/deployments/aggregatorFactoryAddress.json \
-  |  python -c "import sys, json; print 'AGGREGATOR_FACTORY_SMART_CONTRACT_ADDRESS=' + json.load(sys.stdin)['address']" \
-  > $PRJT_ROOT/.contracts.env
+# TODO: deploy new smart contract
+#
+# sleep 10 # Wait for flextesa to be up
+#
+# (cd $PRJT_ROOT/../mavryk-dapp/src/contracts/ && yarn migrate)
+#
+# cat $PRJT_ROOT/../mavryk-dapp/src/contracts/deployments/aggregatorFactoryAddress.json \
+#   |  python -c "import sys, json; print 'AGGREGATOR_FACTORY_SMART_CONTRACT_ADDRESS=' + json.load(sys.stdin)['address']" \
+#   > $PRJT_ROOT/.contracts.env
 
 docker-compose up -d
