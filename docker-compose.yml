@@ -95,10 +95,10 @@ services:
   flextesa:
     container_name: flextesa
     restart: always
-    image: oxheadalpha/flextesa:20220127
+    image: oxheadalpha/flextesa:20220510
     #--add-bootstrap-account "bob,edpkurPsQ8eUApnLUJ9ZPDvu98E8VNj4KtJa1aZr16Cr5ow5VHKnz4,tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6,unencrypted:edsk3RFfvaFaxbHx8BMtEW1rKQcPtDML3LXjNqMNLCzC3wLC1bWbAt@2_000_000_000_000"
     #--no-daemons-for=bob
-    command: hangzbox start
+    command: ithacabox start
       --add-bootstrap-account "eve,edpku9qEgcyfNNDK6EpMvu5SqXDqWRLuxdMxdyH12ivTUuB1KXfGP4,tz1MnmtP4uAcgMpeZN6JtyziXeFqqwQG6yn6,unencrypted:edsk3Sb16jcx9KrgMDsbZDmKnuN11v4AbTtPBgBSBTqYftd8Cq3i1e@2_000_000_000_000"
       --no-daemons-for=eve
       --add-bootstrap-account "bob,edpktqePwpgrWGS49FiAMDacb3bLiDLE8BrbLoi6zYdcZ9bttDLo1D,tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD,unencrypted:edskSA1MhTp6Eq3T79MEP822eXAmxXBk89eFYGgwBsJjfyUHDGsYfudasQocwcb5DUEMvA1B3EsvxCZ8G6Wek6syxAA49DEKzq@2_000_000_000_000"
