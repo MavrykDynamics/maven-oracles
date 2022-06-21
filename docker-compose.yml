@@ -57,7 +57,7 @@ services:
   oracle-2:
     container_name: oracle-2
     build:
-      dockerfile: images/node.dev.Dockerfilex
+      dockerfile: images/node.dev.Dockerfile
       context: .
     volumes:
       - './apps:/home/node/apps'
