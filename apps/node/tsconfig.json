@@ -4,7 +4,7 @@
     "rootDir": ".",
     "outDir": "dist",
     "types": ["node"],
-    "emitDecoratorMetadata": true,
+    "emitDecoratorMetadata": true
   },
   "exclude": ["**/*.spec.ts", "**/*.test.ts", "lib", "node_modules"],
   "include": ["**/*.ts"]

@@ -26,7 +26,6 @@ tezos:
       - transaction
       - endorsement
 
-
   tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6: # Bob
     log_payloads: true
     allowed_operations:
@@ -38,7 +37,6 @@ tezos:
       # List of [endorsement, ballot, reveal, transaction, origination, delegation, seed_nonce_revelation, activate_account]
       - transaction
       - endorsement
-
 
   tz1MnmtP4uAcgMpeZN6JtyziXeFqqwQG6yn6: # Eve
     log_payloads: true
@@ -52,7 +50,6 @@ tezos:
       - transaction
       - endorsement
 
-
   tz1R2oNqANNy2vZhnZBJc8iMEqW79t85Fv7L: # Mallory
     log_payloads: true
     allowed_operations:
@@ -64,7 +61,6 @@ tezos:
       # List of [endorsement, ballot, reveal, transaction, origination, delegation, seed_nonce_revelation, activate_account]
       - transaction
       - endorsement
-
 
   tz1VGyrip8uZDWoyssXDP7d1boGdpQcaaMXc: # Oscar
     log_payloads: true
@@ -78,7 +74,6 @@ tezos:
       - transaction
       - endorsement
 
-
   tz1NdjbFHLxbKEUXhXgjyLfQSCbq6oy5b7Px: # Trudy
     log_payloads: true
     allowed_operations:
@@ -91,7 +86,6 @@ tezos:
       - transaction
       - endorsement
 
-
   tz1Uqnf6CKSXTkhRNwkr59ZCkjM9TckqyzRb: # Isaac
     log_payloads: true
     allowed_operations:
@@ -103,5 +97,3 @@ tezos:
       # List of [endorsement, ballot, reveal, transaction, origination, delegation, seed_nonce_revelation, activate_account]
       - transaction
       - endorsement
-
-

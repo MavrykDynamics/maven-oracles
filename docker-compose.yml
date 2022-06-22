@@ -1,6 +1,5 @@
 version: '3.7'
 
-
 volumes:
   esdata:
   bcdshare:
@@ -8,21 +7,20 @@ volumes:
     driver: local
 
 services:
-#  builder:
-#    container_name: builder
-#    working_dir: /
-#    build:
-#      dockerfile: images/node.dev.Dockerfile
-#      context: .
-#    command:
-#      - "sleep"
-#      - "3600"
-#      # - "/home/node/common/scripts/install-run-rush.js"
-#      # - "build:watch"
-#    volumes:
-#      - './apps:/home/node/apps'
-#      - './libs:/home/node/libs'
-
+  #  builder:
+  #    container_name: builder
+  #    working_dir: /
+  #    build:
+  #      dockerfile: images/node.dev.Dockerfile
+  #      context: .
+  #    command:
+  #      - "sleep"
+  #      - "3600"
+  #      # - "/home/node/common/scripts/install-run-rush.js"
+  #      # - "build:watch"
+  #    volumes:
+  #      - './apps:/home/node/apps'
+  #      - './libs:/home/node/libs'
 
   bootstrap:
     container_name: bootstrap
@@ -118,8 +116,7 @@ services:
       - P2P_PEER_PRIVATE_KEY=CAESQFT7tBloxfCzLLLww4EZzm2l0qZiVBuEuAbD3jzLPbWZikTaJqQ+X0PAIQFB7xvKf8BvHIXKn/rCzAMSMDNM9X8=
     networks:
       p2p:
-          ipv4_address: 172.24.2.4
-
+        ipv4_address: 172.24.2.4
 
 #  signatory:
 #    image: ecadlabs/signatory:v0.3.0-beta-rc2-amd64
@@ -129,10 +126,9 @@ services:
 #      - ./signatory.dev.yaml:/etc/signatory.yaml
 #      - ./secret.json:/etc/secret.json
 
-
 networks:
   p2p:
     ipam:
       driver: default
       config:
-        - subnet: "172.24.2.0/16"
+        - subnet: '172.24.2.0/16'

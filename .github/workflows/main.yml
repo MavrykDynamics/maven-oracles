@@ -10,8 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: ["12", "14", "16"]
-        architecture: ["x64"]
+        node: ['12', '14', '16']
+        architecture: ['x64']
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -21,7 +21,7 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
           architecture: ${{ matrix.architecture }}
-          cache: "yarn"
+          cache: 'yarn'
 
       - name: Install
         run: yarn install --frozen-lockfile

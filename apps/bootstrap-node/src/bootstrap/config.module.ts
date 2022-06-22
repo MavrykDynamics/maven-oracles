@@ -6,9 +6,7 @@ type ClassType = { new (): any };
 @Module({})
 export class ConfigModule {
   public static forConfig(configClass: ClassType | ClassType[]): DynamicModule {
-    const configClasses = Array.isArray(configClass)
-      ? configClass
-      : [configClass];
+    const configClasses = Array.isArray(configClass) ? configClass : [configClass];
 
     return {
       providers: configClasses.map((configClass) => ({
@@ -16,10 +14,10 @@ export class ConfigModule {
           const loader = new TSConvict(configClass);
           return loader.load();
         },
-        provide: configClass,
+        provide: configClass
       })),
       exports: configClasses,
-      module: ConfigModule,
+      module: ConfigModule
     };
   }
 }

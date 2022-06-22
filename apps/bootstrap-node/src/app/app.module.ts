@@ -1,12 +1,12 @@
-import {DynamicModule, MiddlewareConsumer, Module, NestModule,} from '@nestjs/common';
+import { DynamicModule, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 
-import {ModuleMetadata} from '@nestjs/common/interfaces/modules/module-metadata.interface';
-import {BootstrapModule} from "../bootstrap/bootstrap.module.js";
+import { ModuleMetadata } from '@nestjs/common/interfaces/modules/module-metadata.interface';
+import { BootstrapModule } from '../bootstrap/bootstrap.module.js';
 
 @Module({
   imports: [],
   controllers: [],
-  providers: [],
+  providers: []
 })
 export class AppModule implements NestModule {
   public static forRoot(): DynamicModule {
@@ -16,7 +16,7 @@ export class AppModule implements NestModule {
 
     return {
       module: AppModule,
-      imports: imports,
+      imports: imports
     };
   }
 
