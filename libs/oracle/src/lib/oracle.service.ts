@@ -34,6 +34,18 @@ export class OracleService implements OnModuleInit {
 
     this.logger.verbose(`Using bootstrap peers: ${bootstrapPeers}`);
 
+    // This whitelist should come from the smart contracts
+    const peerIdWhitelist = [
+      // Bootstrap peer
+      'QmcrQZ6RJdpYuGvZqD5QEHAv6qX4BrQLJLQPQUrTrzdcgm',
+
+      // Oracles
+      '12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1',
+      '12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2',
+      '12D3KooWLL2Y1JmrAXkY7r8xbuSRtasfJLAarXmAaZPYxPnzgAJ3'
+      // '12D3KooWK87KmBGJZZMP3keux62VF515mFRbNRFwbYxib7wWQR34'
+    ];
+
     const node = await createLibp2p({
       peerId,
       addresses: {
@@ -42,7 +54,9 @@ export class OracleService implements OnModuleInit {
       transports: [new TCP()],
       streamMuxers: [new Mplex()],
       connectionEncryption: [new Noise()],
-      pubsub: new GossipSub(),
+      pubsub: new GossipSub({
+        emitSelf: true
+      }),
       peerDiscovery: [
         new Bootstrap({
           interval: 10000,
@@ -53,7 +67,14 @@ export class OracleService implements OnModuleInit {
       connectionManager: {
         autoDial: true
       },
-      connectionGater: {}
+      connectionGater: {
+        denyDialPeer: (peerId) => {
+          return !peerIdWhitelist.includes(peerId.toString());
+        },
+        denyInboundEncryptedConnection: (peerId) => {
+          return !peerIdWhitelist.includes(peerId.toString());
+        }
+      }
     });
 
     // Log a message when a remote peer connects to us
@@ -75,8 +96,11 @@ export class OracleService implements OnModuleInit {
 
     node.pubsub.addEventListener('message', (msg) => {
       const decoder = new TextDecoder();
-      this.logger.log(`Received on topic: ${JSON.stringify(msg.detail.topic)}`);
-      this.logger.verbose(`${decoder.decode(msg.detail.data)}`);
+      this.logger.log(
+        `Received from ${msg.detail.from.toString()} on topic: ${msg.detail.topic}: ${decoder.decode(
+          msg.detail.data
+        )}`
+      );
     });
 
     // Output listen addresses to the console
