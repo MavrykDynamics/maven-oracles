@@ -1,5 +1,5 @@
 **/node_modules
 **/Dockerfile
 **.env
-.git
+  .git
 common/temp

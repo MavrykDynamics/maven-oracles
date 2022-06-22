@@ -8,10 +8,7 @@ import {GossipSub} from '@chainsafe/libp2p-gossipsub';
 import {Bootstrap} from '@libp2p/bootstrap';
 import {KadDHT} from '@libp2p/kad-dht';
 import {OracleConfig} from "./oracle.config.js";
-
-const bootstrapers = [
-  '/ip4/18.157.85.221/tcp/23456/p2p/QmcrQZ6RJdpYuGvZqD5QEHAv6qX4BrQLJLQPQUrTrzdcgm',
-];
+import {createEd25519PeerId, createFromJSON} from "@libp2p/peer-id-factory";
 
 @Injectable()
 export class OracleService implements OnModuleInit {
@@ -26,11 +23,18 @@ export class OracleService implements OnModuleInit {
   async onModuleInit(): Promise<void> {
     this.logger.log('Hello from oracle service');
 
-    const {bootstrapPeers} = this.config;
+    const {bootstrapPeers, peerId: id, peerPubKey: pubKey, peerPrivateKey: privKey} = this.config;
+    const peerId = await createFromJSON({
+        id,
+        pubKey,
+        privKey,
+      }
+    )
 
     this.logger.verbose(`Using bootstrap peers: ${bootstrapPeers}`);
 
     const node = await createLibp2p({
+      peerId,
       addresses: {
         listen: [`/ip4/0.0.0.0/tcp/23456`],
       },
@@ -41,7 +45,7 @@ export class OracleService implements OnModuleInit {
       peerDiscovery: [
         new Bootstrap({
           interval: 10000,
-          list: [bootstrapPeers],
+          list: bootstrapPeers.split(' '),
         })
       ],
       dht: new KadDHT(),
@@ -58,7 +62,7 @@ export class OracleService implements OnModuleInit {
 
     node.addEventListener('peer:discovery', (peerInfo) => {
       // No need to dial, autoDial is on
-      console.log('Discovered:', peerInfo.detail.id.toString());
+      console.log('Discovered:', peerInfo.detail.multiaddrs.toString());
     });
 
     // Start listening

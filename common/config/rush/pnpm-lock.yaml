@@ -227,6 +227,7 @@ importers:
       '@libp2p/floodsub': ^1.0.6
       '@libp2p/kad-dht': ^1.0.9
       '@libp2p/mplex': ^1.1.0
+      '@libp2p/peer-id-factory': ~1.0.15
       '@libp2p/pubsub-peer-discovery': ^6.0.0
       '@libp2p/tcp': ^1.0.9
       '@libp2p/websockets': ^1.0.7
@@ -277,6 +278,7 @@ importers:
       '@libp2p/floodsub': 1.0.7
       '@libp2p/kad-dht': 1.0.16
       '@libp2p/mplex': 1.2.1
+      '@libp2p/peer-id-factory': 1.0.15
       '@libp2p/pubsub-peer-discovery': 6.0.0
       '@libp2p/tcp': 1.0.11_8ee40dc4125ff0a7fa6f9d50813a541a
       '@libp2p/websockets': 1.0.9_8ee40dc4125ff0a7fa6f9d50813a541a
