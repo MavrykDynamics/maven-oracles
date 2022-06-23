@@ -1,14 +1,14 @@
 import { DynamicModule, Module } from '@nestjs/common';
 import { TSConvict } from 'ts-convict';
 
-type ClassType = { new (): any };
+interface IClassType {
+  new (): unknown;
+}
 
 @Module({})
 export class ConfigModule {
-  public static forConfig(configClass: ClassType | ClassType[]): DynamicModule {
-    const configClasses = Array.isArray(configClass)
-      ? configClass
-      : [configClass];
+  public static forConfig(configClass: IClassType | IClassType[]): DynamicModule {
+    const configClasses = Array.isArray(configClass) ? configClass : [configClass];
 
     return {
       providers: configClasses.map((configClass) => ({
@@ -16,10 +16,10 @@ export class ConfigModule {
           const loader = new TSConvict(configClass);
           return loader.load();
         },
-        provide: configClass,
+        provide: configClass
       })),
       exports: configClasses,
-      module: ConfigModule,
+      module: ConfigModule
     };
   }
 }

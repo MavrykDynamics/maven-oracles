@@ -233,6 +233,8 @@ importers:
       '@chainsafe/libp2p-noise': ^6.2.0
       '@libp2p/bootstrap': ^1.0.4
       '@libp2p/floodsub': ^1.0.6
+      '@libp2p/interface-peer-id': ~1.0.2
+      '@libp2p/interface-pubsub': ~1.0.3
       '@libp2p/kad-dht': ^1.0.9
       '@libp2p/mplex': ^1.1.0
       '@libp2p/peer-id-factory': ~1.0.15
@@ -272,6 +274,7 @@ importers:
       rimraf: ^3.0.2
       rxjs: ^7.0.0
       sha256: ^0.2.0
+      tiny-typed-emitter: ~2.1.0
       ts-convict: ^1.1.0
       ts-jest: 27.0.5
       ts-node: ^10.7.0
@@ -286,6 +289,8 @@ importers:
       '@chainsafe/libp2p-noise': 6.2.0
       '@libp2p/bootstrap': 1.0.6
       '@libp2p/floodsub': 1.0.7
+      '@libp2p/interface-peer-id': 1.0.2
+      '@libp2p/interface-pubsub': 1.0.3
       '@libp2p/kad-dht': 1.0.16
       '@libp2p/mplex': 1.2.1
       '@libp2p/peer-id-factory': 1.0.15
@@ -309,6 +314,7 @@ importers:
       reflect-metadata: 0.1.13
       rxjs: 7.5.5
       sha256: 0.2.0
+      tiny-typed-emitter: 2.1.0
       ts-convict: 1.1.0_b37a2d3885b3d9583453351c677af7d1
       tslib: 2.4.0
       yargs: 17.5.1
@@ -6992,6 +6998,10 @@ packages:
   /timsort/0.3.0:
     resolution: {integrity: sha512-qsdtZH+vMoCARQtyod4imc2nIJwg9Cc7lPRrw9CzF8ZKR0khdr8+2nX80PBhET3tcyTtJDxAffGh2rXH4tyU8A==}
     dev: true
+
+  /tiny-typed-emitter/2.1.0:
+    resolution: {integrity: sha512-qVtvMxeXbVej0cQWKqVSSAHmKZEHAvxdF8HEUBFWts8h+xEo5m/lEiPakuyZ3BnCBjOD8i24kzNOiOLLgsSxhA==}
+    dev: false
 
   /tmpl/1.0.5:
     resolution: {integrity: sha512-3f0uOEAQwIqGuWW2MVzYg8fV/QNnc/IpuJNG837rLuczAaLVHslWHZQj4IGiEl5Hs3kkbhwL9Ab7Hrsmuj+Smw==}
