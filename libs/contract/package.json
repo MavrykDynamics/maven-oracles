@@ -1,13 +1,13 @@
 {
-  "name": "@tezosdynamics/oracle",
+  "name": "@tezosdynamics/contract",
   "version": "0.0.1",
   "license": "MIT",
   "scripts": {
     "build": "heft build --clean",
     "build:watch": "heft build"
   },
-  "main": "dist/libs/oracle/src/index.js",
-  "typings": "dist/libs/oracle/src/index.d.ts",
+  "main": "dist/libs/contract/src/index.js",
+  "typings": "dist/libs/contract/src/index.d.ts",
   "type": "module",
   "dependencies": {
     "@chainsafe/libp2p-gossipsub": "^2.0.0",
@@ -41,18 +41,6 @@
     "tslib": "^2.0.0",
     "yargs": "^17.3.1",
     "yarn": "^1.22.18",
-    "tiny-typed-emitter": "~2.1.0",
-    "@libp2p/interface-peer-id": "~1.0.2",
-    "@libp2p/interface-pubsub": "~1.0.3",
-    "@libp2p/interface-registrar": "~2.0.1",
-    "@libp2p/interfaces": "~2.0.3",
-    "it-pipe": "~2.0.3",
-    "it-length-prefixed": "~7.0.1",
-    "it-map": "~1.0.6",
-    "uint8arrays": "~3.0.0",
-    "it-first": "~1.0.7",
-    "@noble/ed25519": "~1.6.0",
-    "@libp2p/crypto": "~1.0.0",
     "@taquito/michel-codec": "~13.0.0"
   },
   "devDependencies": {
@@ -67,7 +55,6 @@
     "@typescript-eslint/parser": "~5.10.0",
     "eslint": "~8.7.0",
     "eslint-config-prettier": "8.1.0",
-    "eslint-plugin-jest": "~26.2",
     "jest": "27.2.3",
     "prettier": "^2.5.1",
     "rimraf": "^3.0.2",
@@ -75,7 +62,6 @@
     "ts-node": "^10.7.0",
     "typescript": "~4.5.2",
     "webpack-merge": "^5.8.0",
-    "webpack-node-externals": "^3.0.0",
-    "@rushstack/eslint-config": "~2.6.1"
+    "webpack-node-externals": "^3.0.0"
   }
 }

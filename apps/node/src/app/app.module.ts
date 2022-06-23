@@ -2,6 +2,7 @@ import { DynamicModule, MiddlewareConsumer, Module, NestModule } from '@nestjs/c
 
 import { ModuleMetadata } from '@nestjs/common/interfaces/modules/module-metadata.interface';
 import { OracleModule } from '@tezosdynamics/oracle';
+import { ContractModule } from '@tezosdynamics/contract';
 
 @Module({
   imports: [],
@@ -12,7 +13,7 @@ export class AppModule implements NestModule {
   public static forRoot(): DynamicModule {
     const imports: ModuleMetadata['imports'] = [];
 
-    imports.push(OracleModule);
+    imports.push(ContractModule);
 
     return {
       module: AppModule,
