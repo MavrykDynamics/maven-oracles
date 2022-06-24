@@ -8,6 +8,18 @@ import { ContractMethodObject } from '@taquito/taquito/dist/types/contract/contr
 import { OnChainView } from '@taquito/taquito/dist/types/contract/contract-methods/contract-on-chain-view';
 import { ContractView } from '@taquito/taquito/dist/types/contract/contract';
 
+
+export type OraclePriceResponsesForPackValue = {
+  oracleSignature: string,
+  oracleObservation_price: BigNumber, 
+  oracleObservation_address: string
+}
+
+export type OraclePriceResponsesValue = {
+  oracleSignature: string,
+  priceSalted: (string | BigNumber)[]
+}
+
 export type AggregatorStorage = {
   oracleAddresses: MichelsonMap<string, string>;
   lastPrice:BigNumber;

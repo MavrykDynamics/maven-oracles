@@ -13,7 +13,7 @@ export class AppModule implements NestModule {
   public static forRoot(): DynamicModule {
     const imports: ModuleMetadata['imports'] = [];
 
-    imports.push(ContractModule);
+    imports.push(OracleModule, ContractModule);
 
     return {
       module: AppModule,

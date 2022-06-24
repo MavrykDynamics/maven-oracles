@@ -7,7 +7,7 @@ import {ContractConfig} from "./contract.config.js";
 import { MichelsonMap, TezosToolkit } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 import { Schema } from '@taquito/michelson-encoder';
-import { AggregatorStorage } from './aggregators.js';
+import { AggregatorStorage, OraclePriceResponsesForPackValue, OraclePriceResponsesValue } from './aggregators.js';
 
 @Injectable()
 export class ContractService implements OnModuleInit {
@@ -36,218 +36,127 @@ export class ContractService implements OnModuleInit {
     private readonly config: ContractConfig
   ) {
   }
+  
 
   async onModuleInit(): Promise<void> {
     this.logger.log('Hello from contract service');
+    // await this.runVerify()
+    
+  }
 
+  public async runVerify(){
     const Tezos = new TezosToolkit('https://ithacanet.ecadinfra.com');
+    const oracle1_signer = new InMemorySigner(this.accounts.alice.sk);
+    const oracle2_signer = new InMemorySigner(this.accounts.bob.sk);
 
-    const contractInstance = await Tezos.contract.at('KT1VfdZTPc8Aci4ojBAhs4fTLcnQFCg8j1By');
+
+    const contractInstance = await Tezos.contract.at('KT1NQzNAKK2rqgHCMoT3dru9KALgG22qRMD7');
     const storage: AggregatorStorage = await contractInstance.storage();
-    console.log({storage});
     const oracleAddresses = storage.oracleAddresses;
     oracleAddresses.forEach((value, key) => {
       console.log(`Oracle authorized -> [address]: ${key} - [publicKey]: ${value}`);
     });
 
+    const oracle1_price = new BigNumber(100);
+    const oracle1_address = this.accounts.alice.pkh;
+    const oracle2_price = new BigNumber(150);
+    const oracle2_address = this.accounts.bob.pkh;
 
-    // SMART CONTRACT ENTRYPOINT PARAMETERS
-    //     type oraclePriceResponseType is [@layout:comb] record [
-    //       priceSalted:     nat                 // price
-    //                        * bytes             // salt
-    //                        * address;          // address
-    //       oracleSignature: signature
-    // ];
-    // type leaderReponseType is   [@layout:comb] record [
-    //   oraclePriceResponses: map (address, oraclePriceResponseType);
-    //   signatures: map (address, signature);
-    // ];
-
-    const signer = new InMemorySigner(this.accounts.alice.sk);
-
-    // ON PACK + SIGNE LE PRICESALTED
-    const price = new BigNumber(123);
-    const salt = "coucou";
-
-    const data: MichelsonData = {
-      prim: 'Pair',
-      args: [
-        { prim: 'Pair', args: [{ int: price.toString() }, { string: salt }] },
-        { string: this.accounts.alice.pkh },
-      ],
-    };
-    const type: MichelsonType = {
-      prim: 'pair',
-      args: [
-        { prim: 'pair', args: [{ prim: 'nat' }, { prim: 'string' }] },
-        { prim: 'address' },
-      ],
-    };
-    const priceCodec = packDataBytes(data, type);
-    const signature = await signer.sign(priceCodec.bytes);
-
-    // ON CREER LA MAP 
-
-    const oraclePriceResponses = new MichelsonMap();
-    oraclePriceResponses.set("tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb", { 
-      "priceSalted_price": price,
-      "priceSalted_salt": salt,
-      "priceSalted_address": this.accounts.alice.pkh,
-      "oracleSignature": signature.sig }
-      );
-    console.log({oraclePriceResponses})
-
-    // ON PACK + SIGNE LA MAP oraclePriceResponses
-
-    const type2 = {
-      prim: 'map',
-      args: [
-        { prim: 'address' },
-        {
-          prim: 'pair',
-          args: [
-                {
-                  prim: 'pair',
-                  args: [
-                    { prim: 'pair', args: [{ prim: 'nat',"annots": [ "%priceSalted_price"] }, { prim: 'string',"annots": [ "%priceSalted_salt"] }] },
-                    { prim: 'address',"annots": [ "%priceSalted_address"] },
-                  ],
-                },
-                { prim: 'signature',"annots": [ "%oracleSignature" ] }
-              ]
-            }
-      ],
-      "annots": [
-        "%oraclePriceResponses"
-      ]
-      
-    };
-    const data2 = {
-      prim: 'map',
-      args: [
-        
-          { string: this.accounts.alice.pkh },
-          {
-            prim: 'Pair',
-            args: [
-                    {
-                      prim: 'Pair',
-                      args: [
-                        { prim: 'Pair', args: [{ int: price.toString() }, { string: salt }] },
-                        { string: this.accounts.alice.pkh },
-                      ],
-                    },
-                    { string: signature.sig }
-                  ]
-          },
-      ],
-    };
-
-    const params = {
-      oraclePriceResponses: oraclePriceResponses
-    }
+    const oracle1_signature = await this.signOracleObservation(oracle1_price,oracle1_address, oracle1_signer);
+    const oracle2_signature = await this.signOracleObservation(oracle2_price,oracle2_address, oracle2_signer);
 
 
-    // create a Schema to be used by Michelson Encoder
-    const schema = new Schema(type2)
-
-    // turn the params into their Michelson JSON version
-    const toPack = schema.Encode(params)
-    const priceCodec2 = packDataBytes(toPack, type2);
-
-    console.log("ok ",priceCodec2)
-
-
-    const signature2 = signer.sign(priceCodec2.bytes);
-
-    const signatures = new MichelsonMap();
-    signatures.set(this.accounts.alice.pkh, signature2);
+    const oraclePriceResponses = new MichelsonMap<string, OraclePriceResponsesValue>();
+    oraclePriceResponses.set(oracle1_address, {
+      oracleSignature: oracle1_signature,
+      priceSalted: [oracle1_price, oracle1_address]
+    });
+    oraclePriceResponses.set(oracle2_address, {
+      oracleSignature: oracle2_signature,
+      priceSalted: [oracle2_price, oracle2_address]
+    });
 
 
-    const op = contractInstance.methods.verify(
-      oraclePriceResponses,
-      signatures
+
+    const oraclePriceResponses_forPack = new MichelsonMap<string, OraclePriceResponsesForPackValue>();
+    oraclePriceResponses_forPack.set(oracle1_address, {
+      oracleSignature: oracle1_signature,
+      oracleObservation_price: oracle1_price, 
+      oracleObservation_address: oracle1_address
+    });
+    oraclePriceResponses_forPack.set(oracle2_address, {
+      oracleSignature: oracle2_signature,
+      oracleObservation_price: oracle2_price, 
+      oracleObservation_address: oracle2_address
+    });
+    
+
+
+
+    const oracle1_signature_observations = await this.signOraclePriceResponses(oraclePriceResponses_forPack, oracle1_signer);
+    const oracle2_signature_observations = await this.signOraclePriceResponses(oraclePriceResponses_forPack, oracle2_signer);
+
+    const signatures = new MichelsonMap<string, string>();
+    signatures.set(oracle1_address, oracle1_signature_observations);
+    signatures.set(oracle2_address, oracle2_signature_observations);
+
+
+    const op = contractInstance.methodsObject.verify(
+      {
+        oraclePriceResponses,
+        signatures
+      }
     );
 
     console.log("before send operation send")
     
+    Tezos.setSignerProvider(oracle1_signer);
     const tx = await op.send();
     await tx.confirmation();
 
-    
+    console.log("send OK")
+
+    const after_storage: AggregatorStorage = await contractInstance.storage();
+    console.log(after_storage.lastPrice.toString())
+  }
 
 
+  public async signOracleObservation(price: BigNumber, address: string, signer: InMemorySigner): Promise<string> {
+    const data: MichelsonData = {
+      prim: 'Pair', args: [{ int: price.toString() }, { string: address }]
 
-    // const type2: MichelsonType = {
-    //   prim: 'map',
-    //   args: [
-    //     { prim: 'address' },
-    //     {
-    //       prim: 'pair',
-    //       args: [
-    //             {
-    //               prim: 'pair',
-    //               args: [
-    //                 { prim: 'pair', args: [{ prim: 'nat' }, { prim: 'string' }] },
-    //                 { prim: 'address' },
-    //               ],
-    //             },
-    //             { prim: 'signature' }
-    //           ]
-    //         }
-    //   ],
-    // };
-    // const data2: MichelsonData = {
-    //   prim: 'map',
-    //   args: [
-    //     [
-    //       { string: this.accounts.alice.pkh },
-    //       {
-    //         prim: 'Pair',
-    //         args: [
-    //                 {
-    //                   prim: 'Pair',
-    //                   args: [
-    //                     { prim: 'Pair', args: [{ int: price.toString() }, { string: salt }] },
-    //                     { string: this.accounts.alice.pkh },
-    //                   ],
-    //                 },
-    //                 { string: signature }
-    //               ]
-    //       }
-    //     ],
-    //     [
-    //       { string: this.accounts.bob.pkh },
-    //       {
-    //         prim: 'Pair',
-    //         args: [
-    //                 {
-    //                   prim: 'Pair',
-    //                   args: [
-    //                     { prim: 'Pair', args: [{ int: price.toString() }, { string: salt }] },
-    //                     { string: this.accounts.bob.pkh },
-    //                   ],
-    //                 },
-    //                 { string: signature }
-    //               ]
-    //       }
-    //     ]
-    //   ],
-    // };
+    };
+    const type: MichelsonType = {
+      prim: 'pair', args: [{ prim: 'nat' }, { prim: 'address' }]
+    };
+    const priceCodec = packDataBytes(data, type);
+    const signature = await signer.sign(priceCodec.bytes);
+    return signature.sig;
+  }
 
+  public async signOraclePriceResponses(oraclePriceResponses_forPack: any, signer: InMemorySigner): Promise<string> {
+    const type2_map: MichelsonType = {
+      prim: 'map',
+      args: [ 
+        { prim: 'address'},
+        {
+        prim: 'pair', args: [
+            {prim: 'pair', args: [{ prim: 'nat', annots: [ "%oracleObservation_price" ] }, { prim: 'address', annots: [ "%oracleObservation_address" ] }]},
+            { prim: 'signature', annots: [ "%oracleSignature" ] }
+        
+      ]}
+      ],
+      annots: [
+        "%oraclePriceResponses_forPack"
+      ]};
 
+    const params = oraclePriceResponses_forPack;
+    const schema = new Schema(type2_map)
+    const toPack = schema.Encode(params);
+    const priceCodec2 = packDataBytes(toPack, type2_map);
 
-
-
-    
-
-
-
-
-
-
-
-
+    const signature_observations = await signer.sign(priceCodec2.bytes);
+    return signature_observations.sig;
   }
 
 }
