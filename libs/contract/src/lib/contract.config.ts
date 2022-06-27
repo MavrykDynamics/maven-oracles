@@ -2,30 +2,16 @@ import { Property } from 'ts-convict';
 
 export class ContractConfig {
   @Property({
-    default: '',
-    env: 'P2P_BOOTSTRAP_PEERS',
+    default: 'KT1NQzNAKK2rqgHCMoT3dru9KALgG22qRMD7',
+    env: 'AGGREGATOR_ADDRESS',
     format: String,
   })
-  public bootstrapPeers: string;
+  public aggregatorAddress: string;
 
   @Property({
-    default: '',
-    env: 'P2P_PEER_ID',
+    default: 'https://ithacanet.ecadinfra.com',
+    env: 'RPC_URL',
     format: String,
   })
-  public peerId: string;
-
-  @Property({
-    default: '',
-    env: 'P2P_PEER_PUBLIC_KEY',
-    format: String,
-  })
-  public peerPubKey: string;
-
-  @Property({
-    default: '',
-    env: 'P2P_PEER_PRIVATE_KEY',
-    format: String,
-  })
-  public peerPrivateKey: string;
+  public rpcUrl: string;
 }

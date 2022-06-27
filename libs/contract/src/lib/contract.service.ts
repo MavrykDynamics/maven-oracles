@@ -33,8 +33,11 @@ export class ContractService implements OnModuleInit {
 
   constructor(
     private readonly httpService: HttpService,
-    private readonly config: ContractConfig
+    private readonly config: ContractConfig,
+    private Tezos: TezosToolkit
   ) {
+    const { rpcUrl } = this.config;
+    Tezos = new TezosToolkit(rpcUrl);
   }
   
 
@@ -45,12 +48,13 @@ export class ContractService implements OnModuleInit {
   }
 
   public async runVerify(){
-    const Tezos = new TezosToolkit('https://ithacanet.ecadinfra.com');
+    const { aggregatorAddress } = this.config;
+
     const oracle1_signer = new InMemorySigner(this.accounts.alice.sk);
     const oracle2_signer = new InMemorySigner(this.accounts.bob.sk);
 
 
-    const contractInstance = await Tezos.contract.at('KT1NQzNAKK2rqgHCMoT3dru9KALgG22qRMD7');
+    const contractInstance = await this.Tezos.contract.at(aggregatorAddress);
     const storage: AggregatorStorage = await contractInstance.storage();
     const oracleAddresses = storage.oracleAddresses;
     oracleAddresses.forEach((value, key) => {
@@ -110,7 +114,7 @@ export class ContractService implements OnModuleInit {
 
     console.log("before send operation send")
     
-    Tezos.setSignerProvider(oracle1_signer);
+    this.Tezos.setSignerProvider(oracle1_signer);
     const tx = await op.send();
     await tx.confirmation();
 
