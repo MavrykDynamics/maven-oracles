@@ -55,11 +55,6 @@ export class ContractService implements OnModuleInit {
 
 
     const contractInstance = await this.Tezos.contract.at(aggregatorAddress);
-    const storage: AggregatorStorage = await contractInstance.storage();
-    const oracleAddresses = storage.oracleAddresses;
-    oracleAddresses.forEach((value, key) => {
-      console.log(`Oracle authorized -> [address]: ${key} - [publicKey]: ${value}`);
-    });
 
     const oracle1_price = new BigNumber(100);
     const oracle1_address = this.accounts.alice.pkh;
@@ -80,8 +75,6 @@ export class ContractService implements OnModuleInit {
       priceSalted: [oracle2_price, oracle2_address]
     });
 
-
-
     const oraclePriceResponses_forPack = new MichelsonMap<string, OraclePriceResponsesForPackValue>();
     oraclePriceResponses_forPack.set(oracle1_address, {
       oracleSignature: oracle1_signature,
@@ -94,9 +87,6 @@ export class ContractService implements OnModuleInit {
       oracleObservation_address: oracle2_address
     });
     
-
-
-
     const oracle1_signature_observations = await this.signOraclePriceResponses(oraclePriceResponses_forPack, oracle1_signer);
     const oracle2_signature_observations = await this.signOraclePriceResponses(oraclePriceResponses_forPack, oracle2_signer);
 
@@ -111,17 +101,23 @@ export class ContractService implements OnModuleInit {
         signatures
       }
     );
-
-    console.log("before send operation send")
     
     this.Tezos.setSignerProvider(oracle1_signer);
     const tx = await op.send();
     await tx.confirmation();
 
-    console.log("send OK")
-
     const after_storage: AggregatorStorage = await contractInstance.storage();
     console.log(after_storage.lastPrice.toString())
+  }
+
+  public async getOraclesAddresses(aggregatorAddress: string): Promise<MichelsonMap<string, string>> {
+    const contractInstance = await this.Tezos.contract.at(aggregatorAddress);
+    const storage: AggregatorStorage = await contractInstance.storage();
+    const oracleAddresses = storage.oracleAddresses;
+    oracleAddresses.forEach((value, key) => {
+      this.logger.debug(`Oracle authorized -> [address]: ${key} - [publicKey]: ${value}`);
+    });
+    return oracleAddresses;
   }
 
 
