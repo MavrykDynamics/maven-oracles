@@ -2,13 +2,14 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { TypedEmitter } from 'tiny-typed-emitter';
 import { NodeService } from './node.service.js';
 import { Message } from '@libp2p/interface-pubsub';
+import { PeerId } from '@libp2p/interface-peer-id';
 
-export interface INewEpochEvents {
-  newEpoch: (from: string, newEpoch: number) => {};
+export interface IPacemakerEvents {
+  newEpoch: (from: PeerId, newEpoch: number) => {};
 }
 
 @Injectable()
-export class PacemakerNetworkService extends TypedEmitter<INewEpochEvents> implements OnModuleInit {
+export class PacemakerNetworkService extends TypedEmitter<IPacemakerEvents> implements OnModuleInit {
   private readonly _logger: Logger = new Logger(PacemakerNetworkService.name);
   private readonly _topic: string = 'newEpoch';
 
@@ -17,7 +18,6 @@ export class PacemakerNetworkService extends TypedEmitter<INewEpochEvents> imple
   }
 
   public async onModuleInit(): Promise<void> {
-    console.log('PacemakerNetworkService onModuleInit started');
     await this._nodeService.node.pubsub.subscribe(this._topic);
     await this._nodeService.node.pubsub.addEventListener('message', (msg: CustomEvent<Message>) => {
       if (msg.detail.topic !== this._topic) {
@@ -30,7 +30,7 @@ export class PacemakerNetworkService extends TypedEmitter<INewEpochEvents> imple
 
       this._logger.debug(`Received newEpoch: ${epoch} from ${peerId}`);
 
-      this.emit('newEpoch', peerId.toString(), epoch);
+      this.emit('newEpoch', peerId, epoch);
     });
   }
 
