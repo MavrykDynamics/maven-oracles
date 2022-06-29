@@ -32,7 +32,21 @@ export class ReportGenFollowerService implements OnModuleInit {
     private readonly _config: OracleConfig,
     private readonly _reportgenNetworkService: ReportGenNetworkService,
     private readonly _eventHubService: EventHubService
-  ) {}
+  ) {
+    this._eventHubService.on('stopReportGen', () => this._onStopReportGen());
+    this._eventHubService.on('startReportGen', () => this._onStartReportGen());
+  }
+
+  private _onStopReportGen(): void {
+    // TODO: ???
+  }
+  private _onStartReportGen(): void {
+    this._round = 0;
+    this._sentEcho = null;
+    this._sentReport = false;
+    this._completedRound = false;
+    this._receivedEcho = new Map<string, boolean>();
+  }
 
   public async onModuleInit(): Promise<void> {
     this._reportgenNetworkService.on('observeReq', (from, round) => this.onObserveReqReceived(from, round));

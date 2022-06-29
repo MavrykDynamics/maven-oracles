@@ -23,6 +23,9 @@ enum Phase {
 export class ReportGenLeaderService implements OnModuleInit {
   private readonly _logger: Logger = new Logger(ReportGenLeaderService.name);
 
+  private _epoch: number;
+  private _leader: string;
+
   // Current round of the epoch
   private _round: number = 0;
 
@@ -65,16 +68,20 @@ export class ReportGenLeaderService implements OnModuleInit {
     this._reportgenNetworkService.on('report', (from, { round, compressedReport, signature }) =>
       this._onReport(from, round, compressedReport, signature)
     );
-    this._eventHubService.on('startepoch', (epoch, leader) => this.onStartEpoch());
+    this._eventHubService.on('startepoch', (epoch, leader) => this.onStartEpoch(epoch, leader));
   }
 
-  private async _initialize() {
+  public async onStartEpoch(epoch: number, leader: string): Promise<void> {
+    // TODO: This is not in ocr paper spec, but necessary with the current implementation, this set state to blank state
     this._round = 0;
+    this._epoch = epoch;
+    this._leader = leader;
+    this._stopGraceTimer();
+    this._stopRoundTimer();
     this._observe = new Map();
     this._report = new Map();
-  }
+    this._phase = Phase.Observe;
 
-  public async onStartEpoch(): Promise<void> {
     await this._startRound();
   }
 
@@ -98,18 +105,24 @@ export class ReportGenLeaderService implements OnModuleInit {
     signature: Uint8Array
   ): Promise<void> {
     // TODO: verify signature
-    // TODO: Check if i'm the leader
+
+    if (this._config.peerId.toString() !== this._leader) {
+      this._logger.warn(`_onObserve: I'm not the leader, discarding observation`);
+      return;
+    }
+
     if (
       round !== this._round &&
       this._observe.get(from.toString()) === undefined &&
       this._phase !== null &&
       ![Phase.Observe, Phase.Grace].includes(this._phase)
     ) {
+      this._logger.warn(`_onObserve: Discarding observation`);
       return;
     }
 
-    if (!this._verifyObservationSignature(observation, signature, from.publicKey)) {
-      this._logger.warn(`Invalid Signature for node: ${from.publicKey}`)
+    if (!(await this._verifyObservationSignature(observation, signature, from.publicKey))) {
+      this._logger.warn(`_onObserve: Invalid Signature for node: ${from.publicKey}, discarding observation`);
       return;
     }
 
@@ -143,17 +156,24 @@ export class ReportGenLeaderService implements OnModuleInit {
     signature: Uint8Array
   ): Promise<void> {
     // TODO: verify signature
-    // TODO: Check if i'm the leader
+
+    if (this._config.peerId.toString() !== this._leader) {
+      this._logger.warn(`_onReport: I'm not the leader, discarding report`);
+      return;
+    }
+
     if (
       round !== this._round &&
       this._report.get(from.toString()) === undefined &&
       this._phase !== null &&
       this._phase !== Phase.Report
     ) {
+      this._logger.warn(`_onReport: discarding report`);
       return;
     }
 
     if (!this._verifyReportSignature(report, signature)) {
+      this._logger.warn(`_onReport: signature did not match, discarding report`);
       return;
     }
 
@@ -165,22 +185,27 @@ export class ReportGenLeaderService implements OnModuleInit {
     const numberOfReports = [...this._report.values()].length;
 
     if (numberOfReports < this._f) {
+      this._logger.debug(`_onReport: Not enough report yet (got ${numberOfReports}, need ${this._f})`);
       return;
     }
 
-    // TODO: generate attested report
-    const O: IAttestedReport = {
+    const attestedReport: IAttestedReport = {
       observations: report.observations,
       signatures: [...this._report.values()].map((report) => report.signature)
     };
 
-    await this._reportgenNetworkService.broadcastFinal(round, O);
+    await this._reportgenNetworkService.broadcastFinal(round, attestedReport);
     this._phase = Phase.Final;
   }
 
-  private async _verifyObservationSignature(observation: BigNumber, signature: Uint8Array, publicKey?: Uint8Array): Promise<boolean> {
-    if (publicKey === undefined){
-      throw new Error("publicKey undefined")
+  private async _verifyObservationSignature(
+    observation: BigNumber,
+    signature: Uint8Array,
+    publicKey?: Uint8Array
+  ): Promise<boolean> {
+    if (publicKey === undefined) {
+      this._logger.warn('_verifyObservationSignature: publicKey undefined');
+      return false;
     }
     return await verifyData(publicKey, new TextEncoder().encode(observation.toString()), signature);
   }
@@ -212,7 +237,6 @@ export class ReportGenLeaderService implements OnModuleInit {
   }
 
   private _assembleReport(): IReport {
-    // TODO: implement
     return {
       observations: [...this._observe.entries()]
         .map(([oracle, observation]) => ({

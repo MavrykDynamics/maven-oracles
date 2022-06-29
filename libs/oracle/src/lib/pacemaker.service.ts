@@ -144,10 +144,7 @@ export class PacemakerService implements OnModuleInit {
       return;
     }
 
-    // TODO: abort report generation (epoch, leader)
-    this._logger.log(
-      `TODO: abort report generation (${this._epochAndLeader.epoch}, ${this._epochAndLeader.leader})`
-    );
+    this._eventHubService.stopReportGen();
 
     this._epochAndLeader = {
       epoch,
@@ -155,10 +152,8 @@ export class PacemakerService implements OnModuleInit {
     };
     this._newEpoch = Math.max(this._newEpoch, epoch);
 
-    // TODO: initialize report generation
-    this._logger.log(
-      `TODO: initialize report generation (${this._epochAndLeader.epoch}, ${this._epochAndLeader.leader})`
-    );
+    this._eventHubService.startReportGen(this._epochAndLeader.epoch, this._epochAndLeader.leader);
+
     this._restartProgressTimer();
 
     if (this._epochAndLeader.leader === this._self) {

@@ -2,10 +2,12 @@ import { Injectable, Logger } from '@nestjs/common';
 import { TypedEmitter } from 'tiny-typed-emitter';
 
 interface IEvents {
-  startepoch: (epoch, leader) => {};
-  progress: () => {};
-  transmit: () => {};
-  changeleader: () => {};
+  startepoch: (epoch, leader) => void;
+  progress: () => void;
+  transmit: () => void;
+  changeleader: () => void;
+  stopReportGen: () => void;
+  startReportGen: (start: number, leader: string) => void;
 }
 
 @Injectable()
@@ -22,6 +24,14 @@ export class EventHubService extends TypedEmitter<IEvents> {
 
   public changeleader(): void {
     this.emit('changeleader');
+  }
+
+  public stopReportGen(): void {
+    this.emit('stopReportGen');
+  }
+
+  public startReportGen(epoch: number, leader: string): void {
+    this.emit('startReportGen', epoch, leader);
   }
 
   public progress(): void {
