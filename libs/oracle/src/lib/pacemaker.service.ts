@@ -43,7 +43,7 @@ export class PacemakerService implements OnModuleInit {
   }
 
   public async initialize(): Promise<void> {
-    this._self = this._config.peerId; // TODO: set self variable
+    this._self = this._config.peerId;
     this._epochAndLeader = {
       epoch: 0,
       leader: await this.leaderForEpoch(0)

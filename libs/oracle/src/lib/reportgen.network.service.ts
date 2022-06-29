@@ -34,9 +34,28 @@ interface IFinalEchoMessage {
   attestedReport: IAttestedReport;
 }
 
-export interface IReport {}
-export interface ICompressedReport {}
-export interface IAttestedReport {}
+export interface ISignedObservation {
+  oracle: string;
+  price: BigNumber;
+  signature: string;
+}
+
+export interface IObservation {
+  oracle: string;
+  price: BigNumber;
+}
+
+export interface IReport {
+  observations: ISignedObservation[];
+}
+export interface ICompressedReport {
+  observations: IObservation[];
+}
+
+export interface IAttestedReport {
+  observations: IObservation[];
+  signatures: string[];
+}
 
 interface IReportMessage {
   round: number;
@@ -207,6 +226,9 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
           const observeMessage = ReportGenNetworkService._deserializeObserveMessage(
             serializedObservationMessage
           );
+          this._logger.debug(
+            `Received observe from ${connection.remotePeer.toString()}: ${JSON.stringify(observeMessage)}`
+          );
           this.emit('observe', connection.remotePeer, observeMessage);
         } catch (e) {
           // TODO: handle errors
@@ -235,6 +257,9 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
       for await (const serializedReportMessage of source) {
         try {
           const reportMessage = ReportGenNetworkService._deserializeReportMessage(serializedReportMessage);
+          this._logger.debug(
+            `Received report from ${connection.remotePeer.toString()}: ${JSON.stringify(reportMessage)}`
+          );
           this.emit('report', connection.remotePeer, reportMessage);
         } catch (e) {
           // TODO: handle errors
@@ -244,7 +269,7 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
     });
   }
 
-  public async broadcastReportReq(round: number, report: IReport) {
+  public async broadcastReportReq(round: number, report: IReport): Promise<void> {
     const serialized = ReportGenNetworkService._serializeReportReqMessage({
       round,
       report

@@ -45,6 +45,14 @@ export class ReportGenFollowerService implements OnModuleInit {
     );
   }
 
+  private async _initialize() {
+    this._round = 0;
+    this._sentEcho = null;
+    this._sentReport = false;
+    this._completedRound = false;
+    this._receivedEcho = new Map();
+  }
+
   public async onObserveReqReceived(from: PeerId, round: number): Promise<void> {
     // TODO: check if from is leader
     if (!(this._round < round && round <= this._roundMax + 1)) {
@@ -63,7 +71,7 @@ export class ReportGenFollowerService implements OnModuleInit {
     this._completedRound = false;
     this._receivedEcho = new Map(); // This should contain n 0s
 
-    const observation = new BigNumber(10); // TODO: add price fetcher result
+    const observation = new BigNumber(Math.floor(Math.random() * 100)); // TODO: add price fetcher result
     const signature = await this._signObservation(observation);
 
     await this._reportgenNetworkService.sendObserve(from, {
@@ -104,7 +112,7 @@ export class ReportGenFollowerService implements OnModuleInit {
       return;
     }
 
-    this._sentEcho = true;
+    this._sentEcho = attestedReport;
     await this._reportgenNetworkService.broadcastFinalEcho(round, attestedReport);
   }
 
@@ -137,20 +145,23 @@ export class ReportGenFollowerService implements OnModuleInit {
 
   private _compressReport(report: IReport): ICompressedReport {
     // TODO: implement
-    return report;
+    return {
+      observations: report.observations.map(({ signature, ...rest }) => ({ ...rest }))
+    };
   }
 
   private async _signObservation(observation: BigNumber): Promise<string> {
     // TODO: do a real signature
-    return observation.toString();
+    return `observation signature by ${this._config.peerId.toString()}`;
   }
 
-  private async _signCompressedReport(report: IReport): Promise<string> {
+  private async _signCompressedReport(report: ICompressedReport): Promise<string> {
     // TODO: do a real signature
-    return JSON.stringify(report);
+    return `report signature by ${this._config.peerId.toString()}`;
   }
 
   private _shouldReport(report: IReport): boolean {
+    // TODO: implement
     return true;
   }
 

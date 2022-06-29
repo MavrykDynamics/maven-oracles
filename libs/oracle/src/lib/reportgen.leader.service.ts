@@ -34,7 +34,7 @@ export class ReportGenLeaderService implements OnModuleInit {
   private _report: Map<
     string,
     {
-      report: IReport;
+      report: ICompressedReport;
       signature: string;
     }
   > = new Map();
@@ -60,10 +60,16 @@ export class ReportGenLeaderService implements OnModuleInit {
     this._reportgenNetworkService.on('observe', (from, { observation, round, signature }) =>
       this._onObserve(from, round, observation, signature)
     );
-    this._reportgenNetworkService.on('report', (from, { round, signature, compressedReport }) =>
+    this._reportgenNetworkService.on('report', (from, { round, compressedReport, signature }) =>
       this._onReport(from, round, compressedReport, signature)
     );
     this._eventHubService.on('startepoch', (epoch, leader) => this.onStartEpoch());
+  }
+
+  private async _initialize() {
+    this._round = 0;
+    this._observe = new Map();
+    this._report = new Map();
   }
 
   public async onStartEpoch(): Promise<void> {
@@ -161,8 +167,8 @@ export class ReportGenLeaderService implements OnModuleInit {
 
     // TODO: generate attested report
     const O: IAttestedReport = {
-      epoch: 0, // TODO: get real epoch,
-      round: 0
+      observations: report.observations,
+      signatures: [...this._report.values()].map((report) => report.signature)
     };
 
     await this._reportgenNetworkService.broadcastFinal(round, O);
@@ -201,6 +207,14 @@ export class ReportGenLeaderService implements OnModuleInit {
 
   private _assembleReport(): IReport {
     // TODO: implement
-    return {};
+    return {
+      observations: [...this._observe.entries()]
+        .map(([oracle, observation]) => ({
+          oracle,
+          price: observation.observation,
+          signature: observation.signature
+        }))
+        .sort((a, b) => a.price.minus(b.price).toNumber())
+    };
   }
 }
