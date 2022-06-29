@@ -6,8 +6,8 @@ export async function signData (privateKey: string, msg: Uint8Array): Promise<Ui
 }
 
 export async function verifyData (publicKey: Uint8Array, msg: Uint8Array, signature: Uint8Array): Promise<boolean> {
-  const publKey = await keys.unmarshalPublicKey(publicKey);
-  return publKey.verify(msg, signature);
+  const publKey = keys.unmarshalPublicKey(publicKey);
+  return await publKey.verify(msg, signature);
 }
 
 
