@@ -9,6 +9,8 @@ import {
 } from './reportgen.network.service.js';
 import { PeerId } from '@libp2p/interface-peer-id';
 import { EventHubService } from './eventhub.service.js';
+import { signData } from './helpers.js';
+
 
 @Injectable()
 export class ReportGenFollowerService implements OnModuleInit {
@@ -149,15 +151,14 @@ export class ReportGenFollowerService implements OnModuleInit {
       observations: report.observations.map(({ signature, ...rest }) => ({ ...rest }))
     };
   }
-
-  private async _signObservation(observation: BigNumber): Promise<string> {
-    // TODO: do a real signature
-    return `observation signature by ${this._config.peerId.toString()}`;
+  private async _signObservation(observation: BigNumber): Promise<Uint8Array> {
+    const encodedObservation = new TextEncoder().encode(observation.toString());
+    return await signData(this._config.peerPrivateKey, encodedObservation);
   }
 
-  private async _signCompressedReport(report: ICompressedReport): Promise<string> {
+  private async _signCompressedReport(report: ICompressedReport): Promise<Uint8Array> {
     // TODO: do a real signature
-    return `report signature by ${this._config.peerId.toString()}`;
+    return Uint8Array.from([]);
   }
 
   private _shouldReport(report: IReport): boolean {

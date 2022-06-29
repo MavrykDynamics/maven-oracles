@@ -9,6 +9,8 @@ import {
 } from './reportgen.network.service.js';
 import { PeerId } from '@libp2p/interface-peer-id';
 import { EventHubService } from './eventhub.service.js';
+import { verifyData } from './helpers.js';
+import { createEd25519PeerId } from '@libp2p/peer-id-factory';
 
 enum Phase {
   Observe,
@@ -28,14 +30,14 @@ export class ReportGenLeaderService implements OnModuleInit {
     string,
     {
       observation: BigNumber;
-      signature: string;
+      signature: Uint8Array;
     }
   > = new Map();
   private _report: Map<
     string,
     {
       report: ICompressedReport;
-      signature: string;
+      signature: Uint8Array;
     }
   > = new Map();
 
@@ -47,8 +49,8 @@ export class ReportGenLeaderService implements OnModuleInit {
   // Maximum number of faulty oracles
   private _f: number = 2; // TODO: let this be dynamically set to 1/3 of number of oracles
 
-  private readonly _timerGraceDurationMiliseconds = 2 * 1000;
-  private readonly _timerRoundDurationMiliseconds = 15 * 1000;
+  private readonly _timerGraceDurationMiliseconds: number = 2 * 1000;
+  private readonly _timerRoundDurationMiliseconds: number = 15 * 1000;
 
   public constructor(
     private readonly _config: OracleConfig,
@@ -93,7 +95,7 @@ export class ReportGenLeaderService implements OnModuleInit {
     from: PeerId,
     round: number,
     observation: BigNumber,
-    signature: string
+    signature: Uint8Array
   ): Promise<void> {
     // TODO: verify signature
     // TODO: Check if i'm the leader
@@ -106,7 +108,8 @@ export class ReportGenLeaderService implements OnModuleInit {
       return;
     }
 
-    if (!this._verifyObservationSignature(observation, signature)) {
+    if (!this._verifyObservationSignature(observation, signature, from.publicKey)) {
+      this._logger.warn(`Invalid Signature for node: ${from.publicKey}`)
       return;
     }
 
@@ -137,7 +140,7 @@ export class ReportGenLeaderService implements OnModuleInit {
     from: PeerId,
     round: number,
     report: ICompressedReport,
-    signature: string
+    signature: Uint8Array
   ): Promise<void> {
     // TODO: verify signature
     // TODO: Check if i'm the leader
@@ -175,11 +178,14 @@ export class ReportGenLeaderService implements OnModuleInit {
     this._phase = Phase.Final;
   }
 
-  private _verifyObservationSignature(observation: BigNumber, signature: string): boolean {
-    return true;
+  private async _verifyObservationSignature(observation: BigNumber, signature: Uint8Array, publicKey?: Uint8Array): Promise<boolean> {
+    if (publicKey === undefined){
+      throw new Error("publicKey undefined")
+    }
+    return await verifyData(publicKey, new TextEncoder().encode(observation.toString()), signature);
   }
 
-  private _verifyReportSignature(report: ICompressedReport, signature: string): boolean {
+  private _verifyReportSignature(report: ICompressedReport, signature: Uint8Array): boolean {
     return true;
   }
 

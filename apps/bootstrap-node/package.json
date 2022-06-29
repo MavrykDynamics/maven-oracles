@@ -42,7 +42,9 @@
     "yarn": "^1.22.18",
     "@tezosdynamics/oracle": "workspace:*",
     "@libp2p/peer-id-factory": "~1.0.15",
-    "@libp2p/mdns": "~2.0.0"
+    "@libp2p/mdns": "~2.0.0",
+    "@noble/ed25519": "~1.6.0",
+    "@libp2p/crypto": "~1.0.0"
   },
   "devDependencies": {
     "@nestjs/schematics": "^8.0.0",

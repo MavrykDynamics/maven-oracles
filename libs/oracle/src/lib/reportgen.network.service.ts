@@ -21,7 +21,7 @@ export interface IReportGenEvents {
 interface IObserveMessage {
   round: number;
   observation: BigNumber;
-  signature: string;
+  signature: Uint8Array;
 }
 
 interface IFinalMessage {
@@ -37,7 +37,7 @@ interface IFinalEchoMessage {
 export interface ISignedObservation {
   oracle: string;
   price: BigNumber;
-  signature: string;
+  signature: Uint8Array;
 }
 
 export interface IObservation {
@@ -54,13 +54,13 @@ export interface ICompressedReport {
 
 export interface IAttestedReport {
   observations: IObservation[];
-  signatures: string[];
+  signatures: Uint8Array[];
 }
 
 interface IReportMessage {
   round: number;
   compressedReport: ICompressedReport;
-  signature: string;
+  signature: Uint8Array;
 }
 interface IReportReqMessage {
   round: number;
@@ -284,7 +284,7 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
       JSON.stringify({
         round: observeMessage.round,
         observation: observeMessage.observation,
-        signature: observeMessage.signature
+        signature: Array.from(observeMessage.signature.values())
       })
     );
   }
@@ -296,7 +296,7 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
     return {
       round: parsed.round,
       observation: new BigNumber(parsed.observation),
-      signature: parsed.signature
+      signature: Uint8Array.from(parsed.signature)
     };
   }
 
@@ -306,7 +306,7 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
       JSON.stringify({
         round: observeMessage.round,
         compressedReport: observeMessage.compressedReport,
-        signature: observeMessage.signature
+        signature: Array.from(observeMessage.signature.values())
       })
     );
   }
@@ -318,7 +318,7 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
     return {
       round: parsed.round,
       compressedReport: parsed.compressedReport,
-      signature: parsed.signature
+      signature: Uint8Array.from(parsed.signature)
     };
   }
 
