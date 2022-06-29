@@ -324,43 +324,97 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
 
   private static _serializeReportReqMessage(reportMessage: IReportReqMessage): Uint8Array {
     const encoder = new TextEncoder();
-    return encoder.encode(JSON.stringify(reportMessage));
+    return encoder.encode(
+      JSON.stringify({
+        round: reportMessage.round,
+        report: {
+          observations: reportMessage.report.observations.map((ob) => ({
+            oracle: ob.oracle,
+            price: new BigNumber(ob.price),
+            signature: Uint8Array.from(ob.signature)
+          }))
+        }
+      })
+    );
   }
 
   private static _deserializeReportReqMessage(report: Uint8Array): IReportReqMessage {
     const decoder = new TextDecoder();
     const parsed = JSON.parse(decoder.decode(report));
 
-    // TODO: typecheck
-
-    return parsed;
+    return {
+      round: Number.parseInt(parsed.round),
+      report: {
+        observations: parsed.report.observations.map((ob) => ({
+          oracle: ob.oracle,
+          price: new BigNumber(ob.price),
+          signature: Uint8Array.from(ob.signature)
+        }))
+      }
+    };
   }
 
   private static _serializeFinalMessage(reportMessage: IFinalMessage): Uint8Array {
     const encoder = new TextEncoder();
-    return encoder.encode(JSON.stringify(reportMessage));
+    return encoder.encode(
+      JSON.stringify({
+        round: reportMessage.round,
+        attestedReport: {
+          observations: reportMessage.attestedReport.observations.map((ob) => ({
+            oracle: ob.oracle,
+            price: ob.price.toString()
+          })),
+          signatures: reportMessage.attestedReport.signatures.map((sig) => Array.from(sig.values()))
+        }
+      })
+    );
   }
 
   private static _deserializeFinalMessage(report: Uint8Array): IFinalMessage {
     const decoder = new TextDecoder();
     const parsed = JSON.parse(decoder.decode(report));
 
-    // TODO: typecheck
-
-    return parsed;
+    return {
+      round: Number.parseInt(parsed.round),
+      attestedReport: {
+        observations: parsed.attestedReport.observations.map((ob) => ({
+          oracle: ob.oracle,
+          price: new BigNumber(ob.price)
+        })),
+        signatures: parsed.attestedReport.signatures.map((sig) => Uint8Array.from(sig))
+      }
+    };
   }
 
   private static _serializeFinalEchoMessage(reportMessage: IFinalEchoMessage): Uint8Array {
     const encoder = new TextEncoder();
-    return encoder.encode(JSON.stringify(reportMessage));
+    return encoder.encode(
+      JSON.stringify({
+        round: reportMessage.round,
+        attestedReport: {
+          observations: reportMessage.attestedReport.observations.map((ob) => ({
+            oracle: ob.oracle,
+            price: ob.price.toString()
+          })),
+          signatures: reportMessage.attestedReport.signatures.map((sig) => Array.from(sig.values()))
+        }
+      })
+    );
   }
 
   private static _deserializeFinalEchoMessage(report: Uint8Array): IFinalEchoMessage {
     const decoder = new TextDecoder();
     const parsed = JSON.parse(decoder.decode(report));
 
-    // TODO: typecheck
-
-    return parsed;
+    return {
+      round: Number.parseInt(parsed.round),
+      attestedReport: {
+        observations: parsed.attestedReport.observations.map((ob) => ({
+          oracle: ob.oracle,
+          price: new BigNumber(ob.price)
+        })),
+        signatures: parsed.attestedReport.signatures.map((sig) => Uint8Array.from(sig))
+      }
+    };
   }
 }

@@ -11,10 +11,12 @@ import { PeerId } from '@libp2p/interface-peer-id';
 import { EventHubService } from './eventhub.service.js';
 import { signData } from './helpers.js';
 
-
 @Injectable()
 export class ReportGenFollowerService implements OnModuleInit {
   private readonly _logger: Logger = new Logger(ReportGenFollowerService.name);
+
+  private _epoch: number;
+  private _leader: string;
 
   // Current round of the epoch
   private _round: number = 0;
@@ -34,13 +36,15 @@ export class ReportGenFollowerService implements OnModuleInit {
     private readonly _eventHubService: EventHubService
   ) {
     this._eventHubService.on('stopReportGen', () => this._onStopReportGen());
-    this._eventHubService.on('startReportGen', () => this._onStartReportGen());
+    this._eventHubService.on('startReportGen', (epoch, leader) => this._onStartReportGen(epoch, leader));
   }
 
   private _onStopReportGen(): void {
     // TODO: ???
   }
-  private _onStartReportGen(): void {
+  private _onStartReportGen(epoch: number, leader: string): void {
+    this._epoch = epoch;
+    this._leader = leader;
     this._round = 0;
     this._sentEcho = null;
     this._sentReport = false;
@@ -61,23 +65,24 @@ export class ReportGenFollowerService implements OnModuleInit {
     );
   }
 
-  private async _initialize() {
-    this._round = 0;
-    this._sentEcho = null;
-    this._sentReport = false;
-    this._completedRound = false;
-    this._receivedEcho = new Map();
-  }
-
   public async onObserveReqReceived(from: PeerId, round: number): Promise<void> {
-    // TODO: check if from is leader
+    if (from.toString() !== this._leader) {
+      this._logger.warn(
+        'onObserveReqReceived: Observation request received from someone else than leader, discarding request'
+      );
+      return;
+    }
     if (!(this._round < round && round <= this._roundMax + 1)) {
+      this._logger.warn('onObserveReqReceived: Observation request invalid round number, discarding request');
       return;
     }
 
     this._round = round;
 
     if (this._round > this._roundMax) {
+      this._logger.warn(
+        'onObserveReqReceived: Observation request has reached max round number, discarding request'
+      );
       this._eventHubService.changeleader();
       return;
     }
@@ -98,10 +103,23 @@ export class ReportGenFollowerService implements OnModuleInit {
   }
 
   public async onReportReqReceived(from: PeerId, round: number, report: IReport): Promise<void> {
-    // TODO: Check report is sorted
-    // TODO: Check report contains 2f+1 entries (from separate oracles)
+    const isReportSorted = report.observations.every(
+      (v, i, a) => i === 0 || report.observations[i - 1].price.lte(v.price)
+    );
+
+    if (!isReportSorted) {
+      this._logger.warn('onReportReqReceived: Report is not sorted, discarding report request');
+      return;
+    }
+
+    const distinctOracleObservations = [...new Set(report.observations.map((ob) => ob.oracle))];
+
+    if (distinctOracleObservations.length < this._f * 2 + 1) {
+      this._logger.warn('onReportReqReceived: Report has not enough observation from different oracles');
+      return;
+    }
+
     // TODO: Check signatures
-    // return if any of these checks fail
 
     if (this._shouldReport(report)) {
       const compressedReport = this._compressReport(report);

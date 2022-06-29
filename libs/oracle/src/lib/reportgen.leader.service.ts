@@ -10,7 +10,6 @@ import {
 import { PeerId } from '@libp2p/interface-peer-id';
 import { EventHubService } from './eventhub.service.js';
 import { verifyData } from './helpers.js';
-import { createEd25519PeerId } from '@libp2p/peer-id-factory';
 
 enum Phase {
   Observe,
