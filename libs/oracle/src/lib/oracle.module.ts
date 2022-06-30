@@ -17,12 +17,12 @@ import { SmartContractMockService } from './smartcontract.mock.service.js';
   providers: [
     {
       provide: NodeService,
-      useFactory: async (oracleConfig: OracleConfig) => {
-        const node = new NodeService(oracleConfig);
+      useFactory: async (oracleConfig: OracleConfig, smartContractMockService: SmartContractMockService) => {
+        const node = new NodeService(oracleConfig, smartContractMockService);
         await node.init();
         return node;
       },
-      inject: [OracleConfig]
+      inject: [OracleConfig, SmartContractMockService]
     },
     PacemakerService,
     PacemakerNetworkService,

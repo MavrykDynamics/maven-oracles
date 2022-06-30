@@ -30,9 +30,6 @@ export class PacemakerService implements OnModuleInit {
   private _timerProgress: NodeJS.Timeout | null = null;
   private _timerResend: NodeJS.Timeout | null = null;
 
-  // Maximum number of faulty oracles
-  private _f: number = 2; // TODO: let this be dynamically set to 1/3 of number of oracles
-
   public constructor(
     private readonly _config: OracleConfig,
     private readonly _pacemakerNetworkService: PacemakerNetworkService,
@@ -104,11 +101,12 @@ export class PacemakerService implements OnModuleInit {
     const peersEpochs = Array.from(this._peersNewEpoch.values());
     const peersNewEpochUnique = [...new Set(peersEpochs)].filter((epoch) => epoch > this._newEpoch).sort(); // Example: [2, 3, 3, 5, 5]
 
+    const f = await this._smartContractService.getFValue();
     let epoch = -1;
     for (const newEpoch of peersNewEpochUnique) {
       const peersNewEpochGreaterThan = peersEpochs.filter((value) => value > newEpoch).length;
 
-      if (peersNewEpochGreaterThan > this._f) {
+      if (peersNewEpochGreaterThan > f) {
         epoch = newEpoch;
       }
     }
@@ -128,13 +126,14 @@ export class PacemakerService implements OnModuleInit {
       .filter((epoch) => epoch > this._epochAndLeader.epoch)
       .sort(); // Example: [2, 3, 3, 5, 5]
 
+    const f = await this._smartContractService.getFValue();
     let epoch = -1;
     for (const newEpoch of peersNewEpochUnique) {
       const peersNewEpochGreaterThan = peersEpochs.filter(
         (value) => value >= this._epochAndLeader.epoch
       ).length;
 
-      if (peersNewEpochGreaterThan > 2 * this._f) {
+      if (peersNewEpochGreaterThan > 2 * f) {
         epoch = newEpoch;
       }
     }

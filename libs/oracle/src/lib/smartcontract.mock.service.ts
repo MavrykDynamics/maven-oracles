@@ -25,4 +25,9 @@ export class SmartContractMockService {
       { peerId: '12D3KooWRGcN9uh633ucfUJ3XQ69n31mB2jPHKtrw7mfCSJdLz97', publicKey: '', address: '' }
     ];
   }
+
+  public async getFValue(): Promise<number> {
+    const oracles = await this.getOracles();
+    return Math.floor((oracles.length - 1) / 3);
+  }
 }

@@ -10,6 +10,7 @@ import {
 import { PeerId } from '@libp2p/interface-peer-id';
 import { EventHubService } from './eventhub.service.js';
 import { verifyData } from './helpers.js';
+import { SmartContractMockService } from './smartcontract.mock.service.js';
 
 enum Phase {
   Observe,
@@ -48,16 +49,14 @@ export class ReportGenLeaderService implements OnModuleInit {
 
   private _phase: Phase | null = null;
 
-  // Maximum number of faulty oracles
-  private _f: number = 2; // TODO: let this be dynamically set to 1/3 of number of oracles
-
   private readonly _timerGraceDurationMiliseconds: number = 2 * 1000;
   private readonly _timerRoundDurationMiliseconds: number = 15 * 1000;
 
   public constructor(
     private readonly _config: OracleConfig,
     private readonly _reportgenNetworkService: ReportGenNetworkService,
-    private readonly _eventHubService: EventHubService
+    private readonly _eventHubService: EventHubService,
+    private readonly _smartContractService: SmartContractMockService
   ) {}
 
   public async onModuleInit(): Promise<void> {
@@ -132,7 +131,8 @@ export class ReportGenLeaderService implements OnModuleInit {
 
     const numberOfObservation = [...this._observe.values()].length;
 
-    if (numberOfObservation === 2 * this._f + 1) {
+    const f = await this._smartContractService.getFValue();
+    if (numberOfObservation === 2 * f + 1) {
       this._restartGraceTimer();
       this._phase = Phase.Grace;
     }
@@ -183,8 +183,9 @@ export class ReportGenLeaderService implements OnModuleInit {
 
     const numberOfReports = [...this._report.values()].length;
 
-    if (numberOfReports < this._f) {
-      this._logger.debug(`_onReport: Not enough report yet (got ${numberOfReports}, need ${this._f})`);
+    const f = await this._smartContractService.getFValue();
+    if (numberOfReports < f) {
+      this._logger.debug(`_onReport: Not enough report yet (got ${numberOfReports}, need ${f})`);
       return;
     }
 

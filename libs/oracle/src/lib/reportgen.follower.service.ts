@@ -10,6 +10,7 @@ import {
 import { PeerId } from '@libp2p/interface-peer-id';
 import { EventHubService } from './eventhub.service.js';
 import { signData } from './helpers.js';
+import { SmartContractMockService } from './smartcontract.mock.service.js';
 
 @Injectable()
 export class ReportGenFollowerService implements OnModuleInit {
@@ -27,13 +28,11 @@ export class ReportGenFollowerService implements OnModuleInit {
 
   private readonly _roundMax: number = 3; // 3 - 20 recommended by OCR white paper
 
-  // Maximum number of faulty oracles
-  private _f: number = 2; // TODO: let this be dynamically set to 1/3 of number of oracles
-
   public constructor(
     private readonly _config: OracleConfig,
     private readonly _reportgenNetworkService: ReportGenNetworkService,
-    private readonly _eventHubService: EventHubService
+    private readonly _eventHubService: EventHubService,
+    private readonly _smartContractService: SmartContractMockService
   ) {
     this._eventHubService.on('stopReportGen', () => this._onStopReportGen());
     this._eventHubService.on('startReportGen', (epoch, leader) => this._onStartReportGen(epoch, leader));
@@ -114,7 +113,8 @@ export class ReportGenFollowerService implements OnModuleInit {
 
     const distinctOracleObservations = [...new Set(report.observations.map((ob) => ob.oracle))];
 
-    if (distinctOracleObservations.length < this._f * 2 + 1) {
+    const f = await this._smartContractService.getFValue();
+    if (distinctOracleObservations.length < f * 2 + 1) {
       this._logger.warn('onReportReqReceived: Report has not enough observation from different oracles');
       return;
     }
@@ -176,7 +176,9 @@ export class ReportGenFollowerService implements OnModuleInit {
     }
 
     const numberOfFinalEchoReceived = [...this._receivedEcho.values()].filter((received) => received).length;
-    if (numberOfFinalEchoReceived > this._f) {
+
+    const f = await this._smartContractService.getFValue();
+    if (numberOfFinalEchoReceived > f) {
       await this._eventHubService.transmit();
       await this._completeRound();
     }

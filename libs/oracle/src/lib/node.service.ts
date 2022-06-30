@@ -8,13 +8,17 @@ import { Bootstrap } from '@libp2p/bootstrap';
 import { KadDHT } from '@libp2p/kad-dht';
 import { OracleConfig } from './oracle.config.js';
 import { createFromJSON } from '@libp2p/peer-id-factory';
+import { SmartContractMockService } from './smartcontract.mock.service.js';
 
 @Injectable()
 export class NodeService {
   private readonly _logger: Logger = new Logger(NodeService.name);
   private _node: Libp2p;
 
-  public constructor(private readonly _config: OracleConfig) {}
+  public constructor(
+    private readonly _config: OracleConfig,
+    private readonly _smartContractService: SmartContractMockService
+  ) {}
 
   public async init(): Promise<void> {
     const {
@@ -34,19 +38,16 @@ export class NodeService {
 
     this._logger.verbose(`Using bootstrap peers: ${bootstrapPeers}`);
 
-    // This whitelist should come from the smart contracts
+    const oracles = await this._smartContractService.getOracles();
+    const oraclePeerIds = oracles.map((o) => o.peerId);
+
+    // TODO: Bootstrap peer list should come from config
     const peerIdWhitelist = [
       // Bootstrap peer
       'QmcrQZ6RJdpYuGvZqD5QEHAv6qX4BrQLJLQPQUrTrzdcgm',
 
       // Oracles
-      '12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1',
-      '12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2',
-      '12D3KooWLL2Y1JmrAXkY7r8xbuSRtasfJLAarXmAaZPYxPnzgAJ3',
-      '12D3KooWK87KmBGJZZMP3keux62VF515mFRbNRFwbYxib7wWQR34',
-      '12D3KooWDgabT39cFp5j5mvJgiGPEppMuVgDCsNtBCh1Q8ejBCA5',
-      '12D3KooWEKXXjviRoWwoB37UzBT4qjUBbQH8bypWy3YWmyfvR736',
-      '12D3KooWRGcN9uh633ucfUJ3XQ69n31mB2jPHKtrw7mfCSJdLz97'
+      ...oraclePeerIds
     ];
 
     this._node = await createLibp2p({
