@@ -51,6 +51,9 @@ services:
       - P2P_PEER_ID=12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1
       - P2P_PEER_PUBLIC_KEY=CAESIH+cTTTZ4gyqjEsn4L17gs9BTYU1ZeAnrBbUqQQQ9uW2
       - P2P_PEER_PRIVATE_KEY=CAESQENvWXyvlXtuw58TMrMF45ffJUza23h8zHSvssitueRgf5xNNNniDKqMSyfgvXuCz0FNhTVl4CesFtSpBBD25bY=
+      - TEZOS_ADDRESS=tz1eAoFgsys8PhTUvT3V3eq2BFaZp8UsGNsr
+      - TEZOS_SECRET_KEY=edskRkawwQimT7qNaw4g99dKh3ExUt3corurNLUwvYo2vwwAGdy6NK4At1QLEy9Km24TuwCFfr5k97wvDxKBn5iQqTxdvvpdjt
+      - TEZOS_PUBLIC_KEY=edpkv9DgHWm6HY6b35Mv77hgZcWrJVD4ADebp9RjYxXVmFvGs4VYi1
     networks:
       p2p:
         ipv4_address: 172.24.2.1
@@ -72,6 +75,9 @@ services:
       - P2P_PEER_ID=12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2
       - P2P_PEER_PUBLIC_KEY=CAESIB3LuOsvQXa/QtLkCtHqfEdDnXDiDtGIKB42deJZQSZb
       - P2P_PEER_PRIVATE_KEY=CAESQJhgTKhCqif5bg/4RS4mPfjIp/TNA6c7licLcTFumPchHcu46y9Bdr9C0uQK0ep8R0OdcOIO0YgoHjZ14llBJls=
+      - TEZOS_ADDRESS=tz1MBNfBnNn8fZCJVrrXV95FSgyuUxbmt3Mm
+      - TEZOS_SECRET_KEY=edskRpPWgoNUfJgZRiycPg9539KMX6Ksw5yNVDw2ukds8VEgqXLLuBDrB6dr6m7fgsAZrLMDpPkxN7kRpcNyRzwkPYhoWsBJsZ
+      - TEZOS_PUBLIC_KEY=edpkunKYLbEfRLKLtn9yi9avyjQbAAbQxuPVN759ajQEDKpp4RE6GV
     networks:
       p2p:
         ipv4_address: 172.24.2.2
@@ -93,6 +99,9 @@ services:
       - P2P_PEER_ID=12D3KooWLL2Y1JmrAXkY7r8xbuSRtasfJLAarXmAaZPYxPnzgAJ3
       - P2P_PEER_PUBLIC_KEY=CAESIJwuGA2Ua44At3SqYSvFPk/S4ZK8JIChdtEIHowkTCno
       - P2P_PEER_PRIVATE_KEY=CAESQP9bMHtXPkMTF4/sitPzQuuSsR7rBsyCZIlwT8bLo0gvnC4YDZRrjgC3dKphK8U+T9LhkrwkgKF20QgejCRMKeg=
+      - TEZOS_ADDRESS=tz1PSmvRd3ySbh5aviFEMYGD6542LL5QnrMk
+      - TEZOS_SECRET_KEY=edskRzrnZoreVanzsedvSDgWV1DkNycfjMXyri9LQLVYdXTXJrxNHzdtpouGJTQ1CrQiWK6ECvHCpoYfQ2LM7j8GjJdkjqrsLE
+      - TEZOS_PUBLIC_KEY=edpkuVjyKad7yCnNrCbGea7hi5Zh1zp5Cb1TvxUmnxC33fwKhq7daN
     networks:
       p2p:
         ipv4_address: 172.24.2.3
@@ -114,6 +123,9 @@ services:
       - P2P_PEER_ID=12D3KooWK87KmBGJZZMP3keux62VF515mFRbNRFwbYxib7wWQR34
       - P2P_PEER_PUBLIC_KEY=CAESIIpE2iakPl9DwCEBQe8byn/AbxyFyp/6wswDEjAzTPV/
       - P2P_PEER_PRIVATE_KEY=CAESQFT7tBloxfCzLLLww4EZzm2l0qZiVBuEuAbD3jzLPbWZikTaJqQ+X0PAIQFB7xvKf8BvHIXKn/rCzAMSMDNM9X8=
+      - TEZOS_ADDRESS=tz1KrELvNVY4xKnujkXwrVLWuzWJEg9FvA8v
+      - TEZOS_SECRET_KEY=edskRjjhoUjvSZ2eGgGpvcMk6SrtpajjkzGUXDpr2EAa25VTfdtNSoD1JLhEoEnotYR6ZtRC2bCk56kwf79eqgygrMeR145ENq
+      - TEZOS_PUBLIC_KEY=edpku7vkvS6XaWzFjmPDYULNyYrS7Rf1vHuoQ9FD8zVcaFNJ51bJ82
     networks:
       p2p:
         ipv4_address: 172.24.2.4
@@ -135,6 +147,9 @@ services:
       - P2P_PEER_ID=12D3KooWDgabT39cFp5j5mvJgiGPEppMuVgDCsNtBCh1Q8ejBCA5
       - P2P_PEER_PUBLIC_KEY=CAESIDlwJrvH3HgJbcpLpzROMCyxhAGuaodYse7n0tDQmtYq
       - P2P_PEER_PRIVATE_KEY=CAESQJSzbjMCYU/EeohKGea7wk+CXTbkBI7QXYJRLyXMosRTOXAmu8fceAltykunNE4wLLGEAa5qh1ix7ufS0NCa1io=
+      - TEZOS_ADDRESS=tz1YKquTvvSE2B5kvGyf1AYeXD6b6cMDSzDe
+      - TEZOS_SECRET_KEY=edskRts3yovQnSAaK6WbyiaZdBnLk1cSeq8UEWo24xNyo1T6gZZ9yQpQ48YmvCwjjW1FpSgJ1LPZ9T3jazmh3HXLLKHDaJZVx2
+      - TEZOS_PUBLIC_KEY=edpkuqoXhgeXYZxn6yVWuy9UrWKazyahPaAbwnuZYknRefeLVVK3ar
     networks:
       p2p:
         ipv4_address: 172.24.2.5
@@ -156,6 +171,9 @@ services:
       - P2P_PEER_ID=12D3KooWEKXXjviRoWwoB37UzBT4qjUBbQH8bypWy3YWmyfvR736
       - P2P_PEER_PUBLIC_KEY=CAESIELnLURmP5HStRjp47jIZPuoySSCSKWSiEvE7eaD1XQh
       - P2P_PEER_PRIVATE_KEY=CAESQDLrycxtQYRWmXFn5H1Z2s+FGpxHRGcpxy8qzGBS4uyFQuctRGY/kdK1GOnjuMhk+6jJJIJIpZKIS8Tt5oPVdCE=
+      - TEZOS_ADDRESS=tz1TQ4fpSFNZ6D9vrcwBz9yzM2SNjDj5YoU7
+      - TEZOS_SECRET_KEY=edsk2vtJ2rVoHoA3GbgDjyT5zbeVMDXZ6R4YjDskKaapgsRtiEWpaP
+      - TEZOS_PUBLIC_KEY=edpkv6xHMqShSMr4CK3Vzg7mD1hina7eBkokrMoKpuYj55BVd18rjN
     networks:
       p2p:
         ipv4_address: 172.24.2.6
@@ -177,6 +195,9 @@ services:
       - P2P_PEER_ID=12D3KooWRGcN9uh633ucfUJ3XQ69n31mB2jPHKtrw7mfCSJdLz97
       - P2P_PEER_PUBLIC_KEY=CAESIOWYdQw3IH7qCQg5+LVgLEsesRldcVJdDwpy/TNSxAty
       - P2P_PEER_PRIVATE_KEY=CAESQHqJ13l1im8Zw4UM57IclZxhxqsxYwjrNXXhNQEx7UGQ5Zh1DDcgfuoJCDn4tWAsSx6xGV1xUl0PCnL9M1LEC3I=
+      - TEZOS_ADDRESS=tz1bPLbmiseCCWtW7RZ9t2RkNyboB9XT4exJ
+      - TEZOS_SECRET_KEY=edsk4AzUdwSFu383eMf8eve56Q2pJxy1eWt4BnzKkLKMdKurHgTeaf
+      - TEZOS_PUBLIC_KEY=edpku8MxEyEKHPsPeUBSBz5a5QbemdPbiQVsobdC3SnC9UDf4yMHTL
     networks:
       p2p:
         ipv4_address: 172.24.2.7

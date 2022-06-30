@@ -9,7 +9,7 @@ import { ReportGenNetworkService } from './reportgen.network.service.js';
 import { EventHubService } from './eventhub.service.js';
 import { ReportGenFollowerService } from './reportgen.follower.service.js';
 import { ReportGenLeaderService } from './reportgen.leader.service.js';
-import { SmartContractMockService } from './smartcontract.mock.service.js';
+import { ContractService } from './contract.service.js';
 
 @Module({
   imports: [HttpModule, ConfigModule.forConfig(OracleConfig)],
@@ -17,20 +17,20 @@ import { SmartContractMockService } from './smartcontract.mock.service.js';
   providers: [
     {
       provide: NodeService,
-      useFactory: async (oracleConfig: OracleConfig, smartContractMockService: SmartContractMockService) => {
-        const node = new NodeService(oracleConfig, smartContractMockService);
+      useFactory: async (oracleConfig: OracleConfig, contractService: ContractService) => {
+        const node = new NodeService(oracleConfig, contractService);
         await node.init();
         return node;
       },
-      inject: [OracleConfig, SmartContractMockService]
+      inject: [OracleConfig, ContractService]
     },
+    ContractService,
     PacemakerService,
     PacemakerNetworkService,
     ReportGenFollowerService,
     ReportGenLeaderService,
     ReportGenNetworkService,
-    EventHubService,
-    SmartContractMockService
+    EventHubService
   ],
   exports: [NodeService]
 })

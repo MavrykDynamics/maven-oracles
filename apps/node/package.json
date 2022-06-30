@@ -5,7 +5,7 @@
   "scripts": {
     "build": "heft build --clean",
     "build:watch": "heft build",
-    "serve": "node --loader ts-node/esm src/main.ts",
+    "serve": "node dist/src/main.js",
     "start": "heft start"
   },
   "type": "module",
@@ -44,7 +44,8 @@
     "@noble/ed25519": "~1.6.0",
     "@libp2p/crypto": "~1.0.0",
     "@tezosdynamics/oracle": "workspace:*",
-    "@tezosdynamics/contract": "workspace:*"
+    "@taquito/remote-signer": "~13.0.0",
+    "@taquito/utils": "~13.0.0"
   },
   "devDependencies": {
     "@nestjs/schematics": "^8.0.0",

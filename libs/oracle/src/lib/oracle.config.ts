@@ -42,4 +42,39 @@ export class OracleConfig {
     format: String,
   })
   public peerPrivateKey: string;
+
+  @Property({
+    default: 'KT1JDFrgRJfcCSjdztA6A2t6sNv7Yu93ywZL',
+    env: 'AGGREGATOR_ADDRESS',
+    format: String,
+  })
+  public aggregatorAddress: string;
+
+  @Property({
+    default: 'https://ithacanet.ecadinfra.com',
+    env: 'RPC_URL',
+    format: String,
+  })
+  public rpcUrl: string;
+
+  @Property({
+    default: '',
+    env: 'TEZOS_SECRET_KEY',
+    format: String,
+  })
+  public tezosSecretKey: string;
+
+  @Property({
+    default: '',
+    env: 'TEZOS_PUBLIC_KEY',
+    format: String,
+  })
+  public tezosPublicKey: string;
+
+  @Property({
+    default: '',
+    env: 'TEZOS_ADDRESS',
+    format: String,
+  })
+  public tezosAddress: string;
 }

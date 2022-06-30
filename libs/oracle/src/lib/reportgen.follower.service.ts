@@ -5,12 +5,13 @@ import {
   IAttestedReport,
   ICompressedReport,
   IReport,
+  ISignature,
   ReportGenNetworkService
 } from './reportgen.network.service.js';
 import { PeerId } from '@libp2p/interface-peer-id';
 import { EventHubService } from './eventhub.service.js';
 import { signData } from './helpers.js';
-import { SmartContractMockService } from './smartcontract.mock.service.js';
+import { ContractService } from './contract.service.js';
 
 @Injectable()
 export class ReportGenFollowerService implements OnModuleInit {
@@ -32,7 +33,8 @@ export class ReportGenFollowerService implements OnModuleInit {
     private readonly _config: OracleConfig,
     private readonly _reportgenNetworkService: ReportGenNetworkService,
     private readonly _eventHubService: EventHubService,
-    private readonly _smartContractService: SmartContractMockService
+    private readonly _contractService: ContractService
+
   ) {
     this._eventHubService.on('stopReportGen', () => this._onStopReportGen());
     this._eventHubService.on('startReportGen', (epoch, leader) => this._onStartReportGen(epoch, leader));
@@ -113,7 +115,7 @@ export class ReportGenFollowerService implements OnModuleInit {
 
     const distinctOracleObservations = [...new Set(report.observations.map((ob) => ob.oracle))];
 
-    const f = await this._smartContractService.getFValue();
+    const f = await this._contractService.getFValue();
     if (distinctOracleObservations.length < f * 2 + 1) {
       this._logger.warn('onReportReqReceived: Report has not enough observation from different oracles');
       return;
@@ -177,8 +179,9 @@ export class ReportGenFollowerService implements OnModuleInit {
 
     const numberOfFinalEchoReceived = [...this._receivedEcho.values()].filter((received) => received).length;
 
-    const f = await this._smartContractService.getFValue();
+    const f = await this._contractService.getFValue();
     if (numberOfFinalEchoReceived > f) {
+      this._logger.log('$$$ - YOUPI - $$$');
       await this._eventHubService.transmit();
       await this._completeRound();
     }
@@ -194,23 +197,26 @@ export class ReportGenFollowerService implements OnModuleInit {
     return await signData(this._config.peerPrivateKey, encodedObservation);
   }
 
-  private async _signCompressedReport(report: ICompressedReport): Promise<Uint8Array> {
-    // TODO: do a real signature
-    return Uint8Array.from([]);
+  private async _signCompressedReport(report: ICompressedReport): Promise<ISignature> {
+      const signature = await this._contractService.signCompressedReport(report.observations, this._config.tezosSecretKey);
+      return {
+        oracle: this._config.tezosAddress,
+        signature
+      }
   }
 
   private _shouldReport(report: IReport): boolean {
     // TODO: implement
     return true;
-  }
+  } 
 
   private async _completeRound(): Promise<void> {
     this._completedRound = true;
     this._eventHubService.progress();
   }
 
-  private _verifyAttestedReport(attestedReport: IAttestedReport): boolean {
-    // TODO: implement
-    return true;
+  private async _verifyAttestedReport(attestedReport: IAttestedReport): Promise<boolean> {
+    return await this._contractService.verifyAttestedReport(attestedReport);
+
   }
 }

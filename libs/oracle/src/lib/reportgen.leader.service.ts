@@ -5,12 +5,13 @@ import {
   IAttestedReport,
   ICompressedReport,
   IReport,
+  ISignature,
   ReportGenNetworkService
 } from './reportgen.network.service.js';
 import { PeerId } from '@libp2p/interface-peer-id';
 import { EventHubService } from './eventhub.service.js';
 import { verifyData } from './helpers.js';
-import { SmartContractMockService } from './smartcontract.mock.service.js';
+import { ContractService } from './contract.service.js';
 
 enum Phase {
   Observe,
@@ -40,7 +41,7 @@ export class ReportGenLeaderService implements OnModuleInit {
     string,
     {
       report: ICompressedReport;
-      signature: Uint8Array;
+      signature: ISignature;
     }
   > = new Map();
 
@@ -56,7 +57,7 @@ export class ReportGenLeaderService implements OnModuleInit {
     private readonly _config: OracleConfig,
     private readonly _reportgenNetworkService: ReportGenNetworkService,
     private readonly _eventHubService: EventHubService,
-    private readonly _smartContractService: SmartContractMockService
+    private readonly _contractService: ContractService
   ) {}
 
   public async onModuleInit(): Promise<void> {
@@ -144,7 +145,7 @@ export class ReportGenLeaderService implements OnModuleInit {
 
     const numberOfObservation = [...this._observe.values()].length;
 
-    const f = await this._smartContractService.getFValue();
+    const f = await this._contractService.getFValue();
     if (numberOfObservation === 2 * f + 1) {
       this._restartGraceTimer();
       this._phase = Phase.Grace;
@@ -165,7 +166,7 @@ export class ReportGenLeaderService implements OnModuleInit {
     from: PeerId,
     round: number,
     report: ICompressedReport,
-    signature: Uint8Array
+    signature: ISignature
   ): Promise<void> {
     // TODO: verify signature
 
@@ -184,10 +185,10 @@ export class ReportGenLeaderService implements OnModuleInit {
       return;
     }
 
-    if (!this._verifyReportSignature(report, signature)) {
+    if (! await this._verifyReportSignature(report, signature)) {
       this._logger.warn(`_onReport: signature did not match, discarding report`);
       return;
-    }
+    } 
 
     this._report.set(from.toString(), {
       report,
@@ -196,7 +197,7 @@ export class ReportGenLeaderService implements OnModuleInit {
 
     const numberOfReports = [...this._report.values()].length;
 
-    const f = await this._smartContractService.getFValue();
+    const f = await this._contractService.getFValue();
     if (numberOfReports < f) {
       this._logger.debug(`_onReport: Not enough report yet (got ${numberOfReports}, need ${f})`);
       return;
@@ -223,8 +224,8 @@ export class ReportGenLeaderService implements OnModuleInit {
     return await verifyData(publicKey, new TextEncoder().encode(observation.toString()), signature);
   }
 
-  private _verifyReportSignature(report: ICompressedReport, signature: Uint8Array): boolean {
-    return true;
+  private async _verifyReportSignature(report: ICompressedReport, signature: ISignature): Promise<boolean> {
+    return await this._contractService.verifyReportSignature(report, signature);
   }
 
   private _stopGraceTimer(): void {

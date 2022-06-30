@@ -45,6 +45,11 @@ export interface IObservation {
   price: BigNumber;
 }
 
+export interface ISignature {
+  oracle: string;
+  signature: string;
+}
+
 export interface IReport {
   observations: ISignedObservation[];
 }
@@ -54,13 +59,13 @@ export interface ICompressedReport {
 
 export interface IAttestedReport {
   observations: IObservation[];
-  signatures: Uint8Array[];
+  signatures: ISignature[];
 }
 
 interface IReportMessage {
   round: number;
   compressedReport: ICompressedReport;
-  signature: Uint8Array;
+  signature: ISignature;
 }
 interface IReportReqMessage {
   round: number;
@@ -171,7 +176,9 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
     const peerId = msg.detail.from;
     const finalEchoMessage = ReportGenNetworkService._deserializeFinalEchoMessage(msg.detail.data);
     this._logger.debug(
-      `Received finalEcho from ${peerId} with round: ${finalEchoMessage[0]}, report: ${finalEchoMessage[1]}`
+      `Received finalEcho from ${peerId} with round: ${finalEchoMessage.round}, report: ${JSON.stringify(
+        finalEchoMessage.attestedReport
+      )}`
     );
 
     this.emit('finalEcho', peerId, finalEchoMessage);
@@ -306,7 +313,7 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
       JSON.stringify({
         round: observeMessage.round,
         compressedReport: observeMessage.compressedReport,
-        signature: Array.from(observeMessage.signature.values())
+        signature: observeMessage.signature
       })
     );
   }
@@ -318,7 +325,7 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
     return {
       round: parsed.round,
       compressedReport: parsed.compressedReport,
-      signature: Uint8Array.from(parsed.signature)
+      signature: parsed.signature
     };
   }
 
@@ -331,7 +338,7 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
           observations: reportMessage.report.observations.map((ob) => ({
             oracle: ob.oracle,
             price: new BigNumber(ob.price),
-            signature: Uint8Array.from(ob.signature)
+            signature: Array.from(ob.signature.values())
           }))
         }
       })
@@ -364,7 +371,7 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
             oracle: ob.oracle,
             price: ob.price.toString()
           })),
-          signatures: reportMessage.attestedReport.signatures.map((sig) => Array.from(sig.values()))
+          signatures: reportMessage.attestedReport.signatures
         }
       })
     );
@@ -381,7 +388,7 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
           oracle: ob.oracle,
           price: new BigNumber(ob.price)
         })),
-        signatures: parsed.attestedReport.signatures.map((sig) => Uint8Array.from(sig))
+        signatures: parsed.attestedReport.signatures
       }
     };
   }
@@ -396,7 +403,7 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
             oracle: ob.oracle,
             price: ob.price.toString()
           })),
-          signatures: reportMessage.attestedReport.signatures.map((sig) => Array.from(sig.values()))
+          signatures: reportMessage.attestedReport.signatures
         }
       })
     );
@@ -405,7 +412,6 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
   private static _deserializeFinalEchoMessage(report: Uint8Array): IFinalEchoMessage {
     const decoder = new TextDecoder();
     const parsed = JSON.parse(decoder.decode(report));
-
     return {
       round: Number.parseInt(parsed.round),
       attestedReport: {
@@ -413,7 +419,7 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
           oracle: ob.oracle,
           price: new BigNumber(ob.price)
         })),
-        signatures: parsed.attestedReport.signatures.map((sig) => Uint8Array.from(sig))
+        signatures: parsed.attestedReport.signatures
       }
     };
   }

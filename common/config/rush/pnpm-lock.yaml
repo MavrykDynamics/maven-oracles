@@ -31,8 +31,10 @@ importers:
       '@rushstack/heft': ^0.45.8
       '@taquito/michel-codec': ~13.0.0
       '@taquito/michelson-encoder': ^12.1.1
+      '@taquito/remote-signer': ~13.0.0
       '@taquito/signer': ^12.1.1
       '@taquito/taquito': ^12.1.1
+      '@taquito/utils': ~13.0.0
       '@tezosdynamics/oracle': workspace:*
       '@types/cron': ^1.7.3
       '@types/jest': 27.0.2
@@ -85,8 +87,10 @@ importers:
       '@nodeutils/defaults-deep': 1.1.0
       '@taquito/michel-codec': 13.0.0
       '@taquito/michelson-encoder': 12.1.1
+      '@taquito/remote-signer': 13.0.0
       '@taquito/signer': 12.1.1
       '@taquito/taquito': 12.1.1
+      '@taquito/utils': 13.0.0
       '@tezosdynamics/oracle': link:../../libs/oracle
       async-mutex: 0.3.2
       bignumber.js: 9.0.2
@@ -146,9 +150,10 @@ importers:
       '@rushstack/heft': ^0.45.8
       '@taquito/michel-codec': ~13.0.0
       '@taquito/michelson-encoder': ^12.1.1
+      '@taquito/remote-signer': ~13.0.0
       '@taquito/signer': ^12.1.1
       '@taquito/taquito': ^12.1.1
-      '@tezosdynamics/contract': workspace:*
+      '@taquito/utils': ~13.0.0
       '@tezosdynamics/oracle': workspace:*
       '@types/cron': ^1.7.3
       '@types/jest': 27.0.2
@@ -199,9 +204,10 @@ importers:
       '@nodeutils/defaults-deep': 1.1.0
       '@taquito/michel-codec': 13.0.0
       '@taquito/michelson-encoder': 12.1.1
+      '@taquito/remote-signer': 13.0.0
       '@taquito/signer': 12.1.1
       '@taquito/taquito': 12.1.1
-      '@tezosdynamics/contract': link:../../libs/contract
+      '@taquito/utils': 13.0.0
       '@tezosdynamics/oracle': link:../../libs/oracle
       async-mutex: 0.3.2
       bignumber.js: 9.0.2
@@ -228,113 +234,6 @@ importers:
       eslint: 8.7.0
       eslint-config-prettier: 8.1.0_eslint@8.7.0
       eslint-plugin-jest: 26.2.2_6f473d6617fc3565de101781db5c888c
-      jest: 27.2.3_ts-node@10.8.1
-      prettier: 2.7.1
-      rimraf: 3.0.2
-      ts-jest: 27.0.5_227fbc629be1b82a2ac5dd91da2eb1f8
-      ts-node: 10.8.1_8ee40dc4125ff0a7fa6f9d50813a541a
-      typescript: 4.5.5
-      webpack-merge: 5.8.0
-      webpack-node-externals: 3.0.0
-
-  ../../libs/contract:
-    specifiers:
-      '@chainsafe/libp2p-gossipsub': ^2.0.0
-      '@chainsafe/libp2p-noise': ^6.2.0
-      '@libp2p/bootstrap': ^1.0.4
-      '@libp2p/floodsub': ^1.0.6
-      '@libp2p/kad-dht': ^1.0.9
-      '@libp2p/mplex': ^1.1.0
-      '@libp2p/peer-id-factory': ~1.0.15
-      '@libp2p/pubsub-peer-discovery': ^6.0.0
-      '@libp2p/tcp': ^1.0.9
-      '@libp2p/websockets': ^1.0.7
-      '@nestjs/axios': ^0.0.7
-      '@nestjs/common': ^8.0.0
-      '@nestjs/core': ^8.0.0
-      '@nestjs/platform-express': ^8.0.0
-      '@nestjs/schedule': ^1.0.2
-      '@nestjs/schematics': ^8.0.0
-      '@nestjs/testing': ^8.0.0
-      '@nodeutils/defaults-deep': ^1.1.0
-      '@rushstack/heft': ^0.45.8
-      '@taquito/michel-codec': ~13.0.0
-      '@taquito/michelson-encoder': ^12.1.1
-      '@taquito/signer': ^12.1.1
-      '@taquito/taquito': ^12.1.1
-      '@types/cron': ^1.7.3
-      '@types/jest': 27.0.2
-      '@types/node': ^16.11.7
-      '@types/yargs': ^17.0.9
-      '@typescript-eslint/eslint-plugin': ~5.10.0
-      '@typescript-eslint/parser': ~5.10.0
-      async-mutex: ^0.3.2
-      bignumber.js: ^9.0.2
-      convict: ^6.2.1
-      eslint: ~8.7.0
-      eslint-config-prettier: 8.1.0
-      jest: 27.2.3
-      libp2p: ^0.37.3
-      multiaddr: ^10.0.1
-      prettier: ^2.5.1
-      reflect-metadata: ^0.1.13
-      rimraf: ^3.0.2
-      rxjs: ^7.0.0
-      sha256: ^0.2.0
-      ts-convict: ^1.1.0
-      ts-jest: 27.0.5
-      ts-node: ^10.7.0
-      tslib: ^2.0.0
-      typescript: ~4.5.2
-      webpack-merge: ^5.8.0
-      webpack-node-externals: ^3.0.0
-      yargs: ^17.3.1
-      yarn: ^1.22.18
-    dependencies:
-      '@chainsafe/libp2p-gossipsub': 2.0.0
-      '@chainsafe/libp2p-noise': 6.2.0
-      '@libp2p/bootstrap': 1.0.6
-      '@libp2p/floodsub': 1.0.7
-      '@libp2p/kad-dht': 1.0.16
-      '@libp2p/mplex': 1.2.1
-      '@libp2p/peer-id-factory': 1.0.15
-      '@libp2p/pubsub-peer-discovery': 6.0.0
-      '@libp2p/tcp': 1.0.11_8ee40dc4125ff0a7fa6f9d50813a541a
-      '@libp2p/websockets': 1.0.9_8ee40dc4125ff0a7fa6f9d50813a541a
-      '@nestjs/axios': 0.0.7_37c15d9aad112cee731c8d239db0c0af
-      '@nestjs/common': 8.4.7_e7ea248743279784063e3708d703abc5
-      '@nestjs/core': 8.4.7_2aa064eef171d5a7957432d22e4b3f20
-      '@nestjs/platform-express': 8.4.7_fce4c3b686c1225eb94686491d30b061
-      '@nestjs/schedule': 1.1.0_ce2460e621852264742fbbcaa8a76b41
-      '@nodeutils/defaults-deep': 1.1.0
-      '@taquito/michel-codec': 13.0.0
-      '@taquito/michelson-encoder': 12.1.1
-      '@taquito/signer': 12.1.1
-      '@taquito/taquito': 12.1.1
-      async-mutex: 0.3.2
-      bignumber.js: 9.0.2
-      convict: 6.2.3
-      libp2p: 0.37.3_8ee40dc4125ff0a7fa6f9d50813a541a
-      multiaddr: 10.0.1
-      reflect-metadata: 0.1.13
-      rxjs: 7.5.5
-      sha256: 0.2.0
-      ts-convict: 1.1.0_b37a2d3885b3d9583453351c677af7d1
-      tslib: 2.4.0
-      yargs: 17.5.1
-      yarn: 1.22.19
-    devDependencies:
-      '@nestjs/schematics': 8.0.11_typescript@4.5.5
-      '@nestjs/testing': 8.4.7_c1bddf0102e0d68dc342d4afcbe21907
-      '@rushstack/heft': 0.45.14
-      '@types/cron': 1.7.3
-      '@types/jest': 27.0.2
-      '@types/node': 16.11.41
-      '@types/yargs': 17.0.10
-      '@typescript-eslint/eslint-plugin': 5.10.2_61711575dd6de0ced61e0bccc6181943
-      '@typescript-eslint/parser': 5.10.2_eslint@8.7.0+typescript@4.5.5
-      eslint: 8.7.0
-      eslint-config-prettier: 8.1.0_eslint@8.7.0
       jest: 27.2.3_ts-node@10.8.1
       prettier: 2.7.1
       rimraf: 3.0.2
@@ -374,8 +273,10 @@ importers:
       '@rushstack/heft': ^0.45.8
       '@taquito/michel-codec': ~13.0.0
       '@taquito/michelson-encoder': ^12.1.1
+      '@taquito/remote-signer': ~13.0.0
       '@taquito/signer': ^12.1.1
       '@taquito/taquito': ^12.1.1
+      '@taquito/utils': ~13.0.0
       '@types/cron': ^1.7.3
       '@types/jest': 27.0.2
       '@types/node': ^16.11.7
@@ -436,8 +337,10 @@ importers:
       '@nodeutils/defaults-deep': 1.1.0
       '@taquito/michel-codec': 13.0.0
       '@taquito/michelson-encoder': 12.1.1
+      '@taquito/remote-signer': 13.0.0
       '@taquito/signer': 12.1.1
       '@taquito/taquito': 12.1.1
+      '@taquito/utils': 13.0.0
       async-mutex: 0.3.2
       bignumber.js: 9.0.2
       convict: 6.2.3
@@ -2524,11 +2427,28 @@ packages:
       - debug
     dev: false
 
+  /@taquito/http-utils/13.0.0:
+    resolution: {integrity: sha512-WNCGi0HyocFkNSLekBfHqKqnGB2kQ5gCKgIXoh2UVyuHTq3W5dWJO7pMVfeVSf9nYLVnsoIIfEC/d7jY7HIYQw==}
+    engines: {node: '>=6.0.0'}
+    dependencies:
+      axios: 0.26.1
+    transitivePeerDependencies:
+      - debug
+    dev: false
+
   /@taquito/local-forging/12.1.1:
     resolution: {integrity: sha512-SUA1YYRIpEGsTy5OfUIgIem0k/QsAzGjDCvf/wl5XV/fVBkP/+GN7uvYoqgJblCmsgtsMBhJFtXgs+D6bjGexg==}
     engines: {node: '>=6.0.0'}
     dependencies:
       '@taquito/utils': 12.1.1
+      bignumber.js: 9.0.2
+    dev: false
+
+  /@taquito/local-forging/13.0.0:
+    resolution: {integrity: sha512-59w1U94072FVgzAVRjADit26vHJ7lA7aC34ra9QWHVTYNul/S/+cvcGVCrRen8dt11NKytQCzkrRblh2xXFKeQ==}
+    engines: {node: '>=6.0.0'}
+    dependencies:
+      '@taquito/utils': 13.0.0
       bignumber.js: 9.0.2
     dev: false
 
@@ -2554,12 +2474,49 @@ packages:
       - debug
     dev: false
 
+  /@taquito/michelson-encoder/13.0.0:
+    resolution: {integrity: sha512-6R9U4kUlGLSK36OmSfKqU0GF+5+wwAhlqjgZhRYOdWjZ0kzeoPAAxLLC0kriZ5CZJBKr4ZSIrd64dtk4VdE/8w==}
+    engines: {node: '>=6.0.0'}
+    dependencies:
+      '@taquito/rpc': 13.0.0
+      '@taquito/utils': 13.0.0
+      bignumber.js: 9.0.2
+      fast-json-stable-stringify: 2.1.0
+    transitivePeerDependencies:
+      - debug
+    dev: false
+
+  /@taquito/remote-signer/13.0.0:
+    resolution: {integrity: sha512-Cmsi/iMjSn29dyfuZywCSRTkYMWJ3jnAyiHX7RThzINcsC1vFxn8oAaQkxx5ujAgGxzJReDSi4WRdK93a2EjwA==}
+    engines: {node: '>=6.0.0'}
+    dependencies:
+      '@stablelib/blake2b': 1.0.1
+      '@stablelib/ed25519': 1.0.2
+      '@taquito/http-utils': 13.0.0
+      '@taquito/taquito': 13.0.0
+      '@taquito/utils': 13.0.0
+      typedarray-to-buffer: 4.0.0
+    transitivePeerDependencies:
+      - debug
+    dev: false
+
   /@taquito/rpc/12.1.1:
     resolution: {integrity: sha512-CgAF9kdmKLa/UbmiqApDtncCQGiG7kEOIYis8IIa0JUT9JD1H8WBbSNF/oNh4e0soWUK9BL2qU369RFnxIW+iA==}
     engines: {node: '>=6.0.0'}
     dependencies:
       '@taquito/http-utils': 12.1.1
       '@taquito/utils': 12.1.1
+      bignumber.js: 9.0.2
+    transitivePeerDependencies:
+      - debug
+    dev: false
+
+  /@taquito/rpc/13.0.0:
+    resolution: {integrity: sha512-g3CmrdCCEH5KiXIaAeZJ4RYYPtpitqTiv7GeDyYypOdUDQ1OBF/3c8d/Apx92bvSwbI/0I7nX46wtZHahWavmg==}
+    engines: {node: '>=6.0.0'}
+    dependencies:
+      '@taquito/http-utils': 13.0.0
+      '@taquito/utils': 13.0.0
       bignumber.js: 9.0.2
     transitivePeerDependencies:
       - debug
@@ -2598,8 +2555,39 @@ packages:
       - debug
     dev: false
 
+  /@taquito/taquito/13.0.0:
+    resolution: {integrity: sha512-OhMAwDtDvoXkvZmiO1XgshtlLplQ+BGzciQe8sNuinHC2j8vV2aFxBiU/pSlc5WIU6RpIjQxaohFEaF3XZ7yrw==}
+    engines: {node: '>=6.0.0'}
+    requiresBuild: true
+    dependencies:
+      '@taquito/http-utils': 13.0.0
+      '@taquito/local-forging': 13.0.0
+      '@taquito/michel-codec': 13.0.0
+      '@taquito/michelson-encoder': 13.0.0
+      '@taquito/rpc': 13.0.0
+      '@taquito/utils': 13.0.0
+      bignumber.js: 9.0.2
+      rxjs: 6.6.7
+    transitivePeerDependencies:
+      - debug
+    dev: false
+
   /@taquito/utils/12.1.1:
     resolution: {integrity: sha512-GxNSBrA02vwhy56ayWB49VZficB+j2oyhPdlsRb2CguephmyEYnlUaNV27ILa6dPDW+zv6+QWQj6GyqLBRpIlA==}
+    engines: {node: '>=6.0.0'}
+    dependencies:
+      '@stablelib/blake2b': 1.0.1
+      '@stablelib/ed25519': 1.0.2
+      '@types/bs58check': 2.1.0
+      blakejs: 1.2.1
+      bs58check: 2.1.2
+      buffer: 6.0.3
+      elliptic: 6.5.4
+      typedarray-to-buffer: 4.0.0
+    dev: false
+
+  /@taquito/utils/13.0.0:
+    resolution: {integrity: sha512-b6uD3VOb8YSrExEH5beicDSNGuEfuH2qvJYx4FX5OI+EfXa9EfORfUNNsHzkEn/Rh3Ue3jKFbymPvkFhM95uiw==}
     engines: {node: '>=6.0.0'}
     dependencies:
       '@stablelib/blake2b': 1.0.1

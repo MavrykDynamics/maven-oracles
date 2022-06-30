@@ -455,21 +455,17 @@
     //       // "tags": ["apps", "web"]
     //     },
 
-     {
-       "packageName": "@tezosdynamics/node",
-       "projectFolder": "apps/node"
-     },
-     {
-       "packageName": "@tezosdynamics/bootstrap-node",
-       "projectFolder": "apps/bootstrap-node"
-     },
-     {
-       "packageName": "@tezosdynamics/oracle",
-       "projectFolder": "libs/oracle"
-     },
-     {
-      "packageName": "@tezosdynamics/contract",
-      "projectFolder": "libs/contract"
+    {
+      "packageName": "@tezosdynamics/node",
+      "projectFolder": "apps/node"
+    },
+    {
+      "packageName": "@tezosdynamics/bootstrap-node",
+      "projectFolder": "apps/bootstrap-node"
+    },
+    {
+      "packageName": "@tezosdynamics/oracle",
+      "projectFolder": "libs/oracle"
     }
   ]
 }

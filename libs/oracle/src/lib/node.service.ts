@@ -8,7 +8,7 @@ import { Bootstrap } from '@libp2p/bootstrap';
 import { KadDHT } from '@libp2p/kad-dht';
 import { OracleConfig } from './oracle.config.js';
 import { createFromJSON } from '@libp2p/peer-id-factory';
-import { SmartContractMockService } from './smartcontract.mock.service.js';
+import { ContractService } from './contract.service.js';
 
 @Injectable()
 export class NodeService {
@@ -17,7 +17,7 @@ export class NodeService {
 
   public constructor(
     private readonly _config: OracleConfig,
-    private readonly _smartContractService: SmartContractMockService
+    private readonly _contractService: ContractService
   ) {}
 
   public async init(): Promise<void> {
@@ -38,7 +38,7 @@ export class NodeService {
 
     this._logger.verbose(`Using bootstrap peers: ${bootstrapPeers}`);
 
-    const oracles = await this._smartContractService.getOracles();
+    const oracles = await this._contractService._bigArray;
     const oraclePeerIds = oracles.map((o) => o.peerId);
 
     // TODO: Bootstrap peer list should come from config

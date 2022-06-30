@@ -3,7 +3,7 @@ import { OracleConfig } from './oracle.config.js';
 import { PacemakerNetworkService } from './pacemaker.network.service.js';
 import { PeerId } from '@libp2p/interface-peer-id';
 import { EventHubService } from './eventhub.service.js';
-import { SmartContractMockService } from './smartcontract.mock.service.js';
+import { ContractService } from './contract.service.js';
 
 @Injectable()
 export class PacemakerService implements OnModuleInit {
@@ -34,7 +34,7 @@ export class PacemakerService implements OnModuleInit {
     private readonly _config: OracleConfig,
     private readonly _pacemakerNetworkService: PacemakerNetworkService,
     private readonly _eventHubService: EventHubService,
-    private readonly _smartContractService: SmartContractMockService
+    private readonly _contractService: ContractService
   ) {}
 
   public async onModuleInit(): Promise<void> {
@@ -101,7 +101,7 @@ export class PacemakerService implements OnModuleInit {
     const peersEpochs = Array.from(this._peersNewEpoch.values());
     const peersNewEpochUnique = [...new Set(peersEpochs)].filter((epoch) => epoch > this._newEpoch).sort(); // Example: [2, 3, 3, 5, 5]
 
-    const f = await this._smartContractService.getFValue();
+    const f = await this._contractService.getFValue();
     let epoch = -1;
     for (const newEpoch of peersNewEpochUnique) {
       const peersNewEpochGreaterThan = peersEpochs.filter((value) => value > newEpoch).length;
@@ -126,7 +126,7 @@ export class PacemakerService implements OnModuleInit {
       .filter((epoch) => epoch > this._epochAndLeader.epoch)
       .sort(); // Example: [2, 3, 3, 5, 5]
 
-    const f = await this._smartContractService.getFValue();
+    const f = await this._contractService.getFValue();
     let epoch = -1;
     for (const newEpoch of peersNewEpochUnique) {
       const peersNewEpochGreaterThan = peersEpochs.filter(
@@ -142,7 +142,7 @@ export class PacemakerService implements OnModuleInit {
       return;
     }
 
-    this._eventHubService.stopReportGen();
+    this._eventHubService.stopReportGen(epoch,await this.leaderForEpoch(epoch));
 
     this._epochAndLeader = {
       epoch,
@@ -160,7 +160,7 @@ export class PacemakerService implements OnModuleInit {
   }
 
   public async leaderForEpoch(epoch: number): Promise<string> {
-    const oracles = await this._smartContractService.getOracles();
+    const oracles = await this._contractService._bigArray;
     const oraclesPeerIds = oracles.map((o) => o.peerId);
 
     const oracleLeaderIndex = epoch % (oraclesPeerIds.length - 1);

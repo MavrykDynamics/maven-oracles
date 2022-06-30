@@ -53,7 +53,9 @@
     "it-first": "~1.0.7",
     "@noble/ed25519": "~1.6.0",
     "@libp2p/crypto": "~1.0.0",
-    "@taquito/michel-codec": "~13.0.0"
+    "@taquito/michel-codec": "~13.0.0",
+    "@taquito/remote-signer": "~13.0.0",
+    "@taquito/utils": "~13.0.0"
   },
   "devDependencies": {
     "@nestjs/schematics": "^8.0.0",
