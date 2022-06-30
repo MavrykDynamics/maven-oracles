@@ -9,6 +9,7 @@ import { ReportGenNetworkService } from './reportgen.network.service.js';
 import { EventHubService } from './eventhub.service.js';
 import { ReportGenFollowerService } from './reportgen.follower.service.js';
 import { ReportGenLeaderService } from './reportgen.leader.service.js';
+import { SmartContractMockService } from './smartcontract.mock.service.js';
 
 @Module({
   imports: [HttpModule, ConfigModule.forConfig(OracleConfig)],
@@ -28,7 +29,8 @@ import { ReportGenLeaderService } from './reportgen.leader.service.js';
     ReportGenFollowerService,
     ReportGenLeaderService,
     ReportGenNetworkService,
-    EventHubService
+    EventHubService,
+    SmartContractMockService
   ],
   exports: [NodeService]
 })

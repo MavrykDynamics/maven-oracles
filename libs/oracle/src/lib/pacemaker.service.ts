@@ -3,6 +3,7 @@ import { OracleConfig } from './oracle.config.js';
 import { PacemakerNetworkService } from './pacemaker.network.service.js';
 import { PeerId } from '@libp2p/interface-peer-id';
 import { EventHubService } from './eventhub.service.js';
+import { SmartContractMockService } from './smartcontract.mock.service.js';
 
 @Injectable()
 export class PacemakerService implements OnModuleInit {
@@ -35,7 +36,8 @@ export class PacemakerService implements OnModuleInit {
   public constructor(
     private readonly _config: OracleConfig,
     private readonly _pacemakerNetworkService: PacemakerNetworkService,
-    private readonly _eventHubService: EventHubService
+    private readonly _eventHubService: EventHubService,
+    private readonly _smartContractService: SmartContractMockService
   ) {}
 
   public async onModuleInit(): Promise<void> {
@@ -50,10 +52,7 @@ export class PacemakerService implements OnModuleInit {
     };
     this._newEpoch = 0;
 
-    // TODO: initialize report generation
-    this._logger.log(
-      `TODO: initialize report generation (${this._epochAndLeader.epoch}, ${this._epochAndLeader.leader})`
-    );
+    this._eventHubService.startepoch(this._epochAndLeader.epoch, this._epochAndLeader.leader);
 
     this._eventHubService.on('progress', () => this.onProgress());
     this._eventHubService.on('changeleader', () => this.onChangeLeader());
@@ -162,20 +161,12 @@ export class PacemakerService implements OnModuleInit {
   }
 
   public async leaderForEpoch(epoch: number): Promise<string> {
-    // TODO: fetch this list from smart contract
-    const oracles = [
-      '12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1',
-      '12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2',
-      '12D3KooWLL2Y1JmrAXkY7r8xbuSRtasfJLAarXmAaZPYxPnzgAJ3',
-      '12D3KooWK87KmBGJZZMP3keux62VF515mFRbNRFwbYxib7wWQR34',
-      '12D3KooWDgabT39cFp5j5mvJgiGPEppMuVgDCsNtBCh1Q8ejBCA5',
-      '12D3KooWEKXXjviRoWwoB37UzBT4qjUBbQH8bypWy3YWmyfvR736',
-      '12D3KooWRGcN9uh633ucfUJ3XQ69n31mB2jPHKtrw7mfCSJdLz97'
-    ];
+    const oracles = await this._smartContractService.getOracles();
+    const oraclesPeerIds = oracles.map((o) => o.peerId);
 
-    const oracleLeaderIndex = epoch % (oracles.length - 1);
+    const oracleLeaderIndex = epoch % (oraclesPeerIds.length - 1);
 
-    return oracles[oracleLeaderIndex];
+    return oraclesPeerIds[oracleLeaderIndex];
   }
 
   private _stopProgressTimer(): void {

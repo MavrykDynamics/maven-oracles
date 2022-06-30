@@ -137,7 +137,12 @@ export class ReportGenFollowerService implements OnModuleInit {
   }
 
   public async onFinalReceived(from: PeerId, round: number, attestedReport: IAttestedReport): Promise<void> {
-    // TODO: check if leader
+    if (from.toString() !== this._leader) {
+      this._logger.warn(
+        'onFinalReceived: Observation request received from someone else than leader, discarding request'
+      );
+      return;
+    }
     if (round !== this._round || this._sentEcho) {
       return;
     }
@@ -178,7 +183,6 @@ export class ReportGenFollowerService implements OnModuleInit {
   }
 
   private _compressReport(report: IReport): ICompressedReport {
-    // TODO: implement
     return {
       observations: report.observations.map(({ signature, ...rest }) => ({ ...rest }))
     };
