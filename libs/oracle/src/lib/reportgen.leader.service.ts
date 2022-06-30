@@ -67,6 +67,19 @@ export class ReportGenLeaderService implements OnModuleInit {
       this._onReport(from, round, compressedReport, signature)
     );
     this._eventHubService.on('startepoch', (epoch, leader) => this.onStartEpoch(epoch, leader));
+    this._eventHubService.on('stopReportGen', (epoch, leader) => this.onStopReportGen(epoch, leader));
+  }
+
+  public async onStopReportGen(epoch: number, leader: string): Promise<void> {
+    // TODO: This is not in ocr paper spec, but necessary with the current implementation, this set state to blank state
+    this._round = 0;
+    this._epoch = epoch;
+    this._leader = leader;
+    this._stopGraceTimer();
+    this._stopRoundTimer();
+    this._observe = new Map();
+    this._report = new Map();
+    this._phase = Phase.Observe;
   }
 
   public async onStartEpoch(epoch: number, leader: string): Promise<void> {
