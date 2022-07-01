@@ -21,8 +21,13 @@ export interface OraclePriceResponsesValue {
   priceSalted: (string | BigNumber)[];
 }
 
+export interface oracleInformation {
+  oraclePublicKey: string;
+  oraclePeerId: string;
+}
+
 export interface AggregatorStorage {
-  oracleAddresses: MichelsonMap<string, string>;
+  oracleAddresses: MichelsonMap<string, oracleInformation>;
   lastPrice: BigNumber;
 }
 

@@ -44,14 +44,14 @@ export class OracleConfig {
   public peerPrivateKey: string;
 
   @Property({
-    default: 'KT1JDFrgRJfcCSjdztA6A2t6sNv7Yu93ywZL',
+    default: 'KT1LqZixyrDsqe4i1CnvdwwXfF6qZyFiTfha',
     env: 'AGGREGATOR_ADDRESS',
     format: String,
   })
   public aggregatorAddress: string;
 
   @Property({
-    default: 'https://ithacanet.ecadinfra.com',
+    default: 'https://rpc.tzkt.io/ghostnet/',
     env: 'RPC_URL',
     format: String,
   })

@@ -43,7 +43,6 @@ services:
       - './apps:/home/node/apps'
       - './libs:/home/node/libs'
     environment:
-      - RPC_URL=http://flextesa:20000
       - ORACLE_PKH=tz1MnmtP4uAcgMpeZN6JtyziXeFqqwQG6yn6 # Eve
       - POLLING_INTERVAL_MILLISECONDS=2000
       - SIGNER_URL=http://signatory:6732
@@ -67,7 +66,6 @@ services:
       - './apps:/home/node/apps'
       - './libs:/home/node/libs'
     environment:
-      - RPC_URL=http://flextesa:20000
       - ORACLE_PKH=tz1R2oNqANNy2vZhnZBJc8iMEqW79t85Fv7L # Mallory
       - POLLING_INTERVAL_MILLISECONDS=1000
       - SIGNER_URL=http://signatory:6732
@@ -91,7 +89,6 @@ services:
       - './apps:/home/node/apps'
       - './libs:/home/node/libs'
     environment:
-      - RPC_URL=http://flextesa:20000
       - ORACLE_PKH=tz1VGyrip8uZDWoyssXDP7d1boGdpQcaaMXc # Oscar
       - POLLING_INTERVAL_MILLISECONDS=1000
       - SIGNER_URL=http://signatory:6732
@@ -115,7 +112,6 @@ services:
       - './apps:/home/node/apps'
       - './libs:/home/node/libs'
     environment:
-      - RPC_URL=http://flextesa:20000
       - ORACLE_PKH=tz1NdjbFHLxbKEUXhXgjyLfQSCbq6oy5b7Px # Trudy
       - POLLING_INTERVAL_MILLISECONDS=1000
       - SIGNER_URL=http://signatory:6732
@@ -139,7 +135,6 @@ services:
       - './apps:/home/node/apps'
       - './libs:/home/node/libs'
     environment:
-      - RPC_URL=http://flextesa:20000
       - ORACLE_PKH=tz1NdjbFHLxbKEUXhXgjyLfQSCbq6oy5b7Px # Trudy
       - POLLING_INTERVAL_MILLISECONDS=1000
       - SIGNER_URL=http://signatory:6732
@@ -163,7 +158,6 @@ services:
       - './apps:/home/node/apps'
       - './libs:/home/node/libs'
     environment:
-      - RPC_URL=http://flextesa:20000
       - ORACLE_PKH=tz1NdjbFHLxbKEUXhXgjyLfQSCbq6oy5b7Px # Trudy
       - POLLING_INTERVAL_MILLISECONDS=1000
       - SIGNER_URL=http://signatory:6732
@@ -187,7 +181,6 @@ services:
       - './apps:/home/node/apps'
       - './libs:/home/node/libs'
     environment:
-      - RPC_URL=http://flextesa:20000
       - ORACLE_PKH=tz1NdjbFHLxbKEUXhXgjyLfQSCbq6oy5b7Px # Trudy
       - POLLING_INTERVAL_MILLISECONDS=1000
       - SIGNER_URL=http://signatory:6732

@@ -38,8 +38,11 @@ export class NodeService {
 
     this._logger.verbose(`Using bootstrap peers: ${bootstrapPeers}`);
 
-    const oracles = await this._contractService._bigArray;
-    const oraclePeerIds = oracles.map((o) => o.peerId);
+    let peersIdList: string[] = [];
+    const oracleAddresses = await this._contractService.getOraclesAddresses(this._config.aggregatorAddress);
+    for (let [key, value] of oracleAddresses.entries()) {
+      peersIdList.push(value.oraclePeerId)
+    }
 
     // TODO: Bootstrap peer list should come from config
     const peerIdWhitelist = [
@@ -47,7 +50,7 @@ export class NodeService {
       'QmcrQZ6RJdpYuGvZqD5QEHAv6qX4BrQLJLQPQUrTrzdcgm',
 
       // Oracles
-      ...oraclePeerIds
+      ...peersIdList
     ];
 
     this._node = await createLibp2p({

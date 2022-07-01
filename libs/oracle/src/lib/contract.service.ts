@@ -1,31 +1,26 @@
 import {Injectable, Logger, OnModuleInit} from '@nestjs/common';
-import {HttpService} from '@nestjs/axios';
-import { packDataBytes, MichelsonData, MichelsonType } from '@taquito/michel-codec';
+import { packDataBytes, MichelsonType } from '@taquito/michel-codec';
 import { InMemorySigner } from '@taquito/signer';
 import { verifySignature } from '@taquito/utils';
-import { accounts } from './helpers.js';
 
 import {OracleConfig} from "./oracle.config.js";
 import { MichelsonMap, TezosToolkit } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 import { Schema } from '@taquito/michelson-encoder';
-import { AggregatorStorage, OraclePriceResponsesForPackValue, OraclePriceResponsesValue } from '../types/aggregators';
+import { AggregatorStorage, oracleInformation, OraclePriceResponsesForPackValue, OraclePriceResponsesValue } from '../types/aggregators';
 import { IAttestedReport, ICompressedReport, IObservation, ISignature } from './reportgen.network.service.js';
+
+interface IOracleInformations {
+  oracleAddress: string;
+  oraclePublicKey: string;
+  oraclePeerId: string;
+}
 
 @Injectable()
 export class ContractService implements OnModuleInit {
   private readonly _logger: Logger = new Logger(ContractService.name);
   private _tezos: TezosToolkit;
-
-  public readonly _bigArray: any = [
-    { peerId: '12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1', publicKey: 'edpkv9DgHWm6HY6b35Mv77hgZcWrJVD4ADebp9RjYxXVmFvGs4VYi1', address: 'tz1eAoFgsys8PhTUvT3V3eq2BFaZp8UsGNsr' },
-    { peerId: '12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2', publicKey: 'edpkunKYLbEfRLKLtn9yi9avyjQbAAbQxuPVN759ajQEDKpp4RE6GV', address: 'tz1MBNfBnNn8fZCJVrrXV95FSgyuUxbmt3Mm' },
-    { peerId: '12D3KooWLL2Y1JmrAXkY7r8xbuSRtasfJLAarXmAaZPYxPnzgAJ3', publicKey: 'edpkuVjyKad7yCnNrCbGea7hi5Zh1zp5Cb1TvxUmnxC33fwKhq7daN', address: 'tz1PSmvRd3ySbh5aviFEMYGD6542LL5QnrMk' },
-    { peerId: '12D3KooWK87KmBGJZZMP3keux62VF515mFRbNRFwbYxib7wWQR34', publicKey: 'edpku7vkvS6XaWzFjmPDYULNyYrS7Rf1vHuoQ9FD8zVcaFNJ51bJ82', address: 'tz1KrELvNVY4xKnujkXwrVLWuzWJEg9FvA8v' },
-    { peerId: '12D3KooWDgabT39cFp5j5mvJgiGPEppMuVgDCsNtBCh1Q8ejBCA5', publicKey: 'edpkuqoXhgeXYZxn6yVWuy9UrWKazyahPaAbwnuZYknRefeLVVK3ar', address: 'tz1YKquTvvSE2B5kvGyf1AYeXD6b6cMDSzDe' },
-    { peerId: '12D3KooWEKXXjviRoWwoB37UzBT4qjUBbQH8bypWy3YWmyfvR736', publicKey: 'edpkv6xHMqShSMr4CK3Vzg7mD1hina7eBkokrMoKpuYj55BVd18rjN', address: 'tz1TQ4fpSFNZ6D9vrcwBz9yzM2SNjDj5YoU7' },
-    { peerId: '12D3KooWRGcN9uh633ucfUJ3XQ69n31mB2jPHKtrw7mfCSJdLz97', publicKey: 'edpku8MxEyEKHPsPeUBSBz5a5QbemdPbiQVsobdC3SnC9UDf4yMHTL', address: 'tz1bPLbmiseCCWtW7RZ9t2RkNyboB9XT4exJ' }
-  ];
+  private _oracleAddresses: MichelsonMap<string, oracleInformation>;
 
   public constructor(
     private readonly _config: OracleConfig,
@@ -36,20 +31,35 @@ export class ContractService implements OnModuleInit {
   
   public async onModuleInit(): Promise<void> {
     this._logger.log('Hello from contract service');
+    await this.updateOraclesAddressesMap(this._config.aggregatorAddress);
   }
 
   public async getFValue(): Promise<number> {
-    return Math.floor((this._bigArray.length - 1) / 3);
+    // change the this._config.aggregatorAddress inside
+    const oracleAddresses = await this.getOraclesAddresses(this._config.aggregatorAddress);
+    return Math.floor((oracleAddresses.size - 1) / 3);
   }
 
-  public async getOraclesAddresses(aggregatorAddress: string): Promise<MichelsonMap<string, string>> {
+  
+  public async updateOraclesAddressesMap(aggregatorAddress: string): Promise<void> {
+    const contractInstance = await this._tezos.contract.at(aggregatorAddress);
+    const storage: AggregatorStorage = await contractInstance.storage();
+    this._oracleAddresses = storage.oracleAddresses;
+  }
+
+  public async getOraclesAddressesBlockchain(aggregatorAddress: string): Promise<MichelsonMap<string, oracleInformation>> {
     const contractInstance = await this._tezos.contract.at(aggregatorAddress);
     const storage: AggregatorStorage = await contractInstance.storage();
     const oracleAddresses = storage.oracleAddresses;
-    // oracleAddresses.forEach((value, key) => {
-    //   this._logger.debug(`Oracle authorized -> [address]: ${key} - [publicKey]: ${value}`);
-    // });
     return oracleAddresses;
+  }
+
+  public async getOraclesAddresses(aggregatorAddress: string): Promise<MichelsonMap<string, oracleInformation>> {
+    if (this._oracleAddresses){
+      return this._oracleAddresses
+    } else {
+      return await this.getOraclesAddressesBlockchain(aggregatorAddress);
+    }
   }
 
   public async isOracleAddressAuthorized(aggregatorAddress: string, oracleAddress: string): Promise<boolean>{
@@ -57,30 +67,34 @@ export class ContractService implements OnModuleInit {
     return oracleAddresses.has(oracleAddress);
   }
 
-  // public async getPublicKeyFromAddressOracle(aggregatorAddress: string, oracleAddress: string): Promise<string>{
-  //   const oracleAddresses = await this.getOraclesAddresses(aggregatorAddress);
-  //   return oracleAddresses.get(oracleAddress) || '';
-  // }
+  public async getOracleInformationsFromAddressOracle(aggregatorAddress: string, oracleAddress: string): Promise<IOracleInformations | undefined>{
+    const oracleAddresses = await this.getOraclesAddresses(aggregatorAddress);
+    const infos = oracleAddresses.get(oracleAddress);
+    return infos ? {
+        oracleAddress,
+        ...infos
+    } : undefined
+  }
 
-  public async getInfosFromAddressOracle(aggregatorAddress: string, oracleAddress: string): Promise<any>{
-    const result = this._bigArray.find(element => {
-      if (element.address === oracleAddress) {
-        return true;
+  public async getOracleInformationsFromPeerId(aggregatorAddress: string, peerId: string): Promise<IOracleInformations | undefined>{
+    const oracleAddresses = await this.getOraclesAddresses(aggregatorAddress);
+    let oracleAddress = ''
+    for (let [key, value] of oracleAddresses.entries()) {
+      if (value.oraclePeerId === peerId)
+      {
+        oracleAddress = key;
       }
-      return false;
-    });
-    return result || {};
-  };
+    }
+    if (oracleAddress === ''){
+      return undefined
+    }
+    const infos = oracleAddresses.get(oracleAddress);
+    return infos ? {
+        oracleAddress,
+        ...infos
+    } : undefined
+  }
 
-  public async getInfosFromPeerId(aggregatorAddress: string, peerId: string): Promise<any>{
-    const result = this._bigArray.find(element => {
-      if (element.peerId === peerId) {
-        return true;
-      }
-      return false;
-    });
-    return result || {};
-  };
 
   public async packObservations(oraclePriceResponsesForPack: MichelsonMap<string, BigNumber>): Promise<string>{
     const typeMap: MichelsonType = {
@@ -113,8 +127,11 @@ export class ContractService implements OnModuleInit {
 
     const oraclePriceResponsesForPack = new MichelsonMap<string, BigNumber>();
     for (const { oracle, price} of observations) {
-      const {address} = await this.getInfosFromPeerId(this._config.aggregatorAddress, oracle);
-      oraclePriceResponsesForPack.set(address, price);
+      const infos = await this.getOracleInformationsFromPeerId(this._config.aggregatorAddress, oracle);
+      if (!infos){
+        return '';
+      }
+      oraclePriceResponsesForPack.set(infos.oracleAddress, price);
     };
 
     return await this.signOraclePriceResponses(oraclePriceResponsesForPack, signer);
@@ -123,43 +140,48 @@ export class ContractService implements OnModuleInit {
   public async verifyReportSignature(report: ICompressedReport, signature: ISignature): Promise<boolean>{
     const oraclePriceResponsesForPack = new MichelsonMap<string, BigNumber>();
     for (const { oracle, price} of report.observations) {
-      const {address} = await this.getInfosFromPeerId(this._config.aggregatorAddress, oracle);
-      oraclePriceResponsesForPack.set(address, price)
+      const infos = await this.getOracleInformationsFromPeerId(this._config.aggregatorAddress, oracle);
+      if (!infos){
+        return false;
+      }
+      oraclePriceResponsesForPack.set(infos.oracleAddress, price)
     };
-    console.log("verifyReportSignature")
     const msg = await this.packObservations(oraclePriceResponsesForPack);
-    const { publicKey} = await this.getInfosFromAddressOracle(this._config.aggregatorAddress,signature.oracle)
-
-    return verifySignature(msg, publicKey, signature.signature);
+    const infos = await this.getOracleInformationsFromAddressOracle(this._config.aggregatorAddress,signature.oracle)
+    if (!infos){
+      return false;
+    }
+    return verifySignature(msg, infos.oraclePublicKey, signature.signature);
   }   
 
   public async verifyAttestedReport(attestedReport: IAttestedReport): Promise<boolean>{
     const oraclePriceResponsesForPack = new MichelsonMap<string, BigNumber>();
     for (const { oracle, price} of attestedReport.observations) {
-      const {address} = await this.getInfosFromPeerId(this._config.aggregatorAddress, oracle);
-      oraclePriceResponsesForPack.set(address, price)
+      const infos = await this.getOracleInformationsFromPeerId(this._config.aggregatorAddress, oracle);
+      if (!infos){
+        return false;
+      }
+      oraclePriceResponsesForPack.set(infos.oracleAddress, price)
     };
-    console.log("verifyAttestedReport")
 
     const msg = await this.packObservations(oraclePriceResponsesForPack);
-    
     let isEverythingOk = true;
-    // verify for each observation.oracle == signatures.oracle
-
 
     // verify all signatues
     attestedReport.observations.forEach(async ({ oracle }) => {
-      const toto = attestedReport.signatures.find(element => {
+      const result = attestedReport.signatures.find(element => {
         if (element.oracle === oracle) {
           return true;
         }
         return false;
       });
-      if (!toto){
+      if (!result){
         isEverythingOk = false;
       } else {
-        const {publicKey} = await this.getInfosFromAddressOracle(this._config.aggregatorAddress, toto.oracle);
-        if(!verifySignature(msg, publicKey, toto.signature)){
+        const infos = await this.getOracleInformationsFromAddressOracle(this._config.aggregatorAddress, result.oracle)
+        if (!infos){
+          return false;
+        }        if(!verifySignature(msg, infos.oraclePublicKey, result.signature)){
           isEverythingOk = false;
         };
 
@@ -167,9 +189,6 @@ export class ContractService implements OnModuleInit {
     });
     return isEverythingOk;
   }
-
-
-
 
   
 

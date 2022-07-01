@@ -154,18 +154,24 @@ export class PacemakerService implements OnModuleInit {
 
     this._restartProgressTimer();
 
+    await this._contractService.updateOraclesAddressesMap(this._config.aggregatorAddress)
+
+
     if (this._epochAndLeader.leader === this._self) {
       this._eventHubService.startepoch(this._epochAndLeader.epoch, this._epochAndLeader.leader);
     }
   }
 
   public async leaderForEpoch(epoch: number): Promise<string> {
-    const oracles = await this._contractService._bigArray;
-    const oraclesPeerIds = oracles.map((o) => o.peerId);
+    let peersIdList: string[] = [];
+    const oracleAddresses = await this._contractService.getOraclesAddresses(this._config.aggregatorAddress);
+    for (let [key, value] of oracleAddresses.entries()) {
+      peersIdList.push(value.oraclePeerId)
+    }
 
-    const oracleLeaderIndex = epoch % (oraclesPeerIds.length - 1);
+    const oracleLeaderIndex = epoch % (peersIdList.length - 1);
 
-    return oraclesPeerIds[oracleLeaderIndex];
+    return peersIdList[oracleLeaderIndex];
   }
 
   private _stopProgressTimer(): void {
