@@ -65,7 +65,7 @@ export class ReportGenLeaderService implements OnModuleInit {
       this._onObserve(from, round, observation, signature)
     );
     this._reportgenNetworkService.on('report', (from, { round, compressedReport, signature }) =>
-      this._onReport(from, round, compressedReport, signature)
+      this._onReport(from, compressedReport, signature)
     );
     this._eventHubService.on('startepoch', (epoch, leader) => this.onStartEpoch(epoch, leader));
     this._eventHubService.on('stopReportGen', (epoch, leader) => this.onStopReportGen(epoch, leader));
@@ -158,16 +158,11 @@ export class ReportGenLeaderService implements OnModuleInit {
     }
 
     const assembledReport = this._assembleReport();
-    await this._reportgenNetworkService.broadcastReportReq(this._round, assembledReport);
+    await this._reportgenNetworkService.broadcastReportReq(assembledReport);
     this._phase = Phase.Report;
   }
 
-  private async _onReport(
-    from: PeerId,
-    round: number,
-    report: ICompressedReport,
-    signature: ISignature
-  ): Promise<void> {
+  private async _onReport(from: PeerId, report: ICompressedReport, signature: ISignature): Promise<void> {
     // TODO: verify signature
 
     if (this._config.peerId.toString() !== this._leader) {
@@ -176,7 +171,7 @@ export class ReportGenLeaderService implements OnModuleInit {
     }
 
     if (
-      round !== this._round &&
+      report.round !== this._round &&
       this._report.get(from.toString()) === undefined &&
       this._phase !== null &&
       this._phase !== Phase.Report
@@ -185,10 +180,10 @@ export class ReportGenLeaderService implements OnModuleInit {
       return;
     }
 
-    if (! await this._verifyReportSignature(report, signature)) {
+    if (!(await this._verifyReportSignature(report, signature))) {
       this._logger.warn(`_onReport: signature did not match, discarding report`);
       return;
-    } 
+    }
 
     this._report.set(from.toString(), {
       report,
@@ -204,11 +199,13 @@ export class ReportGenLeaderService implements OnModuleInit {
     }
 
     const attestedReport: IAttestedReport = {
+      epoch: this._epoch,
+      round: this._round,
       observations: report.observations,
       signatures: [...this._report.values()].map((report) => report.signature)
     };
 
-    await this._reportgenNetworkService.broadcastFinal(round, attestedReport);
+    await this._reportgenNetworkService.broadcastFinal(attestedReport);
     this._phase = Phase.Final;
   }
 
@@ -252,6 +249,8 @@ export class ReportGenLeaderService implements OnModuleInit {
 
   private _assembleReport(): IReport {
     return {
+      epoch: this._epoch,
+      round: this._round,
       observations: [...this._observe.entries()]
         .map(([oracle, observation]) => ({
           oracle,

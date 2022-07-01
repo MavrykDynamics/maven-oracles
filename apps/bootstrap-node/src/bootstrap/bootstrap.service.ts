@@ -37,7 +37,9 @@ export class BootstrapService implements OnModuleInit {
       transports: [new TCP()],
       streamMuxers: [new Mplex()],
       connectionEncryption: [new Noise()],
-      pubsub: new GossipSub(),
+      pubsub: new GossipSub({
+        doPX: true
+      }),
       peerDiscovery: [
         // new Bootstrap({
         //     interval: 60e3,

@@ -76,8 +76,8 @@ importers:
       '@libp2p/mplex': 1.2.1
       '@libp2p/peer-id-factory': 1.0.15
       '@libp2p/pubsub-peer-discovery': 6.0.0
-      '@libp2p/tcp': 1.0.11_8ee40dc4125ff0a7fa6f9d50813a541a
-      '@libp2p/websockets': 1.0.9_8ee40dc4125ff0a7fa6f9d50813a541a
+      '@libp2p/tcp': 1.0.11_1bd0753a1447b59d1959eab3a3dd22a4
+      '@libp2p/websockets': 1.0.9_1bd0753a1447b59d1959eab3a3dd22a4
       '@nestjs/axios': 0.0.7_37c15d9aad112cee731c8d239db0c0af
       '@nestjs/common': 8.4.7_e7ea248743279784063e3708d703abc5
       '@nestjs/core': 8.4.7_2aa064eef171d5a7957432d22e4b3f20
@@ -95,7 +95,7 @@ importers:
       async-mutex: 0.3.2
       bignumber.js: 9.0.2
       convict: 6.2.3
-      libp2p: 0.37.3_8ee40dc4125ff0a7fa6f9d50813a541a
+      libp2p: 0.37.3_1bd0753a1447b59d1959eab3a3dd22a4
       multiaddr: 10.0.1
       reflect-metadata: 0.1.13
       rxjs: 7.5.5
@@ -110,7 +110,7 @@ importers:
       '@rushstack/heft': 0.45.14
       '@types/cron': 1.7.3
       '@types/jest': 27.0.2
-      '@types/node': 16.11.41
+      '@types/node': 16.11.42
       '@types/yargs': 17.0.10
       '@typescript-eslint/eslint-plugin': 5.10.2_61711575dd6de0ced61e0bccc6181943
       '@typescript-eslint/parser': 5.10.2_eslint@8.7.0+typescript@4.5.5
@@ -121,7 +121,7 @@ importers:
       prettier: 2.7.1
       rimraf: 3.0.2
       ts-jest: 27.0.5_227fbc629be1b82a2ac5dd91da2eb1f8
-      ts-node: 10.8.1_8ee40dc4125ff0a7fa6f9d50813a541a
+      ts-node: 10.8.1_1bd0753a1447b59d1959eab3a3dd22a4
       typescript: 4.5.5
       webpack-merge: 5.8.0
       webpack-node-externals: 3.0.0
@@ -193,8 +193,8 @@ importers:
       '@libp2p/kad-dht': 1.0.16
       '@libp2p/mplex': 1.2.1
       '@libp2p/pubsub-peer-discovery': 6.0.0
-      '@libp2p/tcp': 1.0.11_8ee40dc4125ff0a7fa6f9d50813a541a
-      '@libp2p/websockets': 1.0.9_8ee40dc4125ff0a7fa6f9d50813a541a
+      '@libp2p/tcp': 1.0.11_1bd0753a1447b59d1959eab3a3dd22a4
+      '@libp2p/websockets': 1.0.9_1bd0753a1447b59d1959eab3a3dd22a4
       '@nestjs/axios': 0.0.7_37c15d9aad112cee731c8d239db0c0af
       '@nestjs/common': 8.4.7_e7ea248743279784063e3708d703abc5
       '@nestjs/core': 8.4.7_2aa064eef171d5a7957432d22e4b3f20
@@ -212,7 +212,7 @@ importers:
       async-mutex: 0.3.2
       bignumber.js: 9.0.2
       convict: 6.2.3
-      libp2p: 0.37.3_8ee40dc4125ff0a7fa6f9d50813a541a
+      libp2p: 0.37.3_1bd0753a1447b59d1959eab3a3dd22a4
       multiaddr: 10.0.1
       reflect-metadata: 0.1.13
       rxjs: 7.5.5
@@ -227,7 +227,7 @@ importers:
       '@rushstack/heft': 0.45.14
       '@types/cron': 1.7.3
       '@types/jest': 27.0.2
-      '@types/node': 16.11.41
+      '@types/node': 16.11.42
       '@types/yargs': 17.0.10
       '@typescript-eslint/eslint-plugin': 5.10.2_61711575dd6de0ced61e0bccc6181943
       '@typescript-eslint/parser': 5.10.2_eslint@8.7.0+typescript@4.5.5
@@ -238,7 +238,7 @@ importers:
       prettier: 2.7.1
       rimraf: 3.0.2
       ts-jest: 27.0.5_227fbc629be1b82a2ac5dd91da2eb1f8
-      ts-node: 10.8.1_8ee40dc4125ff0a7fa6f9d50813a541a
+      ts-node: 10.8.1_1bd0753a1447b59d1959eab3a3dd22a4
       typescript: 4.5.5
       webpack-merge: 5.8.0
       webpack-node-externals: 3.0.0
@@ -278,6 +278,7 @@ importers:
       '@taquito/taquito': ^12.1.1
       '@taquito/utils': ~13.0.0
       '@types/cron': ^1.7.3
+      '@types/heap': ~0.2.31
       '@types/jest': 27.0.2
       '@types/node': ^16.11.7
       '@types/yargs': ^17.0.9
@@ -289,6 +290,7 @@ importers:
       eslint: ~8.7.0
       eslint-config-prettier: 8.1.0
       eslint-plugin-jest: ~26.2
+      heap: ~0.2.7
       it-first: ~1.0.7
       it-length-prefixed: ~7.0.1
       it-map: ~1.0.6
@@ -326,8 +328,8 @@ importers:
       '@libp2p/mplex': 1.2.1
       '@libp2p/peer-id-factory': 1.0.15
       '@libp2p/pubsub-peer-discovery': 6.0.0
-      '@libp2p/tcp': 1.0.11_8ee40dc4125ff0a7fa6f9d50813a541a
-      '@libp2p/websockets': 1.0.9_8ee40dc4125ff0a7fa6f9d50813a541a
+      '@libp2p/tcp': 1.0.11_1bd0753a1447b59d1959eab3a3dd22a4
+      '@libp2p/websockets': 1.0.9_1bd0753a1447b59d1959eab3a3dd22a4
       '@nestjs/axios': 0.0.7_37c15d9aad112cee731c8d239db0c0af
       '@nestjs/common': 8.4.7_e7ea248743279784063e3708d703abc5
       '@nestjs/core': 8.4.7_2aa064eef171d5a7957432d22e4b3f20
@@ -344,11 +346,12 @@ importers:
       async-mutex: 0.3.2
       bignumber.js: 9.0.2
       convict: 6.2.3
+      heap: 0.2.7
       it-first: 1.0.7
       it-length-prefixed: 7.0.1
       it-map: 1.0.6
       it-pipe: 2.0.3
-      libp2p: 0.37.3_8ee40dc4125ff0a7fa6f9d50813a541a
+      libp2p: 0.37.3_1bd0753a1447b59d1959eab3a3dd22a4
       multiaddr: 10.0.1
       reflect-metadata: 0.1.13
       rxjs: 7.5.5
@@ -365,8 +368,9 @@ importers:
       '@rushstack/eslint-config': 2.6.2_eslint@8.7.0+typescript@4.5.5
       '@rushstack/heft': 0.45.14
       '@types/cron': 1.7.3
+      '@types/heap': 0.2.31
       '@types/jest': 27.0.2
-      '@types/node': 16.11.41
+      '@types/node': 16.11.42
       '@types/yargs': 17.0.10
       '@typescript-eslint/eslint-plugin': 5.10.2_61711575dd6de0ced61e0bccc6181943
       '@typescript-eslint/parser': 5.10.2_eslint@8.7.0+typescript@4.5.5
@@ -377,7 +381,7 @@ importers:
       prettier: 2.7.1
       rimraf: 3.0.2
       ts-jest: 27.0.5_227fbc629be1b82a2ac5dd91da2eb1f8
-      ts-node: 10.8.1_8ee40dc4125ff0a7fa6f9d50813a541a
+      ts-node: 10.8.1_1bd0753a1447b59d1959eab3a3dd22a4
       typescript: 4.5.5
       webpack-merge: 5.8.0
       webpack-node-externals: 3.0.0
@@ -881,7 +885,7 @@ packages:
     engines: {node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0}
     dependencies:
       '@jest/types': 27.5.1
-      '@types/node': 16.11.41
+      '@types/node': 16.11.42
       chalk: 4.1.2
       jest-message-util: 27.5.1
       jest-util: 27.5.1
@@ -902,7 +906,7 @@ packages:
       '@jest/test-result': 27.5.1
       '@jest/transform': 27.5.1
       '@jest/types': 27.5.1
-      '@types/node': 16.11.41
+      '@types/node': 16.11.42
       ansi-escapes: 4.3.2
       chalk: 4.1.2
       emittery: 0.8.1
@@ -939,7 +943,7 @@ packages:
     dependencies:
       '@jest/fake-timers': 27.5.1
       '@jest/types': 27.5.1
-      '@types/node': 16.11.41
+      '@types/node': 16.11.42
       jest-mock: 27.5.1
     dev: true
 
@@ -949,7 +953,7 @@ packages:
     dependencies:
       '@jest/types': 27.5.1
       '@sinonjs/fake-timers': 8.1.0
-      '@types/node': 16.11.41
+      '@types/node': 16.11.42
       jest-message-util: 27.5.1
       jest-mock: 27.5.1
       jest-util: 27.5.1
@@ -978,7 +982,7 @@ packages:
       '@jest/test-result': 27.5.1
       '@jest/transform': 27.5.1
       '@jest/types': 27.5.1
-      '@types/node': 16.11.41
+      '@types/node': 16.11.42
       chalk: 4.1.2
       collect-v8-coverage: 1.0.1
       exit: 0.1.2
@@ -1062,7 +1066,7 @@ packages:
     dependencies:
       '@types/istanbul-lib-coverage': 2.0.4
       '@types/istanbul-reports': 3.0.1
-      '@types/node': 16.11.41
+      '@types/node': 16.11.42
       '@types/yargs': 16.0.4
       chalk: 4.1.2
     dev: true
@@ -1593,7 +1597,7 @@ packages:
       uint8arrays: 3.0.0
     dev: false
 
-  /@libp2p/peer-record/1.0.12_8ee40dc4125ff0a7fa6f9d50813a541a:
+  /@libp2p/peer-record/1.0.12_1bd0753a1447b59d1959eab3a3dd22a4:
     resolution: {integrity: sha512-1b4aeU4sduRBUH4RKDtYBHKOEXwohrlOoBrrNPKb1WFweLMnG3oznhGusMvKQ8YuXSOTpbNPHrbJ/iJnrBbVUQ==}
     engines: {node: '>=16.0.0', npm: '>=7.0.0'}
     dependencies:
@@ -1601,7 +1605,7 @@ packages:
       '@libp2p/interfaces': 2.0.4
       '@libp2p/logger': 1.1.6
       '@libp2p/peer-id': 1.1.13
-      '@libp2p/utils': 1.0.10_8ee40dc4125ff0a7fa6f9d50813a541a
+      '@libp2p/utils': 1.0.10_1bd0753a1447b59d1959eab3a3dd22a4
       '@multiformats/multiaddr': 10.2.1
       err-code: 3.0.1
       interface-datastore: 6.1.1
@@ -1651,14 +1655,14 @@ packages:
       - undici
     dev: false
 
-  /@libp2p/peer-store/1.0.17_8ee40dc4125ff0a7fa6f9d50813a541a:
+  /@libp2p/peer-store/1.0.17_1bd0753a1447b59d1959eab3a3dd22a4:
     resolution: {integrity: sha512-1uvwjJ2dRQyQnms+vBY3CgWpZe+0EYSoCNo7UUE6dhJHIA3q1Syl4kZWukA081m1eFzmMLG2VjsrzUQAfmy+Sw==}
     engines: {node: '>=16.0.0', npm: '>=7.0.0'}
     dependencies:
       '@libp2p/interfaces': 2.0.4
       '@libp2p/logger': 1.1.6
       '@libp2p/peer-id': 1.1.13
-      '@libp2p/peer-record': 1.0.12_8ee40dc4125ff0a7fa6f9d50813a541a
+      '@libp2p/peer-record': 1.0.12_1bd0753a1447b59d1959eab3a3dd22a4
       '@multiformats/multiaddr': 10.2.1
       err-code: 3.0.1
       interface-datastore: 6.1.1
@@ -1764,13 +1768,13 @@ packages:
       - undici
     dev: false
 
-  /@libp2p/tcp/1.0.11_8ee40dc4125ff0a7fa6f9d50813a541a:
+  /@libp2p/tcp/1.0.11_1bd0753a1447b59d1959eab3a3dd22a4:
     resolution: {integrity: sha512-ewFwxTpTmZmFWF8UJxQK28yDIYVDodgbztxLM+OXnOcKlgN9fAihIO16NSKHSZlffLyQTXUVHaOQFjTJa0Ms5g==}
     engines: {node: '>=16.0.0', npm: '>=7.0.0'}
     dependencies:
       '@libp2p/interfaces': 2.0.4
       '@libp2p/logger': 1.1.6
-      '@libp2p/utils': 1.0.10_8ee40dc4125ff0a7fa6f9d50813a541a
+      '@libp2p/utils': 1.0.10_1bd0753a1447b59d1959eab3a3dd22a4
       '@multiformats/mafmt': 11.0.2
       '@multiformats/multiaddr': 10.2.1
       abortable-iterator: 4.0.2
@@ -1825,7 +1829,7 @@ packages:
       - undici
     dev: false
 
-  /@libp2p/utils/1.0.10_8ee40dc4125ff0a7fa6f9d50813a541a:
+  /@libp2p/utils/1.0.10_1bd0753a1447b59d1959eab3a3dd22a4:
     resolution: {integrity: sha512-jlVLfac1IoBlgXL8V+XZYxNw0SOAkKweiLhXWolUbKOgRtMDquJzbwG1n8y9GtdiFKPlkiBwOB7l9xighcOR6w==}
     engines: {node: '>=16.0.0', npm: '>=7.0.0'}
     dependencies:
@@ -1838,7 +1842,7 @@ packages:
       it-stream-types: 1.0.4
       private-ip: 2.3.3
       ts-mocha: 9.0.2
-      ts-node: 10.8.1_8ee40dc4125ff0a7fa6f9d50813a541a
+      ts-node: 10.8.1_1bd0753a1447b59d1959eab3a3dd22a4
     transitivePeerDependencies:
       - '@swc/core'
       - '@swc/wasm'
@@ -1868,13 +1872,13 @@ packages:
       - undici
     dev: false
 
-  /@libp2p/websockets/1.0.9_8ee40dc4125ff0a7fa6f9d50813a541a:
+  /@libp2p/websockets/1.0.9_1bd0753a1447b59d1959eab3a3dd22a4:
     resolution: {integrity: sha512-fKqTqzGXAcSIG2kFuDOgMyqjE8khTwE7+J1m+XvZRfz4b732wspg/3o/81dExN+T6F5wU60s2VeEYYyc1K++Vg==}
     engines: {node: '>=16.0.0', npm: '>=7.0.0'}
     dependencies:
       '@libp2p/interfaces': 2.0.4
       '@libp2p/logger': 1.1.6
-      '@libp2p/utils': 1.0.10_8ee40dc4125ff0a7fa6f9d50813a541a
+      '@libp2p/utils': 1.0.10_1bd0753a1447b59d1959eab3a3dd22a4
       '@multiformats/mafmt': 11.0.2
       '@multiformats/multiaddr': 10.2.1
       '@multiformats/multiaddr-to-uri': 9.0.1
@@ -2653,26 +2657,30 @@ packages:
   /@types/bs58check/2.1.0:
     resolution: {integrity: sha512-OxsysnJQh82vy9DRbOcw9m2j/WiyqZLn0YBhKxdQ+aCwoHj+tWzyCgpwAkr79IfDXZKxc6h7k89T9pwS78CqTQ==}
     dependencies:
-      '@types/node': 16.11.41
+      '@types/node': 16.11.42
     dev: false
 
   /@types/cron/1.7.3:
     resolution: {integrity: sha512-iPmUXyIJG1Js+ldPYhOQcYU3kCAQ2FWrSkm1FJPoii2eYSn6wEW6onPukNTT0bfiflexNSRPl6KWmAIqS+36YA==}
     dependencies:
-      '@types/node': 16.11.41
+      '@types/node': 16.11.42
       moment: 2.29.3
     dev: true
 
   /@types/dns-packet/5.2.4:
     resolution: {integrity: sha512-OAruArypdNxR/tzbmrtoyEuXeNTLaZCpO19BXaNC10T5ACIbvjmvhmV2RDEy2eLc3w8IjK7SY3cvUCcAW+sfoQ==}
     dependencies:
-      '@types/node': 16.11.41
+      '@types/node': 16.11.42
     dev: false
 
   /@types/graceful-fs/4.1.5:
     resolution: {integrity: sha512-anKkLmZZ+xm4p8JWBf4hElkM4XR+EZeA2M9BAkkTldmcyDY4mbdIJnRghDJH3Ov5ooY7/UAoENtmdMSkaAd7Cw==}
     dependencies:
-      '@types/node': 16.11.41
+      '@types/node': 16.11.42
+    dev: true
+
+  /@types/heap/0.2.31:
+    resolution: {integrity: sha512-cKL2veQoMEQGGSib6GTq7Of6mAX1e6gH/7F9ddE4+qsga/RRK/ThAkZcKF/i1yVc30ZxlY2r6vZ74NZNtAA0Yw==}
     dev: true
 
   /@types/istanbul-lib-coverage/2.0.4:
@@ -2711,15 +2719,15 @@ packages:
     resolution: {integrity: sha512-A2PmB8MRcNVEkw6wzGT5rtBHqyHOVjiRMkJH+zpJKXipSi+GGkHg6JjNFApDiYK9WefJqkVG0taln1VMl4TGfw==}
     dependencies:
       '@types/dns-packet': 5.2.4
-      '@types/node': 16.11.41
+      '@types/node': 16.11.42
     dev: false
 
   /@types/node/12.20.24:
     resolution: {integrity: sha512-yxDeaQIAJlMav7fH5AQqPH1u8YIuhYJXYBzxaQ4PifsU0GDO38MSdmEDeRlIxrKbC6NbEaaEHDanWb+y30U8SQ==}
     dev: true
 
-  /@types/node/16.11.41:
-    resolution: {integrity: sha512-mqoYK2TnVjdkGk8qXAVGc/x9nSaTpSrFaGFm43BUH3IdoBV0nta6hYaGmdOvIMlbHJbUEVen3gvwpwovAZKNdQ==}
+  /@types/node/16.11.42:
+    resolution: {integrity: sha512-iwLrPOopPy6V3E+1yHTpJea3bdsNso0b0utLOJJwaa/PLzqBt3GZl3stMcakc/gr89SfcNk2ki3z7Gvue9hYGQ==}
 
   /@types/prettier/2.6.3:
     resolution: {integrity: sha512-ymZk3LEC/fsut+/Q5qejp6R9O1rMxz3XaRHDV6kX8MrGAhOSPqVARbDi+EZvInBpw+BnCX3TD240byVkOfQsHg==}
@@ -3452,7 +3460,7 @@ packages:
     hasBin: true
     dependencies:
       caniuse-lite: 1.0.30001361
-      electron-to-chromium: 1.4.173
+      electron-to-chromium: 1.4.174
       node-releases: 2.0.5
       update-browserslist-db: 1.0.4_browserslist@4.21.1
     dev: true
@@ -3974,8 +3982,8 @@ packages:
     resolution: {integrity: sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==}
     dev: false
 
-  /electron-to-chromium/1.4.173:
-    resolution: {integrity: sha512-Qo3LnVW6JRNhD32viSdPebxKI7K+3WeBDjU1+Q2yZS83zAh8C2LyPpzTimlciv6U74KpY9n/0ESAhUByRke0jw==}
+  /electron-to-chromium/1.4.174:
+    resolution: {integrity: sha512-JER+w+9MV2MBVFOXxP036bLlNOnzbYAWrWU8sNUwoOO69T3w4564WhM5H5atd8VVS8U4vpi0i0kdoYzm1NPQgQ==}
     dev: true
 
   /elliptic/6.5.4:
@@ -4727,6 +4735,10 @@ packages:
     resolution: {integrity: sha512-0cMsjjIC8I+D3M44pOQdsy0OHXGLVz6Z0beRuufhKa0KfaD2wGwAev6jILzXsd3/vpnNQJmWyZtIILqM1N+n5A==}
     dev: false
 
+  /heap/0.2.7:
+    resolution: {integrity: sha512-2bsegYkkHO+h/9MGbn6KWcE45cHZgPANo5LXF7EvWdT0yT2EguSVO1nDgU5c8+ZOPwp2vMNa7YFsJhVcDR9Sdg==}
+    dev: false
+
   /hmac-drbg/1.0.1:
     resolution: {integrity: sha512-Tti3gMqLdZfhOQY1Mzf/AanLiqh1WTiJgEj26ZuYQ9fbkLomzGchCws4FyrSd4VkpBfiNhaE1On+lOz894jvXg==}
     dependencies:
@@ -5276,7 +5288,7 @@ packages:
       '@jest/environment': 27.5.1
       '@jest/test-result': 27.5.1
       '@jest/types': 27.5.1
-      '@types/node': 16.11.41
+      '@types/node': 16.11.42
       chalk: 4.1.2
       co: 4.6.0
       dedent: 0.7.0
@@ -5359,7 +5371,7 @@ packages:
       pretty-format: 27.5.1
       slash: 3.0.0
       strip-json-comments: 3.1.1
-      ts-node: 10.8.1_8ee40dc4125ff0a7fa6f9d50813a541a
+      ts-node: 10.8.1_1bd0753a1447b59d1959eab3a3dd22a4
     transitivePeerDependencies:
       - bufferutil
       - canvas
@@ -5402,7 +5414,7 @@ packages:
       '@jest/environment': 27.5.1
       '@jest/fake-timers': 27.5.1
       '@jest/types': 27.5.1
-      '@types/node': 16.11.41
+      '@types/node': 16.11.42
       jest-mock: 27.5.1
       jest-util: 27.5.1
       jsdom: 16.7.0
@@ -5420,7 +5432,7 @@ packages:
       '@jest/environment': 27.5.1
       '@jest/fake-timers': 27.5.1
       '@jest/types': 27.5.1
-      '@types/node': 16.11.41
+      '@types/node': 16.11.42
       jest-mock: 27.5.1
       jest-util: 27.5.1
     dev: true
@@ -5436,7 +5448,7 @@ packages:
     dependencies:
       '@jest/types': 27.5.1
       '@types/graceful-fs': 4.1.5
-      '@types/node': 16.11.41
+      '@types/node': 16.11.42
       anymatch: 3.1.2
       fb-watchman: 2.0.1
       graceful-fs: 4.2.10
@@ -5458,7 +5470,7 @@ packages:
       '@jest/source-map': 27.5.1
       '@jest/test-result': 27.5.1
       '@jest/types': 27.5.1
-      '@types/node': 16.11.41
+      '@types/node': 16.11.42
       chalk: 4.1.2
       co: 4.6.0
       expect: 27.5.1
@@ -5513,7 +5525,7 @@ packages:
     engines: {node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0}
     dependencies:
       '@jest/types': 27.5.1
-      '@types/node': 16.11.41
+      '@types/node': 16.11.42
     dev: true
 
   /jest-pnp-resolver/1.2.2_jest-resolve@27.5.1:
@@ -5569,7 +5581,7 @@ packages:
       '@jest/test-result': 27.5.1
       '@jest/transform': 27.5.1
       '@jest/types': 27.5.1
-      '@types/node': 16.11.41
+      '@types/node': 16.11.42
       chalk: 4.1.2
       emittery: 0.8.1
       graceful-fs: 4.2.10
@@ -5626,7 +5638,7 @@ packages:
     resolution: {integrity: sha512-jZCyo6iIxO1aqUxpuBlwTDMkzOAJS4a3eYz3YzgxxVQFwLeSA7Jfq5cbqCY+JLvTDrWirgusI/0KwxKMgrdf7w==}
     engines: {node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0}
     dependencies:
-      '@types/node': 16.11.41
+      '@types/node': 16.11.42
       graceful-fs: 4.2.10
     dev: true
 
@@ -5665,7 +5677,7 @@ packages:
     engines: {node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0}
     dependencies:
       '@jest/types': 27.5.1
-      '@types/node': 16.11.41
+      '@types/node': 16.11.42
       chalk: 4.1.2
       ci-info: 3.3.2
       graceful-fs: 4.2.10
@@ -5690,7 +5702,7 @@ packages:
     dependencies:
       '@jest/test-result': 27.5.1
       '@jest/types': 27.5.1
-      '@types/node': 16.11.41
+      '@types/node': 16.11.42
       ansi-escapes: 4.3.2
       chalk: 4.1.2
       jest-util: 27.5.1
@@ -5701,7 +5713,7 @@ packages:
     resolution: {integrity: sha512-7vuh85V5cdDofPyxn58nrPjBktZo0u9x1g8WtjQol+jZDaE+fhN+cIvTj11GndBnMnyfrUOG1sZQxCdjKh+DKg==}
     engines: {node: '>= 10.13.0'}
     dependencies:
-      '@types/node': 16.11.41
+      '@types/node': 16.11.42
       merge-stream: 2.0.0
       supports-color: 8.1.1
     dev: true
@@ -5900,7 +5912,7 @@ packages:
       type-check: 0.4.0
     dev: true
 
-  /libp2p/0.37.3_8ee40dc4125ff0a7fa6f9d50813a541a:
+  /libp2p/0.37.3_1bd0753a1447b59d1959eab3a3dd22a4:
     resolution: {integrity: sha512-G+0tWT6jZr05XE9bG8Kw1SqFrkt1X3bM9TDDXkqWqHvUVjBHWGNDysOvTp7p3jxoSj4J/Z2w9wGbdDsz1kfPlw==}
     engines: {node: '>=16.0.0', npm: '>=7.0.0'}
     dependencies:
@@ -5913,10 +5925,10 @@ packages:
       '@libp2p/peer-collections': 1.0.3
       '@libp2p/peer-id': 1.1.13
       '@libp2p/peer-id-factory': 1.0.15
-      '@libp2p/peer-record': 1.0.12_8ee40dc4125ff0a7fa6f9d50813a541a
-      '@libp2p/peer-store': 1.0.17_8ee40dc4125ff0a7fa6f9d50813a541a
+      '@libp2p/peer-record': 1.0.12_1bd0753a1447b59d1959eab3a3dd22a4
+      '@libp2p/peer-store': 1.0.17_1bd0753a1447b59d1959eab3a3dd22a4
       '@libp2p/tracked-map': 1.0.8
-      '@libp2p/utils': 1.0.10_8ee40dc4125ff0a7fa6f9d50813a541a
+      '@libp2p/utils': 1.0.10_1bd0753a1447b59d1959eab3a3dd22a4
       '@multiformats/mafmt': 11.0.2
       '@multiformats/multiaddr': 10.2.1
       abortable-iterator: 4.0.2
@@ -7320,7 +7332,7 @@ packages:
       tsconfig-paths: 3.14.1
     dev: false
 
-  /ts-node/10.8.1_8ee40dc4125ff0a7fa6f9d50813a541a:
+  /ts-node/10.8.1_1bd0753a1447b59d1959eab3a3dd22a4:
     resolution: {integrity: sha512-Wwsnao4DQoJsN034wePSg5nZiw4YKXf56mPIAeD6wVmiv+RytNSWqc2f3fKvcUoV+Yn2+yocD71VOfQHbmVX4g==}
     hasBin: true
     peerDependencies:
@@ -7339,7 +7351,7 @@ packages:
       '@tsconfig/node12': 1.0.11
       '@tsconfig/node14': 1.0.3
       '@tsconfig/node16': 1.0.3
-      '@types/node': 16.11.41
+      '@types/node': 16.11.42
       acorn: 8.7.1
       acorn-walk: 8.2.0
       arg: 4.1.3

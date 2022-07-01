@@ -12,7 +12,7 @@ export class PacemakerService implements OnModuleInit {
   private readonly _timerProgressDurationMiliseconds: number = 30 * 1000; // 30s recommended by OCR white paper
   private readonly _timerResendDurationMiliseconds: number = 15 * 1000; // 15s recommended by OCR white paper
 
-  // PeerId of currently running oralce
+  // PeerId of currently running oracle
   private _self: string;
 
   // Current epoch and leader
@@ -142,7 +142,7 @@ export class PacemakerService implements OnModuleInit {
       return;
     }
 
-    this._eventHubService.stopReportGen(epoch,await this.leaderForEpoch(epoch));
+    this._eventHubService.stopReportGen(epoch, await this.leaderForEpoch(epoch));
 
     this._epochAndLeader = {
       epoch,
@@ -193,6 +193,7 @@ export class PacemakerService implements OnModuleInit {
       clearTimeout(this._timerResend);
     }
   }
+
   private _restartResendTimer(): void {
     this._stopResendTimer();
     this._timerResend = setTimeout(() => this.onResendTimerTimeout(), this._timerResendDurationMiliseconds);

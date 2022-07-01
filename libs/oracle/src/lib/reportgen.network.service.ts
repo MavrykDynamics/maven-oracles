@@ -19,18 +19,17 @@ export interface IReportGenEvents {
 }
 
 interface IObserveMessage {
+  epoch: number;
   round: number;
   observation: BigNumber;
   signature: Uint8Array;
 }
 
 interface IFinalMessage {
-  round: number;
   attestedReport: IAttestedReport;
 }
 
 interface IFinalEchoMessage {
-  round: number;
   attestedReport: IAttestedReport;
 }
 
@@ -51,24 +50,31 @@ export interface ISignature {
 }
 
 export interface IReport {
+  epoch: number;
+  round: number;
   observations: ISignedObservation[];
 }
 export interface ICompressedReport {
+  epoch: number;
+  round: number;
   observations: IObservation[];
 }
 
 export interface IAttestedReport {
+  epoch: number;
+  round: number;
   observations: IObservation[];
   signatures: ISignature[];
 }
 
 interface IReportMessage {
+  epoch: number;
   round: number;
   compressedReport: ICompressedReport;
   signature: ISignature;
 }
+
 interface IReportReqMessage {
-  round: number;
   report: IReport;
 }
 
@@ -82,7 +88,7 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
   private readonly _observeProtocol: string = '/observe/1.0.0';
   private readonly _reportProtocol: string = '/report/1.0.0';
 
-  // PeerId of currently running oralce
+  // PeerId of currently running oracle
   private _self: string;
 
   public constructor(private readonly _nodeService: NodeService, private readonly _config: OracleConfig) {
@@ -152,9 +158,7 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
     const peerId = msg.detail.from;
     const reportReqMessage = ReportGenNetworkService._deserializeReportReqMessage(msg.detail.data);
     this._logger.debug(
-      `Received reportReq from ${peerId} with round: ${reportReqMessage.round}, report: ${JSON.stringify(
-        reportReqMessage.report
-      )}`
+      `Received reportReq from ${peerId} with report: ${JSON.stringify(reportReqMessage.report)}`
     );
 
     this.emit('reportReq', peerId, reportReqMessage);
@@ -164,9 +168,7 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
     const peerId = msg.detail.from;
     const finalMessage = ReportGenNetworkService._deserializeFinalMessage(msg.detail.data);
     this._logger.debug(
-      `Received final from ${peerId} with round: ${finalMessage.round}, report: ${JSON.stringify(
-        finalMessage.attestedReport
-      )}`
+      `Received final from ${peerId} with report: ${JSON.stringify(finalMessage.attestedReport)}`
     );
 
     this.emit('final', peerId, finalMessage);
@@ -176,9 +178,7 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
     const peerId = msg.detail.from;
     const finalEchoMessage = ReportGenNetworkService._deserializeFinalEchoMessage(msg.detail.data);
     this._logger.debug(
-      `Received finalEcho from ${peerId} with round: ${finalEchoMessage.round}, report: ${JSON.stringify(
-        finalEchoMessage.attestedReport
-      )}`
+      `Received finalEcho from ${peerId} with report: ${JSON.stringify(finalEchoMessage.attestedReport)}`
     );
 
     this.emit('finalEcho', peerId, finalEchoMessage);
@@ -192,23 +192,19 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
     await this._nodeService.node.pubsub.publish(this._observeReqTopic, encodedData);
   }
 
-  public async broadcastFinalEcho(round: number, attestedReport: IAttestedReport): Promise<void> {
+  public async broadcastFinalEcho(attestedReport: IAttestedReport): Promise<void> {
     const serialized = ReportGenNetworkService._serializeFinalEchoMessage({
-      round,
       attestedReport
     });
 
-    this._logger.debug(`Sending finalEcho: ${round}`);
     await this._nodeService.node.pubsub.publish(this._finalEchoTopic, serialized);
   }
 
-  public async broadcastFinal(round: number, attestedReport: IAttestedReport): Promise<void> {
+  public async broadcastFinal(attestedReport: IAttestedReport): Promise<void> {
     const serialized = ReportGenNetworkService._serializeFinalMessage({
-      round,
       attestedReport
     });
 
-    this._logger.debug(`Sending final: ${round}`);
     await this._nodeService.node.pubsub.publish(this._finalTopic, serialized);
   }
 
@@ -276,12 +272,10 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
     });
   }
 
-  public async broadcastReportReq(round: number, report: IReport): Promise<void> {
+  public async broadcastReportReq(report: IReport): Promise<void> {
     const serialized = ReportGenNetworkService._serializeReportReqMessage({
-      round,
       report
     });
-    this._logger.debug(`Sending reportReq: ${round}, report: ${JSON.stringify(report)}`);
     await this._nodeService.node.pubsub.publish(this._reportReqTopic, serialized);
   }
 
@@ -289,6 +283,7 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
     const encoder = new TextEncoder();
     return encoder.encode(
       JSON.stringify({
+        epoch: observeMessage.epoch,
         round: observeMessage.round,
         observation: observeMessage.observation,
         signature: Array.from(observeMessage.signature.values())
@@ -301,19 +296,21 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
     const parsed = JSON.parse(decoder.decode(observeMessage));
 
     return {
+      epoch: parsed.epoch,
       round: parsed.round,
       observation: new BigNumber(parsed.observation),
       signature: Uint8Array.from(parsed.signature)
     };
   }
 
-  private static _serializeReportMessage(observeMessage: IReportMessage): Uint8Array {
+  private static _serializeReportMessage(reportMessage: IReportMessage): Uint8Array {
     const encoder = new TextEncoder();
     return encoder.encode(
       JSON.stringify({
-        round: observeMessage.round,
-        compressedReport: observeMessage.compressedReport,
-        signature: observeMessage.signature
+        epoch: reportMessage.epoch,
+        round: reportMessage.round,
+        compressedReport: reportMessage.compressedReport,
+        signature: reportMessage.signature
       })
     );
   }
@@ -323,6 +320,7 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
     const parsed = JSON.parse(decoder.decode(observeMessage));
 
     return {
+      epoch: parsed.epoch,
       round: parsed.round,
       compressedReport: parsed.compressedReport,
       signature: parsed.signature
@@ -333,8 +331,9 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
     const encoder = new TextEncoder();
     return encoder.encode(
       JSON.stringify({
-        round: reportMessage.round,
         report: {
+          epoch: reportMessage.report.epoch,
+          round: reportMessage.report.round,
           observations: reportMessage.report.observations.map((ob) => ({
             oracle: ob.oracle,
             price: new BigNumber(ob.price),
@@ -350,8 +349,9 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
     const parsed = JSON.parse(decoder.decode(report));
 
     return {
-      round: Number.parseInt(parsed.round),
       report: {
+        epoch: Number.parseInt(parsed.report.epoch),
+        round: Number.parseInt(parsed.report.round),
         observations: parsed.report.observations.map((ob) => ({
           oracle: ob.oracle,
           price: new BigNumber(ob.price),
@@ -365,8 +365,9 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
     const encoder = new TextEncoder();
     return encoder.encode(
       JSON.stringify({
-        round: reportMessage.round,
         attestedReport: {
+          epoch: reportMessage.attestedReport.epoch,
+          round: reportMessage.attestedReport.round,
           observations: reportMessage.attestedReport.observations.map((ob) => ({
             oracle: ob.oracle,
             price: ob.price.toString()
@@ -382,8 +383,9 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
     const parsed = JSON.parse(decoder.decode(report));
 
     return {
-      round: Number.parseInt(parsed.round),
       attestedReport: {
+        epoch: Number.parseInt(parsed.attestedReport.epoch),
+        round: Number.parseInt(parsed.attestedReport.round),
         observations: parsed.attestedReport.observations.map((ob) => ({
           oracle: ob.oracle,
           price: new BigNumber(ob.price)
@@ -397,8 +399,8 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
     const encoder = new TextEncoder();
     return encoder.encode(
       JSON.stringify({
-        round: reportMessage.round,
         attestedReport: {
+          round: reportMessage.attestedReport.round,
           observations: reportMessage.attestedReport.observations.map((ob) => ({
             oracle: ob.oracle,
             price: ob.price.toString()
@@ -413,8 +415,9 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
     const decoder = new TextDecoder();
     const parsed = JSON.parse(decoder.decode(report));
     return {
-      round: Number.parseInt(parsed.round),
       attestedReport: {
+        round: Number.parseInt(parsed.attestedReport.round),
+        epoch: Number.parseInt(parsed.attestedReport.epoch),
         observations: parsed.attestedReport.observations.map((ob) => ({
           oracle: ob.oracle,
           price: new BigNumber(ob.price)

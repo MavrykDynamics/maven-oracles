@@ -55,7 +55,8 @@
     "@libp2p/crypto": "~1.0.0",
     "@taquito/michel-codec": "~13.0.0",
     "@taquito/remote-signer": "~13.0.0",
-    "@taquito/utils": "~13.0.0"
+    "@taquito/utils": "~13.0.0",
+    "heap": "~0.2.7"
   },
   "devDependencies": {
     "@nestjs/schematics": "^8.0.0",
@@ -78,6 +79,7 @@
     "typescript": "~4.5.2",
     "webpack-merge": "^5.8.0",
     "webpack-node-externals": "^3.0.0",
-    "@rushstack/eslint-config": "~2.6.1"
+    "@rushstack/eslint-config": "~2.6.1",
+    "@types/heap": "~0.2.31"
   }
 }

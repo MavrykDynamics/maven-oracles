@@ -34,7 +34,6 @@ export class ReportGenFollowerService implements OnModuleInit {
     private readonly _reportgenNetworkService: ReportGenNetworkService,
     private readonly _eventHubService: EventHubService,
     private readonly _contractService: ContractService
-
   ) {
     this._eventHubService.on('stopReportGen', () => this._onStopReportGen());
     this._eventHubService.on('startReportGen', (epoch, leader) => this._onStartReportGen(epoch, leader));
@@ -55,14 +54,14 @@ export class ReportGenFollowerService implements OnModuleInit {
 
   public async onModuleInit(): Promise<void> {
     this._reportgenNetworkService.on('observeReq', (from, round) => this.onObserveReqReceived(from, round));
-    this._reportgenNetworkService.on('reportReq', (from, { round, report }) =>
-      this.onReportReqReceived(from, round, report)
+    this._reportgenNetworkService.on('reportReq', (from, { report }) =>
+      this.onReportReqReceived(from, report)
     );
-    this._reportgenNetworkService.on('final', (from, { round, attestedReport }) =>
-      this.onFinalReceived(from, round, attestedReport)
+    this._reportgenNetworkService.on('final', (from, { attestedReport }) =>
+      this.onFinalReceived(from, attestedReport)
     );
-    this._reportgenNetworkService.on('finalEcho', (from, { round, attestedReport }) =>
-      this.onFinalEchoReceived(from, round, attestedReport)
+    this._reportgenNetworkService.on('finalEcho', (from, { attestedReport }) =>
+      this.onFinalEchoReceived(from, attestedReport)
     );
   }
 
@@ -97,13 +96,14 @@ export class ReportGenFollowerService implements OnModuleInit {
     const signature = await this._signObservation(observation);
 
     await this._reportgenNetworkService.sendObserve(from, {
+      epoch: this._epoch,
       round,
       observation,
       signature
     });
   }
 
-  public async onReportReqReceived(from: PeerId, round: number, report: IReport): Promise<void> {
+  public async onReportReqReceived(from: PeerId, report: IReport): Promise<void> {
     const isReportSorted = report.observations.every(
       (v, i, a) => i === 0 || report.observations[i - 1].price.lte(v.price)
     );
@@ -129,8 +129,9 @@ export class ReportGenFollowerService implements OnModuleInit {
       this._sentReport = true;
 
       await this._reportgenNetworkService.sendReport(from, {
+        epoch: report.epoch,
+        round: report.round,
         compressedReport,
-        round,
         signature
       });
     } else {
@@ -138,31 +139,31 @@ export class ReportGenFollowerService implements OnModuleInit {
     }
   }
 
-  public async onFinalReceived(from: PeerId, round: number, attestedReport: IAttestedReport): Promise<void> {
+  public async onFinalReceived(from: PeerId, attestedReport: IAttestedReport): Promise<void> {
     if (from.toString() !== this._leader) {
       this._logger.warn(
         'onFinalReceived: Observation request received from someone else than leader, discarding request'
       );
       return;
     }
-    if (round !== this._round || this._sentEcho) {
+    if (attestedReport.round !== this._round || this._sentEcho) {
       return;
     }
 
-    if (!this._verifyAttestedReport(attestedReport)) {
+    if (!(await this._verifyAttestedReport(attestedReport))) {
       return;
     }
 
     this._sentEcho = attestedReport;
-    await this._reportgenNetworkService.broadcastFinalEcho(round, attestedReport);
+    await this._reportgenNetworkService.broadcastFinalEcho(attestedReport);
   }
 
-  public async onFinalEchoReceived(
-    from: PeerId,
-    round: number,
-    attestedReport: IAttestedReport
-  ): Promise<void> {
-    if (round !== this._round || this._receivedEcho.get(from.toString()) || this._completedRound) {
+  public async onFinalEchoReceived(from: PeerId, attestedReport: IAttestedReport): Promise<void> {
+    if (
+      attestedReport.round !== this._round ||
+      this._receivedEcho.get(from.toString()) ||
+      this._completedRound
+    ) {
       return;
     }
 
@@ -174,21 +175,23 @@ export class ReportGenFollowerService implements OnModuleInit {
 
     if (this._sentEcho === null) {
       this._sentEcho = attestedReport;
-      await this._reportgenNetworkService.broadcastFinalEcho(this._round, attestedReport);
+      await this._reportgenNetworkService.broadcastFinalEcho(attestedReport);
     }
 
     const numberOfFinalEchoReceived = [...this._receivedEcho.values()].filter((received) => received).length;
 
     const f = await this._contractService.getFValue();
     if (numberOfFinalEchoReceived > f) {
-      this._logger.log('$$$ - YOUPI - $$$');
-      await this._eventHubService.transmit();
+      this._logger.log(`$$$ - YOUPI ${this._epoch}/${this._round} - $$$`);
+      await this._eventHubService.transmit(this._epoch, this._round, attestedReport);
       await this._completeRound();
     }
   }
 
   private _compressReport(report: IReport): ICompressedReport {
     return {
+      epoch: report.epoch,
+      round: report.round,
       observations: report.observations.map(({ signature, ...rest }) => ({ ...rest }))
     };
   }
@@ -198,17 +201,20 @@ export class ReportGenFollowerService implements OnModuleInit {
   }
 
   private async _signCompressedReport(report: ICompressedReport): Promise<ISignature> {
-      const signature = await this._contractService.signCompressedReport(report.observations, this._config.tezosSecretKey);
-      return {
-        oracle: this._config.tezosAddress,
-        signature
-      }
+    const signature = await this._contractService.signCompressedReport(
+      report.observations,
+      this._config.tezosSecretKey
+    );
+    return {
+      oracle: this._config.tezosAddress,
+      signature
+    };
   }
 
   private _shouldReport(report: IReport): boolean {
     // TODO: implement
     return true;
-  } 
+  }
 
   private async _completeRound(): Promise<void> {
     this._completedRound = true;
@@ -217,6 +223,5 @@ export class ReportGenFollowerService implements OnModuleInit {
 
   private async _verifyAttestedReport(attestedReport: IAttestedReport): Promise<boolean> {
     return await this._contractService.verifyAttestedReport(attestedReport);
-
   }
 }

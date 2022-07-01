@@ -1,10 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { TypedEmitter } from 'tiny-typed-emitter';
+import { IAttestedReport, IReport } from './reportgen.network.service.js';
 
 interface IEvents {
   startepoch: (epoch: number, leader: string) => void;
   progress: () => void;
-  transmit: () => void;
+  transmit: (epoch: number, round: number, reportToTransmit: IAttestedReport) => void;
   changeleader: () => void;
   stopReportGen: (epoch: number, leader: string) => void;
   startReportGen: (start: number, leader: string) => void;
@@ -38,8 +39,8 @@ export class EventHubService extends TypedEmitter<IEvents> {
     this.emit('progress');
   }
 
-  public transmit(): void {
+  public transmit(epoch: number, round: number, reportToTransmit: IAttestedReport): void {
     // TODO: add report ??
-    this.emit('transmit');
+    this.emit('transmit', epoch, round, reportToTransmit);
   }
 }
