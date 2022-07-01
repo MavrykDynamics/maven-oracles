@@ -400,6 +400,7 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
     return encoder.encode(
       JSON.stringify({
         attestedReport: {
+          epoch: reportMessage.attestedReport.epoch,
           round: reportMessage.attestedReport.round,
           observations: reportMessage.attestedReport.observations.map((ob) => ({
             oracle: ob.oracle,
@@ -416,8 +417,8 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
     const parsed = JSON.parse(decoder.decode(report));
     return {
       attestedReport: {
-        round: Number.parseInt(parsed.attestedReport.round),
         epoch: Number.parseInt(parsed.attestedReport.epoch),
+        round: Number.parseInt(parsed.attestedReport.round),
         observations: parsed.attestedReport.observations.map((ob) => ({
           oracle: ob.oracle,
           price: new BigNumber(ob.price)

@@ -9,15 +9,6 @@ import BigNumber from 'bignumber.js';
 @Injectable()
 export class TransmitService implements OnModuleInit {
   private readonly _logger: Logger = new Logger(TransmitService.name);
-
-  private readonly _timerTransmitDurationMiliseconds: number = 15 * 1000; // 15s recommended by OCR white paper
-
-  // PeerId of currently running oracle
-  private _self: string;
-
-  // Highest newEpoch sent to other peers
-  private _newEpoch: number;
-
   // Highest newEpoch received for each peer (including ourself)
   private _reports: Heap<{
     time: number;
@@ -28,12 +19,9 @@ export class TransmitService implements OnModuleInit {
     epoch: number;
     round: number;
     report: IAttestedReport;
-  } | null;
+  } | null = null;
 
   private _timerTransmit: NodeJS.Timeout | null = null;
-
-  // TODO: use blockchain value
-  private perThousandThreshold: number = 5;
 
   public constructor(
     private readonly _config: OracleConfig,
@@ -46,18 +34,12 @@ export class TransmitService implements OnModuleInit {
   }
 
   public async initialize(): Promise<void> {
-    this._self = this._config.peerId;
-    this._newEpoch = 0;
-
     this._eventHubService.on('transmit', (epoch, round, reportToTransmit) =>
       this.onTransmit(epoch, round, reportToTransmit)
     );
   }
 
   public async onTransmit(epoch: number, round: number, report: IAttestedReport): Promise<void> {
-    // TODO: fetch these from blockchain
-
-    // Most recent report committed on blockchain
     const lastBlockchainReport = await this._getLastBlockchainReport();
 
     if (
