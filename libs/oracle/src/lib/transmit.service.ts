@@ -93,6 +93,7 @@ export class TransmitService implements OnModuleInit {
       )
     ) {
       await this.doTransmit(epoch, round, report);
+      return;
     }
   }
 
@@ -128,7 +129,7 @@ export class TransmitService implements OnModuleInit {
 
     const peekedReport = this._reports.peek();
     if (peekedReport === undefined) {
-      // This should never happend, we just pushed a report
+      // This should never happen, we just pushed a report
       return;
     }
 
@@ -154,23 +155,22 @@ export class TransmitService implements OnModuleInit {
     const lastBlockchainReport = await this._getLastBlockchainReport();
 
     if (
-      lastBlockchainReport !== null &&
-      this._isNewerEpochRound(
+      lastBlockchainReport === null ||
+      !this._isNewerEpochRound(
         report.epoch,
         report.round,
         lastBlockchainReport.report.epoch,
         lastBlockchainReport.report.round
       )
     ) {
+      // TODO: send tx to blockchain
+      this._logger.log(`Sending report ${JSON.stringify(report)} to blockchain`);
+    } else {
       this._logger.verbose(
         `Report on blockchain is more recent than current epoch/round: (current e/r: ${report.epoch}/${report.round}, blockchain e/r: ${lastBlockchainReport.report.epoch}/${lastBlockchainReport.report.round})
         }), not transmitting`
       );
-      return;
     }
-
-    // TODO: send tx to blockchain
-    this._logger.log(`Sending report ${JSON.stringify(report)} to blockchain`);
 
     const peekedReport = this._reports.peek();
     if (peekedReport === undefined) {
