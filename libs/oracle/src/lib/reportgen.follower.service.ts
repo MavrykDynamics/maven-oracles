@@ -167,7 +167,7 @@ export class ReportGenFollowerService implements OnModuleInit {
       return;
     }
 
-    if (!this._verifyAttestedReport(attestedReport)) {
+    if (!(await this._verifyAttestedReport(attestedReport))) {
       return;
     }
 
