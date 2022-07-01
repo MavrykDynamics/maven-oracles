@@ -7,8 +7,8 @@ import { default as Heap } from 'heap';
 import BigNumber from 'bignumber.js';
 
 @Injectable()
-export class PacemakerService implements OnModuleInit {
-  private readonly _logger: Logger = new Logger(PacemakerService.name);
+export class TransmitService implements OnModuleInit {
+  private readonly _logger: Logger = new Logger(TransmitService.name);
 
   private readonly _timerTransmitDurationMiliseconds: number = 15 * 1000; // 15s recommended by OCR white paper
 

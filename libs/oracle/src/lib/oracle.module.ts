@@ -10,6 +10,7 @@ import { EventHubService } from './eventhub.service.js';
 import { ReportGenFollowerService } from './reportgen.follower.service.js';
 import { ReportGenLeaderService } from './reportgen.leader.service.js';
 import { ContractService } from './contract.service.js';
+import { TransmitService } from './transmit.service.js';
 
 @Module({
   imports: [HttpModule, ConfigModule.forConfig(OracleConfig)],
@@ -30,6 +31,7 @@ import { ContractService } from './contract.service.js';
     ReportGenFollowerService,
     ReportGenLeaderService,
     ReportGenNetworkService,
+    TransmitService,
     EventHubService
   ],
   exports: [NodeService]
