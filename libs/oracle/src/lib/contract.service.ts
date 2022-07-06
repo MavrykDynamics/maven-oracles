@@ -7,7 +7,7 @@ import { OracleConfig } from './oracle.config.js';
 import { MichelsonMap, TezosToolkit } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 import { Schema } from '@taquito/michelson-encoder';
-import { AggregatorStorage, oracleInformation, OraclePriceResponsesValue } from '../types/aggregators';
+import { AggregatorStorage, OracleInformation, OraclePriceResponsesValue } from '../types/aggregators';
 import { IAttestedReport, ICompressedReport, IObservation, ISignature } from './reportgen.network.service.js';
 
 interface IOracleInformations {
@@ -26,7 +26,7 @@ interface IOracleObservationType {
 export class ContractService implements OnModuleInit {
   private readonly _logger: Logger = new Logger(ContractService.name);
   private _tezos: TezosToolkit;
-  private _oracleAddresses: MichelsonMap<string, oracleInformation>;
+  private _oracleAddresses: MichelsonMap<string, OracleInformation>;
 
   public constructor(private readonly _config: OracleConfig) {
     const { rpcUrl } = this._config;
@@ -52,7 +52,7 @@ export class ContractService implements OnModuleInit {
 
   public async getOraclesAddressesBlockchain(
     aggregatorAddress: string
-  ): Promise<MichelsonMap<string, oracleInformation>> {
+  ): Promise<MichelsonMap<string, OracleInformation>> {
     const contractInstance = await this._tezos.contract.at(aggregatorAddress);
     const storage: AggregatorStorage = await contractInstance.storage();
     const oracleAddresses = storage.oracleAddresses;
@@ -61,7 +61,7 @@ export class ContractService implements OnModuleInit {
 
   public async getOraclesAddresses(
     aggregatorAddress: string
-  ): Promise<MichelsonMap<string, oracleInformation>> {
+  ): Promise<MichelsonMap<string, OracleInformation>> {
     if (this._oracleAddresses) {
       return this._oracleAddresses;
     } else {
@@ -279,6 +279,20 @@ export class ContractService implements OnModuleInit {
       this._logger.debug(`Tezos Error: ${JSON.stringify(e)}`);
     }
 
+  }
+
+  public async _getLastBlockchainEpochAndRound(aggregatorAddress: string): Promise<{
+    epoch: number;
+    round: number;
+    price: number;
+  } | null> {
+    const contractInstance = await this._tezos.contract.at(aggregatorAddress);
+    const storage: AggregatorStorage = await contractInstance.storage();
+    return {
+      epoch: storage.lastResult.epoch.toNumber(),
+      round: storage.lastResult.round.toNumber(),
+      price: storage.lastResult.price.toNumber(),
+    };
   }
 
   // public async runVerify(): Promise<any> {

@@ -2,7 +2,7 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { OracleConfig } from './oracle.config.js';
 import { EventHubService } from './eventhub.service.js';
 import { ContractService } from './contract.service.js';
-import { IAttestedReport } from './reportgen.network.service.js';
+import { IAttestedReport, ISignature } from './reportgen.network.service.js';
 import { default as Heap } from 'heap';
 import BigNumber from 'bignumber.js';
 
@@ -40,19 +40,19 @@ export class TransmitService implements OnModuleInit {
   }
 
   public async onTransmit(epoch: number, round: number, report: IAttestedReport): Promise<void> {
-    const lastBlockchainReport = await this._getLastBlockchainReport();
+    const lastBlockchainReport = await this._getLastBlockchainEpochAndRound(this._config.aggregatorAddress);
 
     if (
       lastBlockchainReport !== null &&
       this._isNewerEpochRound(
         epoch,
         round,
-        lastBlockchainReport.report.epoch,
-        lastBlockchainReport.report.round
+        lastBlockchainReport.epoch,
+        lastBlockchainReport.round
       )
     ) {
       this._logger.verbose(
-        `Report on blockchain is more recent than current epoch/round: (current e/r: ${epoch}/${round}, blockchain e/r: ${lastBlockchainReport.report.epoch}/${lastBlockchainReport.report.round})
+        `Report on blockchain is more recent than current epoch/round: (current e/r: ${epoch}/${round}, blockchain e/r: ${lastBlockchainReport?.epoch}/${lastBlockchainReport?.round})
         }), not transmitting`
       );
       return;
@@ -142,8 +142,13 @@ export class TransmitService implements OnModuleInit {
   }
 
   private _computeMedian(report: IAttestedReport): BigNumber {
-    // TODO: implement
-    return new BigNumber(5);
+    report.observations.sort((a, b) => { return a.price.minus(b.price).toNumber(); });
+    var half = Math.floor(report.observations.length / 2);
+  
+    if (report.observations.length % 2)
+      return report.observations[half].price;
+    
+    return (report.observations[half - 1].price.plus(report.observations[half].price)).dividedBy(2.0);
   }
 
   private async _onTransmitTimerTimeout(): Promise<void> {
@@ -152,22 +157,25 @@ export class TransmitService implements OnModuleInit {
       return;
     }
     const { report } = timeAndReport;
-    const lastBlockchainReport = await this._getLastBlockchainReport();
+    const lastBlockchainReport = await this._getLastBlockchainEpochAndRound(this._config.aggregatorAddress);
 
     if (
       lastBlockchainReport === null ||
       !this._isNewerEpochRound(
         report.epoch,
         report.round,
-        lastBlockchainReport.report.epoch,
-        lastBlockchainReport.report.round
-      )
+        lastBlockchainReport.epoch,
+        lastBlockchainReport.round)
     ) {
+      if (!this._IsItMyTurn(report)) {
+        this._logger.verbose("not my turn to post on blockchain");
+        return;
+      }
       this._logger.log(`Sending report ${JSON.stringify(report)} to blockchain`);
       await this._contractService.sendReportBlockchain(report);
     } else {
       this._logger.verbose(
-        `Report on blockchain is more recent than current epoch/round: (current e/r: ${report.epoch}/${report.round}, blockchain e/r: ${lastBlockchainReport.report.epoch}/${lastBlockchainReport.report.round})
+        `Report on blockchain is more recent than current epoch/round: (current e/r: ${report.epoch}/${report.round}, blockchain e/r: ${lastBlockchainReport?.epoch}/${lastBlockchainReport?.round})
         }), not transmitting`
       );
     }
@@ -191,16 +199,25 @@ export class TransmitService implements OnModuleInit {
     this._timerTransmit = setTimeout(() => this._onTransmitTimerTimeout(), delay);
   }
 
-  private async _getLastBlockchainReport(): Promise<{
-    report: IAttestedReport;
+  private async _getLastBlockchainEpochAndRound(aggregatorAddress: string): Promise<{
+    epoch: number;
+    round: number;
+    price: number;
   } | null> {
-    // TODO: implement
-    return null;
-    //return {
-    //  report: {
-    //    epoch: 0,
-    //    round: 0,
-    //  }
-    //};
+    return await this._contractService._getLastBlockchainEpochAndRound(aggregatorAddress);
   }
+
+  private _IsItMyTurn(report: IAttestedReport): boolean {
+    report.signatures.sort((a, b) => a.oracle.localeCompare(b.oracle));
+    const index = report.signatures.findIndex( oracle => oracle.oracle === this._config.tezosAddress)
+    if (index < 0){
+      return false;
+    }
+
+    const reportIndex = report.epoch % report.observations.length;
+    console.log(`report.epoch: ${report.epoch} | report.observations.length: ${report.observations.length}`)
+    console.log(`index: ${index} -> reportIndex: ${reportIndex}`);
+    console.log(`report.epoch: ${report.epoch}`)
+    return index === reportIndex;
+    }
 }

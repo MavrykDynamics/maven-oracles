@@ -92,7 +92,7 @@ export class ReportGenFollowerService implements OnModuleInit {
     this._completedRound = false;
     this._receivedEcho = new Map(); // This should contain n 0s
 
-    const observation = new BigNumber(Math.floor(Math.random() * 100)); // TODO: add price fetcher result
+    const observation = new BigNumber(Math.floor(Math.random() * 10)); // TODO: add price fetcher result
     const signature = await this._signObservation(observation);
 
     await this._reportgenNetworkService.sendObserve(from, {
