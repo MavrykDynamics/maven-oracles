@@ -163,8 +163,8 @@ export class TransmitService implements OnModuleInit {
         lastBlockchainReport.report.round
       )
     ) {
-      // TODO: send tx to blockchain
       this._logger.log(`Sending report ${JSON.stringify(report)} to blockchain`);
+      await this._contractService.sendReportBlockchain(report);
     } else {
       this._logger.verbose(
         `Report on blockchain is more recent than current epoch/round: (current e/r: ${report.epoch}/${report.round}, blockchain e/r: ${lastBlockchainReport.report.epoch}/${lastBlockchainReport.report.round})
@@ -200,8 +200,6 @@ export class TransmitService implements OnModuleInit {
     //  report: {
     //    epoch: 0,
     //    round: 0,
-    //    observations: [],
-    //    signatures: []
     //  }
     //};
   }

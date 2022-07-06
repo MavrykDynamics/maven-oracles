@@ -5,20 +5,20 @@ type oracleInformation is [@layout:comb] record [
 type oracleAddressesType is map (address, oracleInformation);
 type pivotedObservationsType     is map (nat, nat);
 
-type oraclePriceResponseType is [@layout:comb] record [
-       priceSalted:     nat * address;
-       oracleSignature: signature
+type oracleObservationType is [@layout:comb] record [
+       price: nat;
+       epoch: nat;
+       round: nat;
 ];
 
 type leaderReponseType is   [@layout:comb] record [
-  oraclePriceResponses: map (address, oraclePriceResponseType);
+  oracleObservations: map (address, oracleObservationType);
   signatures: map (address, signature);
 ];
 
-
 type storage is [@layout:comb] record [
     oracleAddresses    : oracleAddressesType;
-    lastPrice  : nat;
+    lastResult  : oracleObservationType;
 ];
 
 type parameter is
@@ -116,15 +116,15 @@ function check_signature
      const msg    : bytes) : bool
   is Crypto.check (pk, signed, msg)
 
-function verifyAllResponsesSignature(const oracleAddress: address; const oracleSignature: signature; const allReponse: map (address, oraclePriceResponseType); const store: storage): unit is
+function verifyAllResponsesSignature(const oracleAddress: address; const oracleSignatures: signature; const oracleObservations: map (address, oracleObservationType); const store: storage): unit is
   if (not check_signature(
       getOraclePublicKey(oracleAddress, store.oracleAddresses), 
-      oracleSignature, 
-      Bytes.pack(allReponse))) 
-      then failwith("wrong signature on all responses signature")
+      oracleSignatures, 
+      Bytes.pack(oracleObservations))) 
+      then failwith("wrong signature on observation signatures")
   else unit
 
-function pivotObservationMap (var m : map (address, oraclePriceResponseType)) : pivotedObservationsType is block {
+function pivotObservationMap (var m : map (address, oracleObservationType)) : pivotedObservationsType is block {
   (*
     Build a map of form:
       observationValue -> observationCount
@@ -135,24 +135,54 @@ function pivotObservationMap (var m : map (address, oraclePriceResponseType)) : 
   *)
   var empty : pivotedObservationsType := map [];
   for _key -> value in map m block {
-      var temp: nat := getObservationsPriceUtils(value.priceSalted.0, empty);
-      empty := Map.update(value.priceSalted.0, Some (temp), empty);
+      var temp: nat := getObservationsPriceUtils(value.price, empty);
+      empty := Map.update(value.price, Some (temp), empty);
   }
 } with (empty)
+
+function verifyMapsSizes(const leaderReponse : leaderReponseType): unit is
+  if (not (Map.size(leaderReponse.oracleObservations) = Map.size(leaderReponse.signatures)))
+      then failwith("map observations and map signatures should have the same size")
+  else unit
+
+function verifyEpochAndRound(const oracleObservations: map (address, oracleObservationType); const store: storage): (nat * nat) is block {
+  var epoch: nat := 0n;
+  var round: nat := 0n;
+
+  for _key -> value in map oracleObservations block {
+      if (epoch = 0n) then epoch:= value.epoch;
+      if (not (epoch = value.epoch)) then failwith("different epoch in the observations");
+
+      if (round = 0n) then round:= value.round;
+      if (not (round = value.round)) then failwith("different round in the observations");
+  };
+  if ((epoch = store.lastResult.epoch) and (round = store.lastResult.round)) then failwith("round and epoch should be different from previous result")
+  else skip;
+} with (epoch, round)
+
 
 // Main 
 
 function verify (var store : storage; const leaderReponse : leaderReponseType) : storage is 
   block {
 
+    // verify obervations and signatures have the same size
+    verifyMapsSizes(leaderReponse);
+    // verify for each observations -> epoch and round are the same + different from previous
+    var epochAndRound: nat*nat := verifyEpochAndRound(leaderReponse.oracleObservations, store);
+
     // verify oracles signatures
     for key -> value in map leaderReponse.signatures block {
-        verifyAllResponsesSignature(key, value, leaderReponse.oraclePriceResponses, store)
+        verifyAllResponsesSignature(key, value, leaderReponse.oracleObservations, store)
     };
 
     // get median
-    const median: nat = getMedianFromMap(pivotObservationMap(leaderReponse.oraclePriceResponses), Map.size (leaderReponse.oraclePriceResponses));
-    store.lastPrice := median;
+    const median: nat = getMedianFromMap(pivotObservationMap(leaderReponse.oracleObservations), Map.size (leaderReponse.oracleObservations));
+    store.lastResult := record[
+      price=median;
+      epoch=epochAndRound.0;
+      round=epochAndRound.1;
+    ];
 
   } with (store)
 
@@ -206,7 +236,11 @@ record [
         oraclePeerId=("12D3KooWRGcN9uh633ucfUJ3XQ69n31mB2jPHKtrw7mfCSJdLz97" : string);
     ];
     ];
-    lastPrice=2n;
+    lastResult=record[
+      price=(0n : nat);
+      epoch=(0n : nat);
+      round=(0n : nat);
+      ]
 ]
 
 *)

@@ -7,13 +7,19 @@ import { OracleConfig } from './oracle.config.js';
 import { MichelsonMap, TezosToolkit } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 import { Schema } from '@taquito/michelson-encoder';
-import { AggregatorStorage, oracleInformation } from '../types/aggregators';
+import { AggregatorStorage, oracleInformation, OraclePriceResponsesValue } from '../types/aggregators';
 import { IAttestedReport, ICompressedReport, IObservation, ISignature } from './reportgen.network.service.js';
 
 interface IOracleInformations {
   oracleAddress: string;
   oraclePublicKey: string;
   oraclePeerId: string;
+}
+
+interface IOracleObservationType {
+  price: BigNumber,
+  epoch: number,
+  round: number
 }
 
 @Injectable()
@@ -106,11 +112,26 @@ export class ContractService implements OnModuleInit {
   }
 
   public async packObservations(
-    oraclePriceResponsesForPack: MichelsonMap<string, BigNumber>
+    oraclePriceResponsesForPack: MichelsonMap<string, IOracleObservationType>
   ): Promise<string> {
     const typeMap: MichelsonType = {
       prim: 'map',
-      args: [{ prim: 'address' }, { prim: 'nat' }],
+      args: [
+        { prim: 'address' },
+        {
+          prim: 'pair',
+          args: [
+              { prim: 'nat', annots: [ '%price' ] },
+              {
+                  prim: 'pair',
+                  args: [
+                      { prim: 'nat', annots: [ '%epoch' ] },
+                      { prim: 'nat', annots: [ '%round' ] }
+                  ]
+              }
+          ]
+        }
+      ],
       annots: ['%oraclePriceResponsesForPack']
     };
 
@@ -122,7 +143,7 @@ export class ContractService implements OnModuleInit {
   }
 
   public async signOraclePriceResponses(
-    oraclePriceResponsesForPack: MichelsonMap<string, BigNumber>,
+    oraclePriceResponsesForPack: MichelsonMap<string, IOracleObservationType>,
     signer: InMemorySigner
   ): Promise<string> {
     const signature_observations = await signer.sign(
@@ -131,28 +152,38 @@ export class ContractService implements OnModuleInit {
     return signature_observations.sig;
   }
 
-  public async signCompressedReport(observations: IObservation[], secretKey: string): Promise<string> {
+  public async signCompressedReport(observations: IObservation[], secretKey: string, epoch: number, round: number): Promise<string> {
     const signer = new InMemorySigner(secretKey);
+    const oraclePriceResponsesForPack = new MichelsonMap<string, IOracleObservationType>();
+    observations.sort((a, b) => a.oracle.localeCompare(b.oracle))
 
-    const oraclePriceResponsesForPack = new MichelsonMap<string, BigNumber>();
     for (const { oracle, price } of observations) {
       const infos = await this.getOracleInformationsFromPeerId(this._config.aggregatorAddress, oracle);
       if (!infos) {
         return '';
-      }
-      oraclePriceResponsesForPack.set(infos.oracleAddress, price);
+      } 
+      oraclePriceResponsesForPack.set(infos.oracleAddress, {
+        price,
+        epoch,
+        round
+      });
     }
     return await this.signOraclePriceResponses(oraclePriceResponsesForPack, signer);
   }
 
   public async verifyReportSignature(report: ICompressedReport, signature: ISignature): Promise<boolean> {
-    const oraclePriceResponsesForPack = new MichelsonMap<string, BigNumber>();
+    const oraclePriceResponsesForPack = new MichelsonMap<string, IOracleObservationType>();
+    report.observations.sort((a, b) => a.oracle.localeCompare(b.oracle))
     for (const { oracle, price } of report.observations) {
       const infos = await this.getOracleInformationsFromPeerId(this._config.aggregatorAddress, oracle);
       if (!infos) {
         return false;
       }
-      oraclePriceResponsesForPack.set(infos.oracleAddress, price);
+      oraclePriceResponsesForPack.set(infos.oracleAddress, {
+        price,
+        epoch: report.epoch,
+        round: report.round
+      });
     }
     const msg = await this.packObservations(oraclePriceResponsesForPack);
     const infos = await this.getOracleInformationsFromAddressOracle(
@@ -166,13 +197,17 @@ export class ContractService implements OnModuleInit {
   }
 
   public async verifyAttestedReport(attestedReport: IAttestedReport): Promise<boolean> {
-    const oraclePriceResponsesForPack = new MichelsonMap<string, BigNumber>();
+    const oraclePriceResponsesForPack = new MichelsonMap<string, IOracleObservationType>();
     for (const { oracle, price } of attestedReport.observations) {
       const infos = await this.getOracleInformationsFromPeerId(this._config.aggregatorAddress, oracle);
       if (!infos) {
         return false;
       }
-      oraclePriceResponsesForPack.set(infos.oracleAddress, price);
+      oraclePriceResponsesForPack.set(infos.oracleAddress, {
+        price,
+        epoch: attestedReport.epoch,
+        round: attestedReport.round
+      });
     }
     const msg = await this.packObservations(oraclePriceResponsesForPack);
 
@@ -200,58 +235,107 @@ export class ContractService implements OnModuleInit {
     );
 
     this._logger.debug(`Signature verif array: ${JSON.stringify(signaturesOk)}`);
-
     return signaturesOk.every((ok) => ok);
+  }
+
+  public async sendReportBlockchain(report: IAttestedReport): Promise<any> {
+    const oracleSigner = new InMemorySigner(this._config.tezosSecretKey);
+    const contractInstance = await this._tezos.contract.at(this._config.aggregatorAddress);    
+
+    const signatures = new MichelsonMap<string, string>();
+    report.signatures.forEach((signature_) => {
+      signatures.set(signature_.oracle, signature_.signature);
+    });
+
+    const oracleObservations = new MichelsonMap<string, IOracleObservationType>();
+    report.observations.sort((a, b) => a.oracle.localeCompare(b.oracle))
+
+    for (const { oracle, price } of report.observations) {
+      const infos = await this.getOracleInformationsFromPeerId(this._config.aggregatorAddress, oracle);
+      if (infos) {
+        oracleObservations.set(infos.oracleAddress, {
+          price,
+          epoch: report.epoch, 
+          round: report.round
+        }); 
+      } 
+    };
+
+    const op = contractInstance.methodsObject.verify(
+      {
+        oracleObservations,
+        signatures
+      }
+    );
+
+    this._tezos.setSignerProvider(oracleSigner);
+
+    try {
+      const tx = await op.send();
+      await tx.confirmation();
+      this._logger.debug(`Report send to the blockchain!`);
+    } catch (e) {
+      this._logger.error(`Report NOT send to the blockchain!`);
+      this._logger.debug(`Tezos Error: ${JSON.stringify(e)}`);
+    }
+
   }
 
   // public async runVerify(): Promise<any> {
   //   const { aggregatorAddress } = this._config;
 
-  //   const oracle1_signer = new InMemorySigner(accounts.alice.sk);
-  //   const oracle2_signer = new InMemorySigner(accounts.bob.sk);
-
+  //   const oracle1_signer = new InMemorySigner(accounts[0].sk);
+  //   const oracle2_signer = new InMemorySigner(accounts[1].sk);
   //   const contractInstance = await this._tezos.contract.at(aggregatorAddress);
-
-  //   const oracle1_price = new BigNumber(100);
-  //   const oracle1_address = accounts.alice.pkh;
+  //   const oracle1_price = new BigNumber(200);
+  //   const oracle1_address = accounts[0].pkh;
   //   const oracle2_price = new BigNumber(150);
-  //   const oracle2_address = accounts.bob.pkh;
+  //   const oracle2_address = accounts[1].pkh;
 
-  //   const oracle1_signature = await this.signOracleObservation(oracle1_price,oracle1_address, oracle1_signer);
-  //   const oracle2_signature = await this.signOracleObservation(oracle2_price,oracle2_address, oracle2_signer);
+  //   const observations = [{
+  //     oracle: oracle1_address,
+  //     price: oracle1_price
+  //   },{
+  //     oracle: oracle2_address,
+  //     price: oracle2_price
+  //   }]
+  //   const oraclePriceResponsesForPack = new MichelsonMap<string, IOracleObservationType>();
+  //   observations.sort((a, b) => a.oracle.localeCompare(b.oracle))
+  //   const round = 1;
+  //   const epoch= 1;
+  //   for (const { oracle, price } of observations) {
+  //     oraclePriceResponsesForPack.set(oracle, {
+  //       price,
+  //       epoch,
+  //       round
+  //     });
+  //   }
 
-  //   const oraclePriceResponses = new MichelsonMap<string, OraclePriceResponsesValue>();
-  //   oraclePriceResponses.set(oracle1_address, {
-  //     oracleSignature: oracle1_signature,
-  //     priceSalted: [oracle1_price, oracle1_address]
-  //   });
-  //   oraclePriceResponses.set(oracle2_address, {
-  //     oracleSignature: oracle2_signature,
-  //     priceSalted: [oracle2_price, oracle2_address]
-  //   });
+  //   const signature1 = await this.signOraclePriceResponses(oraclePriceResponsesForPack, oracle1_signer);
+  //   const signature2 = await this.signOraclePriceResponses(oraclePriceResponsesForPack, oracle2_signer);
+  //   const signatureList = [{
+  //     oracle: oracle1_address,
+  //     signature: signature1
+  //   },{
+  //     oracle: oracle2_address,
+  //     signature: signature2
+  //   }];
 
-  //   const oraclePriceResponses_forPack = new MichelsonMap<string, OraclePriceResponsesForPackValue>();
-  //   oraclePriceResponses_forPack.set(oracle1_address, {
-  //     oracleSignature: oracle1_signature,
-  //     oracleObservation_price: oracle1_price,
-  //     oracleObservation_address: oracle1_address
-  //   });
-  //   oraclePriceResponses_forPack.set(oracle2_address, {
-  //     oracleSignature: oracle2_signature,
-  //     oracleObservation_price: oracle2_price,
-  //     oracleObservation_address: oracle2_address
-  //   });
-
-  //   const oracle1_signature_observations = await this.signOraclePriceResponses(oraclePriceResponses_forPack, oracle1_signer);
-  //   const oracle2_signature_observations = await this.signOraclePriceResponses(oraclePriceResponses_forPack, oracle2_signer);
+  //   const oracleObservations = new MichelsonMap<string, IOracleObservationType>();
+  //   observations.sort((a, b) => a.oracle.localeCompare(b.oracle))
+  //   for (const { oracle, price } of observations) {
+  //     oracleObservations.set(oracle, {
+  //       price, epoch, round});    
+  //   };
 
   //   const signatures = new MichelsonMap<string, string>();
-  //   signatures.set(oracle1_address, oracle1_signature_observations);
-  //   signatures.set(oracle2_address, oracle2_signature_observations);
+  //   signatureList.forEach((signature_) => {
+  //     signatures.set(signature_.oracle, signature_.signature);
+  //   });
 
   //   const op = contractInstance.methodsObject.verify(
   //     {
-  //       oraclePriceResponses,
+  //       oracleObservations,
   //       signatures
   //     }
   //   );
@@ -261,19 +345,7 @@ export class ContractService implements OnModuleInit {
   //   await tx.confirmation();
 
   //   const after_storage: AggregatorStorage = await contractInstance.storage();
-  //   console.log(after_storage.lastPrice.toString())
+  //   console.log("JACK: ",after_storage.lastPrice.toString())
   // }
 
-  // public async signOracleObservation(price: BigNumber, address: string, signer: InMemorySigner): Promise<string> {
-  //   const data: MichelsonData = {
-  //     prim: 'Pair', args: [{ int: price.toString() }, { string: address }]
-
-  //   };
-  //   const type: MichelsonType = {
-  //     prim: 'pair', args: [{ prim: 'nat' }, { prim: 'address' }]
-  //   };
-  //   const priceCodec = packDataBytes(data, type);
-  //   const signature = await signer.sign(priceCodec.bytes);
-  //   return signature.sig;
-  // }
 }

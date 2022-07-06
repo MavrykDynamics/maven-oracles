@@ -203,7 +203,9 @@ export class ReportGenFollowerService implements OnModuleInit {
   private async _signCompressedReport(report: ICompressedReport): Promise<ISignature> {
     const signature = await this._contractService.signCompressedReport(
       report.observations,
-      this._config.tezosSecretKey
+      this._config.tezosSecretKey,
+      report.epoch,
+      report.round
     );
     return {
       oracle: this._config.tezosAddress,
