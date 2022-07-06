@@ -143,7 +143,7 @@ export class TransmitService implements OnModuleInit {
 
   private _computeMedian(report: IAttestedReport): BigNumber {
     report.observations.sort((a, b) => { return a.price.minus(b.price).toNumber(); });
-    var half = Math.floor(report.observations.length / 2);
+    const half = Math.floor(report.observations.length / 2);
   
     if (report.observations.length % 2)
       return report.observations[half].price;
