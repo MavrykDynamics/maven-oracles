@@ -10,6 +10,10 @@ export async function verifyData (publicKey: Uint8Array, msg: Uint8Array, signat
   return await publKey.verify(msg, signature);
 }
 
+export function filterNotNull<T>(ops: (T | null)[]): T[] {
+  return ops.filter((op) => op !== null) as T[];
+}
+
 // export const accounts: any = [
 //   {
 //     pkh: 'tz1eAoFgsys8PhTUvT3V3eq2BFaZp8UsGNsr',

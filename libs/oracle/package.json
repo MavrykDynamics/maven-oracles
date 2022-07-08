@@ -56,7 +56,8 @@
     "@taquito/michel-codec": "~13.0.0",
     "@taquito/remote-signer": "~13.0.0",
     "@taquito/utils": "~13.0.0",
-    "heap": "~0.2.7"
+    "heap": "~0.2.7",
+    "axios": "~0.27.2"
   },
   "devDependencies": {
     "@nestjs/schematics": "^8.0.0",

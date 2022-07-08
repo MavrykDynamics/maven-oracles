@@ -12,6 +12,7 @@ import { PeerId } from '@libp2p/interface-peer-id';
 import { EventHubService } from './eventhub.service.js';
 import { signData } from './helpers.js';
 import { ContractService } from './contract.service.js';
+import { PriceService } from './price.service.js';
 
 @Injectable()
 export class ReportGenFollowerService implements OnModuleInit {
@@ -33,7 +34,8 @@ export class ReportGenFollowerService implements OnModuleInit {
     private readonly _config: OracleConfig,
     private readonly _reportgenNetworkService: ReportGenNetworkService,
     private readonly _eventHubService: EventHubService,
-    private readonly _contractService: ContractService
+    private readonly _contractService: ContractService,
+    private readonly _priceService: PriceService
   ) {
     this._eventHubService.on('stopReportGen', () => this._onStopReportGen());
     this._eventHubService.on('startReportGen', (epoch, leader) => this._onStartReportGen(epoch, leader));
@@ -92,7 +94,12 @@ export class ReportGenFollowerService implements OnModuleInit {
     this._completedRound = false;
     this._receivedEcho = new Map(); // This should contain n 0s
 
-    const observation = new BigNumber(Math.floor(Math.random() * 10)); // TODO: add price fetcher result
+    const decimals = new BigNumber(8);
+    const pair: [string, string] = ["USD","XTZ"];
+
+    //const observation = new BigNumber(Math.floor(Math.random() * 10)); // TODO: add price fetcher result
+    const observation = await this._priceService.getPrice(decimals, pair);
+
     const signature = await this._signObservation(observation);
 
     await this._reportgenNetworkService.sendObserve(from, {

@@ -11,6 +11,10 @@ import { ReportGenFollowerService } from './reportgen.follower.service.js';
 import { ReportGenLeaderService } from './reportgen.leader.service.js';
 import { ContractService } from './contract.service.js';
 import { TransmitService } from './transmit.service.js';
+import { PriceService } from './price.service.js';
+import { MessariFetcherService } from './messari-fetcher.service.js';
+import { CoingeckoFetcherService } from './coingecko-fetcher.service.js';
+import { AlphavantageFetcherService } from './alphavantage-fetcher.service.js';
 
 @Module({
   imports: [HttpModule, ConfigModule.forConfig(OracleConfig)],
@@ -28,11 +32,15 @@ import { TransmitService } from './transmit.service.js';
     ContractService,
     PacemakerService,
     PacemakerNetworkService,
+    PriceService,
     ReportGenFollowerService,
     ReportGenLeaderService,
     ReportGenNetworkService,
     TransmitService,
-    EventHubService
+    EventHubService,
+    MessariFetcherService,
+    CoingeckoFetcherService,
+    AlphavantageFetcherService
   ],
   exports: [NodeService]
 })

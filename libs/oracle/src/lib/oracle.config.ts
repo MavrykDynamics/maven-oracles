@@ -44,14 +44,14 @@ export class OracleConfig {
   public peerPrivateKey: string;
 
   @Property({
-    default: 'KT1GSYjuyQUVNYY7XxLzuo9TcuFhDdimFNW5',
+    default: 'KT1KNvnLmDhrB5ig2ShKSpux55NsJfngPDnt',
     env: 'AGGREGATOR_ADDRESS',
     format: String,
   })
   public aggregatorAddress: string;
 
   @Property({
-    default: 'https://rpc.tzkt.io/ghostnet/',
+    default: 'https://rpc.tzkt.io/jakartanet/',
     env: 'RPC_URL',
     format: String,
   })
@@ -77,4 +77,39 @@ export class OracleConfig {
     format: String,
   })
   public tezosAddress: string;
+
+  @Property({
+    default: '370c54ad-3de3-46b3-abc0-b2b7b15e0a4c',
+    env: 'MESSARI_API_KEY',
+    format: String,
+  })
+  public messariApiKey: string;
+
+  @Property({
+    default: '',
+    env: 'COINGECKO_API_KEY',
+    format: String,
+  })
+  public coingeckoApiKey: string;
+
+  @Property({
+    default: '',
+    env: 'ALPHAVANTAGE_API_KEY',
+    format: String,
+  })
+  public alphavantageApiKey: string;
+
+  @Property({
+    default: 1,
+    env: 'ALPHAVANTAGE_INTERVAL',
+    format: Number,
+  })
+  public alphavantageInterval: number;
+
+  @Property({
+    default: true,
+    env: 'USE_FAKE_PRICES',
+    format: Boolean,
+  })
+  public useFakePrices: boolean;
 }

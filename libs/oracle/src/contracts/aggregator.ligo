@@ -23,7 +23,8 @@ type storage is [@layout:comb] record [
 
 type parameter is
   Verify of leaderReponseType
-| Reset
+  | Reset
+  | Unknown
 
 type return is list (operation) * storage
 
@@ -186,14 +187,26 @@ function verify (var store : storage; const leaderReponse : leaderReponseType) :
 
   } with (store)
 
+// reset epoch and round - FOR TESTING
+function reset (var store : storage) : storage is 
+  block {
+    store.lastResult := record[
+      price=0n;
+      epoch=0n;
+      round=0n;
+    ];
+
+  } with (store)
+
 (* Main access point that dispatches to the entrypoints according to
    the smart contract parameter. *)
    
 function main (const action : parameter; const store : storage) : return is
  ((nil : list (operation)),    // No operations
   case action of [
-    | Verify (msg) -> verify (store, msg)
-    | Reset         -> store
+    | Verify (msg)  -> verify (store, msg)
+    | Reset         -> reset (store)
+    | Unknown       -> store
   ])
 
 (*

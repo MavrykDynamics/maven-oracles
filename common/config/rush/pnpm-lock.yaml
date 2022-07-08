@@ -43,6 +43,7 @@ importers:
       '@typescript-eslint/eslint-plugin': ~5.10.0
       '@typescript-eslint/parser': ~5.10.0
       async-mutex: ^0.3.2
+      axios: ~0.27.2
       bignumber.js: ^9.0.2
       convict: ^6.2.1
       eslint: ~8.7.0
@@ -93,6 +94,7 @@ importers:
       '@taquito/utils': 13.0.0
       '@tezosdynamics/oracle': link:../../libs/oracle
       async-mutex: 0.3.2
+      axios: 0.27.2
       bignumber.js: 9.0.2
       convict: 6.2.3
       libp2p: 0.37.3_1bd0753a1447b59d1959eab3a3dd22a4
@@ -162,6 +164,7 @@ importers:
       '@typescript-eslint/eslint-plugin': ~5.10.0
       '@typescript-eslint/parser': ~5.10.0
       async-mutex: ^0.3.2
+      axios: ~0.27.2
       bignumber.js: ^9.0.2
       convict: ^6.2.1
       eslint: ~8.7.0
@@ -210,6 +213,7 @@ importers:
       '@taquito/utils': 13.0.0
       '@tezosdynamics/oracle': link:../../libs/oracle
       async-mutex: 0.3.2
+      axios: 0.27.2
       bignumber.js: 9.0.2
       convict: 6.2.3
       libp2p: 0.37.3_1bd0753a1447b59d1959eab3a3dd22a4
@@ -285,6 +289,7 @@ importers:
       '@typescript-eslint/eslint-plugin': ~5.10.0
       '@typescript-eslint/parser': ~5.10.0
       async-mutex: ^0.3.2
+      axios: ~0.27.2
       bignumber.js: ^9.0.2
       convict: ^6.2.1
       eslint: ~8.7.0
@@ -344,6 +349,7 @@ importers:
       '@taquito/taquito': 12.1.1
       '@taquito/utils': 13.0.0
       async-mutex: 0.3.2
+      axios: 0.27.2
       bignumber.js: 9.0.2
       convict: 6.2.3
       heap: 0.2.7
