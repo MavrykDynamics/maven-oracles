@@ -116,8 +116,6 @@ export class ReportGenLeaderService implements OnModuleInit {
     observation: BigNumber,
     signature: Uint8Array
   ): Promise<void> {
-    // TODO: verify signature
-
     if (this._config.peerId.toString() !== this._leader) {
       this._logger.warn(`_onObserve: I'm not the leader, discarding observation`);
       return;
@@ -163,8 +161,6 @@ export class ReportGenLeaderService implements OnModuleInit {
   }
 
   private async _onReport(from: PeerId, report: ICompressedReport, signature: ISignature): Promise<void> {
-    // TODO: verify signature
-
     if (this._config.peerId.toString() !== this._leader) {
       this._logger.warn(`_onReport: I'm not the leader, discarding report`);
       return;

@@ -10,9 +10,10 @@ import {
 } from './reportgen.network.service.js';
 import { PeerId } from '@libp2p/interface-peer-id';
 import { EventHubService } from './eventhub.service.js';
-import { signData } from './helpers.js';
+import { computeMedian, signData, verifyData } from './helpers.js';
 import { ContractService } from './contract.service.js';
 import { PriceService } from './price.service.js';
+import { createFromJSON } from '@libp2p/peer-id-factory';
 
 @Injectable()
 export class ReportGenFollowerService implements OnModuleInit {
@@ -29,6 +30,9 @@ export class ReportGenFollowerService implements OnModuleInit {
   private _receivedEcho: Map<string, boolean> = new Map();
 
   private readonly _roundMax: number = 3; // 3 - 20 recommended by OCR white paper
+  // TODO: fetch from contract
+  private readonly _heartBeatSeconds: number = 60; // 5m - 24h recommended by OCR white paper
+  private readonly _alphaPercent: BigNumber = new BigNumber(0.5); // 0.2% - 0.5% recommended by OCR white paper
 
   public constructor(
     private readonly _config: OracleConfig,
@@ -42,7 +46,7 @@ export class ReportGenFollowerService implements OnModuleInit {
   }
 
   private _onStopReportGen(): void {
-    // TODO: ???
+    // Nothing to do
   }
   private _onStartReportGen(epoch: number, leader: string): void {
     this._epoch = epoch;
@@ -92,12 +96,11 @@ export class ReportGenFollowerService implements OnModuleInit {
     this._sentEcho = null;
     this._sentReport = false;
     this._completedRound = false;
-    this._receivedEcho = new Map(); // This should contain n 0s
+    this._receivedEcho = new Map();
 
-    const decimals = new BigNumber(8);
-    const pair: [string, string] = ["USD","XTZ"];
+    const decimals = new BigNumber(8); // TODO: get from blockchain
+    const pair: [string, string] = ['USD', 'XTZ']; // TODO: get from blockchain
 
-    //const observation = new BigNumber(Math.floor(Math.random() * 10)); // TODO: add price fetcher result
     const observation = await this._priceService.getPrice(decimals, pair);
 
     const signature = await this._signObservation(observation);
@@ -128,9 +131,24 @@ export class ReportGenFollowerService implements OnModuleInit {
       return;
     }
 
-    // TODO: Check signatures
+    const signaturesChecks = await Promise.all(
+      report.observations.map(async (ob) => {
+        const pubKey = await this._reportgenNetworkService.getPublicKeyOfPeerId(
+          await createFromJSON({
+            id: ob.oracle
+          })
+        );
+        return this._verifyObservationSignature(ob.price, ob.signature, pubKey);
+      })
+    );
 
-    if (this._shouldReport(report)) {
+    if (!signaturesChecks.every((ok) => ok)) {
+      this._logger.warn('onReportReqReceived: Signature check failed');
+      return;
+    }
+
+    const shouldReport = await this._shouldReport(report);
+    if (shouldReport) {
       const compressedReport = this._compressReport(report);
       const signature = await this._signCompressedReport(compressedReport);
       this._sentReport = true;
@@ -202,6 +220,7 @@ export class ReportGenFollowerService implements OnModuleInit {
       observations: report.observations.map(({ signature, ...rest }) => ({ ...rest }))
     };
   }
+
   private async _signObservation(observation: BigNumber): Promise<Uint8Array> {
     const encodedObservation = new TextEncoder().encode(observation.toString());
     return await signData(this._config.peerPrivateKey, encodedObservation);
@@ -220,9 +239,24 @@ export class ReportGenFollowerService implements OnModuleInit {
     };
   }
 
-  private _shouldReport(report: IReport): boolean {
-    // TODO: implement
-    return true;
+  private async _shouldReport(report: IReport): Promise<boolean> {
+    const lastReport = await this._contractService._getLastBlockchainReport(this._config.aggregatorAddress);
+
+    if ((report.round === 0 && report.epoch === 0) || lastReport === null) {
+      return true;
+    }
+
+    if (Date.now() - lastReport.time > this._heartBeatSeconds * 1000) {
+      return true;
+    }
+
+    const reportMedian = computeMedian(report);
+
+    if (lastReport.price.minus(reportMedian).div(lastReport.price).gt(this._alphaPercent)) {
+      return true;
+    }
+
+    return false;
   }
 
   private async _completeRound(): Promise<void> {
@@ -232,5 +266,18 @@ export class ReportGenFollowerService implements OnModuleInit {
 
   private async _verifyAttestedReport(attestedReport: IAttestedReport): Promise<boolean> {
     return await this._contractService.verifyAttestedReport(attestedReport);
+  }
+
+  private async _verifyObservationSignature(
+    observation: BigNumber,
+    signature: Uint8Array,
+    publicKey?: Uint8Array
+  ): Promise<boolean> {
+    if (publicKey === undefined) {
+      this._logger.warn('_verifyObservationSignature: publicKey undefined');
+      return false;
+    }
+
+    return await verifyData(publicKey, new TextEncoder().encode(observation.toString()), signature);
   }
 }

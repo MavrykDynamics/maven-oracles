@@ -9,6 +9,7 @@ import { KadDHT } from '@libp2p/kad-dht';
 import { OracleConfig } from './oracle.config.js';
 import { createFromJSON } from '@libp2p/peer-id-factory';
 import { ContractService } from './contract.service.js';
+import { Multiaddr } from 'multiaddr';
 
 @Injectable()
 export class NodeService {
@@ -22,7 +23,7 @@ export class NodeService {
 
   public async init(): Promise<void> {
     const {
-      bootstrapPeers,
+      bootstrapPeers: bootstrapPeersString,
       peerId: id,
       peerPubKey: pubKey,
       peerPrivateKey: privKey,
@@ -36,18 +37,21 @@ export class NodeService {
       privKey
     });
 
-    this._logger.verbose(`Using bootstrap peers: ${bootstrapPeers}`);
-
-    let peersIdList: string[] = [];
+    const peersIdList: string[] = [];
     const oracleAddresses = await this._contractService.getOraclesAddresses(this._config.aggregatorAddress);
-    for (let [key, value] of oracleAddresses.entries()) {
-      peersIdList.push(value.oraclePeerId)
+    for (const [key, value] of oracleAddresses.entries()) {
+      peersIdList.push(value.oraclePeerId);
     }
 
-    // TODO: Bootstrap peer list should come from config
+    const bootstrapPeers = bootstrapPeersString.split(' ');
+
+    this._logger.verbose(`Using bootstrap peers: ${bootstrapPeers}`);
+
+    const bootstrapPeerIds = bootstrapPeers.map((addr) => new Multiaddr(addr).getPeerId()); // /ip4/172.24.2.100/tcp/23456/p2p/QmcrQZ6RJdpYuGvZqD5QEHAv6qX4BrQLJLQPQUrTrzdcgm
+
     const peerIdWhitelist = [
-      // Bootstrap peer
-      'QmcrQZ6RJdpYuGvZqD5QEHAv6qX4BrQLJLQPQUrTrzdcgm',
+      // Bootstrap peers
+      ...bootstrapPeerIds,
 
       // Oracles
       ...peersIdList
@@ -67,7 +71,7 @@ export class NodeService {
       peerDiscovery: [
         new Bootstrap({
           interval: 10000,
-          list: bootstrapPeers.split(' ')
+          list: bootstrapPeers
         })
       ],
       dht: new KadDHT(),

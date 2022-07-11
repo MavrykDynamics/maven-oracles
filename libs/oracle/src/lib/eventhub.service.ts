@@ -40,7 +40,6 @@ export class EventHubService extends TypedEmitter<IEvents> {
   }
 
   public transmit(epoch: number, round: number, reportToTransmit: IAttestedReport): void {
-    // TODO: add report ??
     this.emit('transmit', epoch, round, reportToTransmit);
   }
 }

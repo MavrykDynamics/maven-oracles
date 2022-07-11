@@ -5,6 +5,7 @@ import { ContractService } from './contract.service.js';
 import { IAttestedReport, ISignature } from './reportgen.network.service.js';
 import { default as Heap } from 'heap';
 import BigNumber from 'bignumber.js';
+import { computeMedian } from './helpers.js';
 
 @Injectable()
 export class TransmitService implements OnModuleInit {
@@ -21,6 +22,7 @@ export class TransmitService implements OnModuleInit {
     report: IAttestedReport;
   } | null = null;
 
+  private _deltaStage: number = 20;
   private _timerTransmit: NodeJS.Timeout | null = null;
 
   public constructor(
@@ -44,12 +46,7 @@ export class TransmitService implements OnModuleInit {
 
     if (
       lastBlockchainReport !== null &&
-      this._isNewerEpochRound(
-        epoch,
-        round,
-        lastBlockchainReport.epoch,
-        lastBlockchainReport.round
-      )
+      this._isNewerEpochRound(epoch, round, lastBlockchainReport.epoch, lastBlockchainReport.round)
     ) {
       this._logger.verbose(
         `Report on blockchain is more recent than current epoch/round: (current e/r: ${epoch}/${round}, blockchain e/r: ${lastBlockchainReport?.epoch}/${lastBlockchainReport?.round})
@@ -78,12 +75,14 @@ export class TransmitService implements OnModuleInit {
       return;
     }
 
-    const reportMedian = this._computeMedian(report);
-    const previousMedian = this._computeMedian(this._lastTransmitedReport.report);
+    const reportMedian = computeMedian(report);
+    const previousMedian = computeMedian(this._lastTransmitedReport.report);
     const deviation = reportMedian.minus(previousMedian).abs().div(previousMedian.abs());
     const perThousandThreshold = new BigNumber(3);
 
-    this._logger.debug(`deviation x 1000: ${deviation.multipliedBy(1000)} | perThousandThreshold: ${perThousandThreshold}`);
+    this._logger.debug(
+      `deviation x 1000: ${deviation.multipliedBy(1000)} | perThousandThreshold: ${perThousandThreshold}`
+    );
     if (
       deviation.multipliedBy(1000).gte(perThousandThreshold) ||
       this._isNewerEpochRound(
@@ -108,9 +107,9 @@ export class TransmitService implements OnModuleInit {
       return true;
     }
 
-    // if (otherEpoch === baseEpoch) {
-    //   return otherRound >= baseRound;
-    // }
+    if (otherEpoch === baseEpoch) {
+      return otherRound >= baseRound;
+    }
 
     return false;
   }
@@ -122,7 +121,7 @@ export class TransmitService implements OnModuleInit {
       report
     };
 
-    const delay = this._getTransmitDelay(epoch, round);
+    const delay = await this._getTransmitDelayMs(epoch, round);
     this._reports.push({
       time: Date.now() + delay,
       report
@@ -137,19 +136,12 @@ export class TransmitService implements OnModuleInit {
     this._restartTransmitTimer(peekedReport.time - Date.now());
   }
 
-  private _getTransmitDelay(epoch: number, delay: number): number {
-    // TODO: implement
-    return 2;
-  }
+  private async _getTransmitDelayMs(epoch: number, delay: number): Promise<number> {
+    const oracles1 = await this._contractService.getOraclesAddresses(this._config.aggregatorAddress);
+    const oracles2 = Array.from(oracles1.keys());
+    const k = oracles2.findIndex((oracle) => oracle === this._config.tezosAddress);
 
-  private _computeMedian(report: IAttestedReport): BigNumber {
-    report.observations.sort((a, b) => { return a.price.minus(b.price).toNumber(); });
-    const half = Math.floor(report.observations.length / 2);
-  
-    if (report.observations.length % 2)
-      return report.observations[half].price;
-    
-    return (report.observations[half - 1].price.plus(report.observations[half].price)).dividedBy(2.0);
+    return k * this._deltaStage * 1000;
   }
 
   private async _onTransmitTimerTimeout(): Promise<void> {
@@ -157,7 +149,7 @@ export class TransmitService implements OnModuleInit {
     if (timeAndReport === undefined) {
       return;
     }
-    const { report } = timeAndReport;
+    const { report, time } = timeAndReport;
     const lastBlockchainReport = await this._getLastBlockchainEpochAndRound(this._config.aggregatorAddress);
 
     if (
@@ -166,13 +158,9 @@ export class TransmitService implements OnModuleInit {
         report.epoch,
         report.round,
         lastBlockchainReport.epoch,
-        lastBlockchainReport.round)
+        lastBlockchainReport.round
+      )
     ) {
-      if (!this._IsItMyTurn(report)) {
-        this._logger.verbose("not my turn to post on blockchain");
-        return;
-      }
-      this._logger.log(`Sending report ${JSON.stringify(report)} to blockchain`);
       await this._contractService.sendReportBlockchain(report);
     } else {
       this._logger.verbose(
@@ -195,30 +183,16 @@ export class TransmitService implements OnModuleInit {
     }
   }
 
-  private _restartTransmitTimer(delay: number): void {
+  private _restartTransmitTimer(delayMs: number): void {
     this._stopTransmitTimer();
-    this._timerTransmit = setTimeout(() => this._onTransmitTimerTimeout(), delay);
+    this._timerTransmit = setTimeout(() => this._onTransmitTimerTimeout(), delayMs);
   }
 
   private async _getLastBlockchainEpochAndRound(aggregatorAddress: string): Promise<{
     epoch: number;
     round: number;
-    price: number;
+    price: BigNumber;
   } | null> {
-    return await this._contractService._getLastBlockchainEpochAndRound(aggregatorAddress);
+    return await this._contractService._getLastBlockchainReport(aggregatorAddress);
   }
-
-  private _IsItMyTurn(report: IAttestedReport): boolean {
-    report.signatures.sort((a, b) => a.oracle.localeCompare(b.oracle));
-    const index = report.signatures.findIndex( oracle => oracle.oracle === this._config.tezosAddress)
-    if (index < 0){
-      return false;
-    }
-
-    const reportIndex = report.epoch % report.observations.length;
-    console.log(`report.epoch: ${report.epoch} | report.observations.length: ${report.observations.length}`)
-    console.log(`index: ${index} -> reportIndex: ${reportIndex}`);
-    console.log(`report.epoch: ${report.epoch}`)
-    return index === reportIndex;
-    }
 }

@@ -427,4 +427,8 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
       }
     };
   }
+
+  public async getPublicKeyOfPeerId(peerId: PeerId): Promise<Uint8Array> {
+    return this._nodeService.node.getPublicKey(peerId);
+  }
 }
