@@ -44,7 +44,7 @@ export class OracleConfig {
   public peerPrivateKey: string;
 
   @Property({
-    default: 'KT1KNvnLmDhrB5ig2ShKSpux55NsJfngPDnt',
+    default: 'KT1KDmA82Qpxu5ZUoBUdzssuQQawtgjMa1Um',
     env: 'AGGREGATOR_ADDRESS',
     format: String,
   })
@@ -79,7 +79,7 @@ export class OracleConfig {
   public tezosAddress: string;
 
   @Property({
-    default: '370c54ad-3de3-46b3-abc0-b2b7b15e0a4c',
+    default: '',
     env: 'MESSARI_API_KEY',
     format: String,
   })

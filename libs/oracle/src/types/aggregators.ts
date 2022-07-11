@@ -30,11 +30,14 @@ export interface OracleObservationType {
   price: BigNumber;
   epoch: BigNumber;
   round: BigNumber;
+  time: BigNumber;
 }
 
 export interface AggregatorStorage {
   oracleAddresses: MichelsonMap<string, OracleInformation>;
   lastResult: OracleObservationType;
+  heartBeatSeconds: BigNumber;
+  decimals: BigNumber;
 }
 
 // interface oraclePriceResponseType {

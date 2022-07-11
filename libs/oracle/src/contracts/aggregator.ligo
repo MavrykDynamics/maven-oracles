@@ -11,14 +11,24 @@ type oracleObservationType is [@layout:comb] record [
        round: nat;
 ];
 
+type oracleLastResultType is [@layout:comb] record [
+       price: nat;
+       epoch: nat;
+       round: nat;
+       time: nat;
+];
+
+
 type leaderReponseType is   [@layout:comb] record [
   oracleObservations: map (address, oracleObservationType);
   signatures: map (address, signature);
+  time: nat
 ];
 
 type storage is [@layout:comb] record [
     oracleAddresses    : oracleAddressesType;
-    lastResult  : oracleObservationType;
+    lastResult  : oracleLastResultType;
+    heartBeatSeconds : nat;
 ];
 
 type parameter is
@@ -183,6 +193,7 @@ function verify (var store : storage; const leaderReponse : leaderReponseType) :
       price=median;
       epoch=epochAndRound.0;
       round=epochAndRound.1;
+      time=leaderReponse.time;
     ];
 
   } with (store)
@@ -194,6 +205,7 @@ function reset (var store : storage) : storage is
       price=0n;
       epoch=0n;
       round=0n;
+      time=0n;
     ];
 
   } with (store)
@@ -253,7 +265,9 @@ record [
       price=(0n : nat);
       epoch=(0n : nat);
       round=(0n : nat);
-      ]
+      time=(0n : nat);
+      ];
+    heartBeatSeconds=(60n : nat);
 ]
 
 *)

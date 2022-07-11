@@ -265,9 +265,11 @@ export class ContractService implements OnModuleInit {
       }
     }
 
+    const time = new BigNumber(Date.now());
     const op = contractInstance.methodsObject.verify({
       oracleObservations,
-      signatures
+      signatures,
+      time
     });
 
     this._tezos.setSignerProvider(oracleSigner);
@@ -294,8 +296,20 @@ export class ContractService implements OnModuleInit {
       epoch: storage.lastResult.epoch.toNumber(),
       round: storage.lastResult.round.toNumber(),
       price: storage.lastResult.price,
-      time: 0 // TODO: add time in smart contract
+      time: storage.lastResult.time.toNumber()
     };
+  }
+
+  public async _getBlockchainConfig(aggregatorAddress: string): Promise<{
+    heartBeatSeconds: number
+    decimals: BigNumber
+  }> {
+    const contractInstance = await this._tezos.contract.at(aggregatorAddress);
+    const storage: AggregatorStorage = await contractInstance.storage();
+    return {
+      heartBeatSeconds: storage.heartBeatSeconds?.toNumber() | 60,
+      decimals: storage.decimals
+    }
   }
 
   // public async runVerify(): Promise<any> {
