@@ -44,7 +44,7 @@ export class OracleConfig {
   public peerPrivateKey: string;
 
   @Property({
-    default: 'KT1QnqVkdKoj8fuMWXZXXuecZiYW9nAXwAtp',
+    default: 'KT1KeCPUAqhcQ1G26ebAm3arugWhjrjRDs8g',
     env: 'AGGREGATOR_ADDRESS',
     format: String,
   })

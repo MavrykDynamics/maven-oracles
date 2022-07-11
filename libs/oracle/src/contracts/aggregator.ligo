@@ -30,6 +30,7 @@ type storage is [@layout:comb] record [
     lastResult  : oracleLastResultType;
     heartBeatSeconds : nat;
     alphaPercentPerThousand : nat;
+    decimals : nat;
 ];
 
 type parameter is
@@ -268,6 +269,7 @@ record [
       round=(0n : nat);
       time=(0n : nat);
       ];
+    decimals=(8n : nat);
     heartBeatSeconds=(60n : nat);
     alphaPercentPerThousand=(500n : nat);
 ]
