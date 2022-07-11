@@ -38,6 +38,7 @@ export interface AggregatorStorage {
   lastResult: OracleObservationType;
   heartBeatSeconds: BigNumber;
   decimals: BigNumber;
+  alphaPercentPerThousand: BigNumber;
 }
 
 // interface oraclePriceResponseType {

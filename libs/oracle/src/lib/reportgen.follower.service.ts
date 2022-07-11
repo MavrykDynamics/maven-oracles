@@ -31,7 +31,7 @@ export class ReportGenFollowerService implements OnModuleInit {
 
   private readonly _roundMax: number = 3; // 3 - 20 recommended by OCR white paper
   private _heartBeatSeconds: number; // 5m - 24h recommended by OCR white paper
-  private readonly _alphaPercent: BigNumber = new BigNumber(0.5); // 0.2% - 0.5% recommended by OCR white paper
+  private _alphaPercent: BigNumber; // 0.2% - 0.5% recommended by OCR white paper
 
   public constructor(
     private readonly _config: OracleConfig,
@@ -69,6 +69,7 @@ export class ReportGenFollowerService implements OnModuleInit {
       this.onFinalEchoReceived(from, attestedReport)
     );
     
+    this._alphaPercent = (await this._contractService._getBlockchainConfig(this._config.aggregatorAddress)).alphaPercentPerThousand;
     this._heartBeatSeconds = (await this._contractService._getBlockchainConfig(this._config.aggregatorAddress)).heartBeatSeconds;
   }
 

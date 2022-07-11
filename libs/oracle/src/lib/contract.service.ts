@@ -303,12 +303,14 @@ export class ContractService implements OnModuleInit {
   public async _getBlockchainConfig(aggregatorAddress: string): Promise<{
     heartBeatSeconds: number
     decimals: BigNumber
+    alphaPercentPerThousand: BigNumber
   }> {
     const contractInstance = await this._tezos.contract.at(aggregatorAddress);
     const storage: AggregatorStorage = await contractInstance.storage();
     return {
       heartBeatSeconds: storage.heartBeatSeconds?.toNumber() | 60,
-      decimals: storage.decimals
+      decimals: storage.decimals,
+      alphaPercentPerThousand: storage.alphaPercentPerThousand.div(1000)
     }
   }
 

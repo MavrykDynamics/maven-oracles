@@ -22,13 +22,14 @@ type oracleLastResultType is [@layout:comb] record [
 type leaderReponseType is   [@layout:comb] record [
   oracleObservations: map (address, oracleObservationType);
   signatures: map (address, signature);
-  time: nat
+  time: nat;
 ];
 
 type storage is [@layout:comb] record [
     oracleAddresses    : oracleAddressesType;
     lastResult  : oracleLastResultType;
     heartBeatSeconds : nat;
+    alphaPercentPerThousand : nat;
 ];
 
 type parameter is
@@ -268,6 +269,7 @@ record [
       time=(0n : nat);
       ];
     heartBeatSeconds=(60n : nat);
+    alphaPercentPerThousand=(500n : nat);
 ]
 
 *)
