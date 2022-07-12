@@ -1,5 +1,13 @@
 **/node_modules
-**/Dockerfile
+images/
 **.env
-  .git
+.git
 common/temp
+.api-keys.*
+.nvmrc
+secret.json
+signatory.dev.yaml
+*.md
+docker-compose.yml
+.github/
+scripts/
