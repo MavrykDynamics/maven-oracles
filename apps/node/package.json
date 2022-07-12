@@ -31,7 +31,7 @@
     "async-mutex": "^0.3.2",
     "bignumber.js": "^9.0.2",
     "convict": "^6.2.1",
-    "libp2p": "^0.37.3-e6f646e",
+    "libp2p": "0.37.3-e6f646e",
     "@multiformats/multiaddr": "~10.1.8",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.0.0",

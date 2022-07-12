@@ -10,10 +10,7 @@ import { createFromJSON } from '@libp2p/peer-id-factory';
 import { ContractService } from './contract.service.js';
 import { Multiaddr } from '@multiformats/multiaddr';
 import { TCP } from '@libp2p/tcp';
-import type { Transport } from '@libp2p/interfaces/transport';
-import type { StreamMuxerFactory } from '@libp2p/interfaces/stream-muxer';
-import type { PeerDiscovery } from '@libp2p/interfaces/peer-discovery';
-import type { DualDHT } from '@libp2p/interfaces/dht';
+import { Transport } from '@libp2p/interface-transport';
 
 @Injectable()
 export class NodeService {
@@ -67,7 +64,7 @@ export class NodeService {
         listen: [`/ip4/${peerListenAddress}/tcp/${peerListenPort}`]
       },
       transports: [new TCP() as unknown as Transport],
-      streamMuxers: [new Mplex() as unknown as StreamMuxerFactory],
+      streamMuxers: [new Mplex()],
       connectionEncryption: [new Noise()],
       pubsub: new GossipSub({
         emitSelf: true
@@ -76,9 +73,9 @@ export class NodeService {
         new Bootstrap({
           interval: 10000,
           list: bootstrapPeers
-        }) as unknown as PeerDiscovery
+        })
       ],
-      dht: new KadDHT() as unknown as DualDHT,
+      dht: new KadDHT(),
       connectionManager: {
         autoDial: true
       },

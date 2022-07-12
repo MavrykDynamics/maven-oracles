@@ -3,7 +3,6 @@ import { TypedEmitter } from 'tiny-typed-emitter';
 import { NodeService } from './node.service.js';
 import { Message } from '@libp2p/interface-pubsub';
 import { PeerId } from '@libp2p/interface-peer-id';
-import { GossipSub } from '@chainsafe/libp2p-gossipsub';
 
 export interface IPacemakerEvents {
   newEpoch: (from: PeerId, newEpoch: number) => {};

@@ -4,7 +4,7 @@ import { NodeService } from './node.service.js';
 import { Message } from '@libp2p/interface-pubsub';
 import BigNumber from 'bignumber.js';
 import { PeerId } from '@libp2p/interface-peer-id';
-import { Connection, Stream } from '@libp2p/interfaces/dist/src/connection/index.js';
+import { Connection, Stream } from '@libp2p/interface-connection';
 import { pipe } from 'it-pipe';
 import { decode, encode } from 'it-length-prefixed';
 import { OracleConfig } from './oracle.config.js';
@@ -217,7 +217,7 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
     }
 
     const serialized = ReportGenNetworkService._serializeObserveMessage(observeMessage);
-    const { stream } = await this._nodeService.node.dialProtocol(to, this._observeProtocol);
+    const stream = await this._nodeService.node.dialProtocol(to, this._observeProtocol);
     await pipe([serialized], encode(), stream);
     stream.close();
   }
@@ -250,7 +250,7 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
     }
 
     const serialized = ReportGenNetworkService._serializeReportMessage(reportMessage);
-    const { stream } = await this._nodeService.node.dialProtocol(to, this._reportProtocol);
+    const stream = await this._nodeService.node.dialProtocol(to, this._reportProtocol);
     await pipe([serialized], encode(), stream);
     stream.close();
   }
