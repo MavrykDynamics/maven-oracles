@@ -11,6 +11,7 @@ import { ContractService } from './contract.service.js';
 import { Multiaddr } from '@multiformats/multiaddr';
 import { TCP } from '@libp2p/tcp';
 import { Transport } from '@libp2p/interface-transport';
+import { Libp2pNode } from 'libp2p/dist/src/libp2p.js';
 
 @Injectable()
 export class NodeService {
@@ -86,7 +87,15 @@ export class NodeService {
         denyInboundEncryptedConnection: (peerId) => {
           return !peerIdWhitelist.includes(peerId.toString());
         }
+      },
+      nat: {
+        enabled: true
       }
+    });
+
+    (this._node as Libp2pNode).components.getAddressManager().addEventListener('change:addresses', (a) => {
+      const addresses = this._node.getMultiaddrs();
+      this._logger.verbose(`My multiaddresses: ${JSON.stringify(addresses)}`);
     });
 
     // Log a message when a remote peer connects to us
