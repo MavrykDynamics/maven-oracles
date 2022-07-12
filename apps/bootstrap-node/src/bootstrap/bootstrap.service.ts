@@ -9,6 +9,11 @@ import { KadDHT } from '@libp2p/kad-dht';
 import { BootstrapConfig } from './bootstrap.config.js';
 import { PubSubPeerDiscovery } from '@libp2p/pubsub-peer-discovery';
 
+import type { Transport } from '@libp2p/interfaces/transport';
+import type { StreamMuxerFactory } from '@libp2p/interfaces/stream-muxer';
+import type { PeerDiscovery } from '@libp2p/interfaces/peer-discovery';
+import type { DualDHT } from '@libp2p/interfaces/dht';
+
 @Injectable()
 export class BootstrapService implements OnModuleInit {
   private readonly logger = new Logger(BootstrapService.name);
@@ -34,8 +39,8 @@ export class BootstrapService implements OnModuleInit {
       addresses: {
         listen: [multiaddr]
       },
-      transports: [new TCP()],
-      streamMuxers: [new Mplex()],
+      transports: [new TCP() as unknown as Transport],
+      streamMuxers: [new Mplex() as unknown as StreamMuxerFactory],
       connectionEncryption: [new Noise()],
       pubsub: new GossipSub({
         doPX: true
@@ -47,9 +52,9 @@ export class BootstrapService implements OnModuleInit {
         // }),
         new PubSubPeerDiscovery({
           interval: 1000
-        })
+        }) as unknown as PeerDiscovery
       ],
-      dht: new KadDHT(),
+      dht: new KadDHT() as unknown as DualDHT,
       relay: {
         enabled: true, // Allows you to dial and accept relayed connections. Does not make you a relay.
         hop: {

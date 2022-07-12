@@ -1,6 +1,5 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { createLibp2p, Libp2p } from 'libp2p';
-import { TCP } from '@libp2p/tcp';
 import { Mplex } from '@libp2p/mplex';
 import { Noise } from '@chainsafe/libp2p-noise';
 import { GossipSub } from '@chainsafe/libp2p-gossipsub';
@@ -9,7 +8,12 @@ import { KadDHT } from '@libp2p/kad-dht';
 import { OracleConfig } from './oracle.config.js';
 import { createFromJSON } from '@libp2p/peer-id-factory';
 import { ContractService } from './contract.service.js';
-import { Multiaddr } from 'multiaddr';
+import { Multiaddr } from '@multiformats/multiaddr';
+import { TCP } from '@libp2p/tcp';
+import type { Transport } from '@libp2p/interfaces/transport';
+import type { StreamMuxerFactory } from '@libp2p/interfaces/stream-muxer';
+import type { PeerDiscovery } from '@libp2p/interfaces/peer-discovery';
+import type { DualDHT } from '@libp2p/interfaces/dht';
 
 @Injectable()
 export class NodeService {
@@ -62,8 +66,8 @@ export class NodeService {
       addresses: {
         listen: [`/ip4/${peerListenAddress}/tcp/${peerListenPort}`]
       },
-      transports: [new TCP()],
-      streamMuxers: [new Mplex()],
+      transports: [new TCP() as unknown as Transport],
+      streamMuxers: [new Mplex() as unknown as StreamMuxerFactory],
       connectionEncryption: [new Noise()],
       pubsub: new GossipSub({
         emitSelf: true
@@ -72,9 +76,9 @@ export class NodeService {
         new Bootstrap({
           interval: 10000,
           list: bootstrapPeers
-        })
+        }) as unknown as PeerDiscovery
       ],
-      dht: new KadDHT(),
+      dht: new KadDHT() as unknown as DualDHT,
       connectionManager: {
         autoDial: true
       },
@@ -93,11 +97,11 @@ export class NodeService {
       const connection = evt.detail;
       this._logger.debug('Connected to: ', connection.remotePeer.toString());
     });
-
-    // this._node.addEventListener('peer:discovery', (peerInfo) => {
-    //   // No need to dial, autoDial is on
-    //   this._logger.debug('Discovered:', peerInfo.detail.multiaddrs.toString());
-    // });
+    // Log a message when a remote peer disconnects from us
+    this._node.connectionManager.addEventListener('peer:disconnect', (evt) => {
+      const connection = evt.detail;
+      this._logger.debug('Disconnected from: ', connection.remotePeer.toString());
+    });
 
     // Start listening
     await this._node.start();

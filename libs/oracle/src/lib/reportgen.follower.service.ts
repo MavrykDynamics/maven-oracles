@@ -47,6 +47,7 @@ export class ReportGenFollowerService implements OnModuleInit {
   private _onStopReportGen(): void {
     // Nothing to do
   }
+
   private _onStartReportGen(epoch: number, leader: string): void {
     this._epoch = epoch;
     this._leader = leader;
@@ -68,9 +69,13 @@ export class ReportGenFollowerService implements OnModuleInit {
     this._reportgenNetworkService.on('finalEcho', (from, { attestedReport }) =>
       this.onFinalEchoReceived(from, attestedReport)
     );
-    
-    this._alphaPercent = (await this._contractService._getBlockchainConfig(this._config.aggregatorAddress)).alphaPercentPerThousand;
-    this._heartBeatSeconds = (await this._contractService._getBlockchainConfig(this._config.aggregatorAddress)).heartBeatSeconds;
+
+    this._alphaPercent = (
+      await this._contractService._getBlockchainConfig(this._config.aggregatorAddress)
+    ).alphaPercentPerThousand;
+    this._heartBeatSeconds = (
+      await this._contractService._getBlockchainConfig(this._config.aggregatorAddress)
+    ).heartBeatSeconds;
   }
 
   public async onObserveReqReceived(from: PeerId, round: number): Promise<void> {
@@ -100,7 +105,12 @@ export class ReportGenFollowerService implements OnModuleInit {
     this._completedRound = false;
     this._receivedEcho = new Map();
 
-    const decimals: BigNumber = (await this._contractService._getBlockchainConfig(this._config.aggregatorAddress)).decimals;
+    // TODO: fetch decimals from smart contract
+    // const decimals: BigNumber = (
+    //   await this._contractService._getBlockchainConfig(this._config.aggregatorAddress)
+    // ).decimals;
+
+    const decimals = new BigNumber(2);
 
     const pair: [string, string] = ['USD', 'XTZ']; // TODO: get from blockchain from factory
 
@@ -255,10 +265,17 @@ export class ReportGenFollowerService implements OnModuleInit {
 
     const reportMedian = computeMedian(report);
 
-    if (lastReport.price.minus(reportMedian).div(lastReport.price).gt(this._alphaPercent)) {
+    this._logger.log(
+      `_shouldReport: report ${report.epoch}/${report.round} median: ${reportMedian}, previousMedian: ${
+        lastReport.price
+      }. Deviation: ${lastReport.price.minus(reportMedian).div(lastReport.price).abs()}`
+    );
+
+    if (lastReport.price.minus(reportMedian).div(lastReport.price).abs().gt(this._alphaPercent)) {
+      this._logger.log(`_shouldReport: will report`);
       return true;
     }
-
+    this._logger.log(`_shouldReport: will not report`);
     return false;
   }
 

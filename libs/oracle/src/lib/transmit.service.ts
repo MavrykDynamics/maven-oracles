@@ -80,9 +80,15 @@ export class TransmitService implements OnModuleInit {
     const deviation = reportMedian.minus(previousMedian).abs().div(previousMedian.abs());
     const perThousandThreshold = new BigNumber(3);
 
-    this._logger.debug(
-      `deviation x 1000: ${deviation.multipliedBy(1000)} | perThousandThreshold: ${perThousandThreshold}`
+    this._logger.log(
+      `onTransmit: report ${report.epoch}/${
+        report.round
+      } median: ${reportMedian}, previousMedian: ${previousMedian}. Deviation: ${reportMedian
+        .minus(previousMedian)
+        .abs()
+        .div(previousMedian.abs())}`
     );
+
     if (
       deviation.multipliedBy(1000).gte(perThousandThreshold) ||
       this._isNewerEpochRound(
@@ -92,6 +98,7 @@ export class TransmitService implements OnModuleInit {
         round
       )
     ) {
+      this._logger.log(`onTransmit: will doTransmit`);
       await this.doTransmit(epoch, round, report);
       return;
     }
