@@ -54,7 +54,6 @@ services:
       - TEZOS_SECRET_KEY=edskRkawwQimT7qNaw4g99dKh3ExUt3corurNLUwvYo2vwwAGdy6NK4At1QLEy9Km24TuwCFfr5k97wvDxKBn5iQqTxdvvpdjt
       - ALPHAVANTAGE_API_KEY=LOKAGZEB6UK7JJWS
       - MESSARI_API_KEY=7a4ace98-90a6-4792-81ad-5364afc6698d
-      - DEBUG=libp2p:*
     networks:
       p2p:
         ipv4_address: 172.24.2.1

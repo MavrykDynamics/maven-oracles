@@ -54,6 +54,7 @@ export interface IReport {
   round: number;
   observations: ISignedObservation[];
 }
+
 export interface ICompressedReport {
   epoch: number;
   round: number;
@@ -238,7 +239,7 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
           this._logger.error(e.toString());
         }
       }
-    });
+    }).finally(() => stream.close());
   }
 
   public async sendReport(to: PeerId, reportMessage: IReportMessage): Promise<void> {
@@ -269,7 +270,7 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
           this._logger.error(e.toString());
         }
       }
-    });
+    }).finally(() => stream.close());
   }
 
   public async broadcastReportReq(report: IReport): Promise<void> {
