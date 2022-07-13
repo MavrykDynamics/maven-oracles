@@ -1,5 +1,4 @@
 import { DynamicModule, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-
 import { ModuleMetadata } from '@nestjs/common/interfaces/modules/module-metadata.interface';
 import { OracleModule } from '@tezosdynamics/oracle';
 
@@ -21,7 +20,7 @@ export class AppModule implements NestModule {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
-  configure(consumer: MiddlewareConsumer): any {
+  public configure(consumer: MiddlewareConsumer): any {
     // No op
   }
 }

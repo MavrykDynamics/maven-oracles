@@ -3,34 +3,34 @@ import { OracleConfig } from './oracle.config.js';
 import BigNumber from 'bignumber.js';
 
 import { filterNotNull } from './helpers.js';
-import { MessariFetcherService, PriceFetcher } from './messari-fetcher.service.js';
+import { MessariFetcherService, IPriceFetcher } from './messari-fetcher.service.js';
 import { CoingeckoFetcherService } from './coingecko-fetcher.service.js';
 import { AlphavantageFetcherService } from './alphavantage-fetcher.service.js';
 
 @Injectable()
 export class PriceService {
-  private readonly logger = new Logger(PriceService.name);
-  private readonly priceFetchers: PriceFetcher[] = [];
+  private readonly _logger: Logger = new Logger(PriceService.name);
+  private readonly _priceFetchers: IPriceFetcher[] = [];
 
-  constructor(
-    private readonly messariFetcherService: MessariFetcherService,
-    private readonly coingeckoFectcherService: CoingeckoFetcherService,
-    private readonly alphavantageFetcherService: AlphavantageFetcherService,
-    private readonly oracleConfig: OracleConfig,
+  public constructor(
+    messariFetcherService: MessariFetcherService,
+    coingeckoFectcherService: CoingeckoFetcherService,
+    alphavantageFetcherService: AlphavantageFetcherService,
+    private readonly _oracleConfig: OracleConfig,
   ) {
-    if (this.oracleConfig.useFakePrices) {
-      this.logger.warn(
+    if (this._oracleConfig.useFakePrices) {
+      this._logger.warn(
         'YOU ARE USING FAKE PRICES, DO NOT DO THIS IN PRODUCTION'
       );
     }
-    this.priceFetchers = [messariFetcherService, coingeckoFectcherService, alphavantageFetcherService];
+    this._priceFetchers = [messariFetcherService, coingeckoFectcherService, alphavantageFetcherService];
   }
 
   public async getPrice(
     decimals: BigNumber,
     pair: [string, string]
   ): Promise<BigNumber> {
-    if (this.oracleConfig.useFakePrices) {
+    if (this._oracleConfig.useFakePrices) {
       // return new BigNumber(10);
       const currentSeconds = new Date().getSeconds();
       const currentMinutes = new Date().getMinutes();
@@ -43,13 +43,13 @@ export class PriceService {
     }
 
     const prices: (number | null)[] = await Promise.all(
-      this.priceFetchers.map(async (pf) => {
+      this._priceFetchers.map(async (pf) => {
         let price;
 
         try {
           price = await pf.getPrice(pair);
         } catch (e) {
-          this.logger.warn(
+          this._logger.warn(
             `Price fetcher ${
               pf.constructor.name
             } failed to fetch price for pair ${pair[0]}/${
@@ -58,7 +58,7 @@ export class PriceService {
           );
           return null;
         }
-        this.logger.debug(
+        this._logger.debug(
           `Price fetcher ${
             pf.constructor.name
           } answered price [${price}] on pair ${pair[0]}/${pair[1]}`
@@ -69,7 +69,7 @@ export class PriceService {
 
     const notNullPrices = filterNotNull(prices);
 
-    this.logger.debug(
+    this._logger.debug(
       `${notNullPrices.length}/${prices.length} fetchers answered on pair ${pair[0]}/${pair[1]}`
     );
 
@@ -79,7 +79,7 @@ export class PriceService {
       );
     }
 
-    return PriceService.median(
+    return PriceService._median(
       notNullPrices.map((value) =>
         new BigNumber(value).multipliedBy(
           new BigNumber(10).exponentiatedBy(decimals)
@@ -88,7 +88,7 @@ export class PriceService {
     ).decimalPlaces(0);
   }
 
-  private static median(arr: BigNumber[]): BigNumber {
+  private static _median(arr: BigNumber[]): BigNumber {
     const mid = Math.floor(arr.length / 2),
       nums = [...arr].sort((a, b) => (a.isGreaterThan(b) ? 1 : -1));
     return arr.length % 2 !== 0

@@ -1,5 +1,7 @@
+/* eslint-disable @typescript-eslint/no-parameter-properties */
+
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { createFromJSON, createFromPrivKey } from '@libp2p/peer-id-factory';
+import { createFromJSON } from '@libp2p/peer-id-factory';
 import { createLibp2p } from 'libp2p';
 import { TCP } from '@libp2p/tcp';
 import { Mplex } from '@libp2p/mplex';
@@ -12,11 +14,11 @@ import { Transport } from '@libp2p/interface-transport';
 
 @Injectable()
 export class BootstrapService implements OnModuleInit {
-  private readonly logger = new Logger(BootstrapService.name);
+  private readonly _logger: Logger = new Logger(BootstrapService.name);
 
-  constructor(private readonly config: BootstrapConfig) {}
+  public constructor(private readonly _config: BootstrapConfig) {}
 
-  async onModuleInit(): Promise<void> {
+  public async onModuleInit(): Promise<void> {
     const peerId = await createFromJSON({
       id: 'QmcrQZ6RJdpYuGvZqD5QEHAv6qX4BrQLJLQPQUrTrzdcgm',
       privKey:
@@ -25,10 +27,10 @@ export class BootstrapService implements OnModuleInit {
         'CAASpgIwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDLZZcGcbe4urMBVlcHgN0fpBymY+xcr14ewvamG70QZODJ1h9sljlExZ7byLiqRB3SjGbfpZ1FweznwNxWtWpjHkQjTVXeoM4EEgDSNO/Cg7KNlU0EJvgPJXeEPycAZX9qASbVJ6EECQ40VR/7+SuSqsdL1hrmG1phpIju+D64gLyWpw9WEALfzMpH5I/KvdYDW3N4g6zOD2mZNp5y1gHeXINHWzMF596O72/6cxwyiXV1eJ000k1NVnUyrPjXtqWdVLRk5IU1LFpoQoXZU5X1hKj1a2qt/lZfH5eOrF/ramHcwhrYYw1txf8JHXWO/bbNnyemTHAvutZpTNrsWATfAgMBAAE='
     });
 
-    const { listenIp, listenPort } = this.config;
+    const { listenIp, listenPort } = this._config;
     const multiaddr = `/ip4/${listenIp}/tcp/${listenPort}`;
 
-    this.logger.verbose(`Listening on ${multiaddr}`);
+    this._logger.verbose(`Listening on ${multiaddr}`);
 
     const node = await createLibp2p({
       peerId,
@@ -65,17 +67,17 @@ export class BootstrapService implements OnModuleInit {
     // Log a message when a remote peer connects to us
     node.connectionManager.addEventListener('peer:connect', (evt) => {
       const connection = evt.detail;
-      this.logger.debug('Connected to: ', connection.remotePeer.toString());
+      this._logger.debug('Connected to: ', connection.remotePeer.toString());
     });
 
     node.addEventListener('peer:discovery', (peerInfo) => {
       // No need to dial, autoDial is on
-      this.logger.debug('Discovered:', peerInfo.detail.multiaddrs.toString());
+      this._logger.debug('Discovered:', peerInfo.detail.multiaddrs.toString());
     });
 
     // Start listening
     await node.start();
 
-    this.logger.log('Started');
+    this._logger.log('Started');
   }
 }

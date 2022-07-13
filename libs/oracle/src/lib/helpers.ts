@@ -1,3 +1,5 @@
+/* eslint-disable @rushstack/no-new-null */
+
 import { keys } from '@libp2p/crypto';
 import { IAttestedReport, IReport } from './reportgen.network.service.js';
 import BigNumber from 'bignumber.js';

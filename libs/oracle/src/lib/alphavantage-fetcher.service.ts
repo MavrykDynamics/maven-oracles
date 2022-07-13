@@ -3,32 +3,32 @@ import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import { AxiosResponse } from 'axios';
 import BigNumber from 'bignumber.js';
-import { PriceFetcher } from './messari-fetcher.service';
+import { IPriceFetcher } from './messari-fetcher.service';
 import { OracleConfig } from './oracle.config.js';
 
 @Injectable()
-export class AlphavantageFetcherService implements PriceFetcher {
-  private readonly logger = new Logger(AlphavantageFetcherService.name);
-  private readonly baseUrl = 'https://www.alphavantage.co/query?function=CRYPTO_INTRADAY';
+export class AlphavantageFetcherService implements IPriceFetcher {
+  private readonly _logger: Logger = new Logger(AlphavantageFetcherService.name);
+  private readonly _baseUrl: string = 'https://www.alphavantage.co/query?function=CRYPTO_INTRADAY';
 
-  constructor(
-    private readonly httpService: HttpService,
+  public constructor(
+    private readonly _httpService: HttpService,
     private readonly _config: OracleConfig
   ) {
     if (_config.alphavantageApiKey === '') {
-      this.logger.warn(
+      this._logger.warn(
         'No Alphavantage API key set. You may hit the api request limit. Set the MESSARI_API_KEY env variable with your API Key'
       );
     }
   }
 
-  async getPrice([pair1, pair2]: [string, string]): Promise<BigNumber> {
+  public async getPrice([pair1, pair2]: [string, string]): Promise<BigNumber> {
     const vsCurrency = pair1.toLowerCase();
     const coin = pair2.toLowerCase();
     let response: AxiosResponse;
     try {
-      const response$ = this.httpService.get(
-        `${this.baseUrl}&symbol=${coin}&market=${vsCurrency}&interval=${this._config.alphavantageInterval}min&apikey=${this._config.alphavantageApiKey}`,
+      const response$ = this._httpService.get(
+        `${this._baseUrl}&symbol=${coin}&market=${vsCurrency}&interval=${this._config.alphavantageInterval}min&apikey=${this._config.alphavantageApiKey}`,
       );
 
       response = await firstValueFrom(response$);
@@ -46,10 +46,10 @@ export class AlphavantageFetcherService implements PriceFetcher {
     const price = (priceHigh.plus(priceLow)).dividedBy(2);
 
     if (price === undefined || price === null || isNaN(price.toNumber())) {
-      this.logger.verbose(
+      this._logger.verbose(
         `Could not parse price from response: ${JSON.stringify(response)}`
       );
-      this.logger.error('Could not parse price from response');
+      this._logger.error('Could not parse price from response');
       throw new Error('Could not parse price from response');
     }
     return price;

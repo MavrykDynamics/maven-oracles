@@ -41,7 +41,7 @@ export class NodeService {
 
     const peersIdList: string[] = [];
     const oracleAddresses = await this._contractService.getOraclesAddresses(this._config.aggregatorAddress);
-    for (const [key, value] of oracleAddresses.entries()) {
+    for (const [, value] of oracleAddresses.entries()) {
       peersIdList.push(value.oraclePeerId);
     }
 

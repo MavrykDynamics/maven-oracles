@@ -163,9 +163,9 @@ export class PacemakerService implements OnModuleInit {
   }
 
   public async leaderForEpoch(epoch: number): Promise<string> {
-    let peersIdList: string[] = [];
+    const peersIdList: string[] = [];
     const oracleAddresses = await this._contractService.getOraclesAddresses(this._config.aggregatorAddress);
-    for (let [key, value] of oracleAddresses.entries()) {
+    for (const [, value] of oracleAddresses.entries()) {
       peersIdList.push(value.oraclePeerId)
     }
 

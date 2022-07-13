@@ -34,7 +34,7 @@ export class PacemakerNetworkService extends TypedEmitter<IPacemakerEvents> impl
     });
   }
 
-  public async broadcastNewEpoch(epoch: number) {
+  public async broadcastNewEpoch(epoch: number): Promise<void> {
     const encoder = new TextEncoder();
     const encodedData = encoder.encode(epoch.toString());
 

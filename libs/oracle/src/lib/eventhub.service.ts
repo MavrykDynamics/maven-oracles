@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { TypedEmitter } from 'tiny-typed-emitter';
-import { IAttestedReport, IReport } from './reportgen.network.service.js';
+import { IAttestedReport } from './reportgen.network.service.js';
 
 interface IEvents {
   startepoch: (epoch: number, leader: string) => void;

@@ -7,7 +7,7 @@ import { OracleConfig } from './oracle.config.js';
 import { MichelsonMap, TezosToolkit } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 import { Schema } from '@taquito/michelson-encoder';
-import { AggregatorStorage, OracleInformation, OraclePriceResponsesValue } from '../types/aggregators';
+import { IAggregatorStorage, IOracleInformation } from '../types/aggregators';
 import { IAttestedReport, ICompressedReport, IObservation, ISignature } from './reportgen.network.service.js';
 
 interface IOracleInformations {
@@ -26,7 +26,7 @@ interface IOracleObservationType {
 export class ContractService implements OnModuleInit {
   private readonly _logger: Logger = new Logger(ContractService.name);
   private _tezos: TezosToolkit;
-  private _oracleAddresses: MichelsonMap<string, OracleInformation>;
+  private _oracleAddresses: MichelsonMap<string, IOracleInformation>;
 
   public constructor(private readonly _config: OracleConfig) {
     const { rpcUrl } = this._config;
@@ -46,22 +46,22 @@ export class ContractService implements OnModuleInit {
 
   public async updateOraclesAddressesMap(aggregatorAddress: string): Promise<void> {
     const contractInstance = await this._tezos.contract.at(aggregatorAddress);
-    const storage: AggregatorStorage = await contractInstance.storage();
+    const storage: IAggregatorStorage = await contractInstance.storage();
     this._oracleAddresses = storage.oracleAddresses;
   }
 
   public async getOraclesAddressesBlockchain(
     aggregatorAddress: string
-  ): Promise<MichelsonMap<string, OracleInformation>> {
+  ): Promise<MichelsonMap<string, IOracleInformation>> {
     const contractInstance = await this._tezos.contract.at(aggregatorAddress);
-    const storage: AggregatorStorage = await contractInstance.storage();
+    const storage: IAggregatorStorage = await contractInstance.storage();
     const oracleAddresses = storage.oracleAddresses;
     return oracleAddresses;
   }
 
   public async getOraclesAddresses(
     aggregatorAddress: string
-  ): Promise<MichelsonMap<string, OracleInformation>> {
+  ): Promise<MichelsonMap<string, IOracleInformation>> {
     if (this._oracleAddresses) {
       return this._oracleAddresses;
     } else {
@@ -242,7 +242,7 @@ export class ContractService implements OnModuleInit {
     return signaturesOk.every((ok) => ok);
   }
 
-  public async sendReportBlockchain(report: IAttestedReport): Promise<any> {
+  public async sendReportBlockchain(report: IAttestedReport): Promise<void> {
     const oracleSigner = new InMemorySigner(this._config.tezosSecretKey);
     const contractInstance = await this._tezos.contract.at(this._config.aggregatorAddress);
 
@@ -287,9 +287,9 @@ export class ContractService implements OnModuleInit {
     round: number;
     price: BigNumber;
     time: number;
-  } | null> {
+  }> {
     const contractInstance = await this._tezos.contract.at(aggregatorAddress);
-    const storage: AggregatorStorage = await contractInstance.storage();
+    const storage: IAggregatorStorage = await contractInstance.storage();
     return {
       epoch: storage.lastResult.epoch.toNumber(),
       round: storage.lastResult.round.toNumber(),
@@ -304,9 +304,9 @@ export class ContractService implements OnModuleInit {
     alphaPercentPerThousand: BigNumber
   }> {
     const contractInstance = await this._tezos.contract.at(aggregatorAddress);
-    const storage: AggregatorStorage = await contractInstance.storage();
+    const storage: IAggregatorStorage = await contractInstance.storage();
     return {
-      heartBeatSeconds: storage.heartBeatSeconds?.toNumber() | 60,
+      heartBeatSeconds: storage.heartBeatSeconds?.toNumber() || 60,
       decimals: storage.decimals,
       alphaPercentPerThousand: storage.alphaPercentPerThousand.div(1000)
     }

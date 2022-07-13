@@ -1,11 +1,16 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @rushstack/typedef-var */
+
 import { DynamicModule, Module } from '@nestjs/common';
 import { TSConvict } from 'ts-convict';
 
-type ClassType = { new (): any };
+interface IClassType {
+  new (): any;
+}
 
 @Module({})
 export class ConfigModule {
-  public static forConfig(configClass: ClassType | ClassType[]): DynamicModule {
+  public static forConfig(configClass: IClassType | IClassType[]): DynamicModule {
     const configClasses = Array.isArray(configClass) ? configClass : [configClass];
 
     return {

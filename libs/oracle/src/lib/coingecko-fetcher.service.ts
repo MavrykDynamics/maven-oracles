@@ -3,44 +3,44 @@ import { AxiosResponse } from 'axios';
 import { firstValueFrom } from 'rxjs';
 import { HttpService } from '@nestjs/axios';
 import BigNumber from 'bignumber.js';
-import { PriceFetcher } from './messari-fetcher.service';
+import { IPriceFetcher } from './messari-fetcher.service';
 import { OracleConfig } from './oracle.config.js';
 
 @Injectable()
-export class CoingeckoFetcherService implements PriceFetcher, OnModuleInit {
-  private readonly logger = new Logger(CoingeckoFetcherService.name);
-  private readonly baseUrl = 'https://api.coingecko.com/api/v3';
+export class CoingeckoFetcherService implements IPriceFetcher, OnModuleInit {
+  private readonly _logger: Logger = new Logger(CoingeckoFetcherService.name);
+  private readonly _baseUrl: string = 'https://api.coingecko.com/api/v3';
 
-  private symbolToId: Map<string, string> = new Map<string, string>();
-  private supportedVsCurrencies: Set<string> = new Set<string>();
+  private _symbolToId: Map<string, string> = new Map<string, string>();
+  private _supportedVsCurrencies: Set<string> = new Set<string>();
 
-  constructor(
-    private readonly httpService: HttpService,
+  public constructor(
+    private readonly _httpService: HttpService,
     private readonly _config: OracleConfig
   ) {
     if (_config.coingeckoApiKey === '') {
-      this.logger.warn(
+      this._logger.warn(
         'No Coingecko API key set. You may hit the api request limit. Set the COINGECKO_API_KEY env variable with your API Key'
       );
     }
   }
 
-  async onModuleInit(): Promise<void> {
+  public async onModuleInit(): Promise<void> {
     try {
-      await this.updateSymbolToIdMap();
-      await this.updateSupportedVsCurrenciesSet();
+      await this._updateSymbolToIdMap();
+      await this._updateSupportedVsCurrenciesSet();
     } catch (e) {
-      this.logger.error(e.toString());
+      this._logger.error(e.toString());
       // Do not re-throw to avoid crashing app
       // The app should handle some price fetcher being down
     }
   }
 
-  async updateSymbolToIdMap() {
+  private async _updateSymbolToIdMap(): Promise<void> {
     let response: AxiosResponse;
 
     try {
-      const response$ = this.httpService.get(`${this.baseUrl}/coins/list`, {
+      const response$ = this._httpService.get(`${this._baseUrl}/coins/list`, {
         //headers: {
         //  'x-messari-api-key': this.config.messariApiKey,
         //},
@@ -62,17 +62,17 @@ export class CoingeckoFetcherService implements PriceFetcher, OnModuleInit {
     const coins = response.data;
 
     for (const coin of coins) {
-      this.symbolToId.set(coin.symbol, coin.id);
+      this._symbolToId.set(coin.symbol, coin.id);
     }
 
-    this.logger.verbose(`Fetched ids of ${this.symbolToId.size} coins`);
+    this._logger.verbose(`Fetched ids of ${this._symbolToId.size} coins`);
   }
 
-  async updateSupportedVsCurrenciesSet() {
+  private async _updateSupportedVsCurrenciesSet(): Promise<void> {
     let response: AxiosResponse;
     try {
-      const response$ = this.httpService.get(
-        `${this.baseUrl}/simple/supported_vs_currencies`,
+      const response$ = this._httpService.get(
+        `${this._baseUrl}/simple/supported_vs_currencies`,
         {
           //headers: {
           //  'x-messari-api-key': this.config.messariApiKey,
@@ -96,23 +96,23 @@ export class CoingeckoFetcherService implements PriceFetcher, OnModuleInit {
     const supportedVsCurrencies = response.data;
 
     for (const supportedVsCurrency of supportedVsCurrencies) {
-      this.supportedVsCurrencies.add(supportedVsCurrency);
+      this._supportedVsCurrencies.add(supportedVsCurrency);
     }
 
-    this.logger.verbose(
-      `Fetched ${this.supportedVsCurrencies.size} supported vs currencies`
+    this._logger.verbose(
+      `Fetched ${this._supportedVsCurrencies.size} supported vs currencies`
     );
   }
 
-  async getPrice([pair1, pair2]: [string, string]): Promise<BigNumber> {
+  public async getPrice([pair1, pair2]: [string, string]): Promise<BigNumber> {
     const vsCurrency = pair1.toLowerCase();
     const coin = pair2.toLowerCase();
 
-    if (!this.supportedVsCurrencies.has(vsCurrency)) {
+    if (!this._supportedVsCurrencies.has(vsCurrency)) {
       throw new Error(`Not supported ${vsCurrency} as VS currency`);
     }
 
-    const coinId = this.symbolToId.get(coin);
+    const coinId = this._symbolToId.get(coin);
 
     if (coinId === undefined) {
       throw new Error(`Not supported ${coin} as coin`);
@@ -120,9 +120,9 @@ export class CoingeckoFetcherService implements PriceFetcher, OnModuleInit {
 
     let response: AxiosResponse;
     try {
-      const response$ = this.httpService.get(`${this.baseUrl}/simple/price`, {
+      const response$ = this._httpService.get(`${this._baseUrl}/simple/price`, {
         params: {
-          ids: this.symbolToId.get(coin),
+          ids: this._symbolToId.get(coin),
           vs_currencies: vsCurrency,
         },
         //headers: {

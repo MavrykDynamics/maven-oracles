@@ -2,7 +2,7 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { OracleConfig } from './oracle.config.js';
 import { EventHubService } from './eventhub.service.js';
 import { ContractService } from './contract.service.js';
-import { IAttestedReport, ISignature } from './reportgen.network.service.js';
+import { IAttestedReport } from './reportgen.network.service.js';
 import { default as Heap } from 'heap';
 import BigNumber from 'bignumber.js';
 import { computeMedian, randomPermutation } from './helpers.js';
@@ -159,7 +159,7 @@ export class TransmitService implements OnModuleInit {
     if (timeAndReport === undefined) {
       return;
     }
-    const { report, time } = timeAndReport;
+    const { report } = timeAndReport;
     const lastBlockchainReport = await this._getLastBlockchainEpochAndRound(this._config.aggregatorAddress);
 
     if (
