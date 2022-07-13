@@ -291,6 +291,7 @@ importers:
       '@types/heap': ~0.2.31
       '@types/jest': 27.0.2
       '@types/node': ^16.11.7
+      '@types/seedrandom': ~3.0.2
       '@types/yargs': ^17.0.9
       '@typescript-eslint/eslint-plugin': ~5.10.0
       '@typescript-eslint/parser': ~5.10.0
@@ -312,6 +313,7 @@ importers:
       reflect-metadata: ^0.1.13
       rimraf: ^3.0.2
       rxjs: ^7.0.0
+      seedrandom: ^3.0.5
       sha256: ^0.2.0
       tiny-typed-emitter: ~2.1.0
       ts-convict: ^1.1.0
@@ -367,6 +369,7 @@ importers:
       libp2p: 0.37.3-e6f646e
       reflect-metadata: 0.1.13
       rxjs: 7.5.6
+      seedrandom: 3.0.5
       sha256: 0.2.0
       tiny-typed-emitter: 2.1.0
       ts-convict: 1.1.0_b37a2d3885b3d9583453351c677af7d1
@@ -383,6 +386,7 @@ importers:
       '@types/heap': 0.2.31
       '@types/jest': 27.0.2
       '@types/node': 16.11.43
+      '@types/seedrandom': 3.0.2
       '@types/yargs': 17.0.10
       '@typescript-eslint/eslint-plugin': 5.10.2_61711575dd6de0ced61e0bccc6181943
       '@typescript-eslint/parser': 5.10.2_eslint@8.7.0+typescript@4.5.5
@@ -2765,6 +2769,10 @@ packages:
   /@types/retry/0.12.1:
     resolution: {integrity: sha512-xoDlM2S4ortawSWORYqsdU+2rxdh4LRW9ytc3zmT37RIKQh6IHyKwwtKhKis9ah8ol07DCkZxPt8BBvPjC6v4g==}
     dev: false
+
+  /@types/seedrandom/3.0.2:
+    resolution: {integrity: sha512-YPLqEOo0/X8JU3rdiq+RgUKtQhQtrppE766y7vMTu8dGML7TVtZNiiiaC/hhU9Zqw9UYopXxhuWWENclMVBwKQ==}
+    dev: true
 
   /@types/stack-utils/2.0.1:
     resolution: {integrity: sha512-Hl219/BT5fLAaz6NDkSuhzasy49dwQS/DSdu4MdggFB8zcXv7vflBI3xp7FEmkmdDkBUI2bPUNeMttp2knYdxw==}
@@ -6900,6 +6908,10 @@ packages:
     dependencies:
       xmlchars: 2.2.0
     dev: true
+
+  /seedrandom/3.0.5:
+    resolution: {integrity: sha512-8OwmbklUNzwezjGInmZ+2clQmExQPvomqjL7LFqOYqtmuxRgQYqOD3mHaU+MvZn5FLUeVxVfQjwLZW/n/JFuqg==}
+    dev: false
 
   /semver/6.3.0:
     resolution: {integrity: sha512-b39TBaTSfV6yBrapU89p5fKekE2m/NwnDocOVruQFS1/veMgdzuPcnOM34M6CwxW8jH/lxEa5rBoDeUwu5HHTw==}

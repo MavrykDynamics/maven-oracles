@@ -5,7 +5,7 @@ import { ContractService } from './contract.service.js';
 import { IAttestedReport, ISignature } from './reportgen.network.service.js';
 import { default as Heap } from 'heap';
 import BigNumber from 'bignumber.js';
-import { computeMedian } from './helpers.js';
+import { computeMedian, randomPermutation } from './helpers.js';
 
 @Injectable()
 export class TransmitService implements OnModuleInit {
@@ -143,11 +143,14 @@ export class TransmitService implements OnModuleInit {
     this._restartTransmitTimer(peekedReport.time - Date.now());
   }
 
-  private async _getTransmitDelayMs(epoch: number, delay: number): Promise<number> {
+  private async _getTransmitDelayMs(epoch: number, round: number): Promise<number> {
     const oracles1 = await this._contractService.getOraclesAddresses(this._config.aggregatorAddress);
     const oracles2 = Array.from(oracles1.keys());
-    const k = oracles2.findIndex((oracle) => oracle === this._config.tezosAddress);
 
+    const seed = `${epoch}-${round}`; // TODO: this should maybe include oracle address, or secret (as specified in OCR paper?)
+    const permuted = randomPermutation(oracles2, seed);
+
+    const k = permuted.findIndex((oracle) => oracle === this._config.tezosAddress);
     return k * this._deltaStage * 1000;
   }
 

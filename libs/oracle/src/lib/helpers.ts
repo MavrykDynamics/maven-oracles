@@ -1,6 +1,7 @@
 import { keys } from '@libp2p/crypto';
 import { IAttestedReport, IReport } from './reportgen.network.service.js';
 import BigNumber from 'bignumber.js';
+import seedrandom from 'seedrandom';
 
 export async function signData(privateKey: string, msg: Uint8Array): Promise<Uint8Array> {
   const privKey = await keys.unmarshalPrivateKey(new Buffer(privateKey, 'base64'));
@@ -29,4 +30,16 @@ export function computeMedian(report: IAttestedReport | IReport): BigNumber {
   if (report.observations.length % 2) return report.observations[half].price;
 
   return report.observations[half - 1].price.plus(report.observations[half].price).dividedBy(2.0);
+}
+
+export function randomPermutation<T>(array: T[], seed: string): T[] {
+  const rnd = seedrandom.alea(seed);
+
+  for (let i = array.length - 1; i > 0; i--) {
+    const v = rnd();
+    const j = Math.floor(v * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+
+  return array;
 }
