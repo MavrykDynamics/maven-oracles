@@ -15,14 +15,13 @@ type oracleLastResultType is [@layout:comb] record [
        price: nat;
        epoch: nat;
        round: nat;
-       time: nat;
+       time: timestamp;
 ];
 
 
 type leaderReponseType is   [@layout:comb] record [
   oracleObservations: map (address, oracleObservationType);
   signatures: map (address, signature);
-  time: nat;
 ];
 
 type storage is [@layout:comb] record [
@@ -195,7 +194,7 @@ function verify (var store : storage; const leaderReponse : leaderReponseType) :
       price=median;
       epoch=epochAndRound.0;
       round=epochAndRound.1;
-      time=leaderReponse.time;
+      time=Tezos.get_now();
     ];
 
   } with (store)
@@ -207,7 +206,7 @@ function reset (var store : storage) : storage is
       price=0n;
       epoch=0n;
       round=0n;
-      time=0n;
+      time=Tezos.get_now();
     ];
 
   } with (store)
@@ -267,7 +266,7 @@ record [
       price=(0n : nat);
       epoch=(0n : nat);
       round=(0n : nat);
-      time=(0n : nat);
+      time=(1657704105 : timestamp);
       ];
     decimals=(8n : nat);
     heartBeatSeconds=(60n : nat);

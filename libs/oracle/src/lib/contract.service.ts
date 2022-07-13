@@ -265,11 +265,9 @@ export class ContractService implements OnModuleInit {
       }
     }
 
-    const time = new BigNumber(Date.now());
     const op = contractInstance.methodsObject.verify({
       oracleObservations,
       signatures,
-      time
     });
 
     this._tezos.setSignerProvider(oracleSigner);
