@@ -15,7 +15,7 @@ export interface IOracleObservationType {
   price: BigNumber;
   epoch: BigNumber;
   round: BigNumber;
-  time: BigNumber;
+  time: string;
 }
 
 export interface IAggregatorStorage {

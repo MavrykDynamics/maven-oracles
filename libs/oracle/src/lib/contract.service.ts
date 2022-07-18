@@ -9,6 +9,7 @@ import BigNumber from 'bignumber.js';
 import { Schema } from '@taquito/michelson-encoder';
 import { IAggregatorStorage, IOracleInformation } from '../types/aggregators';
 import { IAttestedReport, ICompressedReport, IObservation, ISignature } from './reportgen.network.service.js';
+import { toTimestamp } from './helpers.js';
 
 interface IOracleInformations {
   oracleAddress: string;
@@ -290,11 +291,12 @@ export class ContractService implements OnModuleInit {
   }> {
     const contractInstance = await this._tezos.contract.at(aggregatorAddress);
     const storage: IAggregatorStorage = await contractInstance.storage();
+
     return {
       epoch: storage.lastResult.epoch.toNumber(),
       round: storage.lastResult.round.toNumber(),
       price: storage.lastResult.price,
-      time: storage.lastResult.time.toNumber()
+      time: toTimestamp(storage.lastResult.time)
     };
   }
 

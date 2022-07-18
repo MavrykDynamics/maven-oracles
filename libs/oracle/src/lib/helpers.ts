@@ -45,3 +45,8 @@ export function randomPermutation<T>(array: T[], seed: string): T[] {
 
   return array;
 }
+
+export const toTimestamp = (strDate: string): number => {  
+  const dt = Date.parse(strDate);  
+  return dt;  
+}
