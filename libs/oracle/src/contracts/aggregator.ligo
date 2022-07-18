@@ -157,7 +157,7 @@ function verifyMapsSizes(const leaderReponse : leaderReponseType): unit is
       then failwith("map observations and map signatures should have the same size")
   else unit
 
-function verifyEpochAndRound(const oracleObservations: map (address, oracleObservationType); const store: storage): (nat * nat) is block {
+function verifyEpochAndRoundFromObservation(const oracleObservations: map (address, oracleObservationType); const store: storage): (nat * nat) is block {
   var epoch: nat := 0n;
   var round: nat := 0n;
 
@@ -168,9 +168,16 @@ function verifyEpochAndRound(const oracleObservations: map (address, oracleObser
       if (round = 0n) then round:= value.round;
       if (not (round = value.round)) then failwith("different round in the observations");
   };
-  if ((epoch = store.lastResult.epoch) and (round = store.lastResult.round)) then failwith("round and epoch should be different from previous result")
+
+  if (epoch < store.lastResult.epoch) then failwith("epoch should be smaller than previous result")
+  else if (epoch = store.lastResult.epoch) then {
+    if (round <= store.lastResult.epoch) then failwith("round should be smaller than previous result")
+    else skip;
+  }
   else skip;
 } with (epoch, round)
+
+
 
 
 // Main 
@@ -181,7 +188,7 @@ function verify (var store : storage; const leaderReponse : leaderReponseType) :
     // verify obervations and signatures have the same size
     verifyMapsSizes(leaderReponse);
     // verify for each observations -> epoch and round are the same + different from previous
-    var epochAndRound: nat*nat := verifyEpochAndRound(leaderReponse.oracleObservations, store);
+    var epochAndRound: nat*nat := verifyEpochAndRoundFromObservation(leaderReponse.oracleObservations, store);
 
     // verify oracles signatures
     for key -> value in map leaderReponse.signatures block {
