@@ -281,3 +281,41 @@ record [
 ]
 
 *)
+
+
+// FOR DEMO - 4 oracles
+
+(*
+record [
+  oracleAddresses=map[
+    ("tz1eAoFgsys8PhTUvT3V3eq2BFaZp8UsGNsr":address) -> record[
+        oraclePublicKey=("edpkv9DgHWm6HY6b35Mv77hgZcWrJVD4ADebp9RjYxXVmFvGs4VYi1" : key);
+        oraclePeerId=("12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1" : string);
+        ];
+
+    ("tz1PSmvRd3ySbh5aviFEMYGD6542LL5QnrMk":address) -> record[
+        oraclePublicKey=("edpkuVjyKad7yCnNrCbGea7hi5Zh1zp5Cb1TvxUmnxC33fwKhq7daN" : key);
+        oraclePeerId=("12D3KooWLL2Y1JmrAXkY7r8xbuSRtasfJLAarXmAaZPYxPnzgAJ3" : string);
+    ];
+
+    ("tz1KrELvNVY4xKnujkXwrVLWuzWJEg9FvA8v":address) -> record[
+        oraclePublicKey=("edpku7vkvS6XaWzFjmPDYULNyYrS7Rf1vHuoQ9FD8zVcaFNJ51bJ82" : key);
+        oraclePeerId=("12D3KooWK87KmBGJZZMP3keux62VF515mFRbNRFwbYxib7wWQR34" : string);
+    ];
+
+    ("tz1YKquTvvSE2B5kvGyf1AYeXD6b6cMDSzDe":address) -> record[
+        oraclePublicKey=("edpkuqoXhgeXYZxn6yVWuy9UrWKazyahPaAbwnuZYknRefeLVVK3ar" : key);
+        oraclePeerId=("12D3KooWDgabT39cFp5j5mvJgiGPEppMuVgDCsNtBCh1Q8ejBCA5" : string);
+    ];
+    ];
+    lastResult=record[
+      price=(0n : nat);
+      epoch=(0n : nat);
+      round=(0n : nat);
+      time=(1657704105 : timestamp);
+      ];
+    decimals=(8n : nat);
+    heartBeatSeconds=(60n : nat);
+    alphaPercentPerThousand=(500n : nat);
+]
+*)

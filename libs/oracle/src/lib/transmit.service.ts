@@ -115,7 +115,7 @@ export class TransmitService implements OnModuleInit {
     }
 
     if (otherEpoch === baseEpoch) {
-      return otherRound >= baseRound;
+      return otherRound > baseRound;
     }
 
     return false;

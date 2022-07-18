@@ -43,11 +43,12 @@ export class PacemakerService implements OnModuleInit {
 
   public async initialize(): Promise<void> {
     this._self = this._config.peerId;
+    const { epoch } = await this._contractService._getLastBlockchainReport(this._config.aggregatorAddress);
     this._epochAndLeader = {
-      epoch: 0,
-      leader: await this.leaderForEpoch(0)
+      epoch,
+      leader: await this.leaderForEpoch(epoch)
     };
-    this._newEpoch = 0;
+    this._newEpoch = epoch;
 
     this._eventHubService.startepoch(this._epochAndLeader.epoch, this._epochAndLeader.leader);
 
