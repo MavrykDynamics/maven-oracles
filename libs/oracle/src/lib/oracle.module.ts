@@ -3,18 +3,16 @@ import { HttpModule } from '@nestjs/axios';
 import { NodeService } from './node.service.js';
 import { OracleConfig } from './oracle.config.js';
 import { ConfigModule } from './config.module.js';
-import { PacemakerService } from './pacemaker.service.js';
-import { PacemakerNetworkService } from './pacemaker.network.service.js';
-import { ReportGenNetworkService } from './reportgen.network.service.js';
+import { PacemakerNetworkService } from './pacemaker/pacemaker.network.service.js';
+import { ReportGenNetworkService } from './reportgen/reportgen.network.service.js';
 import { EventHubService } from './eventhub.service.js';
-import { ReportGenFollowerService } from './reportgen.follower.service.js';
-import { ReportGenLeaderService } from './reportgen.leader.service.js';
 import { ContractService } from './contract.service.js';
-import { TransmitService } from './transmit.service.js';
 import { PriceService } from './price.service.js';
 import { MessariFetcherService } from './messari-fetcher.service.js';
 import { CoingeckoFetcherService } from './coingecko-fetcher.service.js';
 import { AlphavantageFetcherService } from './alphavantage-fetcher.service.js';
+import { PacemakerFactoryService } from './pacemaker/pacemaker.factory.service.js';
+import { ReportGenFactoryService } from './reportgen/reportgen.factory.service.js';
 
 @Module({
   imports: [HttpModule, ConfigModule.forConfig(OracleConfig)],
@@ -30,13 +28,11 @@ import { AlphavantageFetcherService } from './alphavantage-fetcher.service.js';
       inject: [OracleConfig, ContractService]
     },
     ContractService,
-    PacemakerService,
+    PacemakerFactoryService,
     PacemakerNetworkService,
     PriceService,
-    ReportGenFollowerService,
-    ReportGenLeaderService,
+    ReportGenFactoryService,
     ReportGenNetworkService,
-    TransmitService,
     EventHubService,
     MessariFetcherService,
     CoingeckoFetcherService,

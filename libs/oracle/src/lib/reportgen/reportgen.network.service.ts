@@ -1,13 +1,13 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { TypedEmitter } from 'tiny-typed-emitter';
-import { NodeService } from './node.service.js';
 import { Message } from '@libp2p/interface-pubsub';
 import BigNumber from 'bignumber.js';
 import { PeerId } from '@libp2p/interface-peer-id';
 import { Connection, Stream } from '@libp2p/interface-connection';
 import { pipe } from 'it-pipe';
 import { decode, encode } from 'it-length-prefixed';
-import { OracleConfig } from './oracle.config.js';
+import { OracleConfig } from '../oracle.config.js';
+import { NodeService } from '../node.service.js';
 
 export interface IReportGenEvents {
   observe: (from: PeerId, observeMessage: IObserveMessage) => {};
@@ -18,18 +18,18 @@ export interface IReportGenEvents {
   finalEcho: (from: PeerId, finalEchoMessage: IFinalEchoMessage) => {};
 }
 
-interface IObserveMessage {
+export interface IObserveMessage {
   epoch: number;
   round: number;
   observation: BigNumber;
   signature: Uint8Array;
 }
 
-interface IFinalMessage {
+export interface IFinalMessage {
   attestedReport: IAttestedReport;
 }
 
-interface IFinalEchoMessage {
+export interface IFinalEchoMessage {
   attestedReport: IAttestedReport;
 }
 
@@ -68,14 +68,12 @@ export interface IAttestedReport {
   signatures: ISignature[];
 }
 
-interface IReportMessage {
-  epoch: number;
-  round: number;
+export interface IReportMessage {
   compressedReport: ICompressedReport;
   signature: ISignature;
 }
 
-interface IReportReqMessage {
+export interface IReportReqMessage {
   report: IReport;
 }
 
@@ -308,8 +306,6 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
     const encoder = new TextEncoder();
     return encoder.encode(
       JSON.stringify({
-        epoch: reportMessage.epoch,
-        round: reportMessage.round,
         compressedReport: reportMessage.compressedReport,
         signature: reportMessage.signature
       })
@@ -321,8 +317,6 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
     const parsed = JSON.parse(decoder.decode(observeMessage));
 
     return {
-      epoch: parsed.epoch,
-      round: parsed.round,
       compressedReport: parsed.compressedReport,
       signature: parsed.signature
     };

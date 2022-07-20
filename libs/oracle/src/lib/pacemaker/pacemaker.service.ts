@@ -1,12 +1,15 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { OracleConfig } from './oracle.config.js';
-import { PacemakerNetworkService } from './pacemaker.network.service.js';
+import { Injectable, Logger } from '@nestjs/common';
+import { OracleConfig } from '../oracle.config.js';
+import { IPacemakerEvents, PacemakerNetworkService } from './pacemaker.network.service.js';
 import { PeerId } from '@libp2p/interface-peer-id';
-import { EventHubService } from './eventhub.service.js';
-import { ContractService } from './contract.service.js';
+import { EventHubService, IEvents } from '../eventhub.service.js';
+import { ContractService } from '../contract.service.js';
+import { IPacemakerConfig } from './pacemaker.config.js';
+import { ReportGenFactoryService } from '../reportgen/reportgen.factory.service.js';
+import BigNumber from 'bignumber.js';
 
 @Injectable()
-export class PacemakerService implements OnModuleInit {
+export class PacemakerService {
   private readonly _logger: Logger = new Logger(PacemakerService.name);
 
   private readonly _timerProgressDurationMiliseconds: number = 30 * 1000; // 30s recommended by OCR white paper
@@ -34,29 +37,42 @@ export class PacemakerService implements OnModuleInit {
     private readonly _config: OracleConfig,
     private readonly _pacemakerNetworkService: PacemakerNetworkService,
     private readonly _eventHubService: EventHubService,
-    private readonly _contractService: ContractService
-  ) {}
+    private readonly _contractService: ContractService,
+    private readonly _reportGenFactoryService: ReportGenFactoryService,
+    private readonly _pacemakerConfig: IPacemakerConfig
+  ) {
+    this._self = this._config.peerId;
 
-  public async onModuleInit(): Promise<void> {
-    await this.initialize();
+    this._eventHubService.addListener('progress', this._onProgressHandler);
+    this._eventHubService.addListener('changeleader', this._onChangeLeaderHandler);
+    this._pacemakerNetworkService.addListener('newEpoch', this._onNewEpochReceivedHandler);
   }
 
+  private readonly _onProgressHandler: IEvents['progress'] = () => this.onProgress();
+  private readonly _onChangeLeaderHandler: IEvents['changeleader'] = () => this.onChangeLeader();
+  private readonly _onNewEpochReceivedHandler: IPacemakerEvents['newEpoch'] = (
+    from: PeerId,
+    newEpoch: number
+  ) => this.onNewEpochReceived(from, newEpoch);
+
   public async initialize(): Promise<void> {
-    this._self = this._config.peerId;
-    const { epoch } = await this._contractService._getLastBlockchainReport(this._config.aggregatorAddress);
+    const { epoch } = await this._contractService._getLastBlockchainReport(
+      this._pacemakerConfig.aggregatorAddress
+    );
     this._epochAndLeader = {
       epoch,
       leader: await this.leaderForEpoch(epoch)
     };
     this._newEpoch = epoch;
 
-    this._eventHubService.startepoch(this._epochAndLeader.epoch, this._epochAndLeader.leader);
+    this._reportGenFactoryService.startReportGen({
+      epoch: this._epochAndLeader.epoch,
+      leader: this._epochAndLeader.leader,
+      aggregatorAddress: this._pacemakerConfig.aggregatorAddress,
+      alpha: new BigNumber(500),
+      heartbeatSeconds: new BigNumber(60)
+    });
 
-    this._eventHubService.on('progress', () => this.onProgress());
-    this._eventHubService.on('changeleader', () => this.onChangeLeader());
-    this._pacemakerNetworkService.on('newEpoch', (peerId, newEpoch) =>
-      this.onNewEpochReceived(peerId, newEpoch)
-    );
     this._restartProgressTimer();
   }
 
@@ -143,7 +159,7 @@ export class PacemakerService implements OnModuleInit {
       return;
     }
 
-    this._eventHubService.stopReportGen(epoch, await this.leaderForEpoch(epoch));
+    this._reportGenFactoryService.stopReportGen(this._pacemakerConfig.aggregatorAddress);
 
     this._epochAndLeader = {
       epoch,
@@ -151,12 +167,17 @@ export class PacemakerService implements OnModuleInit {
     };
     this._newEpoch = Math.max(this._newEpoch, epoch);
 
-    this._eventHubService.startReportGen(this._epochAndLeader.epoch, this._epochAndLeader.leader);
+    this._reportGenFactoryService.startReportGen({
+      epoch: this._epochAndLeader.epoch,
+      leader: this._epochAndLeader.leader,
+      aggregatorAddress: this._pacemakerConfig.aggregatorAddress,
+      alpha: new BigNumber(500),
+      heartbeatSeconds: new BigNumber(60)
+    });
 
     this._restartProgressTimer();
 
-    await this._contractService.updateOraclesAddressesMap(this._config.aggregatorAddress)
-
+    await this._contractService.updateOraclesAddressesMap(this._config.aggregatorAddress);
 
     if (this._epochAndLeader.leader === this._self) {
       this._eventHubService.startepoch(this._epochAndLeader.epoch, this._epochAndLeader.leader);
@@ -167,7 +188,7 @@ export class PacemakerService implements OnModuleInit {
     const peersIdList: string[] = [];
     const oracleAddresses = await this._contractService.getOraclesAddresses(this._config.aggregatorAddress);
     for (const [, value] of oracleAddresses.entries()) {
-      peersIdList.push(value.oraclePeerId)
+      peersIdList.push(value.oraclePeerId);
     }
 
     const oracleLeaderIndex = epoch % (peersIdList.length - 1);

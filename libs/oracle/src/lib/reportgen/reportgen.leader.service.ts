@@ -1,17 +1,21 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { OracleConfig } from './oracle.config.js';
+import { Logger } from '@nestjs/common';
 import BigNumber from 'bignumber.js';
 import {
   IAttestedReport,
   ICompressedReport,
+  IObserveMessage,
   IReport,
+  IReportGenEvents,
+  IReportMessage,
   ISignature,
   ReportGenNetworkService
 } from './reportgen.network.service.js';
 import { PeerId } from '@libp2p/interface-peer-id';
-import { EventHubService } from './eventhub.service.js';
-import { verifyData } from './helpers.js';
-import { ContractService } from './contract.service.js';
+import { EventHubService, IEvents } from '../eventhub.service.js';
+import { ContractService } from '../contract.service.js';
+import { verifyData } from '../helpers.js';
+import { OracleConfig } from '../oracle.config.js';
+import { IReportGenConfig } from './reportgen.config.js';
 
 enum Phase {
   Observe,
@@ -20,8 +24,7 @@ enum Phase {
   Final
 }
 
-@Injectable()
-export class ReportGenLeaderService implements OnModuleInit {
+export class ReportGenLeaderService {
   private readonly _logger: Logger = new Logger(ReportGenLeaderService.name);
 
   private _epoch: number;
@@ -54,46 +57,46 @@ export class ReportGenLeaderService implements OnModuleInit {
   private readonly _timerRoundDurationMiliseconds: number = 15 * 1000;
 
   public constructor(
-    private readonly _config: OracleConfig,
+    private readonly _oracleConfig: OracleConfig,
     private readonly _reportgenNetworkService: ReportGenNetworkService,
     private readonly _eventHubService: EventHubService,
-    private readonly _contractService: ContractService
-  ) {}
-
-  public async onModuleInit(): Promise<void> {
-    this._reportgenNetworkService.on('observe', (from, { observation, round, signature }) =>
-      this._onObserve(from, round, observation, signature)
-    );
-    this._reportgenNetworkService.on('report', (from, { round, compressedReport, signature }) =>
-      this._onReport(from, compressedReport, signature)
-    );
-    this._eventHubService.on('startepoch', (epoch, leader) => this.onStartEpoch(epoch, leader));
-    this._eventHubService.on('stopReportGen', (epoch, leader) => this.onStopReportGen(epoch, leader));
+    private readonly _contractService: ContractService,
+    private readonly _config: IReportGenConfig
+  ) {
+    this._epoch = _config.epoch;
+    this._leader = _config.leader;
+    this._logger.log(`Starting reportgen leader instance for ${this._epoch} with leader ${this._leader}`);
+    this._reportgenNetworkService.addListener('observe', this._onObserveHandle);
+    this._reportgenNetworkService.addListener('report', this._onReportHandle);
+    this._eventHubService.addListener('startepoch', this._onStartEpochHandle);
   }
 
-  public async onStopReportGen(epoch: number, leader: string): Promise<void> {
-    // TODO: This is not in ocr paper spec, but necessary with the current implementation, this set state to blank state
-    this._round = 0;
-    this._epoch = epoch;
-    this._leader = leader;
+  public stop(): void {
+    this._logger.log(`Stopping reportgen leader instance for ${this._epoch} with leader ${this._leader}`);
     this._stopGraceTimer();
     this._stopRoundTimer();
-    this._observe = new Map();
-    this._report = new Map();
-    this._phase = Phase.Observe;
+    this._reportgenNetworkService.removeListener('observe', this._onObserveHandle);
+    this._reportgenNetworkService.removeListener('report', this._onReportHandle);
+    this._eventHubService.removeListener('startepoch', this._onStartEpochHandle);
   }
+
+  private readonly _onObserveHandle: IReportGenEvents['observe'] = (
+    from: PeerId,
+    observeMessage: IObserveMessage
+  ) => this._onObserve(from, observeMessage);
+
+  private readonly _onReportHandle: IReportGenEvents['report'] = (
+    from: PeerId,
+    reportMessage: IReportMessage
+  ) => this._onReport(from, reportMessage);
+
+  private readonly _onStartEpochHandle: IEvents['startepoch'] = (epoch: number, leader: string) =>
+    this.onStartEpoch(epoch, leader);
 
   public async onStartEpoch(epoch: number, leader: string): Promise<void> {
-    // TODO: This is not in ocr paper spec, but necessary with the current implementation, this set state to blank state
-    this._round = 0;
-    this._epoch = epoch;
-    this._leader = leader;
-    this._stopGraceTimer();
-    this._stopRoundTimer();
-    this._observe = new Map();
-    this._report = new Map();
-    this._phase = Phase.Observe;
-
+    if (this._epoch !== epoch || this._leader !== leader) {
+      return;
+    }
     await this._startRound();
   }
 
@@ -110,13 +113,8 @@ export class ReportGenLeaderService implements OnModuleInit {
     this._restartRoundTimer();
   }
 
-  private async _onObserve(
-    from: PeerId,
-    round: number,
-    observation: BigNumber,
-    signature: Uint8Array
-  ): Promise<void> {
-    if (this._config.peerId.toString() !== this._leader) {
+  private async _onObserve(from: PeerId, { observation, round, signature }: IObserveMessage): Promise<void> {
+    if (this._oracleConfig.peerId.toString() !== this._leader) {
       this._logger.warn(`_onObserve: I'm not the leader, discarding observation`);
       return;
     }
@@ -160,14 +158,14 @@ export class ReportGenLeaderService implements OnModuleInit {
     this._phase = Phase.Report;
   }
 
-  private async _onReport(from: PeerId, report: ICompressedReport, signature: ISignature): Promise<void> {
-    if (this._config.peerId.toString() !== this._leader) {
+  private async _onReport(from: PeerId, { compressedReport, signature }: IReportMessage): Promise<void> {
+    if (this._oracleConfig.peerId.toString() !== this._leader) {
       this._logger.warn(`_onReport: I'm not the leader, discarding report`);
       return;
     }
 
     if (
-      report.round !== this._round &&
+      compressedReport.round !== this._round &&
       this._report.get(from.toString()) === undefined &&
       this._phase !== null &&
       this._phase !== Phase.Report
@@ -176,13 +174,13 @@ export class ReportGenLeaderService implements OnModuleInit {
       return;
     }
 
-    if (!(await this._verifyReportSignature(report, signature))) {
+    if (!(await this._verifyReportSignature(compressedReport, signature))) {
       this._logger.warn(`_onReport: signature did not match, discarding report`);
       return;
     }
 
     this._report.set(from.toString(), {
-      report,
+      report: compressedReport,
       signature
     });
 
@@ -197,7 +195,7 @@ export class ReportGenLeaderService implements OnModuleInit {
     const attestedReport: IAttestedReport = {
       epoch: this._epoch,
       round: this._round,
-      observations: report.observations,
+      observations: compressedReport.observations,
       signatures: [...this._report.values()].map((report) => report.signature)
     };
 

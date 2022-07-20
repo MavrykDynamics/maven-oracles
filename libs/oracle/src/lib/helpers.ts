@@ -1,7 +1,7 @@
 /* eslint-disable @rushstack/no-new-null */
 
 import { keys } from '@libp2p/crypto';
-import { IAttestedReport, IReport } from './reportgen.network.service.js';
+import { IAttestedReport, IReport } from './reportgen/reportgen.network.service.js';
 import BigNumber from 'bignumber.js';
 import seedrandom from 'seedrandom';
 
@@ -46,7 +46,7 @@ export function randomPermutation<T>(array: T[], seed: string): T[] {
   return array;
 }
 
-export const toTimestamp = (strDate: string): number => {  
-  const dt = Date.parse(strDate);  
-  return dt;  
-}
+export const toTimestamp = (strDate: string): number => {
+  const dt = Date.parse(strDate);
+  return dt;
+};

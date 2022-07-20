@@ -6,18 +6,15 @@ import BigNumber from 'bignumber.js';
 import { OracleConfig } from './oracle.config.js';
 
 export interface IPriceFetcher {
-    getPrice([pair1, pair2]: [string, string]): Promise<BigNumber>;
-  }
+  getPrice([pair1, pair2]: [string, string]): Promise<BigNumber>;
+}
 
 @Injectable()
 export class MessariFetcherService implements IPriceFetcher {
   private readonly _logger: Logger = new Logger(MessariFetcherService.name);
   private readonly _baseUrl: string = 'https://data.messari.io/api/v1';
 
-  public constructor(
-    private readonly _httpService: HttpService,
-    private readonly _config: OracleConfig
-  ) {
+  public constructor(private readonly _httpService: HttpService, private readonly _config: OracleConfig) {
     if (_config.messariApiKey === '') {
       this._logger.warn(
         'No Messari API key set. You may hit the api request limit. Set the MESSARI_API_KEY env variable with your API Key'
@@ -31,29 +28,21 @@ export class MessariFetcherService implements IPriceFetcher {
 
     let response: AxiosResponse;
     try {
-      const response$ = this._httpService.get(
-        `${this._baseUrl}/assets/${coin}/metrics/market-data`,
-        {
-          headers: {
-            'x-messari-api-key': this._config.messariApiKey,
-          },
+      const response$ = this._httpService.get(`${this._baseUrl}/assets/${coin}/metrics/market-data`, {
+        headers: {
+          'x-messari-api-key': this._config.messariApiKey
         }
-      );
+      });
 
       response = await firstValueFrom(response$);
     } catch (e) {
-      throw new Error(
-        `Failed to fetch market data of coin ${coin} from Messari API: ${e.toString()}`
-      );
+      throw new Error(`Failed to fetch market data of coin ${coin} from Messari API: ${e.toString()}`);
     }
 
-    const price: number =
-      response.data?.data?.market_data?.[`price_${vsCurrency}`];
+    const price: number = response.data?.data?.market_data?.[`price_${vsCurrency}`];
 
     if (price === undefined || price === null) {
-      this._logger.verbose(
-        `Could not parse price from response: ${JSON.stringify(response)}`
-      );
+      this._logger.verbose(`Could not parse price from response: ${JSON.stringify(response)}`);
       this._logger.error('Could not parse price from response');
       throw new Error('Could not parse price from response');
     }

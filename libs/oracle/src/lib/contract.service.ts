@@ -8,7 +8,12 @@ import { MichelsonMap, TezosToolkit } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 import { Schema } from '@taquito/michelson-encoder';
 import { IAggregatorStorage, IOracleInformation } from '../types/aggregators';
-import { IAttestedReport, ICompressedReport, IObservation, ISignature } from './reportgen.network.service.js';
+import {
+  IAttestedReport,
+  ICompressedReport,
+  IObservation,
+  ISignature
+} from './reportgen/reportgen.network.service.js';
 import { toTimestamp } from './helpers.js';
 
 interface IOracleInformations {
@@ -268,7 +273,7 @@ export class ContractService implements OnModuleInit {
 
     const op = contractInstance.methodsObject.verify({
       oracleObservations,
-      signatures,
+      signatures
     });
 
     this._tezos.setSignerProvider(oracleSigner);
@@ -301,9 +306,9 @@ export class ContractService implements OnModuleInit {
   }
 
   public async _getBlockchainConfig(aggregatorAddress: string): Promise<{
-    heartBeatSeconds: number
-    decimals: BigNumber
-    alphaPercentPerThousand: BigNumber
+    heartBeatSeconds: number;
+    decimals: BigNumber;
+    alphaPercentPerThousand: BigNumber;
   }> {
     const contractInstance = await this._tezos.contract.at(aggregatorAddress);
     const storage: IAggregatorStorage = await contractInstance.storage();
@@ -311,7 +316,7 @@ export class ContractService implements OnModuleInit {
       heartBeatSeconds: storage.heartBeatSeconds?.toNumber() || 60,
       decimals: storage.decimals,
       alphaPercentPerThousand: storage.alphaPercentPerThousand.div(1000)
-    }
+    };
   }
 
   // public async runVerify(): Promise<any> {

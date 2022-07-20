@@ -1,11 +1,11 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { OracleConfig } from './oracle.config.js';
-import { EventHubService } from './eventhub.service.js';
-import { ContractService } from './contract.service.js';
-import { IAttestedReport } from './reportgen.network.service.js';
+import { OracleConfig } from '../oracle.config.js';
+import { EventHubService } from '../eventhub.service.js';
+import { ContractService } from '../contract.service.js';
+import { IAttestedReport } from '../reportgen/reportgen.network.service.js';
 import { default as Heap } from 'heap';
 import BigNumber from 'bignumber.js';
-import { computeMedian, randomPermutation } from './helpers.js';
+import { computeMedian, randomPermutation } from '../helpers.js';
 
 @Injectable()
 export class TransmitService implements OnModuleInit {

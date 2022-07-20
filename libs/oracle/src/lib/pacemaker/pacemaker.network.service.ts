@@ -1,6 +1,6 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { TypedEmitter } from 'tiny-typed-emitter';
-import { NodeService } from './node.service.js';
+import { NodeService } from '../node.service.js';
 import { Message } from '@libp2p/interface-pubsub';
 import { PeerId } from '@libp2p/interface-peer-id';
 
