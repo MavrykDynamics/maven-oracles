@@ -22,6 +22,141 @@ services:
   #      - './apps:/home/node/apps'
   #      - './libs:/home/node/libs'
 
+  elastic:
+    image: ghcr.io/baking-bad/bcdhub-elastic:latest
+    restart: always
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    environment:
+      - bootstrap.memory_lock=true
+      - discovery.type=single-node
+      - 'ES_JAVA_OPTS=-Xms256m -Xmx256m'
+    logging: &bcd-logging
+      options:
+        max-size: 10m
+        max-file: '5'
+    networks:
+      p2p:
+
+  db:
+    image: postgres:12
+    shm_size: 1g
+    restart: always
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_DB=indexer
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - db:/var/lib/postgresql/data
+    logging: *bcd-logging
+    networks:
+      p2p:
+
+  api:
+    restart: always
+    image: ghcr.io/baking-bad/bcdhub-api:latest
+    environment:
+      - BCD_ENV=sandbox
+      - GIN_MODE=debug
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
+      - SANDBOX_NODE_URI=http://sandbox:20000
+      - SANDBOX_IPFS_GATEWAY=https://cloudflare-ipfs.com
+    depends_on:
+      - elastic
+      - db
+    ports:
+      - 14000:14000
+    volumes:
+      - bcdshare:/etc/bcd
+    links:
+      - 'flextesa:sandbox'
+    logging: *bcd-logging
+    networks:
+      p2p:
+
+  indexer:
+    restart: always
+    image: ghcr.io/baking-bad/bcdhub-indexer:latest
+    environment:
+      - BCD_ENV=sandbox
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
+      - SANDBOX_NODE_URI=http://sandbox:20000
+      - SANDBOX_IPFS_GATEWAY=https://cloudflare-ipfs.com
+    depends_on:
+      - db
+      - metrics
+    links:
+      - 'flextesa:sandbox'
+    volumes:
+      - bcdshare:/etc/bcd
+    logging: *bcd-logging
+    networks:
+      p2p:
+
+  metrics:
+    restart: always
+    image: ghcr.io/baking-bad/bcdhub-metrics:latest
+    environment:
+      - BCD_ENV=sandbox
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
+      - SANDBOX_NODE_URI=http://sandbox:20000
+      - SANDBOX_IPFS_GATEWAY=https://cloudflare-ipfs.com
+    depends_on:
+      - elastic
+      - db
+    links:
+      - 'flextesa:sandbox'
+    volumes:
+      - bcdshare:/etc/bcd
+    logging: *bcd-logging
+    networks:
+      p2p:
+
+  flextesa:
+    container_name: flextesa
+    restart: always
+    image: oxheadalpha/flextesa:test-multi-arch-00
+    command: hangzbox start
+      --add-bootstrap-account "eve,edpku9qEgcyfNNDK6EpMvu5SqXDqWRLuxdMxdyH12ivTUuB1KXfGP4,tz1eAoFgsys8PhTUvT3V3eq2BFaZp8UsGNsr,unencrypted:edskRkawwQimT7qNaw4g99dKh3ExUt3corurNLUwvYo2vwwAGdy6NK4At1QLEy9Km24TuwCFfr5k97wvDxKBn5iQqTxdvvpdjt@2_000_000_000_000"
+      --no-daemons-for=eve
+      --add-bootstrap-account "bob,edpkunKYLbEfRLKLtn9yi9avyjQbAAbQxuPVN759ajQEDKpp4RE6GV,tz1MBNfBnNn8fZCJVrrXV95FSgyuUxbmt3Mm,unencrypted:edskRpPWgoNUfJgZRiycPg9539KMX6Ksw5yNVDw2ukds8VEgqXLLuBDrB6dr6m7fgsAZrLMDpPkxN7kRpcNyRzwkPYhoWsBJsZ@2_000_000_000_000"
+      --no-daemons-for=bob
+      --add-bootstrap-account "mallory,edpkuVjyKad7yCnNrCbGea7hi5Zh1zp5Cb1TvxUmnxC33fwKhq7daN,tz1PSmvRd3ySbh5aviFEMYGD6542LL5QnrMk,unencrypted:edskRzrnZoreVanzsedvSDgWV1DkNycfjMXyri9LQLVYdXTXJrxNHzdtpouGJTQ1CrQiWK6ECvHCpoYfQ2LM7j8GjJdkjqrsLE@2_000_000_000_000"
+      --no-daemons-for=mallory
+      --add-bootstrap-account "oscar,edpku7vkvS6XaWzFjmPDYULNyYrS7Rf1vHuoQ9FD8zVcaFNJ51bJ82,tz1KrELvNVY4xKnujkXwrVLWuzWJEg9FvA8v,unencrypted:edskRjjhoUjvSZ2eGgGpvcMk6SrtpajjkzGUXDpr2EAa25VTfdtNSoD1JLhEoEnotYR6ZtRC2bCk56kwf79eqgygrMeR145ENq@2_000_000_000_000"
+      --no-daemons-for=oscar
+      --add-bootstrap-account "trudy,edpkuqoXhgeXYZxn6yVWuy9UrWKazyahPaAbwnuZYknRefeLVVK3ar,tz1YKquTvvSE2B5kvGyf1AYeXD6b6cMDSzDe,unencrypted:edskRts3yovQnSAaK6WbyiaZdBnLk1cSeq8UEWo24xNyo1T6gZZ9yQpQ48YmvCwjjW1FpSgJ1LPZ9T3jazmh3HXLLKHDaJZVx2@2_000_000_000_000"
+      --no-daemons-for=trudy
+      --add-bootstrap-account "isaac,edpkv6xHMqShSMr4CK3Vzg7mD1hina7eBkokrMoKpuYj55BVd18rjN,tz1TQ4fpSFNZ6D9vrcwBz9yzM2SNjDj5YoU7,unencrypted:edsk2vtJ2rVoHoA3GbgDjyT5zbeVMDXZ6R4YjDskKaapgsRtiEWpaP@2_000_000_000_000"
+      --no-daemons-for=isaac
+      --add-bootstrap-account "david,edpku8MxEyEKHPsPeUBSBz5a5QbemdPbiQVsobdC3SnC9UDf4yMHTL,tz1bPLbmiseCCWtW7RZ9t2RkNyboB9XT4exJ,unencrypted:edsk4AzUdwSFu383eMf8eve56Q2pJxy1eWt4BnzKkLKMdKurHgTeaf@2_000_000_000_000"
+      --no-daemons-for=david
+    environment:
+      - block_time=4
+      - flextesa_node_cors_origin=*
+    ports:
+      - 8732:20000
+      - 20000:20000
+    logging: *bcd-logging
+    networks:
+      p2p:
+
+  gui:
+    container_name: sandbox-gui
+    restart: always
+    image: ghcr.io/baking-bad/bcdhub-gui:latest
+    depends_on:
+      - api
+    ports:
+      - 8000:80
+    logging: *bcd-logging
+    networks:
+      p2p:
+
   bootstrap:
     container_name: bootstrap
     build:
@@ -39,11 +174,12 @@ services:
     build:
       dockerfile: images/node.dev.Dockerfile
       context: .
+    depends_on:
+      - flextesa
     volumes:
       - './apps:/home/node/apps'
       - './libs:/home/node/libs'
     environment:
-      - ORACLE_PKH=tz1MnmtP4uAcgMpeZN6JtyziXeFqqwQG6yn6 # Eve
       - POLLING_INTERVAL_MILLISECONDS=2000
       - SIGNER_URL=http://signatory:6732
       - P2P_BOOTSTRAP_PEERS=/ip4/172.24.2.100/tcp/23456/p2p/QmcrQZ6RJdpYuGvZqD5QEHAv6qX4BrQLJLQPQUrTrzdcgm /ip4/172.24.2.2/tcp/23456/p2p/12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2 /ip4/172.24.2.3/tcp/23456/p2p/12D3KooWLL2Y1JmrAXkY7r8xbuSRtasfJLAarXmAaZPYxPnzgAJ3 /ip4/172.24.2.4/tcp/23456/p2p/12D3KooWK87KmBGJZZMP3keux62VF515mFRbNRFwbYxib7wWQR34 /ip4/172.24.2.5/tcp/23456/p2p/12D3KooWDgabT39cFp5j5mvJgiGPEppMuVgDCsNtBCh1Q8ejBCA5 /ip4/172.24.2.6/tcp/23456/p2p/12D3KooWEKXXjviRoWwoB37UzBT4qjUBbQH8bypWy3YWmyfvR736 /ip4/172.24.2.7/tcp/23456/p2p/12D3KooWRGcN9uh633ucfUJ3XQ69n31mB2jPHKtrw7mfCSJdLz97
@@ -54,20 +190,23 @@ services:
       - TEZOS_SECRET_KEY=edskRkawwQimT7qNaw4g99dKh3ExUt3corurNLUwvYo2vwwAGdy6NK4At1QLEy9Km24TuwCFfr5k97wvDxKBn5iQqTxdvvpdjt
       - ALPHAVANTAGE_API_KEY=LOKAGZEB6UK7JJWS
       - MESSARI_API_KEY=7a4ace98-90a6-4792-81ad-5364afc6698d
+      - RPC_URL=http://flextesa:20000
     networks:
       p2p:
         ipv4_address: 172.24.2.1
-
+    env_file:
+      - .env
   oracle-2:
     container_name: oracle-2
     build:
       dockerfile: images/node.dev.Dockerfile
       context: .
+    depends_on:
+      - flextesa
     volumes:
       - './apps:/home/node/apps'
       - './libs:/home/node/libs'
     environment:
-      - ORACLE_PKH=tz1R2oNqANNy2vZhnZBJc8iMEqW79t85Fv7L # Mallory
       - POLLING_INTERVAL_MILLISECONDS=1000
       - SIGNER_URL=http://signatory:6732
       - P2P_BOOTSTRAP_PEERS=/ip4/172.24.2.100/tcp/23456/p2p/QmcrQZ6RJdpYuGvZqD5QEHAv6qX4BrQLJLQPQUrTrzdcgm /ip4/172.24.2.1/tcp/23456/p2p/12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1 /ip4/172.24.2.3/tcp/23456/p2p/12D3KooWLL2Y1JmrAXkY7r8xbuSRtasfJLAarXmAaZPYxPnzgAJ3 /ip4/172.24.2.4/tcp/23456/p2p/12D3KooWK87KmBGJZZMP3keux62VF515mFRbNRFwbYxib7wWQR34 /ip4/172.24.2.5/tcp/23456/p2p/12D3KooWDgabT39cFp5j5mvJgiGPEppMuVgDCsNtBCh1Q8ejBCA5 /ip4/172.24.2.6/tcp/23456/p2p/12D3KooWEKXXjviRoWwoB37UzBT4qjUBbQH8bypWy3YWmyfvR736 /ip4/172.24.2.7/tcp/23456/p2p/12D3KooWRGcN9uh633ucfUJ3XQ69n31mB2jPHKtrw7mfCSJdLz97
@@ -79,20 +218,23 @@ services:
       - TEZOS_PUBLIC_KEY=edpkunKYLbEfRLKLtn9yi9avyjQbAAbQxuPVN759ajQEDKpp4RE6GV
       - ALPHAVANTAGE_API_KEY=2XLQOTBRS8Y122VT
       - MESSARI_API_KEY=3dc85b02-55ee-4aaa-96ff-96d70a426407
+      - RPC_URL=http://flextesa:20000
     networks:
       p2p:
         ipv4_address: 172.24.2.2
-
+    env_file:
+      - .env
   oracle-3:
     container_name: oracle-3
     build:
       dockerfile: images/node.dev.Dockerfile
       context: .
+    depends_on:
+      - flextesa
     volumes:
       - './apps:/home/node/apps'
       - './libs:/home/node/libs'
     environment:
-      - ORACLE_PKH=tz1VGyrip8uZDWoyssXDP7d1boGdpQcaaMXc # Oscar
       - POLLING_INTERVAL_MILLISECONDS=1000
       - SIGNER_URL=http://signatory:6732
       - P2P_BOOTSTRAP_PEERS=/ip4/172.24.2.100/tcp/23456/p2p/QmcrQZ6RJdpYuGvZqD5QEHAv6qX4BrQLJLQPQUrTrzdcgm /ip4/172.24.2.1/tcp/23456/p2p/12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1 /ip4/172.24.2.2/tcp/23456/p2p/12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2 /ip4/172.24.2.4/tcp/23456/p2p/12D3KooWK87KmBGJZZMP3keux62VF515mFRbNRFwbYxib7wWQR34 /ip4/172.24.2.5/tcp/23456/p2p/12D3KooWDgabT39cFp5j5mvJgiGPEppMuVgDCsNtBCh1Q8ejBCA5 /ip4/172.24.2.6/tcp/23456/p2p/12D3KooWEKXXjviRoWwoB37UzBT4qjUBbQH8bypWy3YWmyfvR736 /ip4/172.24.2.7/tcp/23456/p2p/12D3KooWRGcN9uh633ucfUJ3XQ69n31mB2jPHKtrw7mfCSJdLz97
@@ -104,21 +246,24 @@ services:
       - TEZOS_PUBLIC_KEY=edpkuVjyKad7yCnNrCbGea7hi5Zh1zp5Cb1TvxUmnxC33fwKhq7daN
       - ALPHAVANTAGE_API_KEY=2NGJX9KAASPRJKDL
       - MESSARI_API_KEY=4d9734a2-99e7-4f54-81d9-71f5042a2e92
+      - RPC_URL=http://flextesa:20000
 
     networks:
       p2p:
         ipv4_address: 172.24.2.3
-
+    env_file:
+      - .env
   oracle-4:
     container_name: oracle-4
     build:
       dockerfile: images/node.dev.Dockerfile
       context: .
+    depends_on:
+      - flextesa
     volumes:
       - './apps:/home/node/apps'
       - './libs:/home/node/libs'
     environment:
-      - ORACLE_PKH=tz1NdjbFHLxbKEUXhXgjyLfQSCbq6oy5b7Px # Trudy
       - POLLING_INTERVAL_MILLISECONDS=1000
       - SIGNER_URL=http://signatory:6732
       - P2P_BOOTSTRAP_PEERS=/ip4/172.24.2.100/tcp/23456/p2p/QmcrQZ6RJdpYuGvZqD5QEHAv6qX4BrQLJLQPQUrTrzdcgm /ip4/172.24.2.1/tcp/23456/p2p/12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1 /ip4/172.24.2.2/tcp/23456/p2p/12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2 /ip4/172.24.2.3/tcp/23456/p2p/12D3KooWLL2Y1JmrAXkY7r8xbuSRtasfJLAarXmAaZPYxPnzgAJ3 /ip4/172.24.2.5/tcp/23456/p2p/12D3KooWDgabT39cFp5j5mvJgiGPEppMuVgDCsNtBCh1Q8ejBCA5 /ip4/172.24.2.6/tcp/23456/p2p/12D3KooWEKXXjviRoWwoB37UzBT4qjUBbQH8bypWy3YWmyfvR736 /ip4/172.24.2.7/tcp/23456/p2p/12D3KooWRGcN9uh633ucfUJ3XQ69n31mB2jPHKtrw7mfCSJdLz97
@@ -130,21 +275,24 @@ services:
       - TEZOS_PUBLIC_KEY=edpku7vkvS6XaWzFjmPDYULNyYrS7Rf1vHuoQ9FD8zVcaFNJ51bJ82
       - ALPHAVANTAGE_API_KEY=MZ42VQU1CNPC9X1U
       - MESSARI_API_KEY=bd9fcbaf-06d4-4f8d-80c3-0862ef6c53b1
+      - RPC_URL=http://flextesa:20000
 
     networks:
       p2p:
         ipv4_address: 172.24.2.4
-
+    env_file:
+      - .env
   oracle-5:
     container_name: oracle-5
     build:
       dockerfile: images/node.dev.Dockerfile
       context: .
+    depends_on:
+      - flextesa
     volumes:
       - './apps:/home/node/apps'
       - './libs:/home/node/libs'
     environment:
-      - ORACLE_PKH=tz1NdjbFHLxbKEUXhXgjyLfQSCbq6oy5b7Px # Trudy
       - POLLING_INTERVAL_MILLISECONDS=1000
       - SIGNER_URL=http://signatory:6732
       - P2P_BOOTSTRAP_PEERS=/ip4/172.24.2.100/tcp/23456/p2p/QmcrQZ6RJdpYuGvZqD5QEHAv6qX4BrQLJLQPQUrTrzdcgm /ip4/172.24.2.1/tcp/23456/p2p/12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1 /ip4/172.24.2.2/tcp/23456/p2p/12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2 /ip4/172.24.2.3/tcp/23456/p2p/12D3KooWLL2Y1JmrAXkY7r8xbuSRtasfJLAarXmAaZPYxPnzgAJ3 /ip4/172.24.2.4/tcp/23456/p2p/12D3KooWK87KmBGJZZMP3keux62VF515mFRbNRFwbYxib7wWQR34 /ip4/172.24.2.6/tcp/23456/p2p/12D3KooWEKXXjviRoWwoB37UzBT4qjUBbQH8bypWy3YWmyfvR736 /ip4/172.24.2.7/tcp/23456/p2p/12D3KooWRGcN9uh633ucfUJ3XQ69n31mB2jPHKtrw7mfCSJdLz97
@@ -156,20 +304,23 @@ services:
       - TEZOS_PUBLIC_KEY=edpkuqoXhgeXYZxn6yVWuy9UrWKazyahPaAbwnuZYknRefeLVVK3ar
       - ALPHAVANTAGE_API_KEY=17MO51H19VMUJAPU
       - MESSARI_API_KEY=ee29b84c-34fd-4d60-827f-35f4315ac4bd
+      - RPC_URL=http://flextesa:20000
     networks:
       p2p:
         ipv4_address: 172.24.2.5
-
+    env_file:
+      - .env
   oracle-6:
     container_name: oracle-6
     build:
       dockerfile: images/node.dev.Dockerfile
       context: .
+    depends_on:
+      - flextesa
     volumes:
       - './apps:/home/node/apps'
       - './libs:/home/node/libs'
     environment:
-      - ORACLE_PKH=tz1NdjbFHLxbKEUXhXgjyLfQSCbq6oy5b7Px # Trudy
       - POLLING_INTERVAL_MILLISECONDS=1000
       - SIGNER_URL=http://signatory:6732
       - P2P_BOOTSTRAP_PEERS=/ip4/172.24.2.100/tcp/23456/p2p/QmcrQZ6RJdpYuGvZqD5QEHAv6qX4BrQLJLQPQUrTrzdcgm /ip4/172.24.2.1/tcp/23456/p2p/12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1 /ip4/172.24.2.2/tcp/23456/p2p/12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2 /ip4/172.24.2.3/tcp/23456/p2p/12D3KooWLL2Y1JmrAXkY7r8xbuSRtasfJLAarXmAaZPYxPnzgAJ3 /ip4/172.24.2.4/tcp/23456/p2p/12D3KooWK87KmBGJZZMP3keux62VF515mFRbNRFwbYxib7wWQR34 /ip4/172.24.2.5/tcp/23456/p2p/12D3KooWDgabT39cFp5j5mvJgiGPEppMuVgDCsNtBCh1Q8ejBCA5 /ip4/172.24.2.7/tcp/23456/p2p/12D3KooWRGcN9uh633ucfUJ3XQ69n31mB2jPHKtrw7mfCSJdLz97
@@ -181,20 +332,23 @@ services:
       - TEZOS_PUBLIC_KEY=edpkv6xHMqShSMr4CK3Vzg7mD1hina7eBkokrMoKpuYj55BVd18rjN
       - ALPHAVANTAGE_API_KEY=9BP42KVMZ0BNFVL8
       - MESSARI_API_KEY=
+      - RPC_URL=http://flextesa:20000
     networks:
       p2p:
         ipv4_address: 172.24.2.6
-
+    env_file:
+      - .env
   oracle-7:
     container_name: oracle-7
     build:
       dockerfile: images/node.dev.Dockerfile
       context: .
+    depends_on:
+      - flextesa
     volumes:
       - './apps:/home/node/apps'
       - './libs:/home/node/libs'
     environment:
-      - ORACLE_PKH=tz1NdjbFHLxbKEUXhXgjyLfQSCbq6oy5b7Px # Trudy
       - POLLING_INTERVAL_MILLISECONDS=1000
       - SIGNER_URL=http://signatory:6732
       - P2P_BOOTSTRAP_PEERS=/ip4/172.24.2.100/tcp/23456/p2p/QmcrQZ6RJdpYuGvZqD5QEHAv6qX4BrQLJLQPQUrTrzdcgm /ip4/172.24.2.1/tcp/23456/p2p/12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1 /ip4/172.24.2.2/tcp/23456/p2p/12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2 /ip4/172.24.2.3/tcp/23456/p2p/12D3KooWLL2Y1JmrAXkY7r8xbuSRtasfJLAarXmAaZPYxPnzgAJ3 /ip4/172.24.2.4/tcp/23456/p2p/12D3KooWK87KmBGJZZMP3keux62VF515mFRbNRFwbYxib7wWQR34 /ip4/172.24.2.5/tcp/23456/p2p/12D3KooWDgabT39cFp5j5mvJgiGPEppMuVgDCsNtBCh1Q8ejBCA5 /ip4/172.24.2.6/tcp/23456/p2p/12D3KooWEKXXjviRoWwoB37UzBT4qjUBbQH8bypWy3YWmyfvR736
@@ -206,17 +360,12 @@ services:
       - TEZOS_PUBLIC_KEY=edpku8MxEyEKHPsPeUBSBz5a5QbemdPbiQVsobdC3SnC9UDf4yMHTL
       - ALPHAVANTAGE_API_KEY=HAD0Z5KJX7XPCXOO
       - MESSARI_API_KEY=0e630780-f69c-46e4-a796-3fee1252f358
+      - RPC_URL=http://flextesa:20000
     networks:
       p2p:
         ipv4_address: 172.24.2.7
-
-#  signatory:
-#    image: ecadlabs/signatory:v0.3.0-beta-rc2-amd64
-#    ports:
-#      - "6732:6732"
-#    volumes:
-#      - ./signatory.dev.yaml:/etc/signatory.yaml
-#      - ./secret.json:/etc/secret.json
+    env_file:
+      - .env
 
 networks:
   p2p:

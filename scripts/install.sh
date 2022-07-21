@@ -14,8 +14,7 @@ fi
 # Install nx if needed
 if ! command -v nx > /dev/null 2>&1
 then
-    npm i -g nx
+    npm install -g @microsoft/rush
 fi
 
 yarn
-nx build

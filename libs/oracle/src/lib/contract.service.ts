@@ -383,6 +383,5 @@ export class ContractService implements OnModuleInit {
   //   await tx.confirmation();
 
   //   const after_storage: AggregatorStorage = await contractInstance.storage();
-  //   console.log("JACK: ",after_storage.lastPrice.toString())
   // }
 }

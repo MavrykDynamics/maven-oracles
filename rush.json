@@ -466,6 +466,10 @@
     {
       "packageName": "@tezosdynamics/oracle",
       "projectFolder": "libs/oracle"
+    },
+    {
+      "packageName": "@tezosdynamics/contracts",
+      "projectFolder": "libs/contracts"
     }
   ]
 }
