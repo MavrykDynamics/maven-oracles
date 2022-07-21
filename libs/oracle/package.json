@@ -40,7 +40,7 @@
     "@taquito/signer": "^12.1.1",
     "@taquito/taquito": "^12.1.1",
     "@taquito/utils": "~13.0.0",
-    "async-mutex": "^0.3.2",
+    "async-mutex": "~0.3.2",
     "axios": "~0.27.2",
     "bignumber.js": "^9.0.2",
     "convict": "^6.2.1",
@@ -59,7 +59,9 @@
     "tslib": "^2.0.0",
     "uint8arrays": "~3.0.0",
     "yargs": "^17.3.1",
-    "yarn": "^1.22.18"
+    "yarn": "^1.22.18",
+    "abortable-iterator": "~4.0.2",
+    "it-pushable": "~3.0.0"
   },
   "devDependencies": {
     "@nestjs/schematics": "^8.0.0",

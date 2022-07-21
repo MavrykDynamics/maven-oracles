@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import { OracleConfig } from '../oracle.config.js';
 import BigNumber from 'bignumber.js';
 import {
@@ -6,6 +6,7 @@ import {
   ICompressedReport,
   IFinalEchoMessage,
   IFinalMessage,
+  IObserveReqMessage,
   IReport,
   IReportGenEvents,
   IReportReqMessage,
@@ -34,8 +35,6 @@ export class ReportGenFollowerService {
   private _receivedEcho: Map<string, boolean> = new Map();
 
   private readonly _roundMax: number = 3; // 3 - 20 recommended by OCR white paper
-  private _heartBeatSeconds: number; // 5m - 24h recommended by OCR white paper
-  private _alphaPercent: BigNumber; // 0.2% - 0.5% recommended by OCR white paper
 
   public constructor(
     private readonly _oracleConfig: OracleConfig,
@@ -65,8 +64,8 @@ export class ReportGenFollowerService {
 
   private readonly _onObserveReqReceivedHandler: IReportGenEvents['observeReq'] = (
     from: PeerId,
-    round: number
-  ) => this.onObserveReqReceived(from, round);
+    observeReqMessage: IObserveReqMessage
+  ) => this.onObserveReqReceived(from, observeReqMessage);
 
   private readonly _onReportReqReceivedHandler: IReportGenEvents['reportReq'] = (
     from: PeerId,
@@ -83,19 +82,24 @@ export class ReportGenFollowerService {
     finalEchoMessage: IFinalEchoMessage
   ) => this.onFinalEchoReceived(from, finalEchoMessage);
 
-  public async onObserveReqReceived(from: PeerId, round: number): Promise<void> {
+  public async onObserveReqReceived(from: PeerId, observeReqMessage: IObserveReqMessage): Promise<void> {
+    if (observeReqMessage.aggregatorAddress !== this._reportGenConfig.aggregatorAddress) {
+      // Silently ignore messages for other aggregators
+      return;
+    }
+
     if (from.toString() !== this._leader) {
       this._logger.warn(
         'onObserveReqReceived: Observation request received from someone else than leader, discarding request'
       );
       return;
     }
-    if (!(this._round < round && round <= this._roundMax + 1)) {
+    if (!(this._round < observeReqMessage.round && observeReqMessage.round <= this._roundMax + 1)) {
       this._logger.warn('onObserveReqReceived: Observation request invalid round number, discarding request');
       return;
     }
 
-    this._round = round;
+    this._round = observeReqMessage.round;
 
     if (this._round > this._roundMax) {
       this._logger.warn(
@@ -124,14 +128,23 @@ export class ReportGenFollowerService {
     const signature = await this._signObservation(observation);
 
     await this._reportgenNetworkService.sendObserve(from, {
+      aggregatorAddress: this._reportGenConfig.aggregatorAddress,
       epoch: this._epoch,
-      round,
+      round: observeReqMessage.round,
       observation,
       signature
     });
   }
 
-  public async onReportReqReceived(from: PeerId, { report }: IReportReqMessage): Promise<void> {
+  public async onReportReqReceived(
+    from: PeerId,
+    { report, aggregatorAddress }: IReportReqMessage
+  ): Promise<void> {
+    if (aggregatorAddress !== this._reportGenConfig.aggregatorAddress) {
+      // Silently ignore messages for other aggregators
+      return;
+    }
+
     const isReportSorted = report.observations.every(
       (v, i, a) => i === 0 || report.observations[i - 1].price.lte(v.price)
     );
@@ -172,6 +185,7 @@ export class ReportGenFollowerService {
       this._sentReport = true;
 
       await this._reportgenNetworkService.sendReport(from, {
+        aggregatorAddress: this._reportGenConfig.aggregatorAddress,
         compressedReport,
         signature
       });
@@ -180,7 +194,15 @@ export class ReportGenFollowerService {
     }
   }
 
-  public async onFinalReceived(from: PeerId, { attestedReport }: IFinalMessage): Promise<void> {
+  public async onFinalReceived(
+    from: PeerId,
+    { attestedReport, aggregatorAddress }: IFinalMessage
+  ): Promise<void> {
+    if (aggregatorAddress !== this._reportGenConfig.aggregatorAddress) {
+      // Silently ignore messages for other aggregators
+      return;
+    }
+
     if (from.toString() !== this._leader) {
       this._logger.warn(
         'onFinalReceived: Observation request received from someone else than leader, discarding request'
@@ -196,10 +218,21 @@ export class ReportGenFollowerService {
     }
 
     this._sentEcho = attestedReport;
-    await this._reportgenNetworkService.broadcastFinalEcho(attestedReport);
+    await this._reportgenNetworkService.broadcastFinalEcho({
+      aggregatorAddress: this._reportGenConfig.aggregatorAddress,
+      attestedReport
+    });
   }
 
-  public async onFinalEchoReceived(from: PeerId, { attestedReport }: IFinalEchoMessage): Promise<void> {
+  public async onFinalEchoReceived(
+    from: PeerId,
+    { attestedReport, aggregatorAddress }: IFinalEchoMessage
+  ): Promise<void> {
+    if (aggregatorAddress !== this._reportGenConfig.aggregatorAddress) {
+      // Silently ignore messages for other aggregators
+      return;
+    }
+
     if (
       attestedReport.round !== this._round ||
       this._receivedEcho.get(from.toString()) ||
@@ -216,7 +249,10 @@ export class ReportGenFollowerService {
 
     if (this._sentEcho === null) {
       this._sentEcho = attestedReport;
-      await this._reportgenNetworkService.broadcastFinalEcho(attestedReport);
+      await this._reportgenNetworkService.broadcastFinalEcho({
+        aggregatorAddress: this._reportGenConfig.aggregatorAddress,
+        attestedReport
+      });
     }
 
     const numberOfFinalEchoReceived = [...this._receivedEcho.values()].filter((received) => received).length;
@@ -257,14 +293,14 @@ export class ReportGenFollowerService {
 
   private async _shouldReport(report: IReport): Promise<boolean> {
     const lastReport = await this._contractService._getLastBlockchainReport(
-      this._oracleConfig.aggregatorAddress
+      this._reportGenConfig.aggregatorAddress
     );
 
     if ((report.round === 0 && report.epoch === 0) || lastReport === null) {
       return true;
     }
 
-    if (Date.now() - lastReport.time > this._heartBeatSeconds * 1000) {
+    if (Date.now() - lastReport.time > this._reportGenConfig.heartbeatSeconds.toNumber() * 1000) {
       return true;
     }
 
@@ -276,7 +312,7 @@ export class ReportGenFollowerService {
       }. Deviation: ${lastReport.price.minus(reportMedian).div(lastReport.price).abs()}`
     );
 
-    if (lastReport.price.minus(reportMedian).div(lastReport.price).abs().gt(this._alphaPercent)) {
+    if (lastReport.price.minus(reportMedian).div(lastReport.price).abs().gt(this._reportGenConfig.alpha)) {
       this._logger.log(`_shouldReport: will report`);
       return true;
     }

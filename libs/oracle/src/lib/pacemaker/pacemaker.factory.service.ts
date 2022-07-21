@@ -23,6 +23,9 @@ export class PacemakerFactoryService implements OnModuleInit {
     await this.startPacemaker({
       aggregatorAddress: this._oracleConfig.aggregatorAddress
     });
+    await this.startPacemaker({
+      aggregatorAddress: 'KT1Dbdq2PNMZcRq1RrVFNaSntC52zmc6HjXW'
+    });
   }
 
   public async startPacemaker(config: IPacemakerConfig): Promise<PacemakerService> {

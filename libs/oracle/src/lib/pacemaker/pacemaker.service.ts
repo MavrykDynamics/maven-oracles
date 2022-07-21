@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { OracleConfig } from '../oracle.config.js';
-import { IPacemakerEvents, PacemakerNetworkService } from './pacemaker.network.service.js';
+import { INewEpochMessage, IPacemakerEvents, PacemakerNetworkService } from './pacemaker.network.service.js';
 import { PeerId } from '@libp2p/interface-peer-id';
 import { EventHubService, IEvents } from '../eventhub.service.js';
 import { ContractService } from '../contract.service.js';
@@ -52,8 +52,8 @@ export class PacemakerService {
   private readonly _onChangeLeaderHandler: IEvents['changeleader'] = () => this.onChangeLeader();
   private readonly _onNewEpochReceivedHandler: IPacemakerEvents['newEpoch'] = (
     from: PeerId,
-    newEpoch: number
-  ) => this.onNewEpochReceived(from, newEpoch);
+    newEpochMessage: INewEpochMessage
+  ) => this.onNewEpochReceived(from, newEpochMessage);
 
   public async initialize(): Promise<void> {
     const { epoch } = await this._contractService._getLastBlockchainReport(
@@ -81,7 +81,10 @@ export class PacemakerService {
   }
 
   public async sendNewEpoch(newEpoch: number): Promise<void> {
-    await this._pacemakerNetworkService.broadcastNewEpoch(newEpoch);
+    await this._pacemakerNetworkService.broadcastNewEpoch({
+      newEpoch,
+      aggregatorAddress: this._config.aggregatorAddress
+    });
     this._newEpoch = newEpoch;
 
     this._restartResendTimer();
@@ -104,10 +107,15 @@ export class PacemakerService {
     await this.sendNewEpoch(Math.max(this._epochAndLeader.epoch + 1, this._newEpoch));
   }
 
-  public async onNewEpochReceived(from: PeerId, newEpoch: number): Promise<void> {
+  public async onNewEpochReceived(from: PeerId, newEpochMessage: INewEpochMessage): Promise<void> {
+    if (newEpochMessage.aggregatorAddress !== this._config.aggregatorAddress) {
+      // Silently ignore new epoch message for other aggregators
+      return;
+    }
+
     this._peersNewEpoch.set(
       from.toString(),
-      Math.max(this._peersNewEpoch.get(from.toString()) ?? 0, newEpoch)
+      Math.max(this._peersNewEpoch.get(from.toString()) ?? 0, newEpochMessage.newEpoch)
     );
 
     await this.checkAmplificationRule();
