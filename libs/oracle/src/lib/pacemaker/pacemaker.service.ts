@@ -167,12 +167,13 @@ export class PacemakerService {
       return;
     }
 
-    this._reportGenFactoryService.stopReportGen(this._pacemakerConfig.aggregatorAddress);
-
     this._epochAndLeader = {
       epoch,
       leader: await this.leaderForEpoch(epoch)
     };
+
+    this._reportGenFactoryService.stopReportGen(this._pacemakerConfig.aggregatorAddress);
+
     this._newEpoch = Math.max(this._newEpoch, epoch);
 
     this._reportGenFactoryService.startReportGen({
