@@ -109,11 +109,22 @@ export class ReportGenLeaderService {
     this._observe = new Map();
     this._report = new Map();
     this._phase = Phase.Observe;
-    await this._reportgenNetworkService.broadcastObserveReq(this._round);
+    await this._reportgenNetworkService.broadcastObserveReq({
+      aggregatorAddress: this._config.aggregatorAddress,
+      round: this._round
+    });
     this._restartRoundTimer();
   }
 
-  private async _onObserve(from: PeerId, { observation, round, signature }: IObserveMessage): Promise<void> {
+  private async _onObserve(
+    from: PeerId,
+    { observation, round, signature, aggregatorAddress }: IObserveMessage
+  ): Promise<void> {
+    if (aggregatorAddress !== this._config.aggregatorAddress) {
+      // Silently ignore messages for other aggregators
+      return;
+    }
+
     if (this._oracleConfig.peerId.toString() !== this._leader) {
       this._logger.warn(`_onObserve: I'm not the leader, discarding observation`);
       return;
@@ -154,11 +165,22 @@ export class ReportGenLeaderService {
     }
 
     const assembledReport = this._assembleReport();
-    await this._reportgenNetworkService.broadcastReportReq(assembledReport);
+    await this._reportgenNetworkService.broadcastReportReq({
+      aggregatorAddress: this._config.aggregatorAddress,
+      report: assembledReport
+    });
     this._phase = Phase.Report;
   }
 
-  private async _onReport(from: PeerId, { compressedReport, signature }: IReportMessage): Promise<void> {
+  private async _onReport(
+    from: PeerId,
+    { compressedReport, signature, aggregatorAddress }: IReportMessage
+  ): Promise<void> {
+    if (aggregatorAddress !== this._config.aggregatorAddress) {
+      // Silently ignore messages for other aggregators
+      return;
+    }
+
     if (this._oracleConfig.peerId.toString() !== this._leader) {
       this._logger.warn(`_onReport: I'm not the leader, discarding report`);
       return;
@@ -199,7 +221,10 @@ export class ReportGenLeaderService {
       signatures: [...this._report.values()].map((report) => report.signature)
     };
 
-    await this._reportgenNetworkService.broadcastFinal(attestedReport);
+    await this._reportgenNetworkService.broadcastFinal({
+      aggregatorAddress: this._config.aggregatorAddress,
+      attestedReport
+    });
     this._phase = Phase.Final;
   }
 

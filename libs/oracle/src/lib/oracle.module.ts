@@ -13,6 +13,7 @@ import { CoingeckoFetcherService } from './coingecko-fetcher.service.js';
 import { AlphavantageFetcherService } from './alphavantage-fetcher.service.js';
 import { PacemakerFactoryService } from './pacemaker/pacemaker.factory.service.js';
 import { ReportGenFactoryService } from './reportgen/reportgen.factory.service.js';
+import { StreamManagerService } from './stream-manager.service.js';
 
 @Module({
   imports: [HttpModule, ConfigModule.forConfig(OracleConfig)],
@@ -36,6 +37,7 @@ import { ReportGenFactoryService } from './reportgen/reportgen.factory.service.j
     EventHubService,
     MessariFetcherService,
     CoingeckoFetcherService,
+    StreamManagerService,
     AlphavantageFetcherService
   ],
   exports: [NodeService]
