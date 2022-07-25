@@ -24,7 +24,7 @@ type leaderReponseType is   [@layout:comb] record [
   signatures: map (address, signature);
 ];
 
-type storage is [@layout:comb] record [
+type aggregatorStorage is [@layout:comb] record [
     oracleAddresses    : oracleAddressesType;
     lastResult  : oracleLastResultType;
     heartBeatSeconds : nat;
@@ -37,7 +37,7 @@ type parameter is
   | Reset
   | Unknown
 
-type return is list (operation) * storage
+type return is list (operation) * aggregatorStorage
 
 // Helpers
 
@@ -128,7 +128,7 @@ function check_signature
      const msg    : bytes) : bool
   is Crypto.check (pk, signed, msg)
 
-function verifyAllResponsesSignature(const oracleAddress: address; const oracleSignatures: signature; const oracleObservations: map (address, oracleObservationType); const store: storage): unit is
+function verifyAllResponsesSignature(const oracleAddress: address; const oracleSignatures: signature; const oracleObservations: map (address, oracleObservationType); const store: aggregatorStorage): unit is
   if (not check_signature(
       getOraclePublicKey(oracleAddress, store.oracleAddresses), 
       oracleSignatures, 
@@ -157,7 +157,7 @@ function verifyMapsSizes(const leaderReponse : leaderReponseType): unit is
       then failwith("map observations and map signatures should have the same size")
   else unit
 
-function verifyEpochAndRoundFromObservation(const oracleObservations: map (address, oracleObservationType); const store: storage): (nat * nat) is block {
+function verifyEpochAndRoundFromObservation(const oracleObservations: map (address, oracleObservationType); const store: aggregatorStorage): (nat * nat) is block {
   var epoch: nat := 0n;
   var round: nat := 0n;
 
@@ -182,7 +182,7 @@ function verifyEpochAndRoundFromObservation(const oracleObservations: map (addre
 
 // Main 
 
-function verify (var store : storage; const leaderReponse : leaderReponseType) : storage is 
+function verify (var store : aggregatorStorage; const leaderReponse : leaderReponseType) : aggregatorStorage is 
   block {
 
     // verify obervations and signatures have the same size
@@ -207,7 +207,7 @@ function verify (var store : storage; const leaderReponse : leaderReponseType) :
   } with (store)
 
 // reset epoch and round - FOR TESTING
-function reset (var store : storage) : storage is 
+function reset (var store : aggregatorStorage) : aggregatorStorage is 
   block {
     store.lastResult := record[
       price=0n;
@@ -221,7 +221,7 @@ function reset (var store : storage) : storage is
 (* Main access point that dispatches to the entrypoints according to
    the smart contract parameter. *)
    
-function main (const action : parameter; const store : storage) : return is
+function main (const action : parameter; const store : aggregatorStorage) : return is
  ((nil : list (operation)),    // No operations
   case action of [
     | Verify (msg)  -> verify (store, msg)

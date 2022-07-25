@@ -1,0 +1,50 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/consistent-type-definitions */
+import * as AggregatorRaw from './contracts/json/aggregatorFactory.json';
+import { MichelsonMap } from '@taquito/michelson-encoder';
+import { ContractAbstraction } from '@taquito/taquito';
+import { ContractProvider } from '@taquito/taquito/dist/types/contract/interface';
+import { Wallet } from '@taquito/taquito/dist/types/wallet';
+import { ContractMethodObject } from '@taquito/taquito/dist/types/contract/contract-methods/contract-method-object-param';
+import { OnChainView } from '@taquito/taquito/dist/types/contract/contract-methods/contract-on-chain-view';
+import { ContractView } from '@taquito/taquito/dist/types/contract/contract';
+import { ContractMethod } from '@taquito/taquito/dist/types/contract/contract-methods/contract-method-flat-param';
+import BigNumber from 'bignumber.js';
+
+export const AggregatorFactoryCode: any = AggregatorRaw.michelson;
+
+export type AggregatorFactoryStorage = MichelsonMap<
+{ 0: string; 1: string },
+string
+>;
+
+type AggregatorFactoryContractMethods<T extends ContractProvider | Wallet> = {
+  createAggregator: (
+    pair1: string,
+    pair2: string,
+    alphaPercentPerThousand: BigNumber,
+    decimals: BigNumber,
+    heartBeatSeconds: BigNumber,
+    oracleAddresses: MichelsonMap<string, string>,
+  ) => ContractMethod<T>;
+};
+
+type AggregatorFactoryContractMethodObject<T extends ContractProvider | Wallet> =
+  Record<string, (...args: unknown[]) => ContractMethodObject<T>>;
+
+type AggregatorFactoryViews = Record<string, (...args: unknown[]) => ContractView>;
+
+type AggregatorFactoryOnChainViews = {
+  decimals: () => OnChainView;
+};
+
+export type AggregatorFactoryContractAbstraction<
+  T extends ContractProvider | Wallet = any
+> = ContractAbstraction<
+  T,
+  AggregatorFactoryContractMethods<T>,
+  AggregatorFactoryContractMethodObject<T>,
+  AggregatorFactoryViews,
+  AggregatorFactoryOnChainViews,
+  AggregatorFactoryStorage
+>;
