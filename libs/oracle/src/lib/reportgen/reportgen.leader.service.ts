@@ -90,10 +90,16 @@ export class ReportGenLeaderService {
     reportMessage: IReportMessage
   ) => this._onReport(from, reportMessage);
 
-  private readonly _onStartEpochHandle: IEvents['startepoch'] = (epoch: number, leader: string) =>
-    this.onStartEpoch(epoch, leader);
+  private readonly _onStartEpochHandle: IEvents['startepoch'] = (
+    aggregatorAddress: string,
+    epoch: number,
+    leader: string
+  ) => this.onStartEpoch(aggregatorAddress, epoch, leader);
 
-  public async onStartEpoch(epoch: number, leader: string): Promise<void> {
+  public async onStartEpoch(aggregatorAddress: string, epoch: number, leader: string): Promise<void> {
+    if (aggregatorAddress !== this._config.aggregatorAddress) {
+      return;
+    }
     if (this._epoch !== epoch || this._leader !== leader) {
       return;
     }

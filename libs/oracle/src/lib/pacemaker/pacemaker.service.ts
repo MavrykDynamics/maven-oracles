@@ -48,8 +48,10 @@ export class PacemakerService {
     this._pacemakerNetworkService.addListener('newEpoch', this._onNewEpochReceivedHandler);
   }
 
-  private readonly _onProgressHandler: IEvents['progress'] = () => this.onProgress();
-  private readonly _onChangeLeaderHandler: IEvents['changeleader'] = () => this.onChangeLeader();
+  private readonly _onProgressHandler: IEvents['progress'] = (aggregatorAddress) =>
+    this.onProgress(aggregatorAddress);
+  private readonly _onChangeLeaderHandler: IEvents['changeleader'] = (aggregatorAddress) =>
+    this.onChangeLeader(aggregatorAddress);
   private readonly _onNewEpochReceivedHandler: IPacemakerEvents['newEpoch'] = (
     from: PeerId,
     newEpochMessage: INewEpochMessage
@@ -76,7 +78,10 @@ export class PacemakerService {
     this._restartProgressTimer();
   }
 
-  public async onProgress(): Promise<void> {
+  public async onProgress(aggregatorAddress: string): Promise<void> {
+    if (aggregatorAddress !== this._pacemakerConfig.aggregatorAddress) {
+      return;
+    }
     this._restartProgressTimer();
   }
 
@@ -102,7 +107,11 @@ export class PacemakerService {
     await this.sendNewEpoch(Math.max(this._epochAndLeader.epoch + 1, this._newEpoch));
   }
 
-  public async onChangeLeader(): Promise<void> {
+  public async onChangeLeader(aggregatorAddress: string): Promise<void> {
+    if (aggregatorAddress !== this._pacemakerConfig.aggregatorAddress) {
+      return;
+    }
+
     this._stopProgressTimer();
     await this.sendNewEpoch(Math.max(this._epochAndLeader.epoch + 1, this._newEpoch));
   }
@@ -140,7 +149,9 @@ export class PacemakerService {
       return;
     }
 
-    this._logger.verbose('Amplification rule passed');
+    this._logger.log(
+      `Amplification rule passed for epoch ${epoch} on aggregator ${this._pacemakerConfig.aggregatorAddress}`
+    );
 
     await this.sendNewEpoch(Math.max(epoch, this._newEpoch));
   }
@@ -167,6 +178,10 @@ export class PacemakerService {
       return;
     }
 
+    this._logger.log(
+      `Agreement rule passed for epoch ${epoch} on aggregator ${this._pacemakerConfig.aggregatorAddress}`
+    );
+
     this._epochAndLeader = {
       epoch,
       leader: await this.leaderForEpoch(epoch)
@@ -189,7 +204,11 @@ export class PacemakerService {
     await this._contractService.updateOraclesAddressesMap(this._config.aggregatorAddress);
 
     if (this._epochAndLeader.leader === this._self) {
-      this._eventHubService.startepoch(this._epochAndLeader.epoch, this._epochAndLeader.leader);
+      this._eventHubService.startepoch(
+        this._pacemakerConfig.aggregatorAddress,
+        this._epochAndLeader.epoch,
+        this._epochAndLeader.leader
+      );
     }
   }
 

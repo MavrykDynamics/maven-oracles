@@ -14,13 +14,17 @@ export class TransmitService implements OnModuleInit {
   private _reports: Heap<{
     time: number;
     report: IAttestedReport;
+    aggregatorAddress: string;
   }> = new Heap((a, b) => a.time - b.time); // Order by report time
 
-  private _lastTransmitedReport: {
-    epoch: number;
-    round: number;
-    report: IAttestedReport;
-  } | null = null;
+  private _lastTransmitedReport: Map<
+    string,
+    {
+      epoch: number;
+      round: number;
+      report: IAttestedReport;
+    }
+  > = new Map();
 
   private _deltaStage: number = 20;
   private _timerTransmit: NodeJS.Timeout | null = null;
@@ -36,47 +40,56 @@ export class TransmitService implements OnModuleInit {
   }
 
   public async initialize(): Promise<void> {
-    this._eventHubService.on('transmit', (epoch, round, reportToTransmit) =>
-      this.onTransmit(epoch, round, reportToTransmit)
+    this._eventHubService.on('transmit', (aggregatorAddress, reportToTransmit) =>
+      this.onTransmit(aggregatorAddress, reportToTransmit)
     );
   }
 
-  public async onTransmit(epoch: number, round: number, report: IAttestedReport): Promise<void> {
-    const lastBlockchainReport = await this._getLastBlockchainEpochAndRound(this._config.aggregatorAddress);
-
+  public async onTransmit(aggregatorAddress: string, report: IAttestedReport): Promise<void> {
+    const lastBlockchainReport = await this._getLastBlockchainEpochAndRound(aggregatorAddress);
+    this._logger.log(
+      `onTransmit: Received report ${report.epoch}/${report.round} for aggregator address ${aggregatorAddress}`
+    );
     if (
       lastBlockchainReport !== null &&
-      this._isNewerEpochRound(epoch, round, lastBlockchainReport.epoch, lastBlockchainReport.round)
+      this._isNewerEpochRound(
+        report.epoch,
+        report.round,
+        lastBlockchainReport.epoch,
+        lastBlockchainReport.round
+      )
     ) {
       this._logger.verbose(
-        `Report on blockchain is more recent than current epoch/round: (current e/r: ${epoch}/${round}, blockchain e/r: ${lastBlockchainReport?.epoch}/${lastBlockchainReport?.round})
+        `Report on blockchain is more recent than current epoch/round: (current e/r: ${report.epoch}/${report.round}, blockchain e/r: ${lastBlockchainReport?.epoch}/${lastBlockchainReport?.round})
         }), not transmitting`
       );
       return;
     }
 
+    const lastTransmitedReport = this._lastTransmitedReport.get(aggregatorAddress);
+
     if (
-      this._lastTransmitedReport !== null &&
+      lastTransmitedReport !== undefined &&
       this._isNewerEpochRound(
-        epoch,
-        round,
-        this._lastTransmitedReport.epoch,
-        this._lastTransmitedReport.round
+        report.epoch,
+        report.round,
+        lastTransmitedReport.epoch,
+        lastTransmitedReport.round
       )
     ) {
       this._logger.verbose(
-        `Last report accepted from transmission is more recent than current epoch/round (current e/r: ${epoch}/${round}, last e/r: ${this._lastTransmitedReport.epoch}/ ${this._lastTransmitedReport.round}) , not transmitting`
+        `Last report accepted from transmission is more recent than current epoch/round (current e/r: ${report.epoch}/${report.round}, last e/r: ${lastTransmitedReport.epoch}/ ${lastTransmitedReport.round}) , not transmitting`
       );
       return;
     }
 
-    if (this._lastTransmitedReport === null) {
-      await this.doTransmit(epoch, round, report);
+    if (lastTransmitedReport === undefined) {
+      await this.doTransmit(report.epoch, report.round, aggregatorAddress, report);
       return;
     }
 
     const reportMedian = computeMedian(report);
-    const previousMedian = computeMedian(this._lastTransmitedReport.report);
+    const previousMedian = computeMedian(lastTransmitedReport.report);
     const deviation = reportMedian.minus(previousMedian).abs().div(previousMedian.abs());
     const perThousandThreshold = new BigNumber(3);
 
@@ -92,14 +105,13 @@ export class TransmitService implements OnModuleInit {
     if (
       deviation.multipliedBy(1000).gte(perThousandThreshold) ||
       this._isNewerEpochRound(
-        this._lastTransmitedReport.epoch,
-        this._lastTransmitedReport.round,
-        epoch,
-        round
+        lastTransmitedReport.epoch,
+        lastTransmitedReport.round,
+        report.epoch,
+        report.round
       )
     ) {
-      this._logger.log(`onTransmit: will doTransmit`);
-      await this.doTransmit(epoch, round, report);
+      await this.doTransmit(report.epoch, report.round, aggregatorAddress, report);
       return;
     }
   }
@@ -121,33 +133,45 @@ export class TransmitService implements OnModuleInit {
     return false;
   }
 
-  public async doTransmit(epoch: number, round: number, report: IAttestedReport): Promise<void> {
-    this._lastTransmitedReport = {
+  public async doTransmit(
+    epoch: number,
+    round: number,
+    aggregatorAddress: string,
+    report: IAttestedReport
+  ): Promise<void> {
+    this._lastTransmitedReport.set(aggregatorAddress, {
       epoch,
       round,
       report
-    };
-
-    const delay = await this._getTransmitDelayMs(epoch, round);
-    this._reports.push({
-      time: Date.now() + delay,
-      report
     });
 
-    const peekedReport = this._reports.peek();
-    if (peekedReport === undefined) {
-      // This should never happen, we just pushed a report
-      return;
-    }
+    const delay = await this._getTransmitDelayMs(aggregatorAddress, epoch, round);
+    this._reports.push({
+      time: Date.now() + delay,
+      report,
+      aggregatorAddress
+    });
+
+    const peekedReport = this._reports.peek()!; // Should never be null since we just pushed a report
+
+    this._logger.verbose(
+      `Report ${aggregatorAddress}/${report.epoch}/${
+        report.round
+      } pushed to report queue. Will transmit at ${new Date(peekedReport.time)}`
+    );
 
     this._restartTransmitTimer(peekedReport.time - Date.now());
   }
 
-  private async _getTransmitDelayMs(epoch: number, round: number): Promise<number> {
-    const oracles1 = await this._contractService.getOraclesAddresses(this._config.aggregatorAddress);
+  private async _getTransmitDelayMs(
+    aggregatorAddress: string,
+    epoch: number,
+    round: number
+  ): Promise<number> {
+    const oracles1 = await this._contractService.getOraclesAddresses(aggregatorAddress);
     const oracles2 = Array.from(oracles1.keys());
 
-    const seed = `${epoch}-${round}`; // TODO: this should maybe include oracle address, or secret (as specified in OCR paper?)
+    const seed = `${aggregatorAddress}-${epoch}-${round}`;
     const permuted = randomPermutation(oracles2, seed);
 
     const k = permuted.findIndex((oracle) => oracle === this._config.tezosAddress);
@@ -159,8 +183,8 @@ export class TransmitService implements OnModuleInit {
     if (timeAndReport === undefined) {
       return;
     }
-    const { report } = timeAndReport;
-    const lastBlockchainReport = await this._getLastBlockchainEpochAndRound(this._config.aggregatorAddress);
+    const { report, aggregatorAddress } = timeAndReport;
+    const lastBlockchainReport = await this._getLastBlockchainEpochAndRound(aggregatorAddress);
 
     if (
       lastBlockchainReport === null ||
@@ -171,6 +195,9 @@ export class TransmitService implements OnModuleInit {
         lastBlockchainReport.round
       )
     ) {
+      this._logger.log(
+        `Transmitting report for e/r ${report.epoch}/${report.round} on aggregator ${aggregatorAddress}`
+      );
       await this._contractService.sendReportBlockchain(report);
     } else {
       this._logger.verbose(

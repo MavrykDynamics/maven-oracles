@@ -105,7 +105,7 @@ export class ReportGenFollowerService {
       this._logger.warn(
         'onObserveReqReceived: Observation request has reached max round number, discarding request'
       );
-      this._eventHubService.changeleader();
+      this._eventHubService.changeleader(this._reportGenConfig.aggregatorAddress);
       return;
     }
 
@@ -259,8 +259,7 @@ export class ReportGenFollowerService {
 
     const f = await this._contractService.getFValue();
     if (numberOfFinalEchoReceived > f) {
-      this._logger.log(`$$$ - YOUPI ${this._epoch}/${this._round} - $$$`);
-      await this._eventHubService.transmit(this._epoch, this._round, attestedReport);
+      await this._eventHubService.transmit(this._reportGenConfig.aggregatorAddress, attestedReport);
       await this._completeRound();
     }
   }
@@ -322,7 +321,7 @@ export class ReportGenFollowerService {
 
   private async _completeRound(): Promise<void> {
     this._completedRound = true;
-    this._eventHubService.progress();
+    this._eventHubService.progress(this._reportGenConfig.aggregatorAddress);
   }
 
   private async _verifyAttestedReport(attestedReport: IAttestedReport): Promise<boolean> {

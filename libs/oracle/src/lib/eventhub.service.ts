@@ -3,10 +3,10 @@ import { TypedEmitter } from 'tiny-typed-emitter';
 import { IAttestedReport } from './reportgen/reportgen.network.service.js';
 
 export interface IEvents {
-  startepoch: (epoch: number, leader: string) => void;
-  progress: () => void;
-  transmit: (epoch: number, round: number, reportToTransmit: IAttestedReport) => void;
-  changeleader: () => void;
+  startepoch: (aggregatorAddress: string, epoch: number, leader: string) => void;
+  progress: (aggregatorAddress: string) => void;
+  transmit: (aggregatorAddress: string, reportToTransmit: IAttestedReport) => void;
+  changeleader: (aggregatorAddress: string) => void;
 }
 
 @Injectable()
@@ -17,19 +17,19 @@ export class EventHubService extends TypedEmitter<IEvents> {
     super();
   }
 
-  public startepoch(epoch: number, leader: string): void {
-    this.emit('startepoch', epoch, leader);
+  public startepoch(aggregatorAddress: string, epoch: number, leader: string): void {
+    this.emit('startepoch', aggregatorAddress, epoch, leader);
   }
 
-  public changeleader(): void {
-    this.emit('changeleader');
+  public changeleader(aggregatorAddress: string): void {
+    this.emit('changeleader', aggregatorAddress);
   }
 
-  public progress(): void {
-    this.emit('progress');
+  public progress(aggregatorAddress: string): void {
+    this.emit('progress', aggregatorAddress);
   }
 
-  public transmit(epoch: number, round: number, reportToTransmit: IAttestedReport): void {
-    this.emit('transmit', epoch, round, reportToTransmit);
+  public transmit(aggregatorAddress: string, reportToTransmit: IAttestedReport): void {
+    this.emit('transmit', aggregatorAddress, reportToTransmit);
   }
 }

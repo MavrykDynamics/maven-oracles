@@ -14,6 +14,7 @@ import { AlphavantageFetcherService } from './alphavantage-fetcher.service.js';
 import { PacemakerFactoryService } from './pacemaker/pacemaker.factory.service.js';
 import { ReportGenFactoryService } from './reportgen/reportgen.factory.service.js';
 import { StreamManagerService } from './stream-manager.service.js';
+import { TransmitService } from './transmit/transmit.service.js';
 
 @Module({
   imports: [HttpModule, ConfigModule.forConfig(OracleConfig)],
@@ -34,6 +35,7 @@ import { StreamManagerService } from './stream-manager.service.js';
     PriceService,
     ReportGenFactoryService,
     ReportGenNetworkService,
+    TransmitService,
     EventHubService,
     MessariFetcherService,
     CoingeckoFetcherService,

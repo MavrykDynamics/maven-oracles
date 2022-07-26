@@ -24,7 +24,7 @@ export class PacemakerFactoryService implements OnModuleInit {
       aggregatorAddress: this._oracleConfig.aggregatorAddress
     });
     await this.startPacemaker({
-      aggregatorAddress: 'KT1Dbdq2PNMZcRq1RrVFNaSntC52zmc6HjXW'
+      aggregatorAddress: 'KT1CDFJHNG6mPCyPtoaRKrPv6eWqq26qmghb'
     });
   }
 
