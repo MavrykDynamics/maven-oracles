@@ -15,6 +15,7 @@ import {
   ISignature
 } from './reportgen/reportgen.network.service.js';
 import { toTimestamp } from './helpers.js';
+import { IAggregatorFactoryStorage } from 'src/types/aggregatorFactory.js';
 
 interface IOracleInformations {
   oracleAddress: string;
@@ -51,6 +52,12 @@ export class ContractService implements OnModuleInit {
     const contractInstance = await this._tezos.contract.at(aggregatorAddress);
     const storage: IAggregatorStorage = await contractInstance.storage();
     this._oracleAddresses = storage.oracleAddresses;
+  }
+
+  public async getAggregatorFromFactory(aggregatorFactoryAddress: string): Promise<IAggregatorFactoryStorage> {
+    const contractInstance = await this._tezos.contract.at(aggregatorFactoryAddress);
+    const storage: IAggregatorFactoryStorage = await contractInstance.storage();
+    return storage;
   }
 
   public async getOraclesAddressesBlockchain(

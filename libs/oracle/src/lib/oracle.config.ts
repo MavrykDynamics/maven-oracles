@@ -43,12 +43,19 @@ export class OracleConfig {
   })
   public peerPrivateKey: string;
 
-  // @Property({
-  //   default: '',
-  //   env: 'AGGREGATOR_SMART_CONTRACT_ADDRESS',
-  //   format: String,
-  // })
-  // public aggregatorAddress: string;
+  @Property({
+    default: '',
+    env: 'AGGREGATOR_FACTORY_SMART_CONTRACT_ADDRESS',
+    format: String,
+  })
+  public aggregatorFactoryAddress: string;
+
+  @Property({
+    default: '',
+    env: 'AGGREGATOR_FACTORY_PAIRS',
+    format: String,
+  })
+  public aggregatorFactoryPairs: string;
 
   @Property({
     default: 'https://rpc.tzkt.io/jakartanet/',

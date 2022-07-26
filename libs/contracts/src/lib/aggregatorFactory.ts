@@ -12,9 +12,9 @@ import { ContractMethod } from '@taquito/taquito/dist/types/contract/contract-me
 import BigNumber from 'bignumber.js';
 
 export const AggregatorFactoryCode: any = AggregatorRaw.michelson;
-
+export type PairType = { 0: string; 1: string }
 export type AggregatorFactoryStorage = MichelsonMap<
-{ 0: string; 1: string },
+PairType,
 string
 >;
 

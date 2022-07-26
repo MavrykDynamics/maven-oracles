@@ -20,12 +20,16 @@ export class PacemakerFactoryService implements OnModuleInit {
   ) {}
 
   public async onModuleInit(): Promise<void> {
-    await this.startPacemaker({
-      aggregatorAddress: 'KT1N96fncRJyU9RFUR3wCx1mkXeq3d7hHgcL'
-    });
-    await this.startPacemaker({
-      aggregatorAddress: 'KT1CDFJHNG6mPCyPtoaRKrPv6eWqq26qmghb'
-    });
+    const { aggregatorFactoryAddress, aggregatorFactoryPairs} = this._oracleConfig;
+    const aggregatorFactoryPairsArray: string[] = aggregatorFactoryPairs.split(" ");
+    const factoryStorage = await this._contractService.getAggregatorFromFactory(aggregatorFactoryAddress);
+    for (const pair of aggregatorFactoryPairsArray){
+      const pairArray = pair.split("/");
+      const aggregatorAddress = factoryStorage.get({0: pairArray[0], 1: pairArray[1]}) as string;
+      await this.startPacemaker({
+        aggregatorAddress
+      });
+    }
   }
 
   public async startPacemaker(config: IPacemakerConfig): Promise<PacemakerService> {
