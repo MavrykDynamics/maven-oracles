@@ -198,7 +198,7 @@ export class TransmitService implements OnModuleInit {
       this._logger.log(
         `Transmitting report for e/r ${report.epoch}/${report.round} on aggregator ${aggregatorAddress}`
       );
-      await this._contractService.sendReportBlockchain(report);
+      await this._contractService.sendReportBlockchain(aggregatorAddress, report);
     } else {
       this._logger.verbose(
         `Report on blockchain is more recent than current epoch/round: (current e/r: ${report.epoch}/${report.round}, blockchain e/r: ${lastBlockchainReport?.epoch}/${lastBlockchainReport?.round})

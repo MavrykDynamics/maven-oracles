@@ -238,7 +238,6 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
 
   public async onObserve(data: Uint8Array, peerId: PeerId): Promise<void> {
     try {
-      this._logger.log(`MANIA, onObserve from ${peerId.toString()} on ${this._config.aggregatorAddress}`);
       const observeMessage = ReportGenNetworkService._deserializeObserveMessage(data);
       this._logger.debug(`Received observe from ${peerId.toString()}: ${JSON.stringify(observeMessage)}`);
       this.emit('observe', peerId, observeMessage);

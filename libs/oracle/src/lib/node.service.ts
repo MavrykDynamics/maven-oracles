@@ -8,7 +8,6 @@ import { KadDHT } from '@libp2p/kad-dht';
 import { OracleConfig } from './oracle.config.js';
 import { createFromJSON } from '@libp2p/peer-id-factory';
 import { ContractService } from './contract.service.js';
-import { Multiaddr } from '@multiformats/multiaddr';
 import { TCP } from '@libp2p/tcp';
 import { Transport } from '@libp2p/interface-transport';
 import { Libp2pNode } from 'libp2p/dist/src/libp2p.js';
@@ -39,25 +38,25 @@ export class NodeService {
       privKey
     });
 
-    const peersIdList: string[] = [];
-    const oracleAddresses = await this._contractService.getOraclesAddresses(this._config.aggregatorAddress);
-    for (const [, value] of oracleAddresses.entries()) {
-      peersIdList.push(value.oraclePeerId);
-    }
+    // const peersIdList: string[] = [];
+    // const oracleAddresses = await this._contractService.getOraclesAddresses(this._config.aggregatorAddress);
+    // for (const [, value] of oracleAddresses.entries()) {
+    //   peersIdList.push(value.oraclePeerId);
+    // }
 
     const bootstrapPeers = bootstrapPeersString.split(' ');
 
     this._logger.verbose(`Using bootstrap peers: ${bootstrapPeers}`);
 
-    const bootstrapPeerIds = bootstrapPeers.map((addr) => new Multiaddr(addr).getPeerId()); // /ip4/172.24.2.100/tcp/23456/p2p/QmcrQZ6RJdpYuGvZqD5QEHAv6qX4BrQLJLQPQUrTrzdcgm
+    //    const bootstrapPeerIds = bootstrapPeers.map((addr) => new Multiaddr(addr).getPeerId()); // /ip4/172.24.2.100/tcp/23456/p2p/QmcrQZ6RJdpYuGvZqD5QEHAv6qX4BrQLJLQPQUrTrzdcgm
 
-    const peerIdWhitelist = [
-      // Bootstrap peers
-      ...bootstrapPeerIds,
-
-      // Oracles
-      ...peersIdList
-    ];
+    //    const peerIdWhitelist = [
+    //      // Bootstrap peers
+    //      ...bootstrapPeerIds,
+    //
+    //      // Oracles
+    //      ...peersIdList
+    //    ];
 
     this._node = await createLibp2p({
       peerId,
@@ -80,14 +79,16 @@ export class NodeService {
       connectionManager: {
         autoDial: true
       },
-      connectionGater: {
-        denyDialPeer: (peerId) => {
-          return !peerIdWhitelist.includes(peerId.toString());
-        },
-        denyInboundEncryptedConnection: (peerId) => {
-          return !peerIdWhitelist.includes(peerId.toString());
-        }
-      },
+
+      // TODO: re-add a white list mechanism
+      //  connectionGater: {
+      //    denyDialPeer: (peerId) => {
+      //      return !peerIdWhitelist.includes(peerId.toString());
+      //    },
+      //    denyInboundEncryptedConnection: (peerId) => {
+      //      return !peerIdWhitelist.includes(peerId.toString());
+      //    }
+      //  },
       nat: {
         enabled: true
       }

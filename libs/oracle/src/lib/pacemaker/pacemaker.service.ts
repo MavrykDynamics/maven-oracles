@@ -88,7 +88,7 @@ export class PacemakerService {
   public async sendNewEpoch(newEpoch: number): Promise<void> {
     await this._pacemakerNetworkService.broadcastNewEpoch({
       newEpoch,
-      aggregatorAddress: this._config.aggregatorAddress
+      aggregatorAddress: this._pacemakerConfig.aggregatorAddress
     });
     this._newEpoch = newEpoch;
 
@@ -117,7 +117,7 @@ export class PacemakerService {
   }
 
   public async onNewEpochReceived(from: PeerId, newEpochMessage: INewEpochMessage): Promise<void> {
-    if (newEpochMessage.aggregatorAddress !== this._config.aggregatorAddress) {
+    if (newEpochMessage.aggregatorAddress !== this._pacemakerConfig.aggregatorAddress) {
       // Silently ignore new epoch message for other aggregators
       return;
     }
@@ -135,7 +135,7 @@ export class PacemakerService {
     const peersEpochs = Array.from(this._peersNewEpoch.values());
     const peersNewEpochUnique = [...new Set(peersEpochs)].filter((epoch) => epoch > this._newEpoch).sort(); // Example: [2, 3, 3, 5, 5]
 
-    const f = await this._contractService.getFValue();
+    const f = await this._contractService.getFValue(this._pacemakerConfig.aggregatorAddress);
     let epoch = -1;
     for (const newEpoch of peersNewEpochUnique) {
       const peersNewEpochGreaterThan = peersEpochs.filter((value) => value > newEpoch).length;
@@ -162,7 +162,7 @@ export class PacemakerService {
       .filter((epoch) => epoch > this._epochAndLeader.epoch)
       .sort(); // Example: [2, 3, 3, 5, 5]
 
-    const f = await this._contractService.getFValue();
+    const f = await this._contractService.getFValue(this._pacemakerConfig.aggregatorAddress);
     let epoch = -1;
     for (const newEpoch of peersNewEpochUnique) {
       const peersNewEpochGreaterThan = peersEpochs.filter(
@@ -201,7 +201,7 @@ export class PacemakerService {
 
     this._restartProgressTimer();
 
-    await this._contractService.updateOraclesAddressesMap(this._config.aggregatorAddress);
+    await this._contractService.updateOraclesAddressesMap(this._pacemakerConfig.aggregatorAddress);
 
     if (this._epochAndLeader.leader === this._self) {
       this._eventHubService.startepoch(
@@ -214,7 +214,9 @@ export class PacemakerService {
 
   public async leaderForEpoch(epoch: number): Promise<string> {
     const peersIdList: string[] = [];
-    const oracleAddresses = await this._contractService.getOraclesAddresses(this._config.aggregatorAddress);
+    const oracleAddresses = await this._contractService.getOraclesAddresses(
+      this._pacemakerConfig.aggregatorAddress
+    );
     for (const [, value] of oracleAddresses.entries()) {
       peersIdList.push(value.oraclePeerId);
     }

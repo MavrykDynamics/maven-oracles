@@ -39,14 +39,11 @@ export class ContractService implements OnModuleInit {
     this._tezos = new TezosToolkit(rpcUrl);
   }
 
-  public async onModuleInit(): Promise<void> {
-    this._logger.log('Hello from contract service');
-    await this.updateOraclesAddressesMap(this._config.aggregatorAddress);
-  }
+  public async onModuleInit(): Promise<void> {}
 
-  public async getFValue(): Promise<number> {
-    // change the this._config.aggregatorAddress inside
-    const oracleAddresses = await this.getOraclesAddresses(this._config.aggregatorAddress);
+  public async getFValue(aggregatorAddress: string): Promise<number> {
+    // change the aggregatorAddress inside
+    const oracleAddresses = await this.getOraclesAddresses(aggregatorAddress);
     return Math.floor((oracleAddresses.size - 1) / 3);
   }
 
@@ -159,6 +156,7 @@ export class ContractService implements OnModuleInit {
   }
 
   public async signCompressedReport(
+    aggregatorAddress: string,
     observations: IObservation[],
     secretKey: string,
     epoch: number,
@@ -169,7 +167,7 @@ export class ContractService implements OnModuleInit {
     observations.sort((a, b) => a.oracle.localeCompare(b.oracle));
 
     for (const { oracle, price } of observations) {
-      const infos = await this.getOracleInformationsFromPeerId(this._config.aggregatorAddress, oracle);
+      const infos = await this.getOracleInformationsFromPeerId(aggregatorAddress, oracle);
       if (!infos) {
         return '';
       }
@@ -182,11 +180,15 @@ export class ContractService implements OnModuleInit {
     return await this.signOraclePriceResponses(oraclePriceResponsesForPack, signer);
   }
 
-  public async verifyReportSignature(report: ICompressedReport, signature: ISignature): Promise<boolean> {
+  public async verifyReportSignature(
+    aggregatorAddress: string,
+    report: ICompressedReport,
+    signature: ISignature
+  ): Promise<boolean> {
     const oraclePriceResponsesForPack = new MichelsonMap<string, IOracleObservationType>();
     report.observations.sort((a, b) => a.oracle.localeCompare(b.oracle));
     for (const { oracle, price } of report.observations) {
-      const infos = await this.getOracleInformationsFromPeerId(this._config.aggregatorAddress, oracle);
+      const infos = await this.getOracleInformationsFromPeerId(aggregatorAddress, oracle);
       if (!infos) {
         return false;
       }
@@ -197,20 +199,20 @@ export class ContractService implements OnModuleInit {
       });
     }
     const msg = await this.packObservations(oraclePriceResponsesForPack);
-    const infos = await this.getOracleInformationsFromAddressOracle(
-      this._config.aggregatorAddress,
-      signature.oracle
-    );
+    const infos = await this.getOracleInformationsFromAddressOracle(aggregatorAddress, signature.oracle);
     if (!infos) {
       return false;
     }
     return verifySignature(msg, infos.oraclePublicKey, signature.signature);
   }
 
-  public async verifyAttestedReport(attestedReport: IAttestedReport): Promise<boolean> {
+  public async verifyAttestedReport(
+    aggregatorAddress: string,
+    attestedReport: IAttestedReport
+  ): Promise<boolean> {
     const oraclePriceResponsesForPack = new MichelsonMap<string, IOracleObservationType>();
     for (const { oracle, price } of attestedReport.observations) {
-      const infos = await this.getOracleInformationsFromPeerId(this._config.aggregatorAddress, oracle);
+      const infos = await this.getOracleInformationsFromPeerId(aggregatorAddress, oracle);
       if (!infos) {
         return false;
       }
@@ -224,7 +226,7 @@ export class ContractService implements OnModuleInit {
 
     const signaturesOk = await Promise.all(
       attestedReport.observations.map(async ({ oracle: peerId }) => {
-        const address = await this.getOracleInformationsFromPeerId(this._config.aggregatorAddress, peerId);
+        const address = await this.getOracleInformationsFromPeerId(aggregatorAddress, peerId);
         const result = attestedReport.signatures.find((element) => {
           return element.oracle === address?.oracleAddress;
         });
@@ -233,10 +235,7 @@ export class ContractService implements OnModuleInit {
           return false;
         }
 
-        const infos = await this.getOracleInformationsFromAddressOracle(
-          this._config.aggregatorAddress,
-          result.oracle
-        );
+        const infos = await this.getOracleInformationsFromAddressOracle(aggregatorAddress, result.oracle);
         if (!infos) {
           this._logger.debug('!infos');
           return false;
@@ -248,9 +247,9 @@ export class ContractService implements OnModuleInit {
     return signaturesOk.every((ok) => ok);
   }
 
-  public async sendReportBlockchain(report: IAttestedReport): Promise<void> {
+  public async sendReportBlockchain(aggregatorAddress: string, report: IAttestedReport): Promise<void> {
     const oracleSigner = new InMemorySigner(this._config.tezosSecretKey);
-    const contractInstance = await this._tezos.contract.at(this._config.aggregatorAddress);
+    const contractInstance = await this._tezos.contract.at(aggregatorAddress);
 
     const signatures = new MichelsonMap<string, string>();
     report.signatures.forEach((signature) => {
@@ -261,7 +260,7 @@ export class ContractService implements OnModuleInit {
     report.observations.sort((a, b) => a.oracle.localeCompare(b.oracle));
 
     for (const { oracle, price } of report.observations) {
-      const infos = await this.getOracleInformationsFromPeerId(this._config.aggregatorAddress, oracle);
+      const infos = await this.getOracleInformationsFromPeerId(aggregatorAddress, oracle);
       if (infos) {
         oracleObservations.set(infos.oracleAddress, {
           price,

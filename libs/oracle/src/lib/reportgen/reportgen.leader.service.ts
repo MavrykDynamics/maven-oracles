@@ -158,7 +158,7 @@ export class ReportGenLeaderService {
 
     const numberOfObservation = [...this._observe.values()].length;
 
-    const f = await this._contractService.getFValue();
+    const f = await this._contractService.getFValue(this._config.aggregatorAddress);
     if (numberOfObservation === 2 * f + 1) {
       this._restartGraceTimer();
       this._phase = Phase.Grace;
@@ -214,7 +214,7 @@ export class ReportGenLeaderService {
 
     const numberOfReports = [...this._report.values()].length;
 
-    const f = await this._contractService.getFValue();
+    const f = await this._contractService.getFValue(this._config.aggregatorAddress);
     if (numberOfReports < f) {
       this._logger.debug(`_onReport: Not enough report yet (got ${numberOfReports}, need ${f})`);
       return;
@@ -247,7 +247,11 @@ export class ReportGenLeaderService {
   }
 
   private async _verifyReportSignature(report: ICompressedReport, signature: ISignature): Promise<boolean> {
-    return await this._contractService.verifyReportSignature(report, signature);
+    return await this._contractService.verifyReportSignature(
+      this._config.aggregatorAddress,
+      report,
+      signature
+    );
   }
 
   private _stopGraceTimer(): void {

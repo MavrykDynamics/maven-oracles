@@ -156,7 +156,7 @@ export class ReportGenFollowerService {
 
     const distinctOracleObservations = [...new Set(report.observations.map((ob) => ob.oracle))];
 
-    const f = await this._contractService.getFValue();
+    const f = await this._contractService.getFValue(this._reportGenConfig.aggregatorAddress);
     if (distinctOracleObservations.length < f * 2 + 1) {
       this._logger.warn('onReportReqReceived: Report has not enough observation from different oracles');
       return;
@@ -257,7 +257,7 @@ export class ReportGenFollowerService {
 
     const numberOfFinalEchoReceived = [...this._receivedEcho.values()].filter((received) => received).length;
 
-    const f = await this._contractService.getFValue();
+    const f = await this._contractService.getFValue(this._reportGenConfig.aggregatorAddress);
     if (numberOfFinalEchoReceived > f) {
       await this._eventHubService.transmit(this._reportGenConfig.aggregatorAddress, attestedReport);
       await this._completeRound();
@@ -279,6 +279,7 @@ export class ReportGenFollowerService {
 
   private async _signCompressedReport(report: ICompressedReport): Promise<ISignature> {
     const signature = await this._contractService.signCompressedReport(
+      this._reportGenConfig.aggregatorAddress,
       report.observations,
       this._oracleConfig.tezosSecretKey,
       report.epoch,
@@ -325,7 +326,10 @@ export class ReportGenFollowerService {
   }
 
   private async _verifyAttestedReport(attestedReport: IAttestedReport): Promise<boolean> {
-    return await this._contractService.verifyAttestedReport(attestedReport);
+    return await this._contractService.verifyAttestedReport(
+      this._reportGenConfig.aggregatorAddress,
+      attestedReport
+    );
   }
 
   private async _verifyObservationSignature(
