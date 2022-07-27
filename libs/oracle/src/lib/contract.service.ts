@@ -7,7 +7,7 @@ import { OracleConfig } from './oracle.config.js';
 import { MichelsonMap, TezosToolkit } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 import { Schema } from '@taquito/michelson-encoder';
-import { IAggregatorStorage, IOracleInformation } from '../types/aggregators';
+import { IAggregatorStorage, IOracleInformation, IOracleInformations, IOracleObservationType } from '../types/aggregators';
 import {
   IAttestedReport,
   ICompressedReport,
@@ -16,18 +16,6 @@ import {
 } from './reportgen/reportgen.network.service.js';
 import { toTimestamp } from './helpers.js';
 import { IAggregatorFactoryStorage } from 'src/types/aggregatorFactory.js';
-
-interface IOracleInformations {
-  oracleAddress: string;
-  oraclePublicKey: string;
-  oraclePeerId: string;
-}
-
-interface IOracleObservationType {
-  price: BigNumber;
-  epoch: number;
-  round: number;
-}
 
 @Injectable()
 export class ContractService implements OnModuleInit {
@@ -136,7 +124,13 @@ export class ContractService implements OnModuleInit {
               prim: 'pair',
               args: [
                 { prim: 'nat', annots: ['%epoch'] },
-                { prim: 'nat', annots: ['%round'] }
+                {
+                  prim: 'pair',
+                  args: [
+                    { prim: 'nat', annots: ['%round'] },
+                    { prim: 'address', annots: ['%aggregatorAddress'] }
+                  ]
+                }
               ]
             }
           ]
@@ -181,7 +175,8 @@ export class ContractService implements OnModuleInit {
       oraclePriceResponsesForPack.set(infos.oracleAddress, {
         price,
         epoch,
-        round
+        round,
+        aggregatorAddress
       });
     }
     return await this.signOraclePriceResponses(oraclePriceResponsesForPack, signer);
@@ -202,7 +197,8 @@ export class ContractService implements OnModuleInit {
       oraclePriceResponsesForPack.set(infos.oracleAddress, {
         price,
         epoch: report.epoch,
-        round: report.round
+        round: report.round,
+        aggregatorAddress
       });
     }
     const msg = await this.packObservations(oraclePriceResponsesForPack);
@@ -226,7 +222,8 @@ export class ContractService implements OnModuleInit {
       oraclePriceResponsesForPack.set(infos.oracleAddress, {
         price,
         epoch: attestedReport.epoch,
-        round: attestedReport.round
+        round: attestedReport.round,
+        aggregatorAddress
       });
     }
     const msg = await this.packObservations(oraclePriceResponsesForPack);
@@ -272,7 +269,8 @@ export class ContractService implements OnModuleInit {
         oracleObservations.set(infos.oracleAddress, {
           price,
           epoch: report.epoch,
-          round: report.round
+          round: report.round,
+          aggregatorAddress
         });
       }
     }

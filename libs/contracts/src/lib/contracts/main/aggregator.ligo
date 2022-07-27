@@ -9,6 +9,7 @@ type oracleObservationType is [@layout:comb] record [
        price: nat;
        epoch: nat;
        round: nat;
+       aggregatorAddress: address;
 ];
 
 type oracleLastResultType is [@layout:comb] record [
@@ -157,11 +158,12 @@ function verifyMapsSizes(const leaderReponse : leaderReponseType): unit is
       then failwith("map observations and map signatures should have the same size")
   else unit
 
-function verifyEpochAndRoundFromObservation(const oracleObservations: map (address, oracleObservationType); const store: aggregatorStorage): (nat * nat) is block {
+function verifyInfosFromObservation(const oracleObservations: map (address, oracleObservationType); const store: aggregatorStorage): (nat * nat) is block {
   var epoch: nat := 0n;
   var round: nat := 0n;
 
   for _key -> value in map oracleObservations block {
+      if (not (Tezos.get_self_address() = value.aggregatorAddress)) then failwith("wrong aggregator address in the observations");
       if (epoch = 0n) then epoch:= value.epoch;
       if (not (epoch = value.epoch)) then failwith("different epoch in the observations");
 
@@ -188,7 +190,7 @@ function verify (var store : aggregatorStorage; const leaderReponse : leaderRepo
     // verify obervations and signatures have the same size
     verifyMapsSizes(leaderReponse);
     // verify for each observations -> epoch and round are the same + different from previous
-    var epochAndRound: nat*nat := verifyEpochAndRoundFromObservation(leaderReponse.oracleObservations, store);
+    var epochAndRound: nat*nat := verifyInfosFromObservation(leaderReponse.oracleObservations, store);
 
     // verify oracles signatures
     for key -> value in map leaderReponse.signatures block {

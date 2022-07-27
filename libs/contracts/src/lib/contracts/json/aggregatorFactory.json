@@ -327,6 +327,12 @@
                                             "annots": [
                                               "%round"
                                             ]
+                                          },
+                                          {
+                                            "prim": "address",
+                                            "annots": [
+                                              "%aggregatorAddress"
+                                            ]
                                           }
                                         ]
                                       }
@@ -647,6 +653,51 @@
                                           "prim": "CDR"
                                         },
                                         {
+                                          "prim": "DUP"
+                                        },
+                                        {
+                                          "prim": "GET",
+                                          "args": [
+                                            {
+                                              "int": "6"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "prim": "SELF_ADDRESS"
+                                        },
+                                        {
+                                          "prim": "COMPARE"
+                                        },
+                                        {
+                                          "prim": "EQ"
+                                        },
+                                        {
+                                          "prim": "NOT"
+                                        },
+                                        {
+                                          "prim": "IF",
+                                          "args": [
+                                            [
+                                              {
+                                                "prim": "PUSH",
+                                                "args": [
+                                                  {
+                                                    "prim": "string"
+                                                  },
+                                                  {
+                                                    "string": "wrong aggregator address in the observations"
+                                                  }
+                                                ]
+                                              },
+                                              {
+                                                "prim": "FAILWITH"
+                                              }
+                                            ],
+                                            []
+                                          ]
+                                        },
+                                        {
                                           "prim": "PUSH",
                                           "args": [
                                             {
@@ -832,7 +883,7 @@
                                                 "prim": "GET",
                                                 "args": [
                                                   {
-                                                    "int": "4"
+                                                    "int": "5"
                                                   }
                                                 ]
                                               }
@@ -870,7 +921,7 @@
                                           "prim": "GET",
                                           "args": [
                                             {
-                                              "int": "4"
+                                              "int": "5"
                                             }
                                           ]
                                         },

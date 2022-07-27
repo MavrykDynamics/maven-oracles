@@ -36,7 +36,9 @@
                { parameter
                    (or (or (unit %reset) (unit %unknown))
                        (pair %verify
-                          (map %oracleObservations address (pair (nat %price) (nat %epoch) (nat %round)))
+                          (map %oracleObservations
+                             address
+                             (pair (nat %price) (nat %epoch) (nat %round) (address %aggregatorAddress)))
                           (map %signatures address signature))) ;
                  storage
                    (pair (map %oracleAddresses address (pair (key %oraclePublicKey) (string %oraclePeerId)))
@@ -73,6 +75,14 @@
                                    UNPAIR ;
                                    DIG 2 ;
                                    CDR ;
+                                   DUP ;
+                                   GET 6 ;
+                                   SELF_ADDRESS ;
+                                   COMPARE ;
+                                   EQ ;
+                                   NOT ;
+                                   IF { PUSH string "wrong aggregator address in the observations" ; FAILWITH }
+                                      {} ;
                                    PUSH nat 0 ;
                                    DUP 3 ;
                                    COMPARE ;
@@ -91,11 +101,11 @@
                                    DUP 4 ;
                                    COMPARE ;
                                    EQ ;
-                                   IF { DIG 2 ; DROP ; UNIT ; DUP 3 ; GET 4 } { UNIT ; DIG 3 } ;
+                                   IF { DIG 2 ; DROP ; UNIT ; DUP 3 ; GET 5 } { UNIT ; DIG 3 } ;
                                    SWAP ;
                                    DROP ;
                                    DIG 2 ;
-                                   GET 4 ;
+                                   GET 5 ;
                                    DUP 2 ;
                                    COMPARE ;
                                    EQ ;
