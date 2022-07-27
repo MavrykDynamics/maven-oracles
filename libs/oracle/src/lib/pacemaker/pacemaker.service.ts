@@ -67,12 +67,14 @@ export class PacemakerService {
     };
     this._newEpoch = epoch;
 
+    const blockchainConfig = await this._contractService._getBlockchainConfig(this._pacemakerConfig.aggregatorAddress);
+
     this._reportGenFactoryService.startReportGen({
       epoch: this._epochAndLeader.epoch,
       leader: this._epochAndLeader.leader,
       aggregatorAddress: this._pacemakerConfig.aggregatorAddress,
-      alpha: new BigNumber(500),
-      heartbeatSeconds: new BigNumber(60)
+      alpha: new BigNumber(blockchainConfig.alphaPercentPerThousand),
+      heartbeatSeconds: new BigNumber(blockchainConfig.heartBeatSeconds)
     });
 
     this._restartProgressTimer();

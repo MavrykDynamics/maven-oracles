@@ -114,14 +114,11 @@ export class ReportGenFollowerService {
     this._completedRound = false;
     this._receivedEcho = new Map();
 
-    // TODO: fetch decimals from smart contract
-    // const decimals: BigNumber = (
-    //   await this._contractService._getBlockchainConfig(this._config.aggregatorAddress)
-    // ).decimals;
+    const decimals: BigNumber = (
+      await this._contractService._getBlockchainConfig(this._reportGenConfig.aggregatorAddress)
+    ).decimals;
 
-    const decimals = new BigNumber(2);
-
-    const pair: [string, string] = ['USD', 'XTZ']; // TODO: get from blockchain from factory
+    const pair: [string, string] = await this._contractService.getPairFromAggregatorAddress(this._reportGenConfig.aggregatorAddress);
 
     const observation = await this._priceService.getPrice(decimals, pair);
 

@@ -42,10 +42,21 @@ export class ContractService implements OnModuleInit {
     this._oracleAddresses = storage.oracleAddresses;
   }
 
-  public async getAggregatorFromFactory(aggregatorFactoryAddress: string): Promise<IAggregatorFactoryStorage> {
+  public async getAggregatorFactoryStorage(aggregatorFactoryAddress: string): Promise<IAggregatorFactoryStorage> {
     const contractInstance = await this._tezos.contract.at(aggregatorFactoryAddress);
     const storage: IAggregatorFactoryStorage = await contractInstance.storage();
     return storage;
+  }
+
+  public async getPairFromAggregatorAddress(aggregatorAddress: string):  Promise<[string, string]>{
+    const factoryStorage: IAggregatorFactoryStorage = await this.getAggregatorFactoryStorage(this._config.aggregatorFactoryAddress);
+    let result: [string, string] = ['','']
+    for (let [key, value] of factoryStorage.entries()) {
+      if (value === aggregatorAddress){
+        result = [key[0],key[1]];
+      }
+    }
+    return result;
   }
 
   public async getOraclesAddressesBlockchain(

@@ -22,7 +22,7 @@ export class PacemakerFactoryService implements OnModuleInit {
   public async onModuleInit(): Promise<void> {
     const { aggregatorFactoryAddress, aggregatorFactoryPairs} = this._oracleConfig;
     const aggregatorFactoryPairsArray: string[] = aggregatorFactoryPairs.split(" ");
-    const factoryStorage = await this._contractService.getAggregatorFromFactory(aggregatorFactoryAddress);
+    const factoryStorage = await this._contractService.getAggregatorFactoryStorage(aggregatorFactoryAddress);
     for (const pair of aggregatorFactoryPairsArray){
       const pairArray = pair.split("/");
       const aggregatorAddress = factoryStorage.get({0: pairArray[0], 1: pairArray[1]}) as string;
