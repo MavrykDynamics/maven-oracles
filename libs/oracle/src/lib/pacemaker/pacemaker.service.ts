@@ -41,6 +41,9 @@ export class PacemakerService {
     private readonly _reportGenFactoryService: ReportGenFactoryService,
     private readonly _pacemakerConfig: IPacemakerConfig
   ) {
+    this._logger.log(
+      `Starting pacemaker service for aggregator at ${this._pacemakerConfig.aggregatorAddress}`
+    );
     this._self = this._config.peerId;
 
     this._eventHubService.addListener('progress', this._onProgressHandler);

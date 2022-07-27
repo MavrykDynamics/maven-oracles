@@ -116,6 +116,7 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
       this._onPubSubMessage(msg);
     });
     await this._nodeService.node.handle(this._observeProtocol, async ({ stream, connection }) => {
+      this._logger.debug(`Creating inbound stream for ${this._observeProtocol}`);
       await this._streamManagerService.createInboundStream(
         this._observeProtocol,
         connection.remotePeer,
@@ -124,8 +125,9 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
       );
     });
     await this._nodeService.node.handle(this._reportProtocol, async ({ stream, connection }) => {
+      this._logger.debug(`Creating inbound stream for ${this._reportProtocol}`);
       await this._streamManagerService.createInboundStream(
-        this._observeProtocol,
+        this._reportProtocol,
         connection.remotePeer,
         stream,
         (data, peerId) => this.onReport(data, peerId)
@@ -224,7 +226,7 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
   }
 
   public async sendObserve(to: PeerId, observeMessage: IObserveMessage): Promise<void> {
-    this._logger.debug(`Sending observe: with observeMessage: ${JSON.stringify(observeMessage)}`);
+    this._logger.debug(`Sending observe message to ${to.toString()}: ${JSON.stringify(observeMessage)}`);
 
     if (to.toString() === this._self) {
       this.emit('observe', to, observeMessage);

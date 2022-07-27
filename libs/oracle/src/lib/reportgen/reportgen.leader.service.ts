@@ -101,6 +101,9 @@ export class ReportGenLeaderService {
       return;
     }
     if (this._epoch !== epoch || this._leader !== leader) {
+      this._logger.warn(
+        `Epoch/leader mismatch: received ${this._epoch}/${this._leader} at instanciation and ${epoch}/${leader} on startepoch event`
+      );
       return;
     }
     await this._startRound();

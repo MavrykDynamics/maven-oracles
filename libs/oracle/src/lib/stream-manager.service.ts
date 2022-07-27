@@ -40,6 +40,10 @@ export class OutboundStream {
     this._closeController.abort();
     this._rawStream.close();
   }
+
+  public id(): string {
+    return this._rawStream.id;
+  }
 }
 
 export class InboundStream {
@@ -60,6 +64,10 @@ export class InboundStream {
   public close(): void {
     this._closeController.abort();
     this._rawStream.close();
+  }
+
+  public id(): string {
+    return this._rawStream.id;
   }
 }
 
@@ -109,12 +117,13 @@ export class StreamManagerService implements OnModuleDestroy {
     // If a peer initiates a new inbound connection
     // we assume that one is the new canonical inbound stream
     const priorInboundStream = this._streamsInbound.get(protocol)?.get(id);
+
     if (priorInboundStream !== undefined) {
-      this._logger.debug('replacing existing inbound steam %s', id);
+      this._logger.debug(`Replacing existing inbound steam for ${protocol}/${id}/${priorInboundStream.id()}`);
       priorInboundStream.close();
     }
 
-    this._logger.debug('create inbound stream %s', id);
+    this._logger.debug(`Create inbound stream for ${protocol}/${id}`);
 
     const inboundStream = new InboundStream(stream);
     this._streamsInbound.get(protocol)?.set(id, inboundStream);
@@ -122,16 +131,21 @@ export class StreamManagerService implements OnModuleDestroy {
     try {
       await pipe(inboundStream.source, async (source) => {
         for await (const data of source) {
+          this._logger.debug(`Data received on ${protocol}/${id}/${inboundStream.id()}`);
           try {
             await handler(data, peerId);
           } catch (err) {
-            this._logger.error('createInboundStream1', err);
+            this._logger.error(`Error on ${protocol}/${id}/${inboundStream.id()}: ${JSON.stringify(err)}`);
           }
         }
-        this._logger.log('MANIA - source is closed ?');
-      }).finally(() => inboundStream.close());
+        this._logger.debug(`Inbound stream ${protocol}/${id}/${inboundStream.id()} looks closed`);
+      }).finally(() => {
+        this._logger.debug(`Closing and deleting inbound stream ${protocol}/${id}/${inboundStream.id()}`);
+        inboundStream.close();
+        this._streamsInbound.get(protocol)?.delete(id);
+      });
     } catch (err) {
-      this._logger.error('createInboundStream2', err);
+      this._logger.error(`Error on ${protocol}/${id}/${inboundStream.id()}: ${JSON.stringify(err)}`);
     }
   }
 
@@ -141,26 +155,28 @@ export class StreamManagerService implements OnModuleDestroy {
     // This behavior is different than for inbound streams
     // If an outbound stream already exists, don't create a new stream
 
+    this._logger.debug(`Waiting mutex to create outbound stream for ${protocol}/${id}`);
     return await this._streamsOutboundCreationMutex.runExclusive(async () => {
       const found = this._streamsOutbound.get(protocol)?.get(id);
       if (found !== undefined) {
-        this._logger.debug(`MANIA - outbound stream already exist for ${protocol}/${id}`);
+        this._logger.debug(`Reusing existing outbound steam for ${protocol}/${id}/${found.id()}`);
         return found;
       }
 
       try {
-        this._logger.debug(`MANIA - BEFORE create outbound stream for ${protocol}/${id}`);
-        const stream = new OutboundStream(await this._nodeService.node.dialProtocol(peerId, protocol), (e) =>
-          this._logger.error('outbound pipe error', e)
+        this._logger.debug(`Creating outbound steam for ${protocol}/${id}}`);
+        const stream = new OutboundStream(
+          await this._nodeService.node.dialProtocol(peerId, protocol),
+          (err) => this._logger.error(`Error on ${protocol}/${id}/${stream.id()}: ${JSON.stringify(err)}`)
         );
-        this._logger.debug(`MANIA - AFTER create outbound stream for ${protocol}/${id}`);
+        this._logger.debug(`Created outbound steam for ${protocol}/${id}/${stream.id()}`);
 
         this._streamsOutbound.get(protocol)?.set(id, stream);
 
         return stream;
-      } catch (e) {
-        this._logger.error('createOutboundStream error', e);
-        throw e;
+      } catch (err) {
+        this._logger.error(`Error on ${protocol}/${id}: ${JSON.stringify(err)}`);
+        throw err;
       }
     });
   }

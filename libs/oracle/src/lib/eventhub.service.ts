@@ -18,18 +18,24 @@ export class EventHubService extends TypedEmitter<IEvents> {
   }
 
   public startepoch(aggregatorAddress: string, epoch: number, leader: string): void {
+    this._logger.debug(`Dispatching startepoch event for ${aggregatorAddress}/${epoch}/${leader}`);
     this.emit('startepoch', aggregatorAddress, epoch, leader);
   }
 
   public changeleader(aggregatorAddress: string): void {
+    this._logger.debug(`Dispatching changeleader event for ${aggregatorAddress}`);
     this.emit('changeleader', aggregatorAddress);
   }
 
   public progress(aggregatorAddress: string): void {
+    this._logger.debug(`Dispatching progress event for ${aggregatorAddress}`);
     this.emit('progress', aggregatorAddress);
   }
 
   public transmit(aggregatorAddress: string, reportToTransmit: IAttestedReport): void {
+    this._logger.debug(
+      `Dispatching transmit event for ${aggregatorAddress} with report ${reportToTransmit.epoch}/${reportToTransmit.round}`
+    );
     this.emit('transmit', aggregatorAddress, reportToTransmit);
   }
 }
