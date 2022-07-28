@@ -78,7 +78,8 @@
     "tslib": "^2.0.0",
     "uint8arrays": "~3.0.0",
     "yargs": "^17.3.1",
-    "rushx": "^1.22.18"
+    "chai": "~4.3.6",
+    "chai-as-promised": "~7.1.1"
   },
   "devDependencies": {
     "@nestjs/schematics": "^8.0.0",

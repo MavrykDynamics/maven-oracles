@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/consistent-type-definitions */
 import * as AggregatorRaw from './contracts/json/aggregatorFactory.json';
-import { MichelsonMap } from '@taquito/michelson-encoder';
+import { MichelsonMap, MichelsonMapKey } from '@taquito/michelson-encoder';
 import { ContractAbstraction } from '@taquito/taquito';
 import { ContractProvider } from '@taquito/taquito/dist/types/contract/interface';
 import { Wallet } from '@taquito/taquito/dist/types/wallet';
@@ -25,7 +25,7 @@ type AggregatorFactoryContractMethods<T extends ContractProvider | Wallet> = {
     alphaPercentPerThousand: BigNumber,
     decimals: BigNumber,
     heartBeatSeconds: BigNumber,
-    oracleAddresses: MichelsonMap<string, string>,
+    oracleAddresses: MichelsonMap<MichelsonMapKey, unknown>,
   ) => ContractMethod<T>;
 };
 

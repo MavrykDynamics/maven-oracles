@@ -16,7 +16,8 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "strictNullChecks": true,
-    "baseUrl": "."
+    "baseUrl": ".",
+    "types": ["heft-jest", "node"]
   },
   "exclude": ["node_modules", "tmp"]
 }
