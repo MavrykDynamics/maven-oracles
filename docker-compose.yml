@@ -119,7 +119,7 @@ services:
   flextesa:
     container_name: flextesa
     restart: always
-    image: oxheadalpha/flextesa:test-multi-arch-00
+    image: oxheadalpha/flextesa:20220715
     command: hangzbox start
       --add-bootstrap-account "eve,edpku9qEgcyfNNDK6EpMvu5SqXDqWRLuxdMxdyH12ivTUuB1KXfGP4,tz1eAoFgsys8PhTUvT3V3eq2BFaZp8UsGNsr,unencrypted:edskRkawwQimT7qNaw4g99dKh3ExUt3corurNLUwvYo2vwwAGdy6NK4At1QLEy9Km24TuwCFfr5k97wvDxKBn5iQqTxdvvpdjt@2_000_000_000_000"
       --no-daemons-for=eve
