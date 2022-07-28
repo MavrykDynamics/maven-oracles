@@ -12,11 +12,10 @@ import { ContractMethod } from '@taquito/taquito/dist/types/contract/contract-me
 import BigNumber from 'bignumber.js';
 
 export const AggregatorFactoryCode: any = AggregatorRaw.michelson;
-export type PairType = { 0: string; 1: string }
-export type AggregatorFactoryStorage = MichelsonMap<
-PairType,
-string
->;
+
+// eslint-disable-next-line @typescript-eslint/naming-convention
+export type PairType = { 0: string; 1: string };
+export type AggregatorFactoryStorage = MichelsonMap<PairType, string>;
 
 type AggregatorFactoryContractMethods<T extends ContractProvider | Wallet> = {
   createAggregator: (
@@ -25,12 +24,14 @@ type AggregatorFactoryContractMethods<T extends ContractProvider | Wallet> = {
     alphaPercentPerThousand: BigNumber,
     decimals: BigNumber,
     heartBeatSeconds: BigNumber,
-    oracleAddresses: MichelsonMap<MichelsonMapKey, unknown>,
+    oracleAddresses: MichelsonMap<MichelsonMapKey, unknown>
   ) => ContractMethod<T>;
 };
 
-type AggregatorFactoryContractMethodObject<T extends ContractProvider | Wallet> =
-  Record<string, (...args: unknown[]) => ContractMethodObject<T>>;
+type AggregatorFactoryContractMethodObject<T extends ContractProvider | Wallet> = Record<
+  string,
+  (...args: unknown[]) => ContractMethodObject<T>
+>;
 
 type AggregatorFactoryViews = Record<string, (...args: unknown[]) => ContractView>;
 
@@ -38,13 +39,12 @@ type AggregatorFactoryOnChainViews = {
   decimals: () => OnChainView;
 };
 
-export type AggregatorFactoryContractAbstraction<
-  T extends ContractProvider | Wallet = any
-> = ContractAbstraction<
-  T,
-  AggregatorFactoryContractMethods<T>,
-  AggregatorFactoryContractMethodObject<T>,
-  AggregatorFactoryViews,
-  AggregatorFactoryOnChainViews,
-  AggregatorFactoryStorage
->;
+export type AggregatorFactoryContractAbstraction<T extends ContractProvider | Wallet = any> =
+  ContractAbstraction<
+    T,
+    AggregatorFactoryContractMethods<T>,
+    AggregatorFactoryContractMethodObject<T>,
+    AggregatorFactoryViews,
+    AggregatorFactoryOnChainViews,
+    AggregatorFactoryStorage
+  >;
