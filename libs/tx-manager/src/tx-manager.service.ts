@@ -108,22 +108,22 @@ export class TxManagerService implements OnModuleInit {
 
     const toolkit = await this.getTezosToolkit();
 
-    //    const pkh = await toolkit.wallet.pkh();
-    //    const estimateInput: ParamsWithKind[] = requests.map((value) => ({
-    //      ...value,
-    //      source: pkh
-    //    }));
-    //
-    //    try {
-    //      await toolkit.estimate.batch(estimateInput);
-    //    } catch (e) {
-    //      this._logger.error(`Estimate failed with params: ${JSON.stringify(estimateInput)}: ${e.toString()}`);
-    //      this._batchResponse$.next({
-    //        type: 'error',
-    //        uuid: uuid,
-    //        error: e
-    //      });
-    //    }
+    const pkh = await toolkit.wallet.pkh();
+    const estimateInput: ParamsWithKind[] = requests.map((value) => ({
+      ...value,
+      source: pkh
+    }));
+
+    try {
+      await toolkit.estimate.batch(estimateInput);
+    } catch (e) {
+      this._logger.error(`Estimate failed with params: ${JSON.stringify(estimateInput)}: ${e.toString()}`);
+      this._batchResponse$.next({
+        type: 'error',
+        uuid: uuid,
+        error: e
+      });
+    }
 
     try {
       const batchResult1 = await toolkit.wallet.batch(requests);

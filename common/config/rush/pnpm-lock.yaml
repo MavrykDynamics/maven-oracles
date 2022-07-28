@@ -1050,7 +1050,7 @@ packages:
       it-pb-stream: 1.0.2
       it-pipe: 2.0.3
       protons-runtime: 1.0.4
-      uint8arraylist: 1.5.2
+      uint8arraylist: 1.6.0
       uint8arrays: 3.0.0
     transitivePeerDependencies:
       - supports-color
@@ -1806,7 +1806,7 @@ packages:
       it-pipe: 2.0.3
       it-pushable: 3.0.0
       it-stream-types: 1.0.4
-      uint8arraylist: 1.5.2
+      uint8arraylist: 1.6.0
       uint8arrays: 3.0.0
       varint: 6.0.0
     transitivePeerDependencies:
@@ -1827,10 +1827,10 @@ packages:
       it-length-prefixed: 7.0.1
       it-pipe: 2.0.3
       it-pushable: 3.0.0
-      it-reader: 5.0.1
+      it-reader: 5.0.2
       it-stream-types: 1.0.4
       p-defer: 4.0.0
-      uint8arraylist: 1.5.2
+      uint8arraylist: 1.6.0
       uint8arrays: 3.0.0
     transitivePeerDependencies:
       - supports-color
@@ -5461,7 +5461,7 @@ packages:
     dependencies:
       it-map: 1.0.6
       it-pushable: 2.0.2
-      it-reader: 5.0.1
+      it-reader: 5.0.2
       it-stream-types: 1.0.4
       p-defer: 4.0.0
     dev: false
@@ -5472,7 +5472,7 @@ packages:
     dependencies:
       it-map: 1.0.6
       it-pushable: 3.0.0
-      it-reader: 5.0.1
+      it-reader: 5.0.2
       it-stream-types: 1.0.4
       p-defer: 4.0.0
     dev: false
@@ -5483,7 +5483,7 @@ packages:
     dependencies:
       err-code: 3.0.1
       it-stream-types: 1.0.4
-      uint8arraylist: 1.5.2
+      uint8arraylist: 1.6.0
       varint: 6.0.0
     dev: false
 
@@ -5521,7 +5521,7 @@ packages:
       it-handshake: 3.0.1
       it-length-prefixed: 7.0.1
       it-stream-types: 1.0.4
-      uint8arraylist: 1.5.2
+      uint8arraylist: 1.6.0
     dev: false
 
   /it-pipe/1.1.0:
@@ -5550,11 +5550,12 @@ packages:
     resolution: {integrity: sha512-Lpo9Q6wghDDoX8RyA2vIkpNckd5E0EY7RzIKwgiTPakrTmwDw7tKMx6DDJ1ZXrunYnHdKHnKSHYJL3Csya5U2w==}
     dev: false
 
-  /it-reader/5.0.1:
-    resolution: {integrity: sha512-Vj9TliHgCsIE21oqWDhrE1E5QALZw1n9QiaZg2EiWPFKSvCSm7lGDycy1OYs3LYhgvmTQDKJestlzVSHJ/YsJw==}
+  /it-reader/5.0.2:
+    resolution: {integrity: sha512-OgcWA/ffAALrkuUN2sQsbKa3of5oOyLvlXJgSCZdn9sSLZ0rnNmtsJ3lP/WEfWJH8aUNs3bfG6ja3QXKcCOwFw==}
+    engines: {node: '>=16.0.0', npm: '>=7.0.0'}
     dependencies:
       it-stream-types: 1.0.4
-      uint8arraylist: 1.5.2
+      uint8arraylist: 1.6.0
     dev: false
 
   /it-sort/1.0.1:
@@ -6962,7 +6963,7 @@ packages:
     resolution: {integrity: sha512-DSKWjAgwaXhtYO5Jo/MrU8n/75I/P2IhxU0Fk/lSrXx6Gxl5DH+I6cHcbGAYFmAlOBmU4QRa0mvVme8VXlDeUg==}
     engines: {node: '>=16.0.0', npm: '>=7.0.0'}
     dependencies:
-      uint8arraylist: 1.5.2
+      uint8arraylist: 1.6.0
       uint8arrays: 3.0.0
     dev: false
 
@@ -7776,8 +7777,8 @@ packages:
     hasBin: true
     dev: true
 
-  /uint8arraylist/1.5.2:
-    resolution: {integrity: sha512-G3Dt7cMiK4d/CLKtJ8RAvw8bOhF6FWA8pTGayyPsMfgSzhuLSgLPxNZpRBHoQAAFpmZT/jznD/Ju0AT0Rlr/KA==}
+  /uint8arraylist/1.6.0:
+    resolution: {integrity: sha512-QOh6SQJQj/eEqQ6NJ8SI9LH875uI2ShcOtWE3Yupci0RaHsZm4oP+mUCJzBzKkp+8gCK7M4l+6Ubvlaimt7CSw==}
     engines: {node: '>=16.0.0', npm: '>=7.0.0'}
     dependencies:
       uint8arrays: 3.0.0
