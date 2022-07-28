@@ -120,7 +120,7 @@ services:
     container_name: flextesa
     restart: always
     image: oxheadalpha/flextesa:20220715
-    command: hangzbox start
+    command: jakartabox start
       --add-bootstrap-account "eve,edpku9qEgcyfNNDK6EpMvu5SqXDqWRLuxdMxdyH12ivTUuB1KXfGP4,tz1eAoFgsys8PhTUvT3V3eq2BFaZp8UsGNsr,unencrypted:edskRkawwQimT7qNaw4g99dKh3ExUt3corurNLUwvYo2vwwAGdy6NK4At1QLEy9Km24TuwCFfr5k97wvDxKBn5iQqTxdvvpdjt@2_000_000_000_000"
       --no-daemons-for=eve
       --add-bootstrap-account "bob,edpkunKYLbEfRLKLtn9yi9avyjQbAAbQxuPVN759ajQEDKpp4RE6GV,tz1MBNfBnNn8fZCJVrrXV95FSgyuUxbmt3Mm,unencrypted:edskRpPWgoNUfJgZRiycPg9539KMX6Ksw5yNVDw2ukds8VEgqXLLuBDrB6dr6m7fgsAZrLMDpPkxN7kRpcNyRzwkPYhoWsBJsZ@2_000_000_000_000"

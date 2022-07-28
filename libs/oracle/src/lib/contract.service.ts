@@ -304,7 +304,6 @@ export class ContractService implements OnModuleInit {
   }
 
   public async sendReportBlockchain(aggregatorAddress: string, report: IAttestedReport): Promise<void> {
-    const oracleSigner = new InMemorySigner(this._config.tezosSecretKey);
     const contractInstance = await (
       await this._txManagerService.getTezosToolkit()
     ).contract.at(aggregatorAddress);
@@ -332,8 +331,6 @@ export class ContractService implements OnModuleInit {
       oracleObservations,
       signatures
     });
-
-    (await this._txManagerService.getTezosToolkit()).setSignerProvider(oracleSigner);
 
     try {
       this._logger.log(`Sending report ${report.epoch}/${report.round} sent to the blockchain!`);
