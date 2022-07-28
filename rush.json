@@ -470,6 +470,10 @@
     {
       "packageName": "@tezosdynamics/contracts",
       "projectFolder": "libs/contracts"
+    },
+    {
+      "packageName": "@tezosdynamics/tx-manager",
+      "projectFolder": "libs/tx-manager"
     }
   ]
 }

@@ -4,7 +4,7 @@ import { InMemorySigner } from '@taquito/signer';
 import { verifySignature } from '@taquito/utils';
 
 import { OracleConfig } from './oracle.config.js';
-import { MichelsonMap, TezosToolkit } from '@taquito/taquito';
+import { MichelsonMap, OpKind } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 import { Schema } from '@taquito/michelson-encoder';
 import {
@@ -21,17 +21,17 @@ import {
 } from './reportgen/reportgen.network.service.js';
 import { toTimestamp } from './helpers.js';
 import { IAggregatorFactoryStorage } from 'src/types/aggregatorFactory.js';
+import { TxManagerService } from '@tezosdynamics/tx-manager';
 
 @Injectable()
 export class ContractService implements OnModuleInit {
   private readonly _logger: Logger = new Logger(ContractService.name);
-  private _tezos: TezosToolkit;
   private _oracleAddresses: MichelsonMap<string, IOracleInformation>;
 
-  public constructor(private readonly _config: OracleConfig) {
-    const { rpcUrl } = this._config;
-    this._tezos = new TezosToolkit(rpcUrl);
-  }
+  public constructor(
+    private readonly _config: OracleConfig,
+    private readonly _txManagerService: TxManagerService
+  ) {}
 
   public async onModuleInit(): Promise<void> {}
 
@@ -42,7 +42,9 @@ export class ContractService implements OnModuleInit {
   }
 
   public async updateOraclesAddressesMap(aggregatorAddress: string): Promise<void> {
-    const contractInstance = await this._tezos.contract.at(aggregatorAddress);
+    const contractInstance = await (
+      await this._txManagerService.getTezosToolkit()
+    ).contract.at(aggregatorAddress);
     const storage: IAggregatorStorage = await contractInstance.storage();
     this._oracleAddresses = storage.oracleAddresses;
   }
@@ -50,7 +52,9 @@ export class ContractService implements OnModuleInit {
   public async getAggregatorFactoryStorage(
     aggregatorFactoryAddress: string
   ): Promise<IAggregatorFactoryStorage> {
-    const contractInstance = await this._tezos.contract.at(aggregatorFactoryAddress);
+    const contractInstance = await (
+      await this._txManagerService.getTezosToolkit()
+    ).contract.at(aggregatorFactoryAddress);
     const storage: IAggregatorFactoryStorage = await contractInstance.storage();
     return storage;
   }
@@ -71,7 +75,9 @@ export class ContractService implements OnModuleInit {
   public async getOraclesAddressesBlockchain(
     aggregatorAddress: string
   ): Promise<MichelsonMap<string, IOracleInformation>> {
-    const contractInstance = await this._tezos.contract.at(aggregatorAddress);
+    const contractInstance = await (
+      await this._txManagerService.getTezosToolkit()
+    ).contract.at(aggregatorAddress);
     const storage: IAggregatorStorage = await contractInstance.storage();
     const oracleAddresses = storage.oracleAddresses;
     return oracleAddresses;
@@ -299,7 +305,9 @@ export class ContractService implements OnModuleInit {
 
   public async sendReportBlockchain(aggregatorAddress: string, report: IAttestedReport): Promise<void> {
     const oracleSigner = new InMemorySigner(this._config.tezosSecretKey);
-    const contractInstance = await this._tezos.contract.at(aggregatorAddress);
+    const contractInstance = await (
+      await this._txManagerService.getTezosToolkit()
+    ).contract.at(aggregatorAddress);
 
     const signatures = new MichelsonMap<string, string>();
     report.signatures.forEach((signature) => {
@@ -325,12 +333,17 @@ export class ContractService implements OnModuleInit {
       signatures
     });
 
-    this._tezos.setSignerProvider(oracleSigner);
+    (await this._txManagerService.getTezosToolkit()).setSignerProvider(oracleSigner);
 
     try {
-      const tx = await op.send();
-      await tx.confirmation();
-      this._logger.log(`Report ${report.epoch}/${report.round} sent to the blockchain!`);
+      this._logger.log(`Sending report ${report.epoch}/${report.round} sent to the blockchain!`);
+      await this._txManagerService.addBatch([
+        {
+          ...op.toTransferParams(),
+          kind: OpKind.TRANSACTION
+        }
+      ]);
+      this._logger.log(`Sent ${report.epoch}/${report.round} sent to the blockchain!`);
     } catch (e) {
       this._logger.error(`Report not sent to the blockchain!`);
       this._logger.error(JSON.stringify(e));
@@ -343,7 +356,9 @@ export class ContractService implements OnModuleInit {
     price: BigNumber;
     time: number;
   }> {
-    const contractInstance = await this._tezos.contract.at(aggregatorAddress);
+    const contractInstance = await (
+      await this._txManagerService.getTezosToolkit()
+    ).contract.at(aggregatorAddress);
     const storage: IAggregatorStorage = await contractInstance.storage();
 
     return {
@@ -359,7 +374,9 @@ export class ContractService implements OnModuleInit {
     decimals: BigNumber;
     alphaPercentPerThousand: BigNumber;
   }> {
-    const contractInstance = await this._tezos.contract.at(aggregatorAddress);
+    const contractInstance = await (
+      await this._txManagerService.getTezosToolkit()
+    ).contract.at(aggregatorAddress);
     const storage: IAggregatorStorage = await contractInstance.storage();
     return {
       heartBeatSeconds: storage.heartBeatSeconds?.toNumber() || 60,
@@ -373,7 +390,7 @@ export class ContractService implements OnModuleInit {
 
   //   const oracle1_signer = new InMemorySigner(accounts[0].sk);
   //   const oracle2_signer = new InMemorySigner(accounts[1].sk);
-  //   const contractInstance = await this._tezos.contract.at(aggregatorAddress);
+  //   const contractInstance = await (await this._txManagerService.getTezosToolkit()).contract.at(aggregatorAddress);
   //   const oracle1_price = new BigNumber(200);
   //   const oracle1_address = accounts[0].pkh;
   //   const oracle2_price = new BigNumber(150);
@@ -427,7 +444,7 @@ export class ContractService implements OnModuleInit {
   //     }
   //   );
 
-  //   this._tezos.setSignerProvider(oracle1_signer);
+  //   (await this._txManagerService.getTezosToolkit()).setSignerProvider(oracle1_signer);
   //   const tx = await op.send();
   //   await tx.confirmation();
 

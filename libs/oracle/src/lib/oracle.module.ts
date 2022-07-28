@@ -15,9 +15,10 @@ import { PacemakerFactoryService } from './pacemaker/pacemaker.factory.service.j
 import { ReportGenFactoryService } from './reportgen/reportgen.factory.service.js';
 import { StreamManagerService } from './stream-manager.service.js';
 import { TransmitService } from './transmit/transmit.service.js';
+import { TxManagerModule } from '@tezosdynamics/tx-manager';
 
 @Module({
-  imports: [HttpModule, ConfigModule.forConfig(OracleConfig)],
+  imports: [HttpModule, ConfigModule.forConfig(OracleConfig), TxManagerModule],
   controllers: [],
   providers: [
     {
