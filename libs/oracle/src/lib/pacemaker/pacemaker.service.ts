@@ -41,9 +41,6 @@ export class PacemakerService {
     private readonly _reportGenFactoryService: ReportGenFactoryService,
     private readonly _pacemakerConfig: IPacemakerConfig
   ) {
-    this._logger.log(
-      `Starting pacemaker service for aggregator at ${this._pacemakerConfig.aggregatorAddress}`
-    );
     this._self = this._config.peerId;
 
     this._eventHubService.addListener('progress', this._onProgressHandler);
@@ -64,13 +61,20 @@ export class PacemakerService {
     const { epoch } = await this._contractService._getLastBlockchainReport(
       this._pacemakerConfig.aggregatorAddress
     );
+
+    this._logger.log(
+      `${this._pacemakerConfig.aggregatorAddress}/${epoch} - Starting pacemaker with epoch from blockchain: ${epoch}`
+    );
+
     this._epochAndLeader = {
       epoch,
       leader: await this.leaderForEpoch(epoch)
     };
     this._newEpoch = epoch;
 
-    const blockchainConfig = await this._contractService._getBlockchainConfig(this._pacemakerConfig.aggregatorAddress);
+    const blockchainConfig = await this._contractService._getBlockchainConfig(
+      this._pacemakerConfig.aggregatorAddress
+    );
 
     this._reportGenFactoryService.startReportGen({
       epoch: this._epochAndLeader.epoch,
@@ -107,7 +111,9 @@ export class PacemakerService {
   }
 
   public async onProgressTimerTimeout(): Promise<void> {
-    this._logger.log(`Progress timer timeout with leader: ${this._epochAndLeader.leader}`);
+    this._logger.log(
+      `${this._pacemakerConfig.aggregatorAddress}/${this._epochAndLeader.epoch} - Progress timer timeout with leader: ${this._epochAndLeader.leader}`
+    );
     this._stopProgressTimer();
     await this.sendNewEpoch(Math.max(this._epochAndLeader.epoch + 1, this._newEpoch));
   }
@@ -155,7 +161,7 @@ export class PacemakerService {
     }
 
     this._logger.log(
-      `Amplification rule passed for epoch ${epoch} on aggregator ${this._pacemakerConfig.aggregatorAddress}`
+      `${this._pacemakerConfig.aggregatorAddress}/${this._epochAndLeader.epoch} - Amplification rule passed for epoch ${epoch}`
     );
 
     await this.sendNewEpoch(Math.max(epoch, this._newEpoch));
@@ -184,7 +190,7 @@ export class PacemakerService {
     }
 
     this._logger.log(
-      `Agreement rule passed for epoch ${epoch} on aggregator ${this._pacemakerConfig.aggregatorAddress}`
+      `${this._pacemakerConfig.aggregatorAddress}/${this._epochAndLeader.epoch} - Agreement rule passed for epoch ${epoch}`
     );
 
     this._epochAndLeader = {

@@ -61,18 +61,22 @@ export class ReportGenLeaderService {
     private readonly _reportgenNetworkService: ReportGenNetworkService,
     private readonly _eventHubService: EventHubService,
     private readonly _contractService: ContractService,
-    private readonly _config: IReportGenConfig
+    private readonly _reportGenConfig: IReportGenConfig
   ) {
-    this._epoch = _config.epoch;
-    this._leader = _config.leader;
-    this._logger.log(`Starting reportgen leader instance for ${this._epoch} with leader ${this._leader}`);
+    this._epoch = _reportGenConfig.epoch;
+    this._leader = _reportGenConfig.leader;
+    this._logger.log(
+      `${this._reportGenConfig.aggregatorAddress}/${this._epoch} Starting reportgen leader instance with leader ${this._leader}`
+    );
     this._reportgenNetworkService.addListener('observe', this._onObserveHandle);
     this._reportgenNetworkService.addListener('report', this._onReportHandle);
     this._eventHubService.addListener('startepoch', this._onStartEpochHandle);
   }
 
   public stop(): void {
-    this._logger.log(`Stopping reportgen leader instance for ${this._epoch} with leader ${this._leader}`);
+    this._logger.log(
+      `${this._reportGenConfig.aggregatorAddress}/${this._epoch} Stopping reportgen leader instance`
+    );
     this._stopGraceTimer();
     this._stopRoundTimer();
     this._reportgenNetworkService.removeListener('observe', this._onObserveHandle);
@@ -97,12 +101,12 @@ export class ReportGenLeaderService {
   ) => this.onStartEpoch(aggregatorAddress, epoch, leader);
 
   public async onStartEpoch(aggregatorAddress: string, epoch: number, leader: string): Promise<void> {
-    if (aggregatorAddress !== this._config.aggregatorAddress) {
+    if (aggregatorAddress !== this._reportGenConfig.aggregatorAddress) {
       return;
     }
     if (this._epoch !== epoch || this._leader !== leader) {
       this._logger.warn(
-        `Epoch/leader mismatch: received ${this._epoch}/${this._leader} at instanciation and ${epoch}/${leader} on startepoch event`
+        `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${this._round} - Epoch/leader mismatch: received ${epoch}/${leader}`
       );
       return;
     }
@@ -119,7 +123,7 @@ export class ReportGenLeaderService {
     this._report = new Map();
     this._phase = Phase.Observe;
     await this._reportgenNetworkService.broadcastObserveReq({
-      aggregatorAddress: this._config.aggregatorAddress,
+      aggregatorAddress: this._reportGenConfig.aggregatorAddress,
       round: this._round
     });
     this._restartRoundTimer();
@@ -127,32 +131,72 @@ export class ReportGenLeaderService {
 
   private async _onObserve(
     from: PeerId,
-    { observation, round, signature, aggregatorAddress }: IObserveMessage
+    { observation, epoch, round, signature, aggregatorAddress }: IObserveMessage
   ): Promise<void> {
-    if (aggregatorAddress !== this._config.aggregatorAddress) {
+    if (aggregatorAddress !== this._reportGenConfig.aggregatorAddress) {
       // Silently ignore messages for other aggregators
       return;
     }
 
-    if (this._oracleConfig.peerId.toString() !== this._leader) {
-      this._logger.warn(`_onObserve: I'm not the leader, discarding observation`);
+    if (epoch !== this._epoch) {
+      this._logger.warn(
+        `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${
+          this._round
+        } - Observation received from ${from.toString()} with wrong epoch (${epoch}), discarding`
+      );
       return;
     }
 
-    if (
-      round !== this._round &&
-      this._observe.get(from.toString()) === undefined &&
-      this._phase !== null &&
-      ![Phase.Observe, Phase.Grace].includes(this._phase)
-    ) {
-      this._logger.warn(`_onObserve: Discarding observation`);
+    if (round !== this._round) {
+      this._logger.warn(
+        `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${
+          this._round
+        } - Observation received from ${from.toString()} with wrong round (${round}), discarding`
+      );
+      return;
+    }
+
+    if (this._oracleConfig.peerId.toString() !== this._leader) {
+      this._logger.warn(
+        `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${this._round} - I'm not the leader, discarding observation`
+      );
+      return;
+    }
+
+    if (this._observe.has(from.toString())) {
+      this._logger.warn(
+        `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${
+          this._round
+        } - Already received observation from ${from.toString()}: ${this._observe.get(
+          from.toString()
+        )}, discarding`
+      );
+      return;
+    }
+
+    if (this._phase === null || ![Phase.Observe, Phase.Grace].includes(this._phase)) {
+      this._logger.warn(
+        `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${
+          this._round
+        } - Observation received from ${from.toString()} during wrong phase (${
+          this._phase
+        }), discarding observation`
+      );
       return;
     }
 
     if (!(await this._verifyObservationSignature(observation, signature, from.publicKey))) {
-      this._logger.warn(`_onObserve: Invalid Signature for node: ${from.publicKey}, discarding observation`);
+      this._logger.warn(
+        `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${this._round} - Invalid Signature for node: ${from.publicKey}, discarding observation`
+      );
       return;
     }
+
+    this._logger.log(
+      `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${
+        this._round
+      } - Saving observation from ${from.toString()}: ${observation}`
+    );
 
     this._observe.set(from.toString(), {
       observation,
@@ -161,8 +205,12 @@ export class ReportGenLeaderService {
 
     const numberOfObservation = [...this._observe.values()].length;
 
-    const f = await this._contractService.getFValue(this._config.aggregatorAddress);
+    const f = await this._contractService.getFValue(this._reportGenConfig.aggregatorAddress);
     if (numberOfObservation === 2 * f + 1) {
+      this._logger.log(
+        `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${this._round} - Enough observations have been collected, starting grace period`
+      );
+
       this._restartGraceTimer();
       this._phase = Phase.Grace;
     }
@@ -173,9 +221,13 @@ export class ReportGenLeaderService {
       return;
     }
 
+    this._logger.log(
+      `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${this._round} - Grace period finished, assembling report`
+    );
+
     const assembledReport = this._assembleReport();
     await this._reportgenNetworkService.broadcastReportReq({
-      aggregatorAddress: this._config.aggregatorAddress,
+      aggregatorAddress: this._reportGenConfig.aggregatorAddress,
       report: assembledReport
     });
     this._phase = Phase.Report;
@@ -185,30 +237,74 @@ export class ReportGenLeaderService {
     from: PeerId,
     { compressedReport, signature, aggregatorAddress }: IReportMessage
   ): Promise<void> {
-    if (aggregatorAddress !== this._config.aggregatorAddress) {
+    if (aggregatorAddress !== this._reportGenConfig.aggregatorAddress) {
       // Silently ignore messages for other aggregators
       return;
     }
 
     if (this._oracleConfig.peerId.toString() !== this._leader) {
-      this._logger.warn(`_onReport: I'm not the leader, discarding report`);
+      this._logger.warn(
+        `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${
+          this._round
+        } - Received report from ${from.toString()}, but I'm not the leader, discarding`
+      );
       return;
     }
 
-    if (
-      compressedReport.round !== this._round &&
-      this._report.get(from.toString()) === undefined &&
-      this._phase !== null &&
-      this._phase !== Phase.Report
-    ) {
-      this._logger.warn(`_onReport: discarding report`);
+    if (compressedReport.epoch !== this._epoch) {
+      this._logger.warn(
+        `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${
+          this._round
+        } - Report received from ${from.toString()} with wrong epoch (${compressedReport.epoch}), discarding`
+      );
+      return;
+    }
+
+    if (compressedReport.round !== this._round) {
+      this._logger.warn(
+        `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${
+          this._round
+        } - Report received from ${from.toString()} with wrong round (${compressedReport.round}), discarding`
+      );
+      return;
+    }
+
+    if (this._report.has(from.toString())) {
+      this._logger.warn(
+        `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${
+          this._round
+        } - Already received report from ${from.toString()}: ${this._observe.get(
+          from.toString()
+        )}, discarding`
+      );
+      return;
+    }
+
+    if (this._phase === null || this._phase !== Phase.Report) {
+      // This should occur very often since we only need f report before transmitting
+
+      this._logger.debug(
+        `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${
+          this._round
+        } - Report received from ${from.toString()} during wrong phase (${this._phase}), discarding`
+      );
       return;
     }
 
     if (!(await this._verifyReportSignature(compressedReport, signature))) {
-      this._logger.warn(`_onReport: signature did not match, discarding report`);
+      this._logger.warn(
+        `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${
+          this._round
+        } - Report from ${from.toString()} signature did not match, discarding report`
+      );
       return;
     }
+
+    this._logger.log(
+      `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${
+        this._round
+      } - Saving report from ${from.toString()}`
+    );
 
     this._report.set(from.toString(), {
       report: compressedReport,
@@ -217,11 +313,18 @@ export class ReportGenLeaderService {
 
     const numberOfReports = [...this._report.values()].length;
 
-    const f = await this._contractService.getFValue(this._config.aggregatorAddress);
-    if (numberOfReports < f) {
-      this._logger.debug(`_onReport: Not enough report yet (got ${numberOfReports}, need ${f})`);
+    const f = await this._contractService.getFValue(this._reportGenConfig.aggregatorAddress);
+
+    if (numberOfReports <= f) {
+      this._logger.debug(
+        `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${this._round} - Not enough report yet (got ${numberOfReports}, need ${f})`
+      );
       return;
     }
+
+    this._logger.log(
+      `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${this._round} - Received enough report, starting final phase`
+    );
 
     const attestedReport: IAttestedReport = {
       epoch: this._epoch,
@@ -231,9 +334,10 @@ export class ReportGenLeaderService {
     };
 
     await this._reportgenNetworkService.broadcastFinal({
-      aggregatorAddress: this._config.aggregatorAddress,
+      aggregatorAddress: this._reportGenConfig.aggregatorAddress,
       attestedReport
     });
+
     this._phase = Phase.Final;
   }
 
@@ -243,7 +347,9 @@ export class ReportGenLeaderService {
     publicKey?: Uint8Array
   ): Promise<boolean> {
     if (publicKey === undefined) {
-      this._logger.warn('_verifyObservationSignature: publicKey undefined');
+      this._logger.warn(
+        `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${this._round} - PublicKey undefined for observation ${observation}`
+      );
       return false;
     }
     return await verifyData(publicKey, new TextEncoder().encode(observation.toString()), signature);
@@ -251,7 +357,7 @@ export class ReportGenLeaderService {
 
   private async _verifyReportSignature(report: ICompressedReport, signature: ISignature): Promise<boolean> {
     return await this._contractService.verifyReportSignature(
-      this._config.aggregatorAddress,
+      this._reportGenConfig.aggregatorAddress,
       report,
       signature
     );
@@ -289,7 +395,7 @@ export class ReportGenLeaderService {
           price: observation.observation,
           signature: observation.signature
         }))
-        .sort((a, b) => a.price.minus(b.price).toNumber())
+        .sort((a, b) => a.oracle.localeCompare(b.oracle))
     };
   }
 }

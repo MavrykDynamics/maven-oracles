@@ -47,9 +47,8 @@ export class TransmitService implements OnModuleInit {
 
   public async onTransmit(aggregatorAddress: string, report: IAttestedReport): Promise<void> {
     const lastBlockchainReport = await this._getLastBlockchainEpochAndRound(aggregatorAddress);
-    this._logger.log(
-      `onTransmit: Received report ${report.epoch}/${report.round} for aggregator address ${aggregatorAddress}`
-    );
+    this._logger.log(`${aggregatorAddress}/${report.epoch}/${report.round} - Treating report`);
+
     if (
       lastBlockchainReport !== null &&
       this._isNewerEpochRound(
@@ -59,9 +58,8 @@ export class TransmitService implements OnModuleInit {
         lastBlockchainReport.round
       )
     ) {
-      this._logger.verbose(
-        `Report on blockchain is more recent than current epoch/round: (current e/r: ${report.epoch}/${report.round}, blockchain e/r: ${lastBlockchainReport?.epoch}/${lastBlockchainReport?.round})
-        }), not transmitting`
+      this._logger.debug(
+        `${aggregatorAddress}/${report.epoch}/${report.round} - Last report on blockchain is more recent than epoch/round: ${lastBlockchainReport?.epoch}/${lastBlockchainReport?.round}, discarding`
       );
       return;
     }
@@ -77,33 +75,40 @@ export class TransmitService implements OnModuleInit {
         lastTransmitedReport.round
       )
     ) {
-      this._logger.verbose(
-        `Last report accepted from transmission is more recent than current epoch/round (current e/r: ${report.epoch}/${report.round}, last e/r: ${lastTransmitedReport.epoch}/ ${lastTransmitedReport.round}) , not transmitting`
+      this._logger.debug(
+        `${aggregatorAddress}/${report.epoch}/${report.round} - Last report accepted from transmission is more recent than epoch/round: ${lastTransmitedReport.epoch}/${lastTransmitedReport.round}, discarding`
       );
       return;
     }
 
     if (lastTransmitedReport === undefined) {
+      this._logger.log(
+        `${aggregatorAddress}/${report.epoch}/${report.round} - This is the first report accepted for transmission, doing transmit`
+      );
       await this.doTransmit(report.epoch, report.round, aggregatorAddress, report);
       return;
     }
 
     const reportMedian = computeMedian(report);
     const previousMedian = computeMedian(lastTransmitedReport.report);
-    const deviation = reportMedian.minus(previousMedian).abs().div(previousMedian.abs());
-    const perThousandThreshold = new BigNumber(3);
+    const deviation = reportMedian.minus(previousMedian).abs().div(previousMedian.abs()).multipliedBy(1000);
+    const perThousandThreshold = new BigNumber(3); // TODO: fetch value from blockchain
 
     this._logger.log(
-      `onTransmit: report ${report.epoch}/${
-        report.round
-      } median: ${reportMedian}, previousMedian: ${previousMedian}. Deviation: ${reportMedian
-        .minus(previousMedian)
-        .abs()
-        .div(previousMedian.abs())}`
+      `${aggregatorAddress}/${report.epoch}/${report.round} - Previous median: ${previousMedian}`
     );
+    this._logger.log(`${aggregatorAddress}/${report.epoch}/${report.round} - Median: ${reportMedian}`);
+    this._logger.log(`${aggregatorAddress}/${report.epoch}/${report.round} - Deviation: ${deviation}‰`);
+
+    if (deviation.gte(perThousandThreshold)) {
+      this._logger.log(
+        `${aggregatorAddress}/${report.epoch}/${report.round} - Deviation is over threshold, doing transmit`
+      );
+      await this.doTransmit(report.epoch, report.round, aggregatorAddress, report);
+      return;
+    }
 
     if (
-      deviation.multipliedBy(1000).gte(perThousandThreshold) ||
       this._isNewerEpochRound(
         lastTransmitedReport.epoch,
         lastTransmitedReport.round,
@@ -111,6 +116,9 @@ export class TransmitService implements OnModuleInit {
         report.round
       )
     ) {
+      this._logger.log(
+        `${aggregatorAddress}/${report.epoch}/${report.round} - Deviation is over threshold, doing transmit`
+      );
       await this.doTransmit(report.epoch, report.round, aggregatorAddress, report);
       return;
     }
@@ -195,13 +203,11 @@ export class TransmitService implements OnModuleInit {
         lastBlockchainReport.round
       )
     ) {
-      this._logger.log(
-        `Transmitting report for e/r ${report.epoch}/${report.round} on aggregator ${aggregatorAddress}`
-      );
+      this._logger.log(`${aggregatorAddress}/${report.epoch}/${report.round} - Sending tx to blockchain`);
       await this._contractService.sendReportBlockchain(aggregatorAddress, report);
     } else {
       this._logger.verbose(
-        `Report on blockchain is more recent than current epoch/round: (current e/r: ${report.epoch}/${report.round}, blockchain e/r: ${lastBlockchainReport?.epoch}/${lastBlockchainReport?.round})
+        `${aggregatorAddress}/${report.epoch}/${report.round} - Report on blockchain is more recent than current epoch/round: ${lastBlockchainReport?.epoch}/${lastBlockchainReport?.round})
         }), not transmitting`
       );
     }

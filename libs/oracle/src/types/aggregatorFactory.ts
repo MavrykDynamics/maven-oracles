@@ -1,4 +1,10 @@
 import { MichelsonMap } from '@taquito/michelson-encoder';
 
-export type PairType = { 0: string; 1: string };
-export type IAggregatorFactoryStorage = MichelsonMap<PairType, string>;
+export interface IPairType {
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  0: string;
+
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  1: string;
+}
+export type IAggregatorFactoryStorage = MichelsonMap<IPairType, string>;

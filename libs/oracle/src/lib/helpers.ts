@@ -24,14 +24,16 @@ export function filterNotNull<T>(ops: (T | null)[]): T[] {
 }
 
 export function computeMedian(report: IAttestedReport | IReport): BigNumber {
-  report.observations.sort((a, b) => {
+  // Copy the array so we do not mutate it with sort()
+  const sortedObservation = [...report.observations].sort((a, b) => {
     return a.price.minus(b.price).toNumber();
   });
-  const half = Math.floor(report.observations.length / 2);
 
-  if (report.observations.length % 2) return report.observations[half].price;
+  const half = Math.floor(sortedObservation.length / 2);
 
-  return report.observations[half - 1].price.plus(report.observations[half].price).dividedBy(2.0);
+  if (sortedObservation.length % 2) return sortedObservation[half].price;
+
+  return sortedObservation[half - 1].price.plus(sortedObservation[half].price).dividedBy(2.0);
 }
 
 export function randomPermutation<T>(array: T[], seed: string): T[] {

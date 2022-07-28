@@ -131,9 +131,9 @@ function check_signature
 
 function verifyAllResponsesSignature(const oracleAddress: address; const oracleSignatures: signature; const oracleObservations: map (address, oracleObservationType); const store: aggregatorStorage): unit is
   if (not check_signature(
-      getOraclePublicKey(oracleAddress, store.oracleAddresses), 
-      oracleSignatures, 
-      Bytes.pack(oracleObservations))) 
+      getOraclePublicKey(oracleAddress, store.oracleAddresses),
+      oracleSignatures,
+      Bytes.pack(oracleObservations)))
       then failwith("wrong signature on observation signatures")
   else unit
 
@@ -144,7 +144,7 @@ function pivotObservationMap (var m : map (address, oracleObservationType)) : pi
     from of map of form:
       oracleAddress -> observationValue
 
-    This is useful to compute the median later since
+    This is useful to compute the median later on
   *)
   var empty : pivotedObservationsType := map [];
   for _key -> value in map m block {
@@ -191,9 +191,9 @@ function verifyInfosFromObservation(const oracleObservations: map (address, orac
 
 
 
-// Main 
+// Main
 
-function verify (var store : aggregatorStorage; const leaderReponse : leaderReponseType) : aggregatorStorage is 
+function verify (var store : aggregatorStorage; const leaderReponse : leaderReponseType) : aggregatorStorage is
   block {
 
     // verify obervations and signatures have the same size
@@ -218,7 +218,7 @@ function verify (var store : aggregatorStorage; const leaderReponse : leaderRepo
   } with (store)
 
 // reset epoch and round - FOR TESTING
-function reset (var store : aggregatorStorage) : aggregatorStorage is 
+function reset (var store : aggregatorStorage) : aggregatorStorage is
   block {
     store.lastResult := record[
       price=0n;
@@ -231,7 +231,7 @@ function reset (var store : aggregatorStorage) : aggregatorStorage is
 
 (* Main access point that dispatches to the entrypoints according to
    the smart contract parameter. *)
-   
+
 function main (const action : parameter; const store : aggregatorStorage) : return is
  ((nil : list (operation)),    // No operations
   case action of [

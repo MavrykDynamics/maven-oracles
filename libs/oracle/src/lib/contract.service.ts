@@ -7,7 +7,12 @@ import { OracleConfig } from './oracle.config.js';
 import { MichelsonMap, TezosToolkit } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 import { Schema } from '@taquito/michelson-encoder';
-import { IAggregatorStorage, IOracleInformation, IOracleInformations, IOracleObservationType } from '../types/aggregators';
+import {
+  IAggregatorStorage,
+  IOracleInformation,
+  IOracleInformations,
+  IOracleObservationType
+} from '../types/aggregators';
 import {
   IAttestedReport,
   ICompressedReport,
@@ -42,18 +47,22 @@ export class ContractService implements OnModuleInit {
     this._oracleAddresses = storage.oracleAddresses;
   }
 
-  public async getAggregatorFactoryStorage(aggregatorFactoryAddress: string): Promise<IAggregatorFactoryStorage> {
+  public async getAggregatorFactoryStorage(
+    aggregatorFactoryAddress: string
+  ): Promise<IAggregatorFactoryStorage> {
     const contractInstance = await this._tezos.contract.at(aggregatorFactoryAddress);
     const storage: IAggregatorFactoryStorage = await contractInstance.storage();
     return storage;
   }
 
-  public async getPairFromAggregatorAddress(aggregatorAddress: string):  Promise<[string, string]>{
-    const factoryStorage: IAggregatorFactoryStorage = await this.getAggregatorFactoryStorage(this._config.aggregatorFactoryAddress);
-    let result: [string, string] = ['','']
-    for (let [key, value] of factoryStorage.entries()) {
-      if (value === aggregatorAddress){
-        result = [key[0],key[1]];
+  public async getPairFromAggregatorAddress(aggregatorAddress: string): Promise<[string, string]> {
+    const factoryStorage: IAggregatorFactoryStorage = await this.getAggregatorFactoryStorage(
+      this._config.aggregatorFactoryAddress
+    );
+    let result: [string, string] = ['', ''];
+    for (const [key, value] of factoryStorage.entries()) {
+      if (value === aggregatorAddress) {
+        result = [key[0], key[1]];
       }
     }
     return result;
@@ -120,7 +129,45 @@ export class ContractService implements OnModuleInit {
       : undefined;
   }
 
-  public async packObservations(
+  public async getOracleInformationsFromPkh(
+    aggregatorAddress: string,
+    pkh: string
+  ): Promise<IOracleInformations | undefined> {
+    const oracleAddresses = await this.getOraclesAddresses(aggregatorAddress);
+
+    const oraclesInfos = [...oracleAddresses.entries()].find(([entryPkh]) => entryPkh === pkh);
+
+    if (oraclesInfos === undefined) {
+      return undefined;
+    }
+
+    return {
+      ...oraclesInfos[1],
+      oracleAddress: pkh
+    };
+  }
+
+  private async _packReport(aggregatorAddress: string, report: IAttestedReport): Promise<string> {
+    const oraclePriceResponsesForPack = new MichelsonMap<string, IOracleObservationType>();
+
+    for (const { oracle, price } of report.observations) {
+      const infos = await this.getOracleInformationsFromPeerId(aggregatorAddress, oracle);
+      if (!infos) {
+        throw new Error(`Cannot pack report, missing oracle address for oracle ${oracle}`);
+      }
+      oraclePriceResponsesForPack.set(infos.oracleAddress, {
+        price,
+        epoch: report.epoch,
+        round: report.round,
+        aggregatorAddress
+      });
+    }
+    const msg = await this._packObservations(oraclePriceResponsesForPack);
+
+    return msg;
+  }
+
+  private async _packObservations(
     oraclePriceResponsesForPack: MichelsonMap<string, IOracleObservationType>
   ): Promise<string> {
     const typeMap: MichelsonType = {
@@ -162,7 +209,7 @@ export class ContractService implements OnModuleInit {
     signer: InMemorySigner
   ): Promise<string> {
     const signature_observations = await signer.sign(
-      await this.packObservations(oraclePriceResponsesForPack)
+      await this._packObservations(oraclePriceResponsesForPack)
     );
     return signature_observations.sig;
   }
@@ -176,7 +223,6 @@ export class ContractService implements OnModuleInit {
   ): Promise<string> {
     const signer = new InMemorySigner(secretKey);
     const oraclePriceResponsesForPack = new MichelsonMap<string, IOracleObservationType>();
-    observations.sort((a, b) => a.oracle.localeCompare(b.oracle));
 
     for (const { oracle, price } of observations) {
       const infos = await this.getOracleInformationsFromPeerId(aggregatorAddress, oracle);
@@ -199,7 +245,7 @@ export class ContractService implements OnModuleInit {
     signature: ISignature
   ): Promise<boolean> {
     const oraclePriceResponsesForPack = new MichelsonMap<string, IOracleObservationType>();
-    report.observations.sort((a, b) => a.oracle.localeCompare(b.oracle));
+
     for (const { oracle, price } of report.observations) {
       const infos = await this.getOracleInformationsFromPeerId(aggregatorAddress, oracle);
       if (!infos) {
@@ -212,54 +258,43 @@ export class ContractService implements OnModuleInit {
         aggregatorAddress
       });
     }
-    const msg = await this.packObservations(oraclePriceResponsesForPack);
+    const packedReport = await this._packObservations(oraclePriceResponsesForPack);
     const infos = await this.getOracleInformationsFromAddressOracle(aggregatorAddress, signature.oracle);
     if (!infos) {
       return false;
     }
-    return verifySignature(msg, infos.oraclePublicKey, signature.signature);
+    return verifySignature(packedReport, infos.oraclePublicKey, signature.signature);
   }
 
+  /**
+   * Verify that the report contains as least f signatures
+   *
+   * @param aggregatorAddress - Address of the aggregator
+   * @param attestedReport - Report with signatures
+   * @param f - Minimum number of trusted oracles
+   * @returns if the report has enough signatures
+   */
   public async verifyAttestedReport(
     aggregatorAddress: string,
-    attestedReport: IAttestedReport
+    attestedReport: IAttestedReport,
+    f: number
   ): Promise<boolean> {
-    const oraclePriceResponsesForPack = new MichelsonMap<string, IOracleObservationType>();
-    for (const { oracle, price } of attestedReport.observations) {
-      const infos = await this.getOracleInformationsFromPeerId(aggregatorAddress, oracle);
-      if (!infos) {
-        return false;
-      }
-      oraclePriceResponsesForPack.set(infos.oracleAddress, {
-        price,
-        epoch: attestedReport.epoch,
-        round: attestedReport.round,
-        aggregatorAddress
-      });
-    }
-    const msg = await this.packObservations(oraclePriceResponsesForPack);
+    const packedReport = await this._packReport(aggregatorAddress, attestedReport);
 
     const signaturesOk = await Promise.all(
-      attestedReport.observations.map(async ({ oracle: peerId }) => {
-        const address = await this.getOracleInformationsFromPeerId(aggregatorAddress, peerId);
-        const result = attestedReport.signatures.find((element) => {
-          return element.oracle === address?.oracleAddress;
-        });
-        if (!result) {
-          this._logger.debug('!result');
+      attestedReport.signatures.map(async ({ oracle: pkh, signature }) => {
+        const address = await this.getOracleInformationsFromPkh(aggregatorAddress, pkh);
+
+        if (!address) {
+          this._logger.warn(`Cannot retrieve oraclePublicKey for ${pkh}`);
           return false;
         }
 
-        const infos = await this.getOracleInformationsFromAddressOracle(aggregatorAddress, result.oracle);
-        if (!infos) {
-          this._logger.debug('!infos');
-          return false;
-        }
-        return verifySignature(msg, infos.oraclePublicKey, result.signature);
+        return verifySignature(packedReport, address.oraclePublicKey, signature);
       })
     );
 
-    return signaturesOk.every((ok) => ok);
+    return signaturesOk.every((ok) => ok) && signaturesOk.length > f;
   }
 
   public async sendReportBlockchain(aggregatorAddress: string, report: IAttestedReport): Promise<void> {
@@ -272,7 +307,6 @@ export class ContractService implements OnModuleInit {
     });
 
     const oracleObservations = new MichelsonMap<string, IOracleObservationType>();
-    report.observations.sort((a, b) => a.oracle.localeCompare(b.oracle));
 
     for (const { oracle, price } of report.observations) {
       const infos = await this.getOracleInformationsFromPeerId(aggregatorAddress, oracle);
@@ -298,8 +332,8 @@ export class ContractService implements OnModuleInit {
       await tx.confirmation();
       this._logger.log(`Report ${report.epoch}/${report.round} sent to the blockchain!`);
     } catch (e) {
-      this._logger.error(`Report NOT send to the blockchain!`);
-      this._logger.debug(`Tezos Error: ${JSON.stringify(e)}`);
+      this._logger.error(`Report not sent to the blockchain!`);
+      this._logger.error(JSON.stringify(e));
     }
   }
 

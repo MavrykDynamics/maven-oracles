@@ -47,7 +47,9 @@ export class ReportGenFollowerService {
     this._epoch = this._reportGenConfig.epoch;
     this._leader = this._reportGenConfig.leader;
 
-    this._logger.log(`Starting reportgen follower instance for ${this._epoch} with leader ${this._leader}`);
+    this._logger.log(
+      `${this._reportGenConfig.aggregatorAddress}/${this._epoch} Starting reportgen follower instance with leader ${this._leader}`
+    );
     this._reportgenNetworkService.addListener('observeReq', this._onObserveReqReceivedHandler);
     this._reportgenNetworkService.addListener('reportReq', this._onReportReqReceivedHandler);
     this._reportgenNetworkService.addListener('final', this._onFinalReceivedHandler);
@@ -55,7 +57,9 @@ export class ReportGenFollowerService {
   }
 
   public stop(): void {
-    this._logger.log(`Stopping reportgen follower instance for ${this._epoch} with leader ${this._leader}`);
+    this._logger.log(
+      `${this._reportGenConfig.aggregatorAddress}/${this._epoch}  Stopping reportgen follower instance`
+    );
     this._reportgenNetworkService.removeListener('observeReq', this._onObserveReqReceivedHandler);
     this._reportgenNetworkService.removeListener('reportReq', this._onReportReqReceivedHandler);
     this._reportgenNetworkService.removeListener('final', this._onFinalReceivedHandler);
@@ -90,12 +94,18 @@ export class ReportGenFollowerService {
 
     if (from.toString() !== this._leader) {
       this._logger.warn(
-        'onObserveReqReceived: Observation request received from someone else than leader, discarding request'
+        `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${
+          this._round
+        } - Observation request received from ${from.toString()}, which is not the leader (${
+          this._leader
+        }), discarding`
       );
       return;
     }
     if (!(this._round < observeReqMessage.round && observeReqMessage.round <= this._roundMax + 1)) {
-      this._logger.warn('onObserveReqReceived: Observation request invalid round number, discarding request');
+      this._logger.warn(
+        `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${this._round} - Observation request invalid round number (${observeReqMessage.round}), discarding request`
+      );
       return;
     }
 
@@ -103,7 +113,7 @@ export class ReportGenFollowerService {
 
     if (this._round > this._roundMax) {
       this._logger.warn(
-        'onObserveReqReceived: Observation request has reached max round number, discarding request'
+        `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${this._round} - Observation request round (${this._round}) is over max round number ${this._roundMax}, discarding request and changing leader`
       );
       this._eventHubService.changeleader(this._reportGenConfig.aggregatorAddress);
       return;
@@ -118,7 +128,9 @@ export class ReportGenFollowerService {
       await this._contractService._getBlockchainConfig(this._reportGenConfig.aggregatorAddress)
     ).decimals;
 
-    const pair: [string, string] = await this._contractService.getPairFromAggregatorAddress(this._reportGenConfig.aggregatorAddress);
+    const pair: [string, string] = await this._contractService.getPairFromAggregatorAddress(
+      this._reportGenConfig.aggregatorAddress
+    );
 
     const observation = await this._priceService.getPrice(decimals, pair);
 
@@ -142,12 +154,17 @@ export class ReportGenFollowerService {
       return;
     }
 
+    // a.oracle.localeCompare(b.oracle)
     const isReportSorted = report.observations.every(
-      (v, i, a) => i === 0 || report.observations[i - 1].price.lte(v.price)
+      (v, i, a) => i === 0 || report.observations[i - 1].oracle.localeCompare(v.oracle) <= 0
     );
 
     if (!isReportSorted) {
-      this._logger.warn('onReportReqReceived: Report is not sorted, discarding report request');
+      this._logger.warn(
+        `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${
+          this._round
+        } - Report received from ${from.toString()} is not sorted, discarding report request`
+      );
       return;
     }
 
@@ -155,7 +172,11 @@ export class ReportGenFollowerService {
 
     const f = await this._contractService.getFValue(this._reportGenConfig.aggregatorAddress);
     if (distinctOracleObservations.length < f * 2 + 1) {
-      this._logger.warn('onReportReqReceived: Report has not enough observation from different oracles');
+      this._logger.warn(
+        `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${
+          this._round
+        } - Report received from ${from.toString()} is has not enough observation from different oracles, discarding`
+      );
       return;
     }
 
@@ -171,7 +192,11 @@ export class ReportGenFollowerService {
     );
 
     if (!signaturesChecks.every((ok) => ok)) {
-      this._logger.warn('onReportReqReceived: Signature check failed');
+      this._logger.warn(
+        `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${
+          this._round
+        } - Report received from ${from.toString()} has signatures that do not match, discarding`
+      );
       return;
     }
 
@@ -202,17 +227,50 @@ export class ReportGenFollowerService {
 
     if (from.toString() !== this._leader) {
       this._logger.warn(
-        'onFinalReceived: Observation request received from someone else than leader, discarding request'
+        `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${
+          this._round
+        } - Final received from ${from.toString()}, which is not the leader (${this._leader}), discarding`
       );
       return;
     }
-    if (attestedReport.round !== this._round || this._sentEcho) {
+
+    if (attestedReport.epoch !== this._epoch) {
+      this._logger.warn(
+        `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${
+          this._round
+        } - Final received from ${from.toString()} with wrong epoch (${attestedReport.epoch}), discarding`
+      );
+      return;
+    }
+
+    if (attestedReport.round !== this._round) {
+      this._logger.warn(
+        `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${
+          this._round
+        } - Final received from ${from.toString()} with wrong round (${attestedReport.round}), discarding`
+      );
+      return;
+    }
+
+    if (this._sentEcho) {
+      this._logger.warn(
+        `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${this._round} - Already sent echo, discarding`
+      );
       return;
     }
 
     if (!(await this._verifyAttestedReport(attestedReport))) {
+      this._logger.warn(
+        `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${
+          this._round
+        } - Report verification for final from ${from.toString()} failed, discarding`
+      );
       return;
     }
+
+    this._logger.log(
+      `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${this._round} - Sending final echo`
+    );
 
     this._sentEcho = attestedReport;
     await this._reportgenNetworkService.broadcastFinalEcho({
@@ -230,22 +288,70 @@ export class ReportGenFollowerService {
       return;
     }
 
-    if (
-      attestedReport.round !== this._round ||
-      this._receivedEcho.get(from.toString()) ||
-      this._completedRound
-    ) {
+    if (attestedReport.epoch !== this._epoch) {
+      this._logger.warn(
+        `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${
+          this._round
+        } - Observation received from ${from.toString()} with wrong epoch (${
+          attestedReport.epoch
+        }), discarding`
+      );
+      return;
+    }
+
+    if (attestedReport.round !== this._round) {
+      this._logger.warn(
+        `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${
+          this._round
+        } - Observation received from ${from.toString()} with wrong round (${
+          attestedReport.round
+        }), discarding`
+      );
+      return;
+    }
+
+    if (this._receivedEcho.has(from.toString())) {
+      this._logger.warn(
+        `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${
+          this._round
+        } - Already received echo from ${from.toString()}, discarding`
+      );
+      return;
+    }
+
+    if (this._completedRound) {
+      this._logger.debug(
+        `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${
+          this._round
+        } - Received echo from ${from.toString()} but round is already completed, discarding`
+      );
       return;
     }
 
     if (!(await this._verifyAttestedReport(attestedReport))) {
+      this._logger.warn(
+        `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${
+          this._round
+        } - Report verification for final echo from ${from.toString()} failed, discarding`
+      );
       return;
     }
+
+    this._logger.log(
+      `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${
+        this._round
+      } - Received final echo from ${from.toString()}`
+    );
 
     this._receivedEcho.set(from.toString(), true);
 
     if (this._sentEcho === null) {
       this._sentEcho = attestedReport;
+
+      this._logger.log(
+        `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${this._round} - Sending final echo`
+      );
+
       await this._reportgenNetworkService.broadcastFinalEcho({
         aggregatorAddress: this._reportGenConfig.aggregatorAddress,
         attestedReport
@@ -255,7 +361,11 @@ export class ReportGenFollowerService {
     const numberOfFinalEchoReceived = [...this._receivedEcho.values()].filter((received) => received).length;
 
     const f = await this._contractService.getFValue(this._reportGenConfig.aggregatorAddress);
+
     if (numberOfFinalEchoReceived > f) {
+      this._logger.log(
+        `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${this._round} - Enough final echo received (${numberOfFinalEchoReceived}), going to transmit`
+      );
       await this._eventHubService.transmit(this._reportGenConfig.aggregatorAddress, attestedReport);
       await this._completeRound();
     }
@@ -302,18 +412,21 @@ export class ReportGenFollowerService {
     }
 
     const reportMedian = computeMedian(report);
+    const deviation = lastReport.price.minus(reportMedian).div(lastReport.price).abs();
 
-    this._logger.log(
-      `_shouldReport: report ${report.epoch}/${report.round} median: ${reportMedian}, previousMedian: ${
-        lastReport.price
-      }. Deviation: ${lastReport.price.minus(reportMedian).div(lastReport.price).abs()}`
+    this._logger.debug(
+      `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${this._round} - Median: ${reportMedian}, previousMedian: ${lastReport.price}. Deviation: ${deviation}`
     );
 
     if (lastReport.price.minus(reportMedian).div(lastReport.price).abs().gt(this._reportGenConfig.alpha)) {
-      this._logger.log(`_shouldReport: will report`);
+      this._logger.log(
+        `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${this._round} - Deviation (${deviation}) is greater than alpha (${this._reportGenConfig.alpha}). Will report`
+      );
       return true;
     }
-    this._logger.log(`_shouldReport: will not report`);
+    this._logger.verbose(
+      `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${this._round} - Deviation (${deviation}) is lower than alpha (${this._reportGenConfig.alpha}). Will not report`
+    );
     return false;
   }
 
@@ -323,9 +436,12 @@ export class ReportGenFollowerService {
   }
 
   private async _verifyAttestedReport(attestedReport: IAttestedReport): Promise<boolean> {
+    const f = await this._contractService.getFValue(this._reportGenConfig.aggregatorAddress);
+
     return await this._contractService.verifyAttestedReport(
       this._reportGenConfig.aggregatorAddress,
-      attestedReport
+      attestedReport,
+      f
     );
   }
 
@@ -335,7 +451,9 @@ export class ReportGenFollowerService {
     publicKey?: Uint8Array
   ): Promise<boolean> {
     if (publicKey === undefined) {
-      this._logger.warn('_verifyObservationSignature: publicKey undefined');
+      this._logger.warn(
+        `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${this._round} - PublicKey undefined for observation ${observation}`
+      );
       return false;
     }
 
