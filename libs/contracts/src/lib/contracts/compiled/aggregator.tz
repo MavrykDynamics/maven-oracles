@@ -16,15 +16,33 @@
            { IF_LEFT
                { DROP ; NOW ; PUSH nat 0 ; PUSH nat 0 ; PUSH nat 0 ; PAIR 4 ; UPDATE 3 }
                { DROP } }
-           { DUP ;
+           { PUSH nat 3 ;
+             PUSH int 1 ;
+             DUP 4 ;
+             CAR ;
+             SIZE ;
+             SUB ;
+             EDIV ;
+             IF_NONE { PUSH string "DIV by 0" ; FAILWITH } {} ;
+             CAR ;
+             DUP ;
+             DUP 3 ;
              CDR ;
              SIZE ;
+             INT ;
+             COMPARE ;
+             LT ;
+             IF { PUSH string "map observations and map signatures should have the same size" ;
+                  FAILWITH }
+                {} ;
+             PUSH int 2 ;
+             MUL ;
              DUP 2 ;
              CAR ;
              SIZE ;
+             INT ;
              COMPARE ;
-             EQ ;
-             NOT ;
+             LT ;
              IF { PUSH string "map observations and map signatures should have the same size" ;
                   FAILWITH }
                 {} ;

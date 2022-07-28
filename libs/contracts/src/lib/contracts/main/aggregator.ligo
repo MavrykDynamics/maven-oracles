@@ -153,10 +153,19 @@ function pivotObservationMap (var m : map (address, oracleObservationType)) : pi
   }
 } with (empty)
 
-function verifyMapsSizes(const leaderReponse : leaderReponseType): unit is
-  if (not (Map.size(leaderReponse.oracleObservations) = Map.size(leaderReponse.signatures)))
+function verifyMapsSizes(const leaderReponse : leaderReponseType; const s: aggregatorStorage): unit is block {
+  const f: int = (Map.size(s.oracleAddresses) - 1) / 3n;
+
+  if (int(Map.size(leaderReponse.signatures)) < f)
       then failwith("map observations and map signatures should have the same size")
-  else unit
+  else skip;
+  if (int(Map.size(leaderReponse.oracleObservations)) < ((2 * f)))
+    then failwith("map observations and map signatures should have the same size")
+  else skip
+} with unit;
+
+
+
 
 function verifyInfosFromObservation(const oracleObservations: map (address, oracleObservationType); const store: aggregatorStorage): (nat * nat) is block {
   var epoch: nat := 0n;
@@ -188,7 +197,7 @@ function verify (var store : aggregatorStorage; const leaderReponse : leaderRepo
   block {
 
     // verify obervations and signatures have the same size
-    verifyMapsSizes(leaderReponse);
+    verifyMapsSizes(leaderReponse, store);
     // verify for each observations -> epoch and round are the same + different from previous
     var epochAndRound: nat*nat := verifyInfosFromObservation(leaderReponse.oracleObservations, store);
 
