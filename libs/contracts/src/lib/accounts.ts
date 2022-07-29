@@ -227,5 +227,6 @@ export const accountPerNetwork: Record<
   'ithacanet-kms': testnetKmsAccounts,
   development: accounts,
   mainnet: testnetAccounts,
+  ghostnet: testnetAccounts,
   hangzhounet: testnetAccounts,
 };

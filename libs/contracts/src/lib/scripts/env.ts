@@ -5,6 +5,7 @@ export type NetworkName =
   | 'ithacanet'
   | 'ithacanet-kms'
   | 'hangzhounet'
+  | 'ghostnet'
   | 'mainnet';
 
 export interface INetwork {
@@ -43,6 +44,13 @@ export const networkConfig: INetworkConfig = {
       secretKey: accountPerNetwork.development.alice.sk,
       pkh: accountPerNetwork.development.alice.pkh,
       port: 8732,
+    },
+    ghostnet: {
+      rpc: 'https://rpc.ghostnet.teztnets.xyz',
+      port: 443,
+      network_id: '*',
+      secretKey: accountPerNetwork.hangzhounet.alice.sk,
+      pkh: accountPerNetwork.hangzhounet.alice.pkh,
     },
     hangzhounet: {
       rpc: 'https://hangzhounet.api.tez.ie/',

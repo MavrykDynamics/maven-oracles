@@ -12,7 +12,7 @@
     "compile": "rushx pre-compile-all && rm -rf ./build && ts-node src/lib/scripts/cli.ts compile -f json -o src/lib/contracts/json ",
     "compile-m1": "rushx pre-compile-all-m1 && rm -rf ./build && ts-node src/lib/scripts/cli.ts compile -f json -o src/lib/contracts/json -m true ",
     "migrate": "rushx compile && ts-node src/lib/scripts/cli.ts migrate",
-    "migrate-testnet": "rushx compile && ts-node src/lib/scripts/cli.ts migrate ithacanet",
+    "migrate-testnet": "rushx compile && ts-node src/lib/scripts/cli.ts migrate ghostnet",
     "migrate-testnet-kms": "rushx compile && ts-node src/lib/scripts/cli.ts migrate ithacanet-kms",
     "migrate-only": "ts-node src/lib/scripts/cli.ts migrate",
     "test-net-deploy": "NODE_ENV=development NETWORK_TO_MIGRATE_TO=hangzhounet ts-mocha --paths test/deploy/00_test_deployments.spec.ts --bail --timeout 900000",
