@@ -636,7 +636,7 @@
                                               "prim": "string"
                                             },
                                             {
-                                              "string": "map observations and map signatures should have the same size"
+                                              "string": "map signatures should have at least f size"
                                             }
                                           ]
                                         },
@@ -682,7 +682,7 @@
                                     "prim": "COMPARE"
                                   },
                                   {
-                                    "prim": "LT"
+                                    "prim": "LE"
                                   },
                                   {
                                     "prim": "IF",
@@ -695,7 +695,7 @@
                                               "prim": "string"
                                             },
                                             {
-                                              "string": "map observations and map signatures should have the same size"
+                                              "string": "map oracleObservations should have at least 2f + 1 size"
                                             }
                                           ]
                                         },
@@ -1163,7 +1163,7 @@
                                               "prim": "string"
                                             },
                                             {
-                                              "string": "epoch should be smaller than previous result"
+                                              "string": "epoch should be greater than previous result"
                                             }
                                           ]
                                         },
@@ -1263,7 +1263,7 @@
                                                           "prim": "string"
                                                         },
                                                         {
-                                                          "string": "round should be smaller than previous result"
+                                                          "string": "round should be greater than previous result"
                                                         }
                                                       ]
                                                     },

@@ -157,10 +157,10 @@ function verifyMapsSizes(const leaderReponse : leaderReponseType; const s: aggre
   const f: int = (Map.size(s.oracleAddresses) - 1) / 3n;
 
   if (int(Map.size(leaderReponse.signatures)) < f)
-      then failwith("map observations and map signatures should have the same size")
+      then failwith("map signatures should have at least f size")
   else skip;
-  if (int(Map.size(leaderReponse.oracleObservations)) < ((2 * f)))
-    then failwith("map observations and map signatures should have the same size")
+  if (int(Map.size(leaderReponse.oracleObservations)) <= (2 * f))
+      then failwith("map oracleObservations should have at least 2f + 1 size")
   else skip
 } with unit;
 
@@ -180,9 +180,9 @@ function verifyInfosFromObservation(const oracleObservations: map (address, orac
       if (not (round = value.round)) then failwith("different round in the observations");
   };
 
-  if (epoch < store.lastResult.epoch) then failwith("epoch should be smaller than previous result")
+  if (epoch < store.lastResult.epoch) then failwith("epoch should be greater than previous result")
   else if (epoch = store.lastResult.epoch) then {
-    if (round <= store.lastResult.epoch) then failwith("round should be smaller than previous result")
+    if (round <= store.lastResult.epoch) then failwith("round should be greater than previous result")
     else skip;
   }
   else skip;

@@ -32,8 +32,7 @@
              INT ;
              COMPARE ;
              LT ;
-             IF { PUSH string "map observations and map signatures should have the same size" ;
-                  FAILWITH }
+             IF { PUSH string "map signatures should have at least f size" ; FAILWITH }
                 {} ;
              PUSH int 2 ;
              MUL ;
@@ -42,8 +41,8 @@
              SIZE ;
              INT ;
              COMPARE ;
-             LT ;
-             IF { PUSH string "map observations and map signatures should have the same size" ;
+             LE ;
+             IF { PUSH string "map oracleObservations should have at least 2f + 1 size" ;
                   FAILWITH }
                 {} ;
              UNIT ;
@@ -107,7 +106,7 @@
              DUP 2 ;
              COMPARE ;
              LT ;
-             IF { PUSH string "epoch should be smaller than previous result" ; FAILWITH }
+             IF { PUSH string "epoch should be greater than previous result" ; FAILWITH }
                 { DUP 4 ;
                   GET 3 ;
                   GET 3 ;
@@ -120,7 +119,7 @@
                        DUP 3 ;
                        COMPARE ;
                        LE ;
-                       IF { PUSH string "round should be smaller than previous result" ; FAILWITH }
+                       IF { PUSH string "round should be greater than previous result" ; FAILWITH }
                           {} }
                      {} } ;
              PAIR ;
