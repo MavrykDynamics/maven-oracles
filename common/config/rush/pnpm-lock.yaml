@@ -35,9 +35,6 @@ importers:
       '@taquito/michel-codec': ~13.0.0
       '@taquito/michelson-encoder': ^12.1.1
       '@taquito/remote-signer': ~13.0.0
-      '@taquito/signer': ^12.1.1
-      '@taquito/taquito': ^12.1.1
-      '@taquito/utils': ~13.0.0
       '@tezosdynamics/oracle': workspace:*
       '@types/cron': ^1.7.3
       '@types/jest': 27.0.2
@@ -94,9 +91,6 @@ importers:
       '@taquito/michel-codec': 13.0.1
       '@taquito/michelson-encoder': 12.1.1
       '@taquito/remote-signer': 13.0.1
-      '@taquito/signer': 12.1.1
-      '@taquito/taquito': 12.1.1
-      '@taquito/utils': 13.0.1
       '@tezosdynamics/oracle': link:../../libs/oracle
       async-mutex: 0.3.2
       axios: 0.27.2
@@ -156,10 +150,7 @@ importers:
       '@nodeutils/defaults-deep': ^1.1.0
       '@rushstack/heft': ^0.45.8
       '@taquito/michel-codec': ~13.0.0
-      '@taquito/michelson-encoder': ^12.1.1
       '@taquito/remote-signer': ~13.0.0
-      '@taquito/signer': ^12.1.1
-      '@taquito/taquito': ^12.1.1
       '@taquito/utils': ~13.0.0
       '@tezosdynamics/oracle': workspace:*
       '@types/cron': ^1.7.3
@@ -211,10 +202,7 @@ importers:
       '@noble/ed25519': 1.6.1
       '@nodeutils/defaults-deep': 1.1.0
       '@taquito/michel-codec': 13.0.1
-      '@taquito/michelson-encoder': 12.1.1
       '@taquito/remote-signer': 13.0.1
-      '@taquito/signer': 12.1.1
-      '@taquito/taquito': 12.1.1
       '@taquito/utils': 13.0.1
       '@tezosdynamics/oracle': link:../../libs/oracle
       async-mutex: 0.3.2
@@ -281,13 +269,13 @@ importers:
       '@nodeutils/defaults-deep': ^1.1.0
       '@rushstack/eslint-config': ~2.6.1
       '@rushstack/heft': ^0.45.8
-      '@taquito/michel-codec': ~13.0.0
-      '@taquito/michelson-encoder': ^12.1.1
-      '@taquito/remote-signer': ~13.0.0
-      '@taquito/rpc': ~13.0.0
-      '@taquito/signer': ^12.1.1
-      '@taquito/taquito': ^12.1.1
-      '@taquito/utils': ~13.0.0
+      '@taquito/michel-codec': ^13.0.1
+      '@taquito/michelson-encoder': ^13.0.1
+      '@taquito/remote-signer': ^13.0.1
+      '@taquito/rpc': ^13.0.1
+      '@taquito/signer': ^13.0.1
+      '@taquito/taquito': ^13.0.1
+      '@taquito/utils': ^13.0.1
       '@types/cron': ^1.7.3
       '@types/heap': ~0.2.31
       '@types/jest': 27.0.2
@@ -354,11 +342,11 @@ importers:
       '@noble/ed25519': 1.6.1
       '@nodeutils/defaults-deep': 1.1.0
       '@taquito/michel-codec': 13.0.1
-      '@taquito/michelson-encoder': 12.1.1
+      '@taquito/michelson-encoder': 13.0.1
       '@taquito/remote-signer': 13.0.1
       '@taquito/rpc': 13.0.1
-      '@taquito/signer': 12.1.1
-      '@taquito/taquito': 12.1.1
+      '@taquito/signer': 13.0.1
+      '@taquito/taquito': 13.0.1
       '@taquito/utils': 13.0.1
       async-mutex: 0.3.2
       axios: 0.27.2
@@ -436,12 +424,12 @@ importers:
       '@nodeutils/defaults-deep': ^1.1.0
       '@rushstack/eslint-config': ~2.6.1
       '@rushstack/heft': ^0.45.8
-      '@taquito/michel-codec': ~13.0.0
-      '@taquito/michelson-encoder': ^12.1.1
-      '@taquito/remote-signer': ~13.0.0
-      '@taquito/signer': ^12.1.1
-      '@taquito/taquito': ^12.1.1
-      '@taquito/utils': ~13.0.0
+      '@taquito/michel-codec': ^13.0.1
+      '@taquito/michelson-encoder': ^13.0.1
+      '@taquito/remote-signer': ^13.0.1
+      '@taquito/signer': ^13.0.1
+      '@taquito/taquito': ^13.0.1
+      '@taquito/utils': ^13.0.1
       '@tezosdynamics/tx-manager': workspace:*
       '@types/cron': ^1.7.3
       '@types/heap': ~0.2.31
@@ -509,10 +497,10 @@ importers:
       '@noble/ed25519': 1.6.1
       '@nodeutils/defaults-deep': 1.1.0
       '@taquito/michel-codec': 13.0.1
-      '@taquito/michelson-encoder': 12.1.1
+      '@taquito/michelson-encoder': 13.0.1
       '@taquito/remote-signer': 13.0.1
-      '@taquito/signer': 12.1.1
-      '@taquito/taquito': 12.1.1
+      '@taquito/signer': 13.0.1
+      '@taquito/taquito': 13.0.1
       '@taquito/utils': 13.0.1
       '@tezosdynamics/tx-manager': link:../tx-manager
       abortable-iterator: 4.0.2
@@ -567,8 +555,8 @@ importers:
       '@nestjs/schedule': ^1.0.2
       '@rushstack/eslint-config': ~2.6.1
       '@rushstack/heft': ^0.45.8
-      '@taquito/signer': ^12.1.1
-      '@taquito/taquito': ^12.1.1
+      '@taquito/signer': ^13.0.1
+      '@taquito/taquito': ^13.0.1
       '@types/node': ^16.11.7
       '@typescript-eslint/eslint-plugin': ~5.10.0
       '@typescript-eslint/parser': ~5.10.0
@@ -589,8 +577,8 @@ importers:
     dependencies:
       '@nestjs/common': 8.4.7_rxjs@7.5.6
       '@nestjs/schedule': 1.1.0_@nestjs+common@8.4.7
-      '@taquito/signer': 12.1.1
-      '@taquito/taquito': 12.1.1
+      '@taquito/signer': 13.0.1
+      '@taquito/taquito': 13.0.1
       async-mutex: 0.3.2
       cron: 2.1.0
       rxjs: 7.5.6
@@ -2720,25 +2708,12 @@ packages:
       - debug
     dev: false
 
-  /@taquito/local-forging/12.1.1:
-    resolution: {integrity: sha512-SUA1YYRIpEGsTy5OfUIgIem0k/QsAzGjDCvf/wl5XV/fVBkP/+GN7uvYoqgJblCmsgtsMBhJFtXgs+D6bjGexg==}
-    engines: {node: '>=6.0.0'}
-    dependencies:
-      '@taquito/utils': 12.1.1
-      bignumber.js: 9.0.2
-    dev: false
-
   /@taquito/local-forging/13.0.1:
     resolution: {integrity: sha512-2n1ryUzHBIOHiQYRO7ELQaurjoNhJ3KUUcX0dAnFs3xVxUBugHgDPot+T+1rNZDdLVhTS6mmK796xrWDGnO6xw==}
     engines: {node: '>=6.0.0'}
     dependencies:
       '@taquito/utils': 13.0.1
       bignumber.js: 9.0.2
-    dev: false
-
-  /@taquito/michel-codec/12.1.1:
-    resolution: {integrity: sha512-BAig8YyLyRW5kxV/r0S191W+SvYuiTRJpgSp5IsgCDLAOh+d4/xq6IgU3PuGJgokQDstZdTbjpkrgRCnufR8lw==}
-    engines: {node: '>=6.0.0'}
     dev: false
 
   /@taquito/michel-codec/13.0.1:
@@ -2806,35 +2781,18 @@ packages:
       - debug
     dev: false
 
-  /@taquito/signer/12.1.1:
-    resolution: {integrity: sha512-TONxIbLs7bgmB3TTzcTOYzL8pFLZFBujHDHjB5QHJY5DT+lpByjYZHk2Frqjcy3NDvENVLU6uXeCeba2LK8kwA==}
+  /@taquito/signer/13.0.1:
+    resolution: {integrity: sha512-3C7DTC5u6jqA83kUGghEDEDJtwCNNmw0KIF+u6EdQ55YRxLDf8XBp8/voG3i+0HvU3MPqfg0CIvCUHbr8MO0Og==}
     engines: {node: '>=6.0.0'}
     dependencies:
       '@stablelib/blake2b': 1.0.1
       '@stablelib/ed25519': 1.0.2
       '@stablelib/nacl': 1.0.3
-      '@taquito/taquito': 12.1.1
-      '@taquito/utils': 12.1.1
+      '@taquito/taquito': 13.0.1
+      '@taquito/utils': 13.0.1
       elliptic: 6.5.4
       pbkdf2: 3.1.2
       typedarray-to-buffer: 4.0.0
-    transitivePeerDependencies:
-      - debug
-    dev: false
-
-  /@taquito/taquito/12.1.1:
-    resolution: {integrity: sha512-HvbtClQ7isrDd17X/LEKkPzzeVYA8EMUem3qrkl9qvDO6FpJx/QLbUpYfT2PC0pLUkSrzdLGzmESHAOZhcksaw==}
-    engines: {node: '>=6.0.0'}
-    requiresBuild: true
-    dependencies:
-      '@taquito/http-utils': 12.1.1
-      '@taquito/local-forging': 12.1.1
-      '@taquito/michel-codec': 12.1.1
-      '@taquito/michelson-encoder': 12.1.1
-      '@taquito/rpc': 12.1.1
-      '@taquito/utils': 12.1.1
-      bignumber.js: 9.0.2
-      rxjs: 6.6.7
     transitivePeerDependencies:
       - debug
     dev: false

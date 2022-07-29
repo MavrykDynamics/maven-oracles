@@ -23,7 +23,7 @@ services:
   #      - './libs:/home/node/libs'
 
   elastic:
-    image: ghcr.io/baking-bad/bcdhub-elastic:latest
+    image: ghcr.io/baking-bad/bcdhub-elastic:master
     restart: always
     volumes:
       - esdata:/usr/share/elasticsearch/data
@@ -45,7 +45,7 @@ services:
     environment:
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=root
-      - POSTGRES_DB=indexer
+      - POSTGRES_DB=bcd
       - PGDATA=/var/lib/postgresql/data/pgdata
     volumes:
       - db:/var/lib/postgresql/data
@@ -55,7 +55,7 @@ services:
 
   api:
     restart: always
-    image: ghcr.io/baking-bad/bcdhub-api:latest
+    image: ghcr.io/baking-bad/bcdhub-api:master
     environment:
       - BCD_ENV=sandbox
       - GIN_MODE=debug
@@ -78,7 +78,7 @@ services:
 
   indexer:
     restart: always
-    image: ghcr.io/baking-bad/bcdhub-indexer:latest
+    image: ghcr.io/baking-bad/bcdhub-indexer:master
     environment:
       - BCD_ENV=sandbox
       - POSTGRES_USER=root
@@ -98,7 +98,7 @@ services:
 
   metrics:
     restart: always
-    image: ghcr.io/baking-bad/bcdhub-metrics:latest
+    image: ghcr.io/baking-bad/bcdhub-metrics:master
     environment:
       - BCD_ENV=sandbox
       - POSTGRES_USER=root
@@ -121,10 +121,8 @@ services:
     restart: always
     image: oxheadalpha/flextesa:20220715
     command: jakartabox start
-      --add-bootstrap-account "eve,edpku9qEgcyfNNDK6EpMvu5SqXDqWRLuxdMxdyH12ivTUuB1KXfGP4,tz1eAoFgsys8PhTUvT3V3eq2BFaZp8UsGNsr,unencrypted:edskRkawwQimT7qNaw4g99dKh3ExUt3corurNLUwvYo2vwwAGdy6NK4At1QLEy9Km24TuwCFfr5k97wvDxKBn5iQqTxdvvpdjt@2_000_000_000_000"
+      --add-bootstrap-account "eve,edpku9qEgcyfNNDK6EpMvu5SqXDqWRLuxdMxdyH12ivTUuB1KXfGP4,tz1MnmtP4uAcgMpeZN6JtyziXeFqqwQG6yn6,unencrypted:edsk3Sb16jcx9KrgMDsbZDmKnuN11v4AbTtPBgBSBTqYftd8Cq3i1e@2_000_000_000_000"
       --no-daemons-for=eve
-      --add-bootstrap-account "bob,edpkunKYLbEfRLKLtn9yi9avyjQbAAbQxuPVN759ajQEDKpp4RE6GV,tz1MBNfBnNn8fZCJVrrXV95FSgyuUxbmt3Mm,unencrypted:edskRpPWgoNUfJgZRiycPg9539KMX6Ksw5yNVDw2ukds8VEgqXLLuBDrB6dr6m7fgsAZrLMDpPkxN7kRpcNyRzwkPYhoWsBJsZ@2_000_000_000_000"
-      --no-daemons-for=bob
       --add-bootstrap-account "mallory,edpkuVjyKad7yCnNrCbGea7hi5Zh1zp5Cb1TvxUmnxC33fwKhq7daN,tz1PSmvRd3ySbh5aviFEMYGD6542LL5QnrMk,unencrypted:edskRzrnZoreVanzsedvSDgWV1DkNycfjMXyri9LQLVYdXTXJrxNHzdtpouGJTQ1CrQiWK6ECvHCpoYfQ2LM7j8GjJdkjqrsLE@2_000_000_000_000"
       --no-daemons-for=mallory
       --add-bootstrap-account "oscar,edpku7vkvS6XaWzFjmPDYULNyYrS7Rf1vHuoQ9FD8zVcaFNJ51bJ82,tz1KrELvNVY4xKnujkXwrVLWuzWJEg9FvA8v,unencrypted:edskRjjhoUjvSZ2eGgGpvcMk6SrtpajjkzGUXDpr2EAa25VTfdtNSoD1JLhEoEnotYR6ZtRC2bCk56kwf79eqgygrMeR145ENq@2_000_000_000_000"
@@ -148,7 +146,7 @@ services:
   gui:
     container_name: sandbox-gui
     restart: always
-    image: ghcr.io/baking-bad/bcdhub-gui:latest
+    image: ghcr.io/baking-bad/bcdhub-gui:master
     depends_on:
       - api
     ports:
@@ -186,8 +184,8 @@ services:
       - P2P_PEER_ID=12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1
       - P2P_PEER_PUBLIC_KEY=CAESIH+cTTTZ4gyqjEsn4L17gs9BTYU1ZeAnrBbUqQQQ9uW2
       - P2P_PEER_PRIVATE_KEY=CAESQENvWXyvlXtuw58TMrMF45ffJUza23h8zHSvssitueRgf5xNNNniDKqMSyfgvXuCz0FNhTVl4CesFtSpBBD25bY=
-      - TEZOS_ADDRESS=tz1eAoFgsys8PhTUvT3V3eq2BFaZp8UsGNsr
-      - TEZOS_SECRET_KEY=edskRkawwQimT7qNaw4g99dKh3ExUt3corurNLUwvYo2vwwAGdy6NK4At1QLEy9Km24TuwCFfr5k97wvDxKBn5iQqTxdvvpdjt
+      - TEZOS_ADDRESS=tz1MnmtP4uAcgMpeZN6JtyziXeFqqwQG6yn6
+      - TEZOS_SECRET_KEY=edsk3Sb16jcx9KrgMDsbZDmKnuN11v4AbTtPBgBSBTqYftd8Cq3i1e
       - ALPHAVANTAGE_API_KEY=LOKAGZEB6UK7JJWS
       - MESSARI_API_KEY=7a4ace98-90a6-4792-81ad-5364afc6698d
       - RPC_URL=http://flextesa:20000

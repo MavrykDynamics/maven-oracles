@@ -245,8 +245,8 @@ STORAGE:
 
 record [
   oracleAddresses=map[
-    ("tz1eAoFgsys8PhTUvT3V3eq2BFaZp8UsGNsr":address) -> record[
-        oraclePublicKey=("edpkv9DgHWm6HY6b35Mv77hgZcWrJVD4ADebp9RjYxXVmFvGs4VYi1" : key);
+    ("tz1MnmtP4uAcgMpeZN6JtyziXeFqqwQG6yn6":address) -> record[
+        oraclePublicKey=("edpku9qEgcyfNNDK6EpMvu5SqXDqWRLuxdMxdyH12ivTUuB1KXfGP4" : key);
         oraclePeerId=("12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1" : string);
         ];
 
@@ -299,8 +299,8 @@ record [
 (*
 record [
   oracleAddresses=map[
-    ("tz1eAoFgsys8PhTUvT3V3eq2BFaZp8UsGNsr":address) -> record[
-        oraclePublicKey=("edpkv9DgHWm6HY6b35Mv77hgZcWrJVD4ADebp9RjYxXVmFvGs4VYi1" : key);
+    ("tz1MnmtP4uAcgMpeZN6JtyziXeFqqwQG6yn6":address) -> record[
+        oraclePublicKey=("edpku9qEgcyfNNDK6EpMvu5SqXDqWRLuxdMxdyH12ivTUuB1KXfGP4" : key);
         oraclePeerId=("12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1" : string);
         ];
 

@@ -11,8 +11,8 @@
   "type": "module",
   "dependencies": {
     "@nestjs/common": "^8.0.0",
-    "@taquito/signer": "^12.1.1",
-    "@taquito/taquito": "^12.1.1",
+    "@taquito/signer": "^13.0.1",
+    "@taquito/taquito": "^13.0.1",
     "@nestjs/schedule": "^1.0.2",
     "async-mutex": "^0.3.2",
     "cron": "^2.1.0",
