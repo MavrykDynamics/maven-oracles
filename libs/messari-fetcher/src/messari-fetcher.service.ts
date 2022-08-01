@@ -3,18 +3,18 @@ import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import { AxiosResponse } from 'axios';
 import BigNumber from 'bignumber.js';
-import { OracleConfig } from './oracle.config.js';
-
-export interface IPriceFetcher {
-  getPrice([pair1, pair2]: [string, string]): Promise<BigNumber>;
-}
+import { MessariFetcherConfig } from './messari-fetcher.config.js';
+import { IPriceFetcher } from '@tezosdynamics/price-fetcher';
 
 @Injectable()
 export class MessariFetcherService implements IPriceFetcher {
   private readonly _logger: Logger = new Logger(MessariFetcherService.name);
   private readonly _baseUrl: string = 'https://data.messari.io/api/v1';
 
-  public constructor(private readonly _httpService: HttpService, private readonly _config: OracleConfig) {
+  public constructor(
+    private readonly _httpService: HttpService,
+    private readonly _config: MessariFetcherConfig
+  ) {
     if (_config.messariApiKey === '') {
       this._logger.warn(
         'No Messari API key set. You may hit the api request limit. Set the MESSARI_API_KEY env variable with your API Key'

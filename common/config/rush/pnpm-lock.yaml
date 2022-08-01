@@ -35,6 +35,7 @@ importers:
       '@taquito/michel-codec': ~13.0.0
       '@taquito/michelson-encoder': ^12.1.1
       '@taquito/remote-signer': ~13.0.0
+      '@tezosdynamics/config': workspace:*
       '@tezosdynamics/oracle': workspace:*
       '@types/cron': ^1.7.3
       '@types/jest': 27.0.2
@@ -91,6 +92,7 @@ importers:
       '@taquito/michel-codec': 13.0.1
       '@taquito/michelson-encoder': 12.1.1
       '@taquito/remote-signer': 13.0.1
+      '@tezosdynamics/config': link:../../libs/config
       '@tezosdynamics/oracle': link:../../libs/oracle
       async-mutex: 0.3.2
       axios: 0.27.2
@@ -238,6 +240,147 @@ importers:
       typescript: 4.5.5
       webpack-merge: 5.8.0
       webpack-node-externals: 3.0.0
+
+  ../../libs/alphavantage-fetcher:
+    specifiers:
+      '@nestjs/axios': ^0.1.0
+      '@nestjs/common': ^8.0.0
+      '@rushstack/eslint-config': ~2.6.1
+      '@rushstack/heft': ^0.45.8
+      '@tezosdynamics/config': workspace:*
+      '@tezosdynamics/price-fetcher': workspace:*
+      '@types/node': ^16.11.7
+      '@typescript-eslint/eslint-plugin': ~5.10.0
+      '@typescript-eslint/parser': ~5.10.0
+      axios: ^0.27.2
+      bignumber.js: ^9.0.2
+      eslint: ~8.7.0
+      eslint-config-prettier: 8.1.0
+      eslint-plugin-jest: ~26.2
+      jest: 27.2.3
+      prettier: ^2.5.1
+      rimraf: ^3.0.2
+      rxjs: ^7.0.0
+      ts-convict: ^1.1.0
+      ts-jest: 27.0.5
+      ts-node: ^10.7.0
+      tslib: ^2.0.0
+      typescript: ~4.5.2
+    dependencies:
+      '@nestjs/axios': 0.1.0_@nestjs+common@8.4.7+rxjs@7.5.6
+      '@nestjs/common': 8.4.7_rxjs@7.5.6
+      '@tezosdynamics/config': link:../config
+      '@tezosdynamics/price-fetcher': link:../price-fetcher
+      axios: 0.27.2
+      bignumber.js: 9.0.2
+      rxjs: 7.5.6
+      ts-convict: 1.1.0
+      tslib: 2.4.0
+    devDependencies:
+      '@rushstack/eslint-config': 2.6.2_eslint@8.7.0+typescript@4.5.5
+      '@rushstack/heft': 0.45.14
+      '@types/node': 16.11.46
+      '@typescript-eslint/eslint-plugin': 5.10.2_61711575dd6de0ced61e0bccc6181943
+      '@typescript-eslint/parser': 5.10.2_eslint@8.7.0+typescript@4.5.5
+      eslint: 8.7.0
+      eslint-config-prettier: 8.1.0_eslint@8.7.0
+      eslint-plugin-jest: 26.2.2_6f473d6617fc3565de101781db5c888c
+      jest: 27.2.3_ts-node@10.9.1
+      prettier: 2.7.1
+      rimraf: 3.0.2
+      ts-jest: 27.0.5_jest@27.2.3+typescript@4.5.5
+      ts-node: 10.9.1_d9e9a48e93f30d503d8d8b9310aca55e
+      typescript: 4.5.5
+
+  ../../libs/coingecko-fetcher:
+    specifiers:
+      '@nestjs/axios': ^0.1.0
+      '@nestjs/common': ^8.0.0
+      '@rushstack/eslint-config': ~2.6.1
+      '@rushstack/heft': ^0.45.8
+      '@tezosdynamics/config': workspace:*
+      '@tezosdynamics/price-fetcher': workspace:*
+      '@types/node': ^16.11.7
+      '@typescript-eslint/eslint-plugin': ~5.10.0
+      '@typescript-eslint/parser': ~5.10.0
+      axios: ^0.27.2
+      bignumber.js: ^9.0.2
+      eslint: ~8.7.0
+      eslint-config-prettier: 8.1.0
+      eslint-plugin-jest: ~26.2
+      jest: 27.2.3
+      prettier: ^2.5.1
+      rimraf: ^3.0.2
+      rxjs: ^7.0.0
+      ts-convict: ^1.1.0
+      ts-jest: 27.0.5
+      ts-node: ^10.7.0
+      tslib: ^2.0.0
+      typescript: ~4.5.2
+    dependencies:
+      '@nestjs/axios': 0.1.0_@nestjs+common@8.4.7+rxjs@7.5.6
+      '@nestjs/common': 8.4.7_rxjs@7.5.6
+      '@tezosdynamics/config': link:../config
+      '@tezosdynamics/price-fetcher': link:../price-fetcher
+      axios: 0.27.2
+      bignumber.js: 9.0.2
+      rxjs: 7.5.6
+      ts-convict: 1.1.0
+      tslib: 2.4.0
+    devDependencies:
+      '@rushstack/eslint-config': 2.6.2_eslint@8.7.0+typescript@4.5.5
+      '@rushstack/heft': 0.45.14
+      '@types/node': 16.11.46
+      '@typescript-eslint/eslint-plugin': 5.10.2_61711575dd6de0ced61e0bccc6181943
+      '@typescript-eslint/parser': 5.10.2_eslint@8.7.0+typescript@4.5.5
+      eslint: 8.7.0
+      eslint-config-prettier: 8.1.0_eslint@8.7.0
+      eslint-plugin-jest: 26.2.2_6f473d6617fc3565de101781db5c888c
+      jest: 27.2.3_ts-node@10.9.1
+      prettier: 2.7.1
+      rimraf: 3.0.2
+      ts-jest: 27.0.5_jest@27.2.3+typescript@4.5.5
+      ts-node: 10.9.1_d9e9a48e93f30d503d8d8b9310aca55e
+      typescript: 4.5.5
+
+  ../../libs/config:
+    specifiers:
+      '@nestjs/common': ^8.0.0
+      '@rushstack/eslint-config': ~2.6.1
+      '@rushstack/heft': ^0.45.8
+      '@types/node': ^16.11.7
+      '@typescript-eslint/eslint-plugin': ~5.10.0
+      '@typescript-eslint/parser': ~5.10.0
+      eslint: ~8.7.0
+      eslint-config-prettier: 8.1.0
+      eslint-plugin-jest: ~26.2
+      jest: 27.2.3
+      prettier: ^2.5.1
+      rimraf: ^3.0.2
+      ts-convict: ^1.1.0
+      ts-jest: 27.0.5
+      ts-node: ^10.7.0
+      tslib: ^2.0.0
+      typescript: ~4.5.2
+    dependencies:
+      '@nestjs/common': 8.4.7
+      ts-convict: 1.1.0
+      tslib: 2.4.0
+    devDependencies:
+      '@rushstack/eslint-config': 2.6.2_eslint@8.7.0+typescript@4.5.5
+      '@rushstack/heft': 0.45.14
+      '@types/node': 16.11.46
+      '@typescript-eslint/eslint-plugin': 5.10.2_61711575dd6de0ced61e0bccc6181943
+      '@typescript-eslint/parser': 5.10.2_eslint@8.7.0+typescript@4.5.5
+      eslint: 8.7.0
+      eslint-config-prettier: 8.1.0_eslint@8.7.0
+      eslint-plugin-jest: 26.2.2_6f473d6617fc3565de101781db5c888c
+      jest: 27.2.3_ts-node@10.9.1
+      prettier: 2.7.1
+      rimraf: 3.0.2
+      ts-jest: 27.0.5_jest@27.2.3+typescript@4.5.5
+      ts-node: 10.9.1_d9e9a48e93f30d503d8d8b9310aca55e
+      typescript: 4.5.5
 
   ../../libs/contracts:
     specifiers:
@@ -394,6 +537,57 @@ importers:
       webpack-merge: 5.8.0
       webpack-node-externals: 3.0.0
 
+  ../../libs/messari-fetcher:
+    specifiers:
+      '@nestjs/axios': ^0.1.0
+      '@nestjs/common': ^8.0.0
+      '@rushstack/eslint-config': ~2.6.1
+      '@rushstack/heft': ^0.45.8
+      '@tezosdynamics/config': workspace:*
+      '@tezosdynamics/price-fetcher': workspace:*
+      '@types/node': ^16.11.7
+      '@typescript-eslint/eslint-plugin': ~5.10.0
+      '@typescript-eslint/parser': ~5.10.0
+      axios: ^0.27.2
+      bignumber.js: ^9.0.2
+      eslint: ~8.7.0
+      eslint-config-prettier: 8.1.0
+      eslint-plugin-jest: ~26.2
+      jest: 27.2.3
+      prettier: ^2.5.1
+      rimraf: ^3.0.2
+      rxjs: ^7.0.0
+      ts-convict: ^1.1.0
+      ts-jest: 27.0.5
+      ts-node: ^10.7.0
+      tslib: ^2.0.0
+      typescript: ~4.5.2
+    dependencies:
+      '@nestjs/axios': 0.1.0_@nestjs+common@8.4.7+rxjs@7.5.6
+      '@nestjs/common': 8.4.7_rxjs@7.5.6
+      '@tezosdynamics/config': link:../config
+      '@tezosdynamics/price-fetcher': link:../price-fetcher
+      axios: 0.27.2
+      bignumber.js: 9.0.2
+      rxjs: 7.5.6
+      ts-convict: 1.1.0
+      tslib: 2.4.0
+    devDependencies:
+      '@rushstack/eslint-config': 2.6.2_eslint@8.7.0+typescript@4.5.5
+      '@rushstack/heft': 0.45.14
+      '@types/node': 16.11.46
+      '@typescript-eslint/eslint-plugin': 5.10.2_61711575dd6de0ced61e0bccc6181943
+      '@typescript-eslint/parser': 5.10.2_eslint@8.7.0+typescript@4.5.5
+      eslint: 8.7.0
+      eslint-config-prettier: 8.1.0_eslint@8.7.0
+      eslint-plugin-jest: 26.2.2_6f473d6617fc3565de101781db5c888c
+      jest: 27.2.3_ts-node@10.9.1
+      prettier: 2.7.1
+      rimraf: 3.0.2
+      ts-jest: 27.0.5_jest@27.2.3+typescript@4.5.5
+      ts-node: 10.9.1_d9e9a48e93f30d503d8d8b9310aca55e
+      typescript: 4.5.5
+
   ../../libs/oracle:
     specifiers:
       '@chainsafe/libp2p-gossipsub': ^3.1.0
@@ -430,6 +624,11 @@ importers:
       '@taquito/signer': ^13.0.1
       '@taquito/taquito': ^13.0.1
       '@taquito/utils': ^13.0.1
+      '@tezosdynamics/alphavantage-fetcher': workspace:*
+      '@tezosdynamics/coingecko-fetcher': workspace:*
+      '@tezosdynamics/config': workspace:*
+      '@tezosdynamics/messari-fetcher': workspace:*
+      '@tezosdynamics/price-fetcher': workspace:*
       '@tezosdynamics/tx-manager': workspace:*
       '@types/cron': ^1.7.3
       '@types/heap': ~0.2.31
@@ -502,6 +701,11 @@ importers:
       '@taquito/signer': 13.0.1
       '@taquito/taquito': 13.0.1
       '@taquito/utils': 13.0.1
+      '@tezosdynamics/alphavantage-fetcher': link:../alphavantage-fetcher
+      '@tezosdynamics/coingecko-fetcher': link:../coingecko-fetcher
+      '@tezosdynamics/config': link:../config
+      '@tezosdynamics/messari-fetcher': link:../messari-fetcher
+      '@tezosdynamics/price-fetcher': link:../price-fetcher
       '@tezosdynamics/tx-manager': link:../tx-manager
       abortable-iterator: 4.0.2
       async-mutex: 0.3.2
@@ -549,6 +753,47 @@ importers:
       webpack-merge: 5.8.0
       webpack-node-externals: 3.0.0
 
+  ../../libs/price-fetcher:
+    specifiers:
+      '@nestjs/common': ^8.0.0
+      '@rushstack/eslint-config': ~2.6.1
+      '@rushstack/heft': ^0.45.8
+      '@types/node': ^16.11.7
+      '@typescript-eslint/eslint-plugin': ~5.10.0
+      '@typescript-eslint/parser': ~5.10.0
+      bignumber.js: ^9.0.2
+      eslint: ~8.7.0
+      eslint-config-prettier: 8.1.0
+      eslint-plugin-jest: ~26.2
+      jest: 27.2.3
+      prettier: ^2.5.1
+      rimraf: ^3.0.2
+      ts-convict: ^1.1.0
+      ts-jest: 27.0.5
+      ts-node: ^10.7.0
+      tslib: ^2.0.0
+      typescript: ~4.5.2
+    dependencies:
+      '@nestjs/common': 8.4.7
+      bignumber.js: 9.0.2
+      ts-convict: 1.1.0
+      tslib: 2.4.0
+    devDependencies:
+      '@rushstack/eslint-config': 2.6.2_eslint@8.7.0+typescript@4.5.5
+      '@rushstack/heft': 0.45.14
+      '@types/node': 16.11.46
+      '@typescript-eslint/eslint-plugin': 5.10.2_61711575dd6de0ced61e0bccc6181943
+      '@typescript-eslint/parser': 5.10.2_eslint@8.7.0+typescript@4.5.5
+      eslint: 8.7.0
+      eslint-config-prettier: 8.1.0_eslint@8.7.0
+      eslint-plugin-jest: 26.2.2_6f473d6617fc3565de101781db5c888c
+      jest: 27.2.3_ts-node@10.9.1
+      prettier: 2.7.1
+      rimraf: 3.0.2
+      ts-jest: 27.0.5_jest@27.2.3+typescript@4.5.5
+      ts-node: 10.9.1_d9e9a48e93f30d503d8d8b9310aca55e
+      typescript: 4.5.5
+
   ../../libs/tx-manager:
     specifiers:
       '@nestjs/common': ^8.0.0
@@ -557,6 +802,7 @@ importers:
       '@rushstack/heft': ^0.45.8
       '@taquito/signer': ^13.0.1
       '@taquito/taquito': ^13.0.1
+      '@tezosdynamics/config': workspace:*
       '@types/node': ^16.11.7
       '@typescript-eslint/eslint-plugin': ~5.10.0
       '@typescript-eslint/parser': ~5.10.0
@@ -579,6 +825,7 @@ importers:
       '@nestjs/schedule': 1.1.0_@nestjs+common@8.4.7
       '@taquito/signer': 13.0.1
       '@taquito/taquito': 13.0.1
+      '@tezosdynamics/config': link:../config
       async-mutex: 0.3.2
       cron: 2.1.0
       rxjs: 7.5.6
@@ -2188,6 +2435,44 @@ packages:
       axios: 0.26.0
       reflect-metadata: 0.1.13
       rxjs: 7.5.6
+    transitivePeerDependencies:
+      - debug
+    dev: false
+
+  /@nestjs/axios/0.1.0_@nestjs+common@8.4.7+rxjs@7.5.6:
+    resolution: {integrity: sha512-b2TT2X6BFbnNoeteiaxCIiHaFcSbVW+S5yygYqiIq5i6H77yIU3IVuLdpQkHq8/EqOWFwMopLN8jdkUT71Am9w==}
+    peerDependencies:
+      '@nestjs/common': ^7.0.0 || ^8.0.0 || ^9.0.0
+      reflect-metadata: ^0.1.12
+      rxjs: ^6.0.0 || ^7.0.0
+    dependencies:
+      '@nestjs/common': 8.4.7_rxjs@7.5.6
+      axios: 0.27.2
+      rxjs: 7.5.6
+    transitivePeerDependencies:
+      - debug
+    dev: false
+
+  /@nestjs/common/8.4.7:
+    resolution: {integrity: sha512-m/YsbcBal+gA5CFrDpqXqsSfylo+DIQrkFY3qhVIltsYRfu8ct8J9pqsTO6OPf3mvqdOpFGrV5sBjoyAzOBvsw==}
+    peerDependencies:
+      cache-manager: '*'
+      class-transformer: '*'
+      class-validator: '*'
+      reflect-metadata: ^0.1.12
+      rxjs: ^7.1.0
+    peerDependenciesMeta:
+      cache-manager:
+        optional: true
+      class-transformer:
+        optional: true
+      class-validator:
+        optional: true
+    dependencies:
+      axios: 0.27.2
+      iterare: 1.2.1
+      tslib: 2.4.0
+      uuid: 8.3.2
     transitivePeerDependencies:
       - debug
     dev: false

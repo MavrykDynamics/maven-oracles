@@ -46,14 +46,14 @@ export class OracleConfig {
   @Property({
     default: '',
     env: 'AGGREGATOR_FACTORY_SMART_CONTRACT_ADDRESS',
-    format: String,
+    format: String
   })
   public aggregatorFactoryAddress: string;
 
   @Property({
     default: '',
     env: 'AGGREGATOR_FACTORY_PAIRS',
-    format: String,
+    format: String
   })
   public aggregatorFactoryPairs: string;
 
@@ -84,34 +84,6 @@ export class OracleConfig {
     format: String
   })
   public tezosAddress: string;
-
-  @Property({
-    default: '',
-    env: 'MESSARI_API_KEY',
-    format: String
-  })
-  public messariApiKey: string;
-
-  @Property({
-    default: '',
-    env: 'COINGECKO_API_KEY',
-    format: String
-  })
-  public coingeckoApiKey: string;
-
-  @Property({
-    default: '',
-    env: 'ALPHAVANTAGE_API_KEY',
-    format: String
-  })
-  public alphavantageApiKey: string;
-
-  @Property({
-    default: 1,
-    env: 'ALPHAVANTAGE_INTERVAL',
-    format: Number
-  })
-  public alphavantageInterval: number;
 
   @Property({
     default: true,

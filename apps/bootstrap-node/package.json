@@ -35,6 +35,7 @@
     "@taquito/michel-codec": "~13.0.0",
     "@taquito/michelson-encoder": "^12.1.1",
     "@taquito/remote-signer": "~13.0.0",
+    "@tezosdynamics/config": "workspace:*",
     "@tezosdynamics/oracle": "workspace:*",
     "async-mutex": "^0.3.2",
     "axios": "~0.27.2",

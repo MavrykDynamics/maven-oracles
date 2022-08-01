@@ -3,8 +3,8 @@ import { AxiosResponse } from 'axios';
 import { firstValueFrom } from 'rxjs';
 import { HttpService } from '@nestjs/axios';
 import BigNumber from 'bignumber.js';
-import { IPriceFetcher } from './messari-fetcher.service';
-import { OracleConfig } from './oracle.config.js';
+import { CoingeckoFetcherConfig } from './coingecko-fetcher.config.js';
+import { IPriceFetcher } from '@tezosdynamics/price-fetcher';
 
 @Injectable()
 export class CoingeckoFetcherService implements IPriceFetcher, OnModuleInit {
@@ -16,7 +16,7 @@ export class CoingeckoFetcherService implements IPriceFetcher, OnModuleInit {
 
   public constructor(
     private readonly _httpService: HttpService,
-    private readonly _config: OracleConfig
+    private readonly _config: CoingeckoFetcherConfig
   ) {
     if (_config.coingeckoApiKey === '') {
       this._logger.warn(
@@ -71,14 +71,11 @@ export class CoingeckoFetcherService implements IPriceFetcher, OnModuleInit {
   private async _updateSupportedVsCurrenciesSet(): Promise<void> {
     let response: AxiosResponse;
     try {
-      const response$ = this._httpService.get(
-        `${this._baseUrl}/simple/supported_vs_currencies`,
-        {
-          //headers: {
-          //  'x-messari-api-key': this.config.messariApiKey,
-          //},
-        }
-      );
+      const response$ = this._httpService.get(`${this._baseUrl}/simple/supported_vs_currencies`, {
+        //headers: {
+        //  'x-messari-api-key': this.config.messariApiKey,
+        //},
+      });
 
       response = await firstValueFrom(response$);
     } catch (e) {
@@ -99,9 +96,7 @@ export class CoingeckoFetcherService implements IPriceFetcher, OnModuleInit {
       this._supportedVsCurrencies.add(supportedVsCurrency);
     }
 
-    this._logger.verbose(
-      `Fetched ${this._supportedVsCurrencies.size} supported vs currencies`
-    );
+    this._logger.verbose(`Fetched ${this._supportedVsCurrencies.size} supported vs currencies`);
   }
 
   public async getPrice([pair1, pair2]: [string, string]): Promise<BigNumber> {
@@ -123,8 +118,8 @@ export class CoingeckoFetcherService implements IPriceFetcher, OnModuleInit {
       const response$ = this._httpService.get(`${this._baseUrl}/simple/price`, {
         params: {
           ids: this._symbolToId.get(coin),
-          vs_currencies: vsCurrency,
-        },
+          vs_currencies: vsCurrency
+        }
         //headers: {
         //  'x-messari-api-key': this.config.messariApiKey,
         //},

@@ -474,6 +474,26 @@
     {
       "packageName": "@tezosdynamics/tx-manager",
       "projectFolder": "libs/tx-manager"
+    },
+    {
+      "packageName": "@tezosdynamics/price-fetcher",
+      "projectFolder": "libs/price-fetcher"
+    },
+    {
+      "packageName": "@tezosdynamics/alphavantage-fetcher",
+      "projectFolder": "libs/alphavantage-fetcher"
+    },
+    {
+      "packageName": "@tezosdynamics/coingecko-fetcher",
+      "projectFolder": "libs/coingecko-fetcher"
+    },
+    {
+      "packageName": "@tezosdynamics/messari-fetcher",
+      "projectFolder": "libs/messari-fetcher"
+    },
+    {
+      "packageName": "@tezosdynamics/config",
+      "projectFolder": "libs/config"
     }
   ]
 }

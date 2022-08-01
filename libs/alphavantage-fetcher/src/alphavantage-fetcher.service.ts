@@ -3,15 +3,18 @@ import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import { AxiosResponse } from 'axios';
 import BigNumber from 'bignumber.js';
-import { OracleConfig } from './oracle.config.js';
-import { IPriceFetcher } from './messari-fetcher.service.js';
+import { AlphavantageFetcherConfig } from './alphavantage-fetcher.config.js';
+import { IPriceFetcher } from '@tezosdynamics/price-fetcher';
 
 @Injectable()
 export class AlphavantageFetcherService implements IPriceFetcher {
   private readonly _logger: Logger = new Logger(AlphavantageFetcherService.name);
   private readonly _baseUrl: string = 'https://www.alphavantage.co/query?function=CRYPTO_INTRADAY';
 
-  public constructor(private readonly _httpService: HttpService, private readonly _config: OracleConfig) {
+  public constructor(
+    private readonly _httpService: HttpService,
+    private readonly _config: AlphavantageFetcherConfig
+  ) {
     if (_config.alphavantageApiKey === '') {
       this._logger.warn(
         'No Alphavantage API key set. You may hit the api request limit. Set the MESSARI_API_KEY env variable with your API Key'

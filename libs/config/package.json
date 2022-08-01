@@ -1,25 +1,18 @@
 {
-  "name": "@tezosdynamics/tx-manager",
+  "name": "@tezosdynamics/config",
   "version": "0.0.1",
   "license": "MIT",
   "scripts": {
     "build": "heft build --clean",
     "build:watch": "heft build"
   },
-  "main": "dist/libs/tx-manager/src/index.js",
-  "typings": "dist/libs/tx-manager/src/index.d.ts",
+  "main": "dist/libs/config/src/index.js",
+  "typings": "dist/libs/config/src/index.d.ts",
   "type": "module",
   "dependencies": {
     "@nestjs/common": "^8.0.0",
-    "@taquito/signer": "^13.0.1",
-    "@taquito/taquito": "^13.0.1",
-    "@nestjs/schedule": "^1.0.2",
-    "async-mutex": "^0.3.2",
-    "cron": "^2.1.0",
-    "rxjs": "^7.5.6",
     "ts-convict": "^1.1.0",
-    "tslib": "^2.0.0",
-    "@tezosdynamics/config": "workspace:*"
+    "tslib": "^2.0.0"
   },
   "devDependencies": {
     "@rushstack/heft": "^0.45.8",
