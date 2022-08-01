@@ -1,1 +1,1 @@
-export * from './lib/contracts.module.js';
+export * from './lib';

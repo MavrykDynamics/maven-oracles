@@ -7,7 +7,7 @@ import { Bootstrap } from '@libp2p/bootstrap';
 import { KadDHT } from '@libp2p/kad-dht';
 import { OracleConfig } from './oracle.config.js';
 import { createFromJSON } from '@libp2p/peer-id-factory';
-import { ContractService } from './contract.service.js';
+import { ContractService } from './contract/index.js';
 import { TCP } from '@libp2p/tcp';
 import { Transport } from '@libp2p/interface-transport';
 import { Libp2pNode } from 'libp2p/dist/src/libp2p.js';

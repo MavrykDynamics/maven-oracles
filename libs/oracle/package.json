@@ -42,6 +42,7 @@
     "@taquito/utils": "^13.0.1",
     "@tezosdynamics/tx-manager": "workspace:*",
     "@tezosdynamics/config": "workspace:*",
+    "@tezosdynamics/contracts": "workspace:*",
     "@tezosdynamics/price-fetcher": "workspace:*",
     "@tezosdynamics/alphavantage-fetcher": "workspace:*",
     "@tezosdynamics/coingecko-fetcher": "workspace:*",

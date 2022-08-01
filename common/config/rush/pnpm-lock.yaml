@@ -627,6 +627,7 @@ importers:
       '@tezosdynamics/alphavantage-fetcher': workspace:*
       '@tezosdynamics/coingecko-fetcher': workspace:*
       '@tezosdynamics/config': workspace:*
+      '@tezosdynamics/contracts': workspace:*
       '@tezosdynamics/messari-fetcher': workspace:*
       '@tezosdynamics/price-fetcher': workspace:*
       '@tezosdynamics/tx-manager': workspace:*
@@ -704,6 +705,7 @@ importers:
       '@tezosdynamics/alphavantage-fetcher': link:../alphavantage-fetcher
       '@tezosdynamics/coingecko-fetcher': link:../coingecko-fetcher
       '@tezosdynamics/config': link:../config
+      '@tezosdynamics/contracts': link:../contracts
       '@tezosdynamics/messari-fetcher': link:../messari-fetcher
       '@tezosdynamics/price-fetcher': link:../price-fetcher
       '@tezosdynamics/tx-manager': link:../tx-manager

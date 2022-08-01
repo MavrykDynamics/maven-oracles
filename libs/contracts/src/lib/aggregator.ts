@@ -24,25 +24,48 @@ export type AggregatorConfigType = {
 };
 
 export type OracleLastResultType = {
-  price : BigNumber;
-  epoch : BigNumber;
-  round : BigNumber;
-  time : string;
+  price: BigNumber;
+  epoch: BigNumber;
+  round: BigNumber;
+  time: string;
 };
-export type AggregatorStorage = {
-  oracleAddresses: MichelsonMap<string, string>;
-  lastResult  : OracleLastResultType;
-  heartBeatSeconds : BigNumber;
-  alphaPercentPerThousand : BigNumber;
-  decimals : BigNumber;
+
+export interface IOracleInformation {
+  oraclePublicKey: string;
+  oraclePeerId: string;
+}
+
+export interface IOracleLastResultType {
+  price: BigNumber;
+  epoch: BigNumber;
+  round: BigNumber;
+  time: string;
+}
+
+export interface IOracleObservationType {
+  price: BigNumber;
+  epoch: number;
+  round: number;
+  aggregatorAddress: string;
+}
+
+export interface IOracleInformations {
+  oracleAddress: string;
+  oraclePublicKey: string;
+  oraclePeerId: string;
+}
+
+export type IAggregatorStorage = {
+  oracleAddresses: MichelsonMap<string, IOracleInformation>;
+  lastResult: OracleLastResultType;
+  heartBeatSeconds: BigNumber;
+  alphaPercentPerThousand: BigNumber;
+  decimals: BigNumber;
 };
 
 type AggregatorContractMethods<T extends ContractProvider | Wallet> = {
   requestRateUpdate: () => ContractMethod<T>;
-  requestRateUpdateDeviation: (
-    round: BigNumber,
-    sign: string
-  ) => ContractMethod<T>;
+  requestRateUpdateDeviation: (round: BigNumber, sign: string) => ContractMethod<T>;
   default: () => ContractMethod<T>;
   addOracle: (oracleAddress: string) => ContractMethod<T>;
   removeOracle: (oracleAddress: string) => ContractMethod<T>;
@@ -67,8 +90,10 @@ type AggregatorContractMethods<T extends ContractProvider | Wallet> = {
   withdrawRewardMVK: (address: string) => ContractMethod<T>;
 };
 
-type AggregatorContractMethodObject<T extends ContractProvider | Wallet> =
-  Record<string, (...args: unknown[]) => ContractMethodObject<T>>;
+type AggregatorContractMethodObject<T extends ContractProvider | Wallet> = Record<
+  string,
+  (...args: unknown[]) => ContractMethodObject<T>
+>;
 
 type AggregatorViews = Record<string, (...args: unknown[]) => ContractView>;
 
@@ -76,13 +101,11 @@ type AggregatorOnChainViews = {
   decimals: () => OnChainView;
 };
 
-export type AggregatorContractAbstraction<
-  T extends ContractProvider | Wallet = any
-> = ContractAbstraction<
+export type AggregatorContractAbstraction<T extends ContractProvider | Wallet = any> = ContractAbstraction<
   T,
   AggregatorContractMethods<T>,
   AggregatorContractMethodObject<T>,
   AggregatorViews,
   AggregatorOnChainViews,
-  AggregatorStorage
+  IAggregatorStorage
 >;

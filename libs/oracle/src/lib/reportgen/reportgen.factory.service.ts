@@ -3,10 +3,10 @@ import { ReportGenNetworkService } from './reportgen.network.service.js';
 import { ReportGenFollowerService } from './reportgen.follower.service.js';
 import { ReportGenLeaderService } from './reportgen.leader.service.js';
 import { OracleConfig } from '../oracle.config.js';
-import { EventHubService } from '../eventhub.service.js';
-import { ContractService } from '../contract.service.js';
+import { EventHubService } from '../event-hub/index.js';
+import { ContractService } from '../contract/contract.service.js';
 import { IReportGenConfig } from './reportgen.config.js';
-import { PriceService } from '../price.service.js';
+import { PriceService } from '../price/price.service.js';
 
 @Injectable()
 export class ReportGenFactoryService {

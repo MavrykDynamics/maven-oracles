@@ -1,11 +1,11 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { OracleConfig } from '../oracle.config.js';
-import { EventHubService } from '../eventhub.service.js';
-import { ContractService } from '../contract.service.js';
-import { IAttestedReport } from '../reportgen/reportgen.network.service.js';
+import { EventHubService } from '../event-hub/index.js';
+import { ContractService } from '../contract/contract.service.js';
+import { computeMedian, IAttestedReport } from '../reportgen/index.js';
 import { default as Heap } from 'heap';
 import BigNumber from 'bignumber.js';
-import { computeMedian, randomPermutation } from '../helpers.js';
+import { randomPermutation } from './helpers.js';
 
 @Injectable()
 export class TransmitService implements OnModuleInit {
@@ -236,6 +236,6 @@ export class TransmitService implements OnModuleInit {
     round: number;
     price: BigNumber;
   } | null> {
-    return await this._contractService._getLastBlockchainReport(aggregatorAddress);
+    return await this._contractService.getLastBlockchainReport(aggregatorAddress);
   }
 }

@@ -3,25 +3,20 @@ import { MichelsonType, packDataBytes } from '@taquito/michel-codec';
 import { InMemorySigner } from '@taquito/signer';
 import { verifySignature } from '@taquito/utils';
 
-import { OracleConfig } from './oracle.config.js';
+import { OracleConfig } from '../oracle.config.js';
 import { MichelsonMap, OpKind } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 import { Schema } from '@taquito/michelson-encoder';
+import { IAttestedReport, ICompressedReport, IObservation, ISignature } from '../reportgen';
+import { toTimestamp } from './helpers.js';
+import { TxManagerService } from '@tezosdynamics/tx-manager';
 import {
+  IAggregatorFactoryStorage,
   IAggregatorStorage,
   IOracleInformation,
   IOracleInformations,
   IOracleObservationType
-} from '../types/aggregators';
-import {
-  IAttestedReport,
-  ICompressedReport,
-  IObservation,
-  ISignature
-} from './reportgen/reportgen.network.service.js';
-import { toTimestamp } from './helpers.js';
-import { IAggregatorFactoryStorage } from 'src/types/aggregatorFactory.js';
-import { TxManagerService } from '@tezosdynamics/tx-manager';
+} from '@tezosdynamics/contracts';
 
 @Injectable()
 export class ContractService implements OnModuleInit {
@@ -57,19 +52,6 @@ export class ContractService implements OnModuleInit {
     ).contract.at(aggregatorFactoryAddress);
     const storage: IAggregatorFactoryStorage = await contractInstance.storage();
     return storage;
-  }
-
-  public async getPairFromAggregatorAddress(aggregatorAddress: string): Promise<[string, string]> {
-    const factoryStorage: IAggregatorFactoryStorage = await this.getAggregatorFactoryStorage(
-      this._config.aggregatorFactoryAddress
-    );
-    let result: [string, string] = ['', ''];
-    for (const [key, value] of factoryStorage.entries()) {
-      if (value === aggregatorAddress) {
-        result = [key[0], key[1]];
-      }
-    }
-    return result;
   }
 
   public async getOraclesAddressesBlockchain(
@@ -347,7 +329,7 @@ export class ContractService implements OnModuleInit {
     }
   }
 
-  public async _getLastBlockchainReport(aggregatorAddress: string): Promise<{
+  public async getLastBlockchainReport(aggregatorAddress: string): Promise<{
     epoch: number;
     round: number;
     price: BigNumber;
@@ -366,7 +348,7 @@ export class ContractService implements OnModuleInit {
     };
   }
 
-  public async _getBlockchainConfig(aggregatorAddress: string): Promise<{
+  public async getBlockchainConfig(aggregatorAddress: string): Promise<{
     heartBeatSeconds: number;
     decimals: BigNumber;
     alphaPercentPerThousand: BigNumber;
@@ -381,70 +363,4 @@ export class ContractService implements OnModuleInit {
       alphaPercentPerThousand: storage.alphaPercentPerThousand.div(1000)
     };
   }
-
-  // public async runVerify(): Promise<any> {
-  //   const { aggregatorAddress } = this._config;
-
-  //   const oracle1_signer = new InMemorySigner(accounts[0].sk);
-  //   const oracle2_signer = new InMemorySigner(accounts[1].sk);
-  //   const contractInstance = await (await this._txManagerService.getTezosToolkit()).contract.at(aggregatorAddress);
-  //   const oracle1_price = new BigNumber(200);
-  //   const oracle1_address = accounts[0].pkh;
-  //   const oracle2_price = new BigNumber(150);
-  //   const oracle2_address = accounts[1].pkh;
-
-  //   const observations = [{
-  //     oracle: oracle1_address,
-  //     price: oracle1_price
-  //   },{
-  //     oracle: oracle2_address,
-  //     price: oracle2_price
-  //   }]
-  //   const oraclePriceResponsesForPack = new MichelsonMap<string, IOracleObservationType>();
-  //   observations.sort((a, b) => a.oracle.localeCompare(b.oracle))
-  //   const round = 1;
-  //   const epoch= 1;
-  //   for (const { oracle, price } of observations) {
-  //     oraclePriceResponsesForPack.set(oracle, {
-  //       price,
-  //       epoch,
-  //       round
-  //     });
-  //   }
-
-  //   const signature1 = await this.signOraclePriceResponses(oraclePriceResponsesForPack, oracle1_signer);
-  //   const signature2 = await this.signOraclePriceResponses(oraclePriceResponsesForPack, oracle2_signer);
-  //   const signatureList = [{
-  //     oracle: oracle1_address,
-  //     signature: signature1
-  //   },{
-  //     oracle: oracle2_address,
-  //     signature: signature2
-  //   }];
-
-  //   const oracleObservations = new MichelsonMap<string, IOracleObservationType>();
-  //   observations.sort((a, b) => a.oracle.localeCompare(b.oracle))
-  //   for (const { oracle, price } of observations) {
-  //     oracleObservations.set(oracle, {
-  //       price, epoch, round});
-  //   };
-
-  //   const signatures = new MichelsonMap<string, string>();
-  //   signatureList.forEach((signature_) => {
-  //     signatures.set(signature_.oracle, signature_.signature);
-  //   });
-
-  //   const op = contractInstance.methodsObject.verify(
-  //     {
-  //       oracleObservations,
-  //       signatures
-  //     }
-  //   );
-
-  //   (await this._txManagerService.getTezosToolkit()).setSignerProvider(oracle1_signer);
-  //   const tx = await op.send();
-  //   await tx.confirmation();
-
-  //   const after_storage: AggregatorStorage = await contractInstance.storage();
-  // }
 }

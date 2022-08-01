@@ -1,8 +1,8 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { OracleConfig } from '../oracle.config.js';
 import { PacemakerNetworkService } from './pacemaker.network.service.js';
-import { EventHubService } from '../eventhub.service.js';
-import { ContractService } from '../contract.service.js';
+import { EventHubService } from '../event-hub/event-hub.service.js';
+import { ContractService } from '../contract/contract.service.js';
 import { PacemakerService } from './pacemaker.service.js';
 import { IPacemakerConfig } from './pacemaker.config.js';
 import { ReportGenFactoryService } from '../reportgen/reportgen.factory.service.js';
@@ -20,16 +20,13 @@ export class PacemakerFactoryService implements OnModuleInit {
   ) {}
 
   public async onModuleInit(): Promise<void> {
-    const { aggregatorFactoryAddress, aggregatorFactoryPairs } = this._oracleConfig;
-    const aggregatorFactoryPairsArray: string[] = aggregatorFactoryPairs.split(' ');
+    const { aggregatorFactoryAddress } = this._oracleConfig;
     const factoryStorage = await this._contractService.getAggregatorFactoryStorage(aggregatorFactoryAddress);
-    for (const pair of aggregatorFactoryPairsArray) {
-      const pairArray = pair.split('/');
 
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      const aggregatorAddress = factoryStorage.get({ 0: pairArray[0], 1: pairArray[1] }) as string;
+    for (const [pair, aggregatorAddress] of factoryStorage.entries()) {
       await this.startPacemaker({
-        aggregatorAddress
+        aggregatorAddress,
+        aggregatorPair: [pair['0'], pair['1']]
       });
     }
   }

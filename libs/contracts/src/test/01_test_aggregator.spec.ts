@@ -3,8 +3,8 @@ import { MichelsonMap } from '@taquito/michelson-encoder';
 import {
   AggregatorFactoryCode,
   AggregatorFactoryContractAbstraction,
-  AggregatorFactoryStorage,
-  PairType
+  IAggregatorFactoryStorage,
+  IPair
 } from '../lib/aggregatorFactory';
 import { alphaPercentPerThousand, decimals, heartBeatSeconds, oracleAddresses } from '../lib/accounts';
 import { networkConfig } from '../lib/scripts/env';
@@ -26,7 +26,7 @@ describe('Create Aggregator Factory', () => {
     });
   });
   it('should deploy', async () => {
-    const aggregatorFactoryStorage: AggregatorFactoryStorage = MichelsonMap.fromLiteral({}) as MichelsonMap<
+    const aggregatorFactoryStorage: IAggregatorFactoryStorage = MichelsonMap.fromLiteral({}) as MichelsonMap<
       { 0: string; 1: string },
       string
     >;
@@ -43,7 +43,7 @@ describe('Create Aggregator Factory', () => {
   });
 
   it('should create an aggregator', async () => {
-    const pairs: PairType[] = [{ 0: 'USD', 1: 'BTC' }];
+    const pairs: IPair[] = [{ 0: 'USD', 1: 'BTC' }];
 
     for (const pair of pairs) {
       const aggregatorFactory = await toolkit.contract.at<AggregatorFactoryContractAbstraction>(
@@ -63,7 +63,7 @@ describe('Create Aggregator Factory', () => {
 
       await createAggregator1Op.confirmation();
 
-      const storage: AggregatorFactoryStorage = await aggregatorFactory.storage();
+      const storage: IAggregatorFactoryStorage = await aggregatorFactory.storage();
       expect(storage.size).to.equal(1);
       console.log(`Aggregator creation done for pair: ${pair[0]}/${pair[1]}`);
     }

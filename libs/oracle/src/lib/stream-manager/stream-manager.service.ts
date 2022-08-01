@@ -1,75 +1,12 @@
 import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
 
 import { Stream } from '@libp2p/interface-connection';
-import { abortableSource } from 'abortable-iterator';
 import { pipe } from 'it-pipe';
-import { pushable, Pushable } from 'it-pushable';
-import { decode, encode } from 'it-length-prefixed';
 import { PeerId } from '@libp2p/interface-peer-id';
-import { NodeService } from './node.service.js';
-
+import { NodeService } from '../node.service.js';
 import { Mutex } from 'async-mutex';
-
-export class OutboundStream {
-  private readonly _rawStream: Stream;
-  private readonly _pushable: Pushable<Uint8Array>;
-  private readonly _closeController: AbortController;
-
-  public constructor(rawStream: Stream, errCallback: (e: Error) => void) {
-    this._rawStream = rawStream;
-    this._pushable = pushable();
-    this._closeController = new AbortController();
-
-    pipe(
-      abortableSource(this._pushable, this._closeController.signal, { returnOnAbort: true }),
-      encode(),
-      this._rawStream
-    ).catch(errCallback);
-  }
-
-  public get protocol(): string {
-    // TODO remove this non-nullish assertion after https://github.com/libp2p/js-libp2p-interfaces/pull/265 is incorporated
-    return this._rawStream.stat.protocol!;
-  }
-
-  public push(data: Uint8Array): void {
-    this._pushable.push(data);
-  }
-
-  public close(): void {
-    this._closeController.abort();
-    this._rawStream.close();
-  }
-
-  public id(): string {
-    return this._rawStream.id;
-  }
-}
-
-export class InboundStream {
-  public readonly source: AsyncIterable<Uint8Array>;
-
-  private readonly _rawStream: Stream;
-  private readonly _closeController: AbortController;
-
-  public constructor(rawStream: Stream) {
-    this._rawStream = rawStream;
-    this._closeController = new AbortController();
-
-    this.source = abortableSource(pipe(this._rawStream, decode()), this._closeController.signal, {
-      returnOnAbort: true
-    });
-  }
-
-  public close(): void {
-    this._closeController.abort();
-    this._rawStream.close();
-  }
-
-  public id(): string {
-    return this._rawStream.id;
-  }
-}
+import { InboundStream } from './inbound-stream.js';
+import { OutboundStream } from './outbound-stream.js';
 
 @Injectable()
 export class StreamManagerService implements OnModuleDestroy {
@@ -80,6 +17,7 @@ export class StreamManagerService implements OnModuleDestroy {
   private readonly _streamsOutboundCreationMutex: Mutex = new Mutex();
 
   public constructor(private readonly _nodeService: NodeService) {
+    // TODO: these maps should be generated on the fly if they don't exist for a given protocol
     this._streamsInbound.set('/observe/1.0.0', new Map<string, InboundStream>());
     this._streamsInbound.set('/report/1.0.0', new Map<string, InboundStream>());
     this._streamsOutbound.set('/observe/1.0.0', new Map<string, OutboundStream>());

@@ -51,13 +51,6 @@ export class OracleConfig {
   public aggregatorFactoryAddress: string;
 
   @Property({
-    default: '',
-    env: 'AGGREGATOR_FACTORY_PAIRS',
-    format: String
-  })
-  public aggregatorFactoryPairs: string;
-
-  @Property({
     default: 'https://rpc.tzkt.io/jakartanet/',
     env: 'RPC_URL',
     format: String

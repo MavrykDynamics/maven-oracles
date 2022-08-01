@@ -1,16 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { TypedEmitter } from 'tiny-typed-emitter';
-import { IAttestedReport } from './reportgen/reportgen.network.service.js';
-
-export interface IEvents {
-  startepoch: (aggregatorAddress: string, epoch: number, leader: string) => void;
-  progress: (aggregatorAddress: string) => void;
-  transmit: (aggregatorAddress: string, reportToTransmit: IAttestedReport) => void;
-  changeleader: (aggregatorAddress: string) => void;
-}
+import { IAttestedReport } from '../reportgen';
+import { IEventHubEvents } from './event-hub.types.js';
 
 @Injectable()
-export class EventHubService extends TypedEmitter<IEvents> {
+export class EventHubService extends TypedEmitter<IEventHubEvents> {
   private readonly _logger: Logger = new Logger(EventHubService.name);
 
   public constructor() {

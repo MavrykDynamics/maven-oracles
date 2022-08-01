@@ -14,8 +14,9 @@ import BigNumber from 'bignumber.js';
 export const AggregatorFactoryCode: any = AggregatorRaw.michelson;
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
-export type PairType = { 0: string; 1: string };
-export type AggregatorFactoryStorage = MichelsonMap<PairType, string>;
+export type IPair = { 0: string; 1: string };
+
+export type IAggregatorFactoryStorage = MichelsonMap<IPair, string>;
 
 type AggregatorFactoryContractMethods<T extends ContractProvider | Wallet> = {
   createAggregator: (
@@ -46,5 +47,5 @@ export type AggregatorFactoryContractAbstraction<T extends ContractProvider | Wa
     AggregatorFactoryContractMethodObject<T>,
     AggregatorFactoryViews,
     AggregatorFactoryOnChainViews,
-    AggregatorFactoryStorage
+    IAggregatorFactoryStorage
   >;

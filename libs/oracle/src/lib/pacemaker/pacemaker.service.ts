@@ -1,12 +1,13 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { OracleConfig } from '../oracle.config.js';
-import { INewEpochMessage, IPacemakerEvents, PacemakerNetworkService } from './pacemaker.network.service.js';
+import { PacemakerNetworkService } from './pacemaker.network.service.js';
 import { PeerId } from '@libp2p/interface-peer-id';
-import { EventHubService, IEvents } from '../eventhub.service.js';
-import { ContractService } from '../contract.service.js';
+import { EventHubService, IEventHubEvents } from '../event-hub/index.js';
+import { ContractService } from '../contract/contract.service.js';
 import { IPacemakerConfig } from './pacemaker.config.js';
-import { ReportGenFactoryService } from '../reportgen/reportgen.factory.service.js';
+import { ReportGenFactoryService } from '../reportgen/index.js';
 import BigNumber from 'bignumber.js';
+import { INewEpochMessage, IPacemakerEvents } from './index.js';
 
 @Injectable()
 export class PacemakerService {
@@ -48,9 +49,9 @@ export class PacemakerService {
     this._pacemakerNetworkService.addListener('newEpoch', this._onNewEpochReceivedHandler);
   }
 
-  private readonly _onProgressHandler: IEvents['progress'] = (aggregatorAddress) =>
+  private readonly _onProgressHandler: IEventHubEvents['progress'] = (aggregatorAddress) =>
     this.onProgress(aggregatorAddress);
-  private readonly _onChangeLeaderHandler: IEvents['changeleader'] = (aggregatorAddress) =>
+  private readonly _onChangeLeaderHandler: IEventHubEvents['changeleader'] = (aggregatorAddress) =>
     this.onChangeLeader(aggregatorAddress);
   private readonly _onNewEpochReceivedHandler: IPacemakerEvents['newEpoch'] = (
     from: PeerId,
@@ -58,7 +59,7 @@ export class PacemakerService {
   ) => this.onNewEpochReceived(from, newEpochMessage);
 
   public async initialize(): Promise<void> {
-    const { epoch } = await this._contractService._getLastBlockchainReport(
+    const { epoch } = await this._contractService.getLastBlockchainReport(
       this._pacemakerConfig.aggregatorAddress
     );
 
@@ -72,7 +73,7 @@ export class PacemakerService {
     };
     this._newEpoch = epoch;
 
-    const blockchainConfig = await this._contractService._getBlockchainConfig(
+    const blockchainConfig = await this._contractService.getBlockchainConfig(
       this._pacemakerConfig.aggregatorAddress
     );
 
@@ -80,6 +81,7 @@ export class PacemakerService {
       epoch: this._epochAndLeader.epoch,
       leader: this._epochAndLeader.leader,
       aggregatorAddress: this._pacemakerConfig.aggregatorAddress,
+      aggregatorPair: this._pacemakerConfig.aggregatorPair,
       alpha: new BigNumber(blockchainConfig.alphaPercentPerThousand),
       heartbeatSeconds: new BigNumber(blockchainConfig.heartBeatSeconds)
     });
@@ -206,6 +208,7 @@ export class PacemakerService {
       epoch: this._epochAndLeader.epoch,
       leader: this._epochAndLeader.leader,
       aggregatorAddress: this._pacemakerConfig.aggregatorAddress,
+      aggregatorPair: this._pacemakerConfig.aggregatorPair,
       alpha: new BigNumber(500),
       heartbeatSeconds: new BigNumber(60)
     });

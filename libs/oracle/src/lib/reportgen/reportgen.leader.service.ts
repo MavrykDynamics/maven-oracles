@@ -1,5 +1,6 @@
 import { Logger } from '@nestjs/common';
 import BigNumber from 'bignumber.js';
+import { ReportGenNetworkService } from './reportgen.network.service.js';
 import {
   IAttestedReport,
   ICompressedReport,
@@ -7,13 +8,12 @@ import {
   IReport,
   IReportGenEvents,
   IReportMessage,
-  ISignature,
-  ReportGenNetworkService
-} from './reportgen.network.service.js';
+  ISignature
+} from './reportgen.types.js';
 import { PeerId } from '@libp2p/interface-peer-id';
-import { EventHubService, IEvents } from '../eventhub.service.js';
-import { ContractService } from '../contract.service.js';
-import { verifyData } from '../helpers.js';
+import { EventHubService, IEventHubEvents } from '../event-hub';
+import { ContractService } from '../contract/contract.service.js';
+import { verifyData } from './helpers.js';
 import { OracleConfig } from '../oracle.config.js';
 import { IReportGenConfig } from './reportgen.config.js';
 
@@ -94,7 +94,7 @@ export class ReportGenLeaderService {
     reportMessage: IReportMessage
   ) => this._onReport(from, reportMessage);
 
-  private readonly _onStartEpochHandle: IEvents['startepoch'] = (
+  private readonly _onStartEpochHandle: IEventHubEvents['startepoch'] = (
     aggregatorAddress: string,
     epoch: number,
     leader: string

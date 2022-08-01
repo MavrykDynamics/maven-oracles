@@ -5,8 +5,7 @@
     "baseUrl": ".",
     "outDir": "dist",
     "declaration": true,
-    "types": ["node"],
-    "module": "CommonJS"
+    "types": ["node"]
   },
   "exclude": ["**/*.spec.ts", "**/*.test.ts", "lib", "node_modules"],
   "include": ["src/**/*.ts"]

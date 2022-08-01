@@ -1,6 +1,7 @@
 import { Logger } from '@nestjs/common';
 import { OracleConfig } from '../oracle.config.js';
 import BigNumber from 'bignumber.js';
+import { ReportGenNetworkService } from './reportgen.network.service.js';
 import {
   IAttestedReport,
   ICompressedReport,
@@ -10,14 +11,14 @@ import {
   IReport,
   IReportGenEvents,
   IReportReqMessage,
-  ISignature,
-  ReportGenNetworkService
-} from './reportgen.network.service.js';
+  ISignature
+} from './reportgen.types.js';
 import { PeerId } from '@libp2p/interface-peer-id';
-import { EventHubService } from '../eventhub.service.js';
-import { computeMedian, signData, verifyData } from '../helpers.js';
-import { ContractService } from '../contract.service.js';
-import { PriceService } from '../price.service.js';
+import { EventHubService } from '../event-hub/event-hub.service.js';
+import { computeMedian } from './helpers.js';
+import { signData, verifyData } from './helpers.js';
+import { ContractService } from '../contract/contract.service.js';
+import { PriceService } from '../price/price.service.js';
 import { createFromJSON } from '@libp2p/peer-id-factory';
 import { IReportGenConfig } from './reportgen.config.js';
 
@@ -125,14 +126,10 @@ export class ReportGenFollowerService {
     this._receivedEcho = new Map();
 
     const decimals: BigNumber = (
-      await this._contractService._getBlockchainConfig(this._reportGenConfig.aggregatorAddress)
+      await this._contractService.getBlockchainConfig(this._reportGenConfig.aggregatorAddress)
     ).decimals;
 
-    const pair: [string, string] = await this._contractService.getPairFromAggregatorAddress(
-      this._reportGenConfig.aggregatorAddress
-    );
-
-    const observation = await this._priceService.getPrice(decimals, pair);
+    const observation = await this._priceService.getPrice(decimals, this._reportGenConfig.aggregatorPair);
 
     const signature = await this._signObservation(observation);
 
@@ -399,7 +396,7 @@ export class ReportGenFollowerService {
   }
 
   private async _shouldReport(report: IReport): Promise<boolean> {
-    const lastReport = await this._contractService._getLastBlockchainReport(
+    const lastReport = await this._contractService.getLastBlockchainReport(
       this._reportGenConfig.aggregatorAddress
     );
 

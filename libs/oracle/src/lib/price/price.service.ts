@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { OracleConfig } from './oracle.config.js';
+import { OracleConfig } from '../oracle.config.js';
 import BigNumber from 'bignumber.js';
 
 import { filterNotNull } from './helpers.js';

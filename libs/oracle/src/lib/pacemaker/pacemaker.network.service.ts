@@ -2,16 +2,7 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { TypedEmitter } from 'tiny-typed-emitter';
 import { NodeService } from '../node.service.js';
 import { Message } from '@libp2p/interface-pubsub';
-import { PeerId } from '@libp2p/interface-peer-id';
-
-export interface IPacemakerEvents {
-  newEpoch: (from: PeerId, newEpochMessage: INewEpochMessage) => {};
-}
-
-export interface INewEpochMessage {
-  aggregatorAddress: string;
-  newEpoch: number;
-}
+import { INewEpochMessage, IPacemakerEvents } from './pacemaker.types.js';
 
 @Injectable()
 export class PacemakerNetworkService extends TypedEmitter<IPacemakerEvents> implements OnModuleInit {
