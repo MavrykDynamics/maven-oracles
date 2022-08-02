@@ -1,4 +1,4 @@
-import { NetworkName } from './scripts/env';
+import { NetworkName } from './scripts/env.js';
 import BigNumber from 'bignumber.js';
 import { MichelsonMap, MichelsonMapKey } from '@taquito/michelson-encoder';
 

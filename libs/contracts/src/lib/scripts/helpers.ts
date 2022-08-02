@@ -6,9 +6,9 @@ import { execSync } from 'child_process';
 
 import { OriginationOperation, TezosToolkit } from '@taquito/taquito';
 
-import { confirmOperation } from './confirmation';
+import { confirmOperation } from './confirmation.js';
 
-import { networkConfig, NetworkName } from './env';
+import { networkConfig, NetworkName } from './env.js';
 import * as path from 'path';
 
 export const getLigo = (
@@ -94,9 +94,9 @@ export const compile = async (
             networks: {},
             compiler: {
               name: 'ligo',
-              version: ligoVersion,
+              version: ligoVersion
             },
-            networkType: 'tezos',
+            networkType: 'tezos'
           },
           null,
           2
@@ -119,9 +119,7 @@ export const compileLambdas = async (
 ): Promise<void> => {
   const ligo: string = getLigo(true, ligoVersion);
   const pwd: string = execSync('echo $PWD').toString();
-  const lambdas: any = JSON.parse(
-    fs.readFileSync(`${pwd.slice(0, pwd.length - 1)}/${json}`).toString()
-  );
+  const lambdas: any = JSON.parse(fs.readFileSync(`${pwd.slice(0, pwd.length - 1)}/${json}`).toString());
   const res: any[] = [];
 
   try {
@@ -133,19 +131,14 @@ export const compileLambdas = async (
 
       res.push(JSON.parse(michelson).bytes);
 
-      console.log(
-        lambda.index + 1 + '. ' + lambda.name + ' successfully compiled.'
-      );
+      console.log(lambda.index + 1 + '. ' + lambda.name + ' successfully compiled.');
     }
 
     if (!fs.existsSync(`${networkConfig.buildDir}/lambdas`)) {
       fs.mkdirSync(`${networkConfig.buildDir}/lambdas`);
     }
 
-    fs.writeFileSync(
-      `${networkConfig.buildDir}/lambdas/governanceLambdas.json`,
-      JSON.stringify(res)
-    );
+    fs.writeFileSync(`${networkConfig.buildDir}/lambdas/governanceLambdas.json`, JSON.stringify(res));
   } catch (e) {
     console.log('error in compiling lambdas');
     console.error(e);
@@ -159,9 +152,7 @@ export const compileParameters = async (
 ): Promise<void> => {
   const ligo: string = getLigo(true, ligoVersion);
   const pwd: string = execSync('echo $PWD').toString();
-  const lambdaParams: any = JSON.parse(
-    fs.readFileSync(`${pwd.slice(0, pwd.length - 1)}/${json}`).toString()
-  );
+  const lambdaParams: any = JSON.parse(fs.readFileSync(`${pwd.slice(0, pwd.length - 1)}/${json}`).toString());
   const res: any[] = [];
 
   try {
@@ -173,13 +164,7 @@ export const compileParameters = async (
 
       res.push(JSON.parse(michelson));
 
-      console.log(
-        lambdaParam.index +
-          1 +
-          '. ' +
-          lambdaParam.name +
-          ' lambda successfully compiled.'
-      );
+      console.log(lambdaParam.index + 1 + '. ' + lambdaParam.name + ' lambda successfully compiled.');
     }
 
     if (!fs.existsSync(`${networkConfig.buildDir}/lambdas`)) {
@@ -215,7 +200,7 @@ export const migrate = async (
 
     const operation: OriginationOperation = await tezos.contract.originate({
       code: artifacts.michelson,
-      storage: storage,
+      storage: storage
     });
     //      .catch((e) => {
     //        console.error(e)
@@ -229,17 +214,14 @@ export const migrate = async (
     await confirmOperation(tezos, operation.hash);
 
     artifacts.networks[networkConfig.network] = {
-      [contract]: operation.contractAddress,
+      [contract]: operation.contractAddress
     };
 
     if (!fs.existsSync(networkConfig.buildDir)) {
       fs.mkdirSync(networkConfig.buildDir);
     }
 
-    fs.writeFileSync(
-      `${networkConfig.buildDir}/${contract}.json`,
-      JSON.stringify(artifacts, null, 2)
-    );
+    fs.writeFileSync(`${networkConfig.buildDir}/${contract}.json`, JSON.stringify(artifacts, null, 2));
 
     return operation.contractAddress;
   } catch (e) {
@@ -270,9 +252,7 @@ export const runMigrations = async (
 
     for (let i: number = from; i < to; ++i) {
       // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const execMigration: any = await import(
-        `../../../${networkConfig.migrationsDir}/${migrations[i]}`
-      );
+      const execMigration: any = await import(`../../../${networkConfig.migrationsDir}/${migrations[i]}`);
 
       await execMigration.default(networkConfig, network);
     }
@@ -287,9 +267,7 @@ export const saveContractAddress = async (
   networkName: NetworkName = 'development'
 ): Promise<void> => {
   const filePath =
-    networkName === 'development'
-      ? '../../../../../.env'
-      : `../../../../../.${networkName}.env`;
+    networkName === 'development' ? '../../../../../.env' : `../../../../../.${networkName}.env`;
 
   const envFile = path.resolve(__dirname, filePath);
   let data = fs.readFileSync(envFile, 'utf8');
@@ -299,10 +277,7 @@ export const saveContractAddress = async (
   if (present === null) {
     data += `\n${contractName}=${address}\n`;
   } else {
-    data = data.replace(
-      new RegExp(`^${contractName}=.*$`, 'm'),
-      `${contractName}=${address}`
-    );
+    data = data.replace(new RegExp(`^${contractName}=.*$`, 'm'), `${contractName}=${address}`);
   }
 
   fs.writeFileSync(envFile, data, 'utf8');

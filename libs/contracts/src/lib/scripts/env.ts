@@ -1,4 +1,4 @@
-import { accountPerNetwork } from '../accounts';
+import { accountPerNetwork } from '../accounts.js';
 
 export type NetworkName =
   | 'development'
@@ -14,7 +14,7 @@ export interface INetwork {
   secretKey: string;
   pkh: string;
   port: number;
-};
+}
 
 export interface INetworkConfig {
   confirmationPollingTimeoutSecond: number;
@@ -26,7 +26,7 @@ export interface INetworkConfig {
   migrationsDir: string;
   contractsDir: string;
   ligoVersion: string;
-};
+}
 
 export const networkConfig: INetworkConfig = {
   confirmationPollingTimeoutSecond: 500000,
@@ -43,42 +43,42 @@ export const networkConfig: INetworkConfig = {
       network_id: '*',
       secretKey: accountPerNetwork.development.alice.sk,
       pkh: accountPerNetwork.development.alice.pkh,
-      port: 8732,
+      port: 8732
     },
     ghostnet: {
       rpc: 'https://rpc.ghostnet.teztnets.xyz',
       port: 443,
       network_id: '*',
       secretKey: accountPerNetwork.hangzhounet.alice.sk,
-      pkh: accountPerNetwork.hangzhounet.alice.pkh,
+      pkh: accountPerNetwork.hangzhounet.alice.pkh
     },
     hangzhounet: {
       rpc: 'https://hangzhounet.api.tez.ie/',
       port: 443,
       network_id: '*',
       secretKey: accountPerNetwork.hangzhounet.alice.sk,
-      pkh: accountPerNetwork.hangzhounet.alice.pkh,
+      pkh: accountPerNetwork.hangzhounet.alice.pkh
     },
     ithacanet: {
       rpc: 'https://ithacanet.ecadinfra.com',
       port: 443,
       network_id: '*',
       secretKey: accountPerNetwork.ithacanet.alice.sk,
-      pkh: accountPerNetwork.ithacanet.alice.pkh,
+      pkh: accountPerNetwork.ithacanet.alice.pkh
     },
     'ithacanet-kms': {
       rpc: 'https://ithacanet.ecadinfra.com',
       port: 443,
       network_id: '*',
       secretKey: accountPerNetwork.ithacanet.alice.sk,
-      pkh: accountPerNetwork.ithacanet.alice.pkh,
+      pkh: accountPerNetwork.ithacanet.alice.pkh
     },
     mainnet: {
       rpc: 'https://mainnet.api.tez.ie',
       port: 443,
       network_id: '*',
       secretKey: accountPerNetwork.mainnet.alice.sk,
-      pkh: accountPerNetwork.mainnet.alice.pkh,
-    },
-  },
+      pkh: accountPerNetwork.mainnet.alice.pkh
+    }
+  }
 };

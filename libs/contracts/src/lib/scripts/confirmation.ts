@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @rushstack/no-new-null */
-import { networkConfig } from './env';
+import { networkConfig } from './env.js';
 
 import { BlockResponse, OperationEntry } from '@taquito/rpc';
 import { TezosToolkit } from '@taquito/taquito';
@@ -35,15 +35,9 @@ export async function confirmOperation(
 
     currentBlockLevel = currentBlock.header.level;
 
-    for (
-      let i: number = fromBlockLevel ?? currentBlockLevel;
-      i <= currentBlockLevel;
-      i++
-    ) {
+    for (let i: number = fromBlockLevel ?? currentBlockLevel; i <= currentBlockLevel; i++) {
       const block: BlockResponse =
-        i === currentBlockLevel
-          ? currentBlock
-          : await tezos.rpc.getBlock({ block: i as any });
+        i === currentBlockLevel ? currentBlock : await tezos.rpc.getBlock({ block: i as any });
       const opEntry: any = await findOperation(block, opHash);
 
       if (opEntry) {
@@ -60,26 +54,19 @@ export async function confirmOperation(
     throw new Error('Cancelled');
   }
 
-  const timeToWait: number = Math.max(
-    startedAt + SYNC_INTERVAL - Date.now(),
-    0
-  );
+  const timeToWait: number = Math.max(startedAt + SYNC_INTERVAL - Date.now(), 0);
 
   // eslint-disable-next-line promise/param-names
   await new Promise((r) => setTimeout(r, timeToWait));
 
   return confirmOperation(tezos, opHash, {
     initializedAt,
-    fromBlockLevel:
-      currentBlockLevel !== -1 ? currentBlockLevel + 1 : fromBlockLevel,
-    signal,
+    fromBlockLevel: currentBlockLevel !== -1 ? currentBlockLevel + 1 : fromBlockLevel,
+    signal
   });
 }
 
-export async function findOperation(
-  block: BlockResponse,
-  opHash: string
-): Promise<OperationEntry | null> {
+export async function findOperation(block: BlockResponse, opHash: string): Promise<OperationEntry | null> {
   for (let i = 3; i >= 0; i--) {
     for (const op of block.operations[i]) {
       if (op.hash === opHash) {

@@ -2,16 +2,13 @@
 /* eslint-disable no-unused-expressions */
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import yargs from 'yargs';
+import { hideBin } from 'yargs/helpers';
 
-import {
-  compile,
-  compileLambdas,
-  runMigrations,
-  compileParameters,
-} from './helpers';
-import { NetworkName } from './env';
+import { compile, compileLambdas, runMigrations, compileParameters } from './helpers.js';
+import { NetworkName } from './env.js';
+import * as process from 'process';
 
-yargs
+yargs(hideBin(process.argv))
   .command(
     'compile [format] [contract] [contracts_dir] [output_dir] [ligo_version] [is_apple_silicon]',
     'compiles the contract',
@@ -19,33 +16,33 @@ yargs
       format: {
         description: 'fromat of output file',
         alias: 'f',
-        type: 'string',
+        type: 'string'
       },
       contract: {
         description: 'the contract to compile',
         alias: 'c',
-        type: 'string',
+        type: 'string'
       },
       contracts_dir: {
         description: 'contracts directory',
         alias: 'p',
-        type: 'string',
+        type: 'string'
       },
       output_dir: {
         description: 'output directory',
         alias: 'o',
-        type: 'string',
+        type: 'string'
       },
       ligo_version: {
         description: 'ligo version',
         alias: 'v',
-        type: 'string',
+        type: 'string'
       },
       is_apple_silicon: {
         description: 'cpu is an apple silicon boolean',
         alias: 'm',
-        type: 'string',
-      },
+        type: 'string'
+      }
     },
     async (argv) => {
       compile(
@@ -63,16 +60,15 @@ yargs
     'compile lambdas for the specified contract',
     {
       json: {
-        description:
-          'input file relative path (with lambdas indexes and names)',
+        description: 'input file relative path (with lambdas indexes and names)',
         alias: 'j',
-        type: 'string',
+        type: 'string'
       },
       contract: {
         description: 'input file relative path (with lambdas Ligo code)',
         alias: 'c',
-        type: 'string',
-      },
+        type: 'string'
+      }
     },
     async (argv) => {
       await compileLambdas(argv.json, argv.contract);
@@ -83,16 +79,15 @@ yargs
     'compile lambda parameters for the specified contract',
     {
       json: {
-        description:
-          'input file relative path (with lambdas indexes and parameters)',
+        description: 'input file relative path (with lambdas indexes and parameters)',
         alias: 'j',
-        type: 'string',
+        type: 'string'
       },
       contract: {
         description: 'input file relative path (with lambdas Ligo code)',
         alias: 'c',
-        type: 'string',
-      },
+        type: 'string'
+      }
     },
     async (argv) => {
       await compileParameters(argv.json, argv.contract);
@@ -105,20 +100,22 @@ yargs
       from: {
         description: 'the migrations counter to start with',
         alias: 'f',
-        type: 'number',
+        type: 'number'
       },
       to: {
         description: 'the migrations counter to end with',
         alias: 't',
-        type: 'number',
+        type: 'number'
       },
       network: {
         description: 'the network to deploy',
         alias: 'n',
-        type: 'string',
-      },
+        type: 'string'
+      }
     },
     async (argv) => {
+      console.log('ARGV');
+      console.log(argv);
       await runMigrations(argv.from, argv.to, argv.network as NetworkName);
     }
   )

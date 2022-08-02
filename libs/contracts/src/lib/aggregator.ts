@@ -3,13 +3,15 @@
 import * as AggregatorRaw from './contracts/json/aggregator.json';
 import { MichelsonMap } from '@taquito/michelson-encoder';
 import BigNumber from 'bignumber.js';
-import { ContractAbstraction } from '@taquito/taquito';
-import { ContractProvider } from '@taquito/taquito/dist/types/contract/interface';
-import { Wallet } from '@taquito/taquito/dist/types/wallet';
-import { ContractMethod } from '@taquito/taquito/dist/types/contract/contract-methods/contract-method-flat-param';
-import { ContractMethodObject } from '@taquito/taquito/dist/types/contract/contract-methods/contract-method-object-param';
+import {
+  ContractAbstraction,
+  ContractMethod,
+  ContractMethodObject,
+  ContractProvider,
+  ContractView,
+  Wallet
+} from '@taquito/taquito';
 import { OnChainView } from '@taquito/taquito/dist/types/contract/contract-methods/contract-on-chain-view';
-import { ContractView } from '@taquito/taquito/dist/types/contract/contract';
 
 export const AggregatorCode: any = AggregatorRaw.michelson;
 export type AggregatorConfigType = {
