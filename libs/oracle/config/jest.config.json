@@ -1,5 +1,6 @@
 {
   "extends": "@rushstack/heft-jest-plugin/includes/jest-shared.config.json",
+  "extensionsToTreatAsEsm": [".ts"],
   "collectCoverage": true,
   "coverageThreshold": {
     "global": {

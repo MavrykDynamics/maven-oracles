@@ -5,7 +5,7 @@
   "scripts": {
     "build": "heft build --clean",
     "build:watch": "heft build",
-    "test": "heft test"
+    "test": "NODE_OPTIONS=--experimental-vm-modules heft test"
   },
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -97,6 +97,7 @@
     "@types/heap": "~0.2.31",
     "@types/seedrandom": "~3.0.2",
     "@rushstack/heft-jest-plugin": "~0.3.22",
-    "@types/heft-jest": "1.0.3"
+    "@types/heft-jest": "1.0.3",
+    "jest-mock": "28.1.3"
   }
 }

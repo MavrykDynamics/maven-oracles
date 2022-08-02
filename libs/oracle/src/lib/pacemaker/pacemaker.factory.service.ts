@@ -1,11 +1,11 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { OracleConfig } from '../oracle.config.js';
 import { PacemakerNetworkService } from './pacemaker.network.service.js';
-import { EventHubService } from '../event-hub/event-hub.service.js';
-import { ContractService } from '../contract/contract.service.js';
+import { EventHubService } from '../event-hub/index.js';
+import { ContractService } from '../contract/index.js';
 import { PacemakerService } from './pacemaker.service.js';
 import { IPacemakerConfig } from './pacemaker.config.js';
-import { ReportGenFactoryService } from '../reportgen/reportgen.factory.service.js';
+import { ReportGenFactoryService } from '../reportgen/index.js';
 
 @Injectable()
 export class PacemakerFactoryService implements OnModuleInit {
