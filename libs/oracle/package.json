@@ -4,10 +4,11 @@
   "license": "MIT",
   "scripts": {
     "build": "heft build --clean",
-    "build:watch": "heft build"
+    "build:watch": "heft build",
+    "test": "heft test"
   },
-  "main": "dist/libs/oracle/src/index.js",
-  "typings": "dist/libs/oracle/src/index.d.ts",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
   "type": "module",
   "dependencies": {
     "@chainsafe/libp2p-gossipsub": "^3.1.0",
@@ -72,7 +73,9 @@
   "devDependencies": {
     "@nestjs/schematics": "^8.0.0",
     "@nestjs/testing": "^8.0.0",
-    "@rushstack/heft": "^0.45.8",
+    "@rushstack/heft": "^0.46.7",
+    "@rushstack/heft-jest-plugin": "^0.3.22",
+    "@types/heft-jest": "^1.0.3",
     "@types/cron": "^1.7.3",
     "@types/jest": "27.0.2",
     "@types/node": "^16.11.7",
@@ -92,6 +95,8 @@
     "webpack-node-externals": "^3.0.0",
     "@rushstack/eslint-config": "~2.6.1",
     "@types/heap": "~0.2.31",
-    "@types/seedrandom": "~3.0.2"
+    "@types/seedrandom": "~3.0.2",
+    "@rushstack/heft-jest-plugin": "~0.3.22",
+    "@types/heft-jest": "1.0.3"
   }
 }

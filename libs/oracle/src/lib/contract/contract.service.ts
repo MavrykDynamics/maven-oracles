@@ -50,8 +50,7 @@ export class ContractService implements OnModuleInit {
     const contractInstance = await (
       await this._txManagerService.getTezosToolkit()
     ).contract.at(aggregatorFactoryAddress);
-    const storage: IAggregatorFactoryStorage = await contractInstance.storage();
-    return storage;
+    return await contractInstance.storage();
   }
 
   public async getOraclesAddressesBlockchain(

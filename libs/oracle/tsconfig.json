@@ -1,12 +1,11 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "target": "es2015",
+    "rootDir": "src/",
     "baseUrl": ".",
     "outDir": "dist",
-    "declaration": true,
-    "types": ["node"]
+    "declaration": true
   },
-  "exclude": ["**/*.spec.ts", "**/*.test.ts", "lib", "node_modules"],
+  "exclude": ["**/*.spec.ts", "lib", "node_modules"],
   "include": ["src/**/*.ts"]
 }
