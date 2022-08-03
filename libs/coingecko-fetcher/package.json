@@ -16,7 +16,7 @@
     "bignumber.js": "^9.0.2",
     "rxjs": "^7.0.0",
     "ts-convict": "^1.1.0",
-    "tslib": "^2.0.0",
+    "tslib": "^2.4.0",
     "@tezosdynamics/config": "workspace:*",
     "@tezosdynamics/price-fetcher": "workspace:*"
   },

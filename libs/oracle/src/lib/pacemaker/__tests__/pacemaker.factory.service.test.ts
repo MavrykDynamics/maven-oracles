@@ -25,4 +25,8 @@ describe('PacemakerFactoryService', () => {
 
     controller = moduleRef.get(PacemakerFactoryService);
   });
+
+  it('TODO: implem', () => {
+    expect(true).toEqual(true);
+  });
 });
