@@ -3,9 +3,9 @@
   "version": "0.0.1",
   "license": "MIT",
   "scripts": {
-    "build": "heft build --clean",
-    "build:watch": "heft build",
-    "test": "NODE_OPTIONS=--experimental-vm-modules jest --config config/jest.config.cjs"
+    "build": "tsc -p tsconfig.build.json",
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest --config config/jest.config.cjs",
+    "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --config config/jest.config.cjs --watch"
   },
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -72,7 +72,7 @@
   },
   "devDependencies": {
     "@nestjs/schematics": "^8.0.0",
-    "@nestjs/testing": "^8.0.0",
+    "@nestjs/testing": "^9.0.8",
     "@rushstack/heft": "^0.46.7",
     "@types/cron": "^1.7.3",
     "@types/jest": "27.0.2",
@@ -80,7 +80,7 @@
     "@types/yargs": "^17.0.9",
     "@typescript-eslint/eslint-plugin": "~5.10.0",
     "@typescript-eslint/parser": "~5.10.0",
-    "eslint": "~8.7.0",
+    "eslint": "^8.21.0",
     "eslint-config-prettier": "8.1.0",
     "eslint-plugin-jest": "~26.2",
     "enhanced-resolve": "^5.10.0",
@@ -97,12 +97,13 @@
     "@types/seedrandom": "~3.0.2",
     "@rushstack/heft-jest-plugin": "~0.3.22",
     "@types/heft-jest": "1.0.3",
-    "jest-mock": "28.1.3",
     "@babel/preset-env": "~7.18.10",
     "@babel/core": "~7.18.10",
     "babel-jest": "~28.1.3",
     "@babel/preset-typescript": "~7.18.6",
     "@babel/plugin-proposal-decorators": "~7.18.10",
-    "@babel/plugin-proposal-class-properties": "~7.18.6"
+    "@babel/plugin-proposal-class-properties": "~7.18.6",
+    "jest-mock": "28.1.3",
+    "@jest/globals": "~28.1.3"
   }
 }

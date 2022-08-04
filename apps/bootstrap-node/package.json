@@ -52,7 +52,7 @@
   },
   "devDependencies": {
     "@nestjs/schematics": "^8.0.0",
-    "@nestjs/testing": "^8.0.0",
+    "@nestjs/testing": "^9.0.8",
     "@rushstack/heft": "^0.45.8",
     "@types/cron": "^1.7.3",
     "@types/jest": "27.0.2",

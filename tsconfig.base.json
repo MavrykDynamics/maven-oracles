@@ -9,7 +9,7 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "importHelpers": true,
-    "target": "es2015",
+    "target": "es2021",
     "module": "esnext",
     "lib": ["es2015", "es2017", "dom"],
     "resolveJsonModule": true,
@@ -17,7 +17,7 @@
     "skipDefaultLibCheck": true,
     "strictNullChecks": true,
     "baseUrl": ".",
-    "types": ["heft-jest", "node"]
+    "types": ["node"]
   },
   "exclude": ["node_modules", "tmp"]
 }

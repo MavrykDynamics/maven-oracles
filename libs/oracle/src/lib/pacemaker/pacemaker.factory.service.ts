@@ -24,14 +24,14 @@ export class PacemakerFactoryService implements OnModuleInit {
     const factoryStorage = await this._contractService.getAggregatorFactoryStorage(aggregatorFactoryAddress);
 
     for (const [pair, aggregatorAddress] of factoryStorage.entries()) {
-      await this.startPacemaker({
+      await this._startPacemaker({
         aggregatorAddress,
         aggregatorPair: [pair['0'], pair['1']]
       });
     }
   }
 
-  public async startPacemaker(config: IPacemakerConfig): Promise<PacemakerService> {
+  private async _startPacemaker(config: IPacemakerConfig): Promise<PacemakerService> {
     if (this.pacemakers.has(config.aggregatorAddress)) {
       throw new Error(`Pacemaker with aggregator address ${config.aggregatorAddress} already exists`);
     }
