@@ -114,8 +114,6 @@ yargs(hideBin(process.argv))
       }
     },
     async (argv) => {
-      console.log('ARGV');
-      console.log(argv);
       await runMigrations(argv.from, argv.to, argv.network as NetworkName);
     }
   )
