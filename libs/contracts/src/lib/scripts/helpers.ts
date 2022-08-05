@@ -10,7 +10,7 @@ import { confirmOperation } from './confirmation.js';
 
 import { networkConfig, NetworkName } from './env.js';
 import * as path from 'path';
-
+import { URL } from 'url';
 export const getLigo = (
   isDockerizedLigo: boolean,
   ligoVersion: string = networkConfig.ligoVersion,
@@ -252,7 +252,7 @@ export const runMigrations = async (
 
     for (let i: number = from; i < to; ++i) {
       // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const execMigration: any = await import(`../../../${networkConfig.migrationsDir}/${migrations[i]}`);
+      const execMigration: any = await import(`../../../${networkConfig.migrationsDir}/${migrations[i]}.js`);
 
       await execMigration.default(networkConfig, network);
     }
@@ -269,6 +269,7 @@ export const saveContractAddress = async (
   const filePath =
     networkName === 'development' ? '../../../../../.env' : `../../../../../.${networkName}.env`;
 
+  const __dirname = new URL('.', import.meta.url).pathname;
   const envFile = path.resolve(__dirname, filePath);
   let data = fs.readFileSync(envFile, 'utf8');
 

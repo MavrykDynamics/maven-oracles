@@ -12,10 +12,11 @@ import {
 } from './reportgen.types.js';
 import { PeerId } from '@libp2p/interface-peer-id';
 import { EventHubService, IEventHubEvents } from '../event-hub';
-import { ContractService } from '../contract/contract.service.js';
+import { ContractService } from '../contract/index.js';
 import { verifyData } from './helpers.js';
 import { OracleConfig } from '../oracle.config.js';
 import { IReportGenConfig } from './reportgen.config.js';
+import { computeFValueFrom } from '../pacemaker/helpers.js';
 
 enum Phase {
   Observe,
@@ -205,7 +206,7 @@ export class ReportGenLeaderService {
 
     const numberOfObservation = [...this._observe.values()].length;
 
-    const f = await this._contractService.getFValue(this._reportGenConfig.aggregatorAddress);
+    const f = computeFValueFrom(this._reportGenConfig.oracleAddresses.length);
     if (numberOfObservation === 2 * f + 1) {
       this._logger.log(
         `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${this._round} - Enough observations have been collected, starting grace period`
@@ -313,7 +314,7 @@ export class ReportGenLeaderService {
 
     const numberOfReports = [...this._report.values()].length;
 
-    const f = await this._contractService.getFValue(this._reportGenConfig.aggregatorAddress);
+    const f = computeFValueFrom(this._reportGenConfig.oracleAddresses.length);
 
     if (numberOfReports <= f) {
       this._logger.debug(
@@ -358,6 +359,7 @@ export class ReportGenLeaderService {
   private async _verifyReportSignature(report: ICompressedReport, signature: ISignature): Promise<boolean> {
     return await this._contractService.verifyReportSignature(
       this._reportGenConfig.aggregatorAddress,
+      this._reportGenConfig.oracleAddresses,
       report,
       signature
     );

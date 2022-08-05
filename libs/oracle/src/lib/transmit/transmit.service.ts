@@ -1,11 +1,12 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { OracleConfig } from '../oracle.config.js';
 import { EventHubService } from '../event-hub/index.js';
-import { ContractService } from '../contract/contract.service.js';
+import { ContractService } from '../contract/index.js';
 import { computeMedian, IAttestedReport } from '../reportgen/index.js';
 import { default as Heap } from 'heap';
 import BigNumber from 'bignumber.js';
 import { randomPermutation } from './helpers.js';
+import { IOracleInformations } from '@tezosdynamics/contracts';
 
 @Injectable()
 export class TransmitService implements OnModuleInit {
@@ -15,6 +16,7 @@ export class TransmitService implements OnModuleInit {
     time: number;
     report: IAttestedReport;
     aggregatorAddress: string;
+    oracleAddresses: IOracleInformations[];
   }> = new Heap((a, b) => a.time - b.time); // Order by report time
 
   private _lastTransmitedReport: Map<
@@ -40,12 +42,16 @@ export class TransmitService implements OnModuleInit {
   }
 
   public async initialize(): Promise<void> {
-    this._eventHubService.on('transmit', (aggregatorAddress, reportToTransmit) =>
-      this.onTransmit(aggregatorAddress, reportToTransmit)
+    this._eventHubService.on('transmit', (aggregatorAddress, oracleAddresses, reportToTransmit) =>
+      this.onTransmit(aggregatorAddress, oracleAddresses, reportToTransmit)
     );
   }
 
-  public async onTransmit(aggregatorAddress: string, report: IAttestedReport): Promise<void> {
+  public async onTransmit(
+    aggregatorAddress: string,
+    oracleAddresses: IOracleInformations[],
+    report: IAttestedReport
+  ): Promise<void> {
     const lastBlockchainReport = await this._getLastBlockchainEpochAndRound(aggregatorAddress);
     this._logger.log(`${aggregatorAddress}/${report.epoch}/${report.round} - Treating report`);
 
@@ -85,7 +91,7 @@ export class TransmitService implements OnModuleInit {
       this._logger.log(
         `${aggregatorAddress}/${report.epoch}/${report.round} - This is the first report accepted for transmission, doing transmit`
       );
-      await this.doTransmit(report.epoch, report.round, aggregatorAddress, report);
+      await this.doTransmit(report.epoch, report.round, aggregatorAddress, oracleAddresses, report);
       return;
     }
 
@@ -104,7 +110,7 @@ export class TransmitService implements OnModuleInit {
       this._logger.log(
         `${aggregatorAddress}/${report.epoch}/${report.round} - Deviation is over threshold, doing transmit`
       );
-      await this.doTransmit(report.epoch, report.round, aggregatorAddress, report);
+      await this.doTransmit(report.epoch, report.round, aggregatorAddress, oracleAddresses, report);
       return;
     }
 
@@ -119,7 +125,7 @@ export class TransmitService implements OnModuleInit {
       this._logger.log(
         `${aggregatorAddress}/${report.epoch}/${report.round} - Deviation is over threshold, doing transmit`
       );
-      await this.doTransmit(report.epoch, report.round, aggregatorAddress, report);
+      await this.doTransmit(report.epoch, report.round, aggregatorAddress, oracleAddresses, report);
       return;
     }
   }
@@ -145,6 +151,7 @@ export class TransmitService implements OnModuleInit {
     epoch: number,
     round: number,
     aggregatorAddress: string,
+    oracleAddresses: IOracleInformations[],
     report: IAttestedReport
   ): Promise<void> {
     this._lastTransmitedReport.set(aggregatorAddress, {
@@ -153,11 +160,12 @@ export class TransmitService implements OnModuleInit {
       report
     });
 
-    const delay = await this._getTransmitDelayMs(aggregatorAddress, epoch, round);
+    const delay = await this._getTransmitDelayMs(aggregatorAddress, oracleAddresses, epoch, round);
     this._reports.push({
       time: Date.now() + delay,
       report,
-      aggregatorAddress
+      aggregatorAddress,
+      oracleAddresses
     });
 
     const peekedReport = this._reports.peek()!; // Should never be null since we just pushed a report
@@ -173,14 +181,16 @@ export class TransmitService implements OnModuleInit {
 
   private async _getTransmitDelayMs(
     aggregatorAddress: string,
+    oracleAddresses: IOracleInformations[],
     epoch: number,
     round: number
   ): Promise<number> {
-    const oracles1 = await this._contractService.getOraclesAddresses(aggregatorAddress);
-    const oracles2 = Array.from(oracles1.keys());
-
     const seed = `${aggregatorAddress}-${epoch}-${round}`;
-    const permuted = randomPermutation(oracles2, seed);
+
+    const permuted = randomPermutation(
+      oracleAddresses.map((addrs) => addrs.oracleAddress),
+      seed
+    );
 
     const k = permuted.findIndex((oracle) => oracle === this._config.tezosAddress);
     return k * this._deltaStage * 1000;
@@ -191,7 +201,7 @@ export class TransmitService implements OnModuleInit {
     if (timeAndReport === undefined) {
       return;
     }
-    const { report, aggregatorAddress } = timeAndReport;
+    const { report, aggregatorAddress, oracleAddresses } = timeAndReport;
     const lastBlockchainReport = await this._getLastBlockchainEpochAndRound(aggregatorAddress);
 
     if (
@@ -204,7 +214,7 @@ export class TransmitService implements OnModuleInit {
       )
     ) {
       this._logger.log(`${aggregatorAddress}/${report.epoch}/${report.round} - Sending tx to blockchain`);
-      await this._contractService.sendReportBlockchain(aggregatorAddress, report);
+      await this._contractService.sendReportBlockchain(aggregatorAddress, oracleAddresses, report);
     } else {
       this._logger.verbose(
         `${aggregatorAddress}/${report.epoch}/${report.round} - Report on blockchain is more recent than current epoch/round: ${lastBlockchainReport?.epoch}/${lastBlockchainReport?.round})

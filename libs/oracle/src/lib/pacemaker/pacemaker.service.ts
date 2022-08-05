@@ -3,19 +3,16 @@ import { OracleConfig } from '../oracle.config.js';
 import { PacemakerNetworkService } from './pacemaker.network.service.js';
 import { PeerId } from '@libp2p/interface-peer-id';
 import { EventHubService, IEventHubEvents } from '../event-hub/index.js';
-import { ContractService } from '../contract/contract.service.js';
+import { ContractService } from '../contract/index.js';
 import { IPacemakerConfig } from './pacemaker.config.js';
 import { ReportGenFactoryService } from '../reportgen/index.js';
 import BigNumber from 'bignumber.js';
-import { INewEpochMessage, IPacemakerEvents } from './index.js';
+import { INewEpochMessage, IPacemakerEvents, IPaceMakerState } from './index.js';
+import { computeFValueFrom } from './helpers.js';
 
 @Injectable()
 export class PacemakerService {
   private readonly _logger: Logger = new Logger(PacemakerService.name);
-
-  private readonly _timerProgressDurationMiliseconds: number = 30 * 1000; // 30s recommended by OCR white paper
-  private readonly _timerResendDurationMiliseconds: number = 15 * 1000; // 15s recommended by OCR white paper
-
   // PeerId of currently running oracle
   private _self: string;
 
@@ -41,13 +38,7 @@ export class PacemakerService {
     private readonly _contractService: ContractService,
     private readonly _reportGenFactoryService: ReportGenFactoryService,
     private readonly _pacemakerConfig: IPacemakerConfig
-  ) {
-    this._self = this._config.peerId;
-
-    this._eventHubService.addListener('progress', this._onProgressHandler);
-    this._eventHubService.addListener('changeleader', this._onChangeLeaderHandler);
-    this._pacemakerNetworkService.addListener('newEpoch', this._onNewEpochReceivedHandler);
-  }
+  ) {}
 
   private readonly _onProgressHandler: IEventHubEvents['progress'] = (aggregatorAddress) =>
     this.onProgress(aggregatorAddress);
@@ -59,6 +50,12 @@ export class PacemakerService {
   ) => this.onNewEpochReceived(from, newEpochMessage);
 
   public async initialize(): Promise<void> {
+    this._self = this._config.peerId;
+
+    this._eventHubService.addListener('progress', this._onProgressHandler);
+    this._eventHubService.addListener('changeleader', this._onChangeLeaderHandler);
+    this._pacemakerNetworkService.addListener('newEpoch', this._onNewEpochReceivedHandler);
+
     const { epoch } = await this._contractService.getLastBlockchainReport(
       this._pacemakerConfig.aggregatorAddress
     );
@@ -83,7 +80,8 @@ export class PacemakerService {
       aggregatorAddress: this._pacemakerConfig.aggregatorAddress,
       aggregatorPair: this._pacemakerConfig.aggregatorPair,
       alpha: new BigNumber(blockchainConfig.alphaPercentPerThousand),
-      heartbeatSeconds: new BigNumber(blockchainConfig.heartBeatSeconds)
+      heartbeatSeconds: new BigNumber(blockchainConfig.heartBeatSeconds),
+      oracleAddresses: this._pacemakerConfig.oracleAddresses
     });
 
     this._restartProgressTimer();
@@ -148,7 +146,8 @@ export class PacemakerService {
     const peersEpochs = Array.from(this._peersNewEpoch.values());
     const peersNewEpochUnique = [...new Set(peersEpochs)].filter((epoch) => epoch > this._newEpoch).sort(); // Example: [2, 3, 3, 5, 5]
 
-    const f = await this._contractService.getFValue(this._pacemakerConfig.aggregatorAddress);
+    const f = computeFValueFrom(this._pacemakerConfig.oracleAddresses.length);
+
     let epoch = -1;
     for (const newEpoch of peersNewEpochUnique) {
       const peersNewEpochGreaterThan = peersEpochs.filter((value) => value > newEpoch).length;
@@ -175,7 +174,7 @@ export class PacemakerService {
       .filter((epoch) => epoch > this._epochAndLeader.epoch)
       .sort(); // Example: [2, 3, 3, 5, 5]
 
-    const f = await this._contractService.getFValue(this._pacemakerConfig.aggregatorAddress);
+    const f = computeFValueFrom(this._pacemakerConfig.oracleAddresses.length);
     let epoch = -1;
     for (const newEpoch of peersNewEpochUnique) {
       const peersNewEpochGreaterThan = peersEpochs.filter(
@@ -210,12 +209,11 @@ export class PacemakerService {
       aggregatorAddress: this._pacemakerConfig.aggregatorAddress,
       aggregatorPair: this._pacemakerConfig.aggregatorPair,
       alpha: new BigNumber(500),
-      heartbeatSeconds: new BigNumber(60)
+      heartbeatSeconds: new BigNumber(60),
+      oracleAddresses: this._pacemakerConfig.oracleAddresses
     });
 
     this._restartProgressTimer();
-
-    await this._contractService.updateOraclesAddressesMap(this._pacemakerConfig.aggregatorAddress);
 
     if (this._epochAndLeader.leader === this._self) {
       this._eventHubService.startepoch(
@@ -240,6 +238,15 @@ export class PacemakerService {
     return peersIdList[oracleLeaderIndex];
   }
 
+  public getState(): IPaceMakerState {
+    return {
+      epoch: this._epochAndLeader.epoch,
+      leader: this._epochAndLeader.leader,
+      newEpoch: this._newEpoch,
+      peersNewEpoch: this._peersNewEpoch
+    };
+  }
+
   private _stopProgressTimer(): void {
     if (this._timerProgress !== null) {
       clearTimeout(this._timerProgress);
@@ -250,7 +257,7 @@ export class PacemakerService {
     this._stopProgressTimer();
     this._timerProgress = setTimeout(
       () => this.onProgressTimerTimeout(),
-      this._timerProgressDurationMiliseconds
+      this._pacemakerConfig.timerProgressDurationMiliseconds
     );
   }
 
@@ -262,6 +269,9 @@ export class PacemakerService {
 
   private _restartResendTimer(): void {
     this._stopResendTimer();
-    this._timerResend = setTimeout(() => this.onResendTimerTimeout(), this._timerResendDurationMiliseconds);
+    this._timerResend = setTimeout(
+      () => this.onResendTimerTimeout(),
+      this._pacemakerConfig.timerResendDurationMiliseconds
+    );
   }
 }

@@ -1,6 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/consistent-type-definitions */
-import * as AggregatorRaw from './contracts/json/aggregator.json';
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const AggregatorRaw = require('./contracts/json/aggregator.json');
+
 import { MichelsonMap } from '@taquito/michelson-encoder';
 import BigNumber from 'bignumber.js';
 import {

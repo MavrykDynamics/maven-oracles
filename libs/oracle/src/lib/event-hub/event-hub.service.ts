@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { TypedEmitter } from 'tiny-typed-emitter';
 import { IAttestedReport } from '../reportgen';
 import { IEventHubEvents } from './event-hub.types.js';
+import { IOracleInformations } from '@tezosdynamics/contracts';
 
 @Injectable()
 export class EventHubService extends TypedEmitter<IEventHubEvents> {
@@ -26,10 +27,14 @@ export class EventHubService extends TypedEmitter<IEventHubEvents> {
     this.emit('progress', aggregatorAddress);
   }
 
-  public transmit(aggregatorAddress: string, reportToTransmit: IAttestedReport): void {
+  public transmit(
+    aggregatorAddress: string,
+    oracleAddresses: IOracleInformations[],
+    reportToTransmit: IAttestedReport
+  ): void {
     this._logger.debug(
       `Dispatching transmit event for ${aggregatorAddress} with report ${reportToTransmit.epoch}/${reportToTransmit.round}`
     );
-    this.emit('transmit', aggregatorAddress, reportToTransmit);
+    this.emit('transmit', aggregatorAddress, oracleAddresses, reportToTransmit);
   }
 }

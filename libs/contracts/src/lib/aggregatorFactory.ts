@@ -1,14 +1,20 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/consistent-type-definitions */
-import * as AggregatorRaw from './contracts/json/aggregatorFactory.json';
+
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const AggregatorRaw = require('./contracts/json/aggregatorFactory.json');
+
 import { MichelsonMap, MichelsonMapKey } from '@taquito/michelson-encoder';
-import { ContractAbstraction } from '@taquito/taquito';
-import { ContractProvider } from '@taquito/taquito/dist/types/contract/interface';
-import { Wallet } from '@taquito/taquito/dist/types/wallet';
-import { ContractMethodObject } from '@taquito/taquito/dist/types/contract/contract-methods/contract-method-object-param';
 import { OnChainView } from '@taquito/taquito/dist/types/contract/contract-methods/contract-on-chain-view';
-import { ContractView } from '@taquito/taquito/dist/types/contract/contract';
-import { ContractMethod } from '@taquito/taquito/dist/types/contract/contract-methods/contract-method-flat-param';
+import {
+  ContractAbstraction,
+  ContractMethod,
+  ContractMethodObject,
+  ContractProvider,
+  ContractView,
+  Wallet
+} from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 
 export const AggregatorFactoryCode: any = AggregatorRaw.michelson;

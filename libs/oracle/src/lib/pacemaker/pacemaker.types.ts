@@ -8,3 +8,10 @@ export interface INewEpochMessage {
   aggregatorAddress: string;
   newEpoch: number;
 }
+
+export interface IPaceMakerState {
+  epoch: number;
+  leader: string;
+  newEpoch: number;
+  peersNewEpoch: Map<string, number>;
+}

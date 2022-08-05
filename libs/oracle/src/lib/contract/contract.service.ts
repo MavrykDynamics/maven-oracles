@@ -13,7 +13,6 @@ import { TxManagerService } from '@tezosdynamics/tx-manager';
 import {
   IAggregatorFactoryStorage,
   IAggregatorStorage,
-  IOracleInformation,
   IOracleInformations,
   IOracleObservationType
 } from '@tezosdynamics/contracts';
@@ -21,7 +20,6 @@ import {
 @Injectable()
 export class ContractService implements OnModuleInit {
   private readonly _logger: Logger = new Logger(ContractService.name);
-  private _oracleAddresses: MichelsonMap<string, IOracleInformation>;
 
   public constructor(
     private readonly _config: OracleConfig,
@@ -29,20 +27,6 @@ export class ContractService implements OnModuleInit {
   ) {}
 
   public async onModuleInit(): Promise<void> {}
-
-  public async getFValue(aggregatorAddress: string): Promise<number> {
-    // change the aggregatorAddress inside
-    const oracleAddresses = await this.getOraclesAddresses(aggregatorAddress);
-    return Math.floor((oracleAddresses.size - 1) / 3);
-  }
-
-  public async updateOraclesAddressesMap(aggregatorAddress: string): Promise<void> {
-    const contractInstance = await (
-      await this._txManagerService.getTezosToolkit()
-    ).contract.at(aggregatorAddress);
-    const storage: IAggregatorStorage = await contractInstance.storage();
-    this._oracleAddresses = storage.oracleAddresses;
-  }
 
   public async getAggregatorFactoryStorage(
     aggregatorFactoryAddress: string
@@ -53,92 +37,27 @@ export class ContractService implements OnModuleInit {
     return await contractInstance.storage();
   }
 
-  public async getOraclesAddressesBlockchain(
-    aggregatorAddress: string
-  ): Promise<MichelsonMap<string, IOracleInformation>> {
+  public async getOraclesAddresses(aggregatorAddress: string): Promise<IOracleInformations[]> {
     const contractInstance = await (
       await this._txManagerService.getTezosToolkit()
     ).contract.at(aggregatorAddress);
     const storage: IAggregatorStorage = await contractInstance.storage();
-    const oracleAddresses = storage.oracleAddresses;
-    return oracleAddresses;
+
+    return [...storage.oracleAddresses.entries()].map(([oracleAddress, val]) => ({
+      ...val,
+      oracleAddress
+    }));
   }
 
-  public async getOraclesAddresses(
-    aggregatorAddress: string
-  ): Promise<MichelsonMap<string, IOracleInformation>> {
-    if (this._oracleAddresses) {
-      return this._oracleAddresses;
-    } else {
-      return await this.getOraclesAddressesBlockchain(aggregatorAddress);
-    }
-  }
-
-  public async isOracleAddressAuthorized(aggregatorAddress: string, oracleAddress: string): Promise<boolean> {
-    const oracleAddresses = await this.getOraclesAddresses(aggregatorAddress);
-    return oracleAddresses.has(oracleAddress);
-  }
-
-  public async getOracleInformationsFromAddressOracle(
+  private async _packReport(
     aggregatorAddress: string,
-    oracleAddress: string
-  ): Promise<IOracleInformations | undefined> {
-    const oracleAddresses = await this.getOraclesAddresses(aggregatorAddress);
-    const infos = oracleAddresses.get(oracleAddress);
-    return infos
-      ? {
-          oracleAddress,
-          ...infos
-        }
-      : undefined;
-  }
-
-  public async getOracleInformationsFromPeerId(
-    aggregatorAddress: string,
-    peerId: string
-  ): Promise<IOracleInformations | undefined> {
-    const oracleAddresses = await this.getOraclesAddresses(aggregatorAddress);
-    let oracleAddress = '';
-    for (const [key, value] of oracleAddresses.entries()) {
-      if (value.oraclePeerId === peerId) {
-        oracleAddress = key;
-      }
-    }
-    if (oracleAddress === '') {
-      return undefined;
-    }
-    const infos = oracleAddresses.get(oracleAddress);
-    return infos
-      ? {
-          oracleAddress,
-          ...infos
-        }
-      : undefined;
-  }
-
-  public async getOracleInformationsFromPkh(
-    aggregatorAddress: string,
-    pkh: string
-  ): Promise<IOracleInformations | undefined> {
-    const oracleAddresses = await this.getOraclesAddresses(aggregatorAddress);
-
-    const oraclesInfos = [...oracleAddresses.entries()].find(([entryPkh]) => entryPkh === pkh);
-
-    if (oraclesInfos === undefined) {
-      return undefined;
-    }
-
-    return {
-      ...oraclesInfos[1],
-      oracleAddress: pkh
-    };
-  }
-
-  private async _packReport(aggregatorAddress: string, report: IAttestedReport): Promise<string> {
+    oracleAddresses: IOracleInformations[],
+    report: IAttestedReport
+  ): Promise<string> {
     const oraclePriceResponsesForPack = new MichelsonMap<string, IOracleObservationType>();
 
     for (const { oracle, price } of report.observations) {
-      const infos = await this.getOracleInformationsFromPeerId(aggregatorAddress, oracle);
+      const infos = oracleAddresses.find((addrs) => addrs.oraclePeerId === oracle);
       if (!infos) {
         throw new Error(`Cannot pack report, missing oracle address for oracle ${oracle}`);
       }
@@ -149,9 +68,7 @@ export class ContractService implements OnModuleInit {
         aggregatorAddress
       });
     }
-    const msg = await this._packObservations(oraclePriceResponsesForPack);
-
-    return msg;
+    return await this._packObservations(oraclePriceResponsesForPack);
   }
 
   private async _packObservations(
@@ -203,6 +120,7 @@ export class ContractService implements OnModuleInit {
 
   public async signCompressedReport(
     aggregatorAddress: string,
+    oracleAddresses: IOracleInformations[],
     observations: IObservation[],
     secretKey: string,
     epoch: number,
@@ -212,7 +130,7 @@ export class ContractService implements OnModuleInit {
     const oraclePriceResponsesForPack = new MichelsonMap<string, IOracleObservationType>();
 
     for (const { oracle, price } of observations) {
-      const infos = await this.getOracleInformationsFromPeerId(aggregatorAddress, oracle);
+      const infos = oracleAddresses.find((addrs) => addrs.oraclePeerId === oracle);
       if (!infos) {
         return '';
       }
@@ -228,13 +146,14 @@ export class ContractService implements OnModuleInit {
 
   public async verifyReportSignature(
     aggregatorAddress: string,
+    oracleAddresses: IOracleInformations[],
     report: ICompressedReport,
     signature: ISignature
   ): Promise<boolean> {
     const oraclePriceResponsesForPack = new MichelsonMap<string, IOracleObservationType>();
 
     for (const { oracle, price } of report.observations) {
-      const infos = await this.getOracleInformationsFromPeerId(aggregatorAddress, oracle);
+      const infos = oracleAddresses.find((addrs) => addrs.oraclePeerId === oracle);
       if (!infos) {
         return false;
       }
@@ -246,7 +165,7 @@ export class ContractService implements OnModuleInit {
       });
     }
     const packedReport = await this._packObservations(oraclePriceResponsesForPack);
-    const infos = await this.getOracleInformationsFromAddressOracle(aggregatorAddress, signature.oracle);
+    const infos = oracleAddresses.find((addrs) => addrs.oracleAddress === signature.oracle);
     if (!infos) {
       return false;
     }
@@ -258,19 +177,21 @@ export class ContractService implements OnModuleInit {
    *
    * @param aggregatorAddress - Address of the aggregator
    * @param attestedReport - Report with signatures
+   * @param oracleAddresses - Informations about the oracles (pk, pkh and peer id)
    * @param f - Minimum number of trusted oracles
    * @returns if the report has enough signatures
    */
   public async verifyAttestedReport(
     aggregatorAddress: string,
     attestedReport: IAttestedReport,
+    oracleAddresses: IOracleInformations[],
     f: number
   ): Promise<boolean> {
-    const packedReport = await this._packReport(aggregatorAddress, attestedReport);
+    const packedReport = await this._packReport(aggregatorAddress, oracleAddresses, attestedReport);
 
     const signaturesOk = await Promise.all(
       attestedReport.signatures.map(async ({ oracle: pkh, signature }) => {
-        const address = await this.getOracleInformationsFromPkh(aggregatorAddress, pkh);
+        const address = oracleAddresses.find((addr) => addr.oracleAddress === pkh);
 
         if (!address) {
           this._logger.warn(`Cannot retrieve oraclePublicKey for ${pkh}`);
@@ -284,7 +205,11 @@ export class ContractService implements OnModuleInit {
     return signaturesOk.every((ok) => ok) && signaturesOk.length > f;
   }
 
-  public async sendReportBlockchain(aggregatorAddress: string, report: IAttestedReport): Promise<void> {
+  public async sendReportBlockchain(
+    aggregatorAddress: string,
+    oracleAddresses: IOracleInformations[],
+    report: IAttestedReport
+  ): Promise<void> {
     const contractInstance = await (
       await this._txManagerService.getTezosToolkit()
     ).contract.at(aggregatorAddress);
@@ -297,7 +222,7 @@ export class ContractService implements OnModuleInit {
     const oracleObservations = new MichelsonMap<string, IOracleObservationType>();
 
     for (const { oracle, price } of report.observations) {
-      const infos = await this.getOracleInformationsFromPeerId(aggregatorAddress, oracle);
+      const infos = oracleAddresses.find((addrs) => addrs.oraclePeerId === oracle);
       if (infos) {
         oracleObservations.set(infos.oracleAddress, {
           price,

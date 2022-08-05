@@ -14,13 +14,14 @@ import {
   ISignature
 } from './reportgen.types.js';
 import { PeerId } from '@libp2p/interface-peer-id';
-import { EventHubService } from '../event-hub/event-hub.service.js';
+import { EventHubService } from '../event-hub/index.js';
 import { computeMedian } from './helpers.js';
 import { signData, verifyData } from './helpers.js';
-import { ContractService } from '../contract/contract.service.js';
-import { PriceService } from '../price/price.service.js';
+import { ContractService } from '../contract/index.js';
+import { PriceService } from '../price/index.js';
 import { createFromJSON } from '@libp2p/peer-id-factory';
 import { IReportGenConfig } from './reportgen.config.js';
+import { computeFValueFrom } from '../pacemaker/helpers.js';
 
 export class ReportGenFollowerService {
   private readonly _logger: Logger = new Logger(ReportGenFollowerService.name);
@@ -167,7 +168,7 @@ export class ReportGenFollowerService {
 
     const distinctOracleObservations = [...new Set(report.observations.map((ob) => ob.oracle))];
 
-    const f = await this._contractService.getFValue(this._reportGenConfig.aggregatorAddress);
+    const f = computeFValueFrom(this._reportGenConfig.oracleAddresses.length);
     if (distinctOracleObservations.length < f * 2 + 1) {
       this._logger.warn(
         `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${
@@ -357,13 +358,17 @@ export class ReportGenFollowerService {
 
     const numberOfFinalEchoReceived = [...this._receivedEcho.values()].filter((received) => received).length;
 
-    const f = await this._contractService.getFValue(this._reportGenConfig.aggregatorAddress);
+    const f = computeFValueFrom(this._reportGenConfig.oracleAddresses.length);
 
     if (numberOfFinalEchoReceived > f) {
       this._logger.log(
         `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${this._round} - Enough final echo received (${numberOfFinalEchoReceived}), going to transmit`
       );
-      await this._eventHubService.transmit(this._reportGenConfig.aggregatorAddress, attestedReport);
+      await this._eventHubService.transmit(
+        this._reportGenConfig.aggregatorAddress,
+        this._reportGenConfig.oracleAddresses,
+        attestedReport
+      );
       await this._completeRound();
     }
   }
@@ -384,6 +389,7 @@ export class ReportGenFollowerService {
   private async _signCompressedReport(report: ICompressedReport): Promise<ISignature> {
     const signature = await this._contractService.signCompressedReport(
       this._reportGenConfig.aggregatorAddress,
+      this._reportGenConfig.oracleAddresses,
       report.observations,
       this._oracleConfig.tezosSecretKey,
       report.epoch,
@@ -433,11 +439,12 @@ export class ReportGenFollowerService {
   }
 
   private async _verifyAttestedReport(attestedReport: IAttestedReport): Promise<boolean> {
-    const f = await this._contractService.getFValue(this._reportGenConfig.aggregatorAddress);
+    const f = computeFValueFrom(this._reportGenConfig.oracleAddresses.length);
 
     return await this._contractService.verifyAttestedReport(
       this._reportGenConfig.aggregatorAddress,
       attestedReport,
+      this._reportGenConfig.oracleAddresses,
       f
     );
   }

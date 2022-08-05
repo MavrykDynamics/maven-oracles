@@ -2,15 +2,15 @@
 import { INetworkConfig, NetworkName } from '../scripts/env';
 import { OriginationOperation, TezosToolkit } from '@taquito/taquito';
 import { InMemorySigner } from '@taquito/signer';
-import { saveContractAddress } from '../scripts/helpers';
+import { saveContractAddress } from '../scripts/helpers.js';
 import { MichelsonMap } from '@taquito/michelson-encoder';
 import {
   AggregatorFactoryCode,
   AggregatorFactoryContractAbstraction,
   IAggregatorFactoryStorage,
   IPair
-} from '../aggregatorFactory';
-import { alphaPercentPerThousand, decimals, heartBeatSeconds, oracleAddresses } from '../accounts';
+} from '../aggregatorFactory.js';
+import { alphaPercentPerThousand, decimals, heartBeatSeconds, oracleAddresses } from '../accounts.js';
 
 export const AGGREGATOR_FACTORY_PAIRS: unique symbol = Symbol('AGGREGATOR_FACTORY_PAIRS');
 

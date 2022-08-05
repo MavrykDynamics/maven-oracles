@@ -24,9 +24,14 @@ export class PacemakerFactoryService implements OnModuleInit {
     const factoryStorage = await this._contractService.getAggregatorFactoryStorage(aggregatorFactoryAddress);
 
     for (const [pair, aggregatorAddress] of factoryStorage.entries()) {
+      const oracleAddresses = await this._contractService.getOraclesAddresses(aggregatorAddress);
+
       await this._startPacemaker({
         aggregatorAddress,
-        aggregatorPair: [pair['0'], pair['1']]
+        aggregatorPair: [pair['0'], pair['1']],
+        timerProgressDurationMiliseconds: 30 * 1000,
+        timerResendDurationMiliseconds: 15 * 1000,
+        oracleAddresses
       });
     }
   }
