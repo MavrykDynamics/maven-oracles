@@ -33,15 +33,18 @@ export class ReportGenFactoryService {
       this._priceService,
       config
     );
-    const reportGenLeader = new ReportGenLeaderService(
-      this._config,
-      this._reportgenNetworkService,
-      this._eventHubService,
-      this._contractService,
-      config
-    );
     this.reportgenFollowers.set(config.aggregatorAddress, reportGenFollower);
-    this.reportgenLeaders.set(config.aggregatorAddress, reportGenLeader);
+
+    if (config.leader === this._config.peerId) {
+      const reportGenLeader = new ReportGenLeaderService(
+        this._config,
+        this._reportgenNetworkService,
+        this._eventHubService,
+        this._contractService,
+        config
+      );
+      this.reportgenLeaders.set(config.aggregatorAddress, reportGenLeader);
+    }
   }
 
   public stopReportGen(aggregatorAddress: string): void {

@@ -117,7 +117,7 @@ export class ReportGenFollowerService {
       this._logger.warn(
         `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${this._round} - Observation request round (${this._round}) is over max round number ${this._roundMax}, discarding request and changing leader`
       );
-      this._eventHubService.changeleader(this._reportGenConfig.aggregatorAddress);
+      this._eventHubService.changeLeader(this._reportGenConfig.aggregatorAddress);
       return;
     }
 

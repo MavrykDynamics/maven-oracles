@@ -17,9 +17,9 @@ export class EventHubService extends TypedEmitter<IEventHubEvents> {
     this.emit('startepoch', aggregatorAddress, epoch, leader);
   }
 
-  public changeleader(aggregatorAddress: string): void {
+  public changeLeader(aggregatorAddress: string): void {
     this._logger.debug(`Dispatching changeleader event for ${aggregatorAddress}`);
-    this.emit('changeleader', aggregatorAddress);
+    this.emit('changeLeader', aggregatorAddress);
   }
 
   public progress(aggregatorAddress: string): void {

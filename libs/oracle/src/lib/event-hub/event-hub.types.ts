@@ -9,5 +9,5 @@ export interface IEventHubEvents {
     oracleAddresses: IOracleInformations[],
     reportToTransmit: IAttestedReport
   ) => void;
-  changeleader: (aggregatorAddress: string) => void;
+  changeLeader: (aggregatorAddress: string) => void;
 }
