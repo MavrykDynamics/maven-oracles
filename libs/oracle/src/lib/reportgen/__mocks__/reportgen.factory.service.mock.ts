@@ -8,7 +8,7 @@ export const mockStartReportGen = jest.fn();
 export const ReportgenFactoryServiceMock = jest.fn().mockImplementation(() => {
   return {
     initialize: mockInitialize,
-    getAggregatorFactoryStorage: mockGetAggregatorFactoryStorage,
+    getAggregatorAddresses: mockGetAggregatorFactoryStorage,
     startReportGen: mockStartReportGen
   };
 });

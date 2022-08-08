@@ -1,7 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/consistent-type-definitions */
 import { createRequire } from 'module';
+
+// eslint-disable-next-line @rushstack/typedef-var
 const require = createRequire(import.meta.url);
+
+// eslint-disable-next-line @rushstack/typedef-var
 const AggregatorRaw = require('./contracts/json/aggregator.json');
 
 import { MichelsonMap } from '@taquito/michelson-encoder';
@@ -58,6 +62,11 @@ export interface IOracleInformations {
   oracleAddress: string;
   oraclePublicKey: string;
   oraclePeerId: string;
+}
+
+export interface IAggregatorInformations {
+  aggregatorAddress: string;
+  pair: [string, string];
 }
 
 export type IAggregatorStorage = {

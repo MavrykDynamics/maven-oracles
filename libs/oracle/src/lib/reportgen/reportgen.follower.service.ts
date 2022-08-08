@@ -127,7 +127,7 @@ export class ReportGenFollowerService {
     this._receivedEcho = new Map();
 
     const decimals: BigNumber = (
-      await this._contractService.getBlockchainConfig(this._reportGenConfig.aggregatorAddress)
+      await this._contractService.getAggregatorConfig(this._reportGenConfig.aggregatorAddress)
     ).decimals;
 
     const observation = await this._priceService.getPrice(decimals, this._reportGenConfig.aggregatorPair);

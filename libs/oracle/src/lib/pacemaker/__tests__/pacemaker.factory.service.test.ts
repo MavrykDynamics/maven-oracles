@@ -1,15 +1,20 @@
 import { expect, jest } from '@jest/globals';
 import {
   ContractServiceMock,
-  mockGetAggregatorFactoryStorage
+  mockedOracleAddresses,
+  mockGetAggregatorAddresses
 } from '../../contract/__mocks__/contract.service.mock.js';
 import { OracleConfigMock } from '../../__mocks__/oracle.config.mock.js';
-import { MichelsonMap } from '@taquito/taquito';
-import { IAggregatorFactoryStorage } from '@tezosdynamics/contracts';
-// Import this named export into your test file:
-
+import { IAggregatorInformations } from '@tezosdynamics/contracts';
 import { mockInitialize, PacemakerServiceMock } from '../__mocks__/pacemaker.service.mock.js';
 import { IPacemakerConfig } from '../pacemaker.config.js';
+import { PacemakerNetworkService } from '../pacemaker.network.service.js';
+import { PacemakerNetworkServiceMock } from '../__mocks__/pacemaker.network.service.mock.js';
+import { ReportgenFactoryServiceMock } from '../../reportgen/__mocks__/reportgen.factory.service.mock.js';
+import { EventHubServiceMock } from '../../event-hub/__mocks__/event-hub.mock.js';
+import { EventHubService } from '../../event-hub/index.js';
+import { ContractService } from '../../contract/index.js';
+import { ReportGenFactoryService } from '../../reportgen/index.js';
 
 jest.unstable_mockModule('../pacemaker.service.js', async () => ({
   PacemakerService: PacemakerServiceMock
@@ -21,14 +26,18 @@ const { PacemakerFactoryService } = await import('../pacemaker.factory.service.j
 describe('PacemakerFactoryService', () => {
   // @ts-ignore
   let pacemakerFactory: PacemakerFactoryService;
+  const pacemakerNetworkServiceMock = new PacemakerNetworkServiceMock();
+  const eventHubServiceMock = new EventHubServiceMock();
+  const reportGenFactoryMock = new ReportgenFactoryServiceMock();
+  const contractServiceMock = new ContractServiceMock();
 
   beforeEach(async () => {
     pacemakerFactory = new PacemakerFactoryService(
       OracleConfigMock,
-      null,
-      null,
-      new ContractServiceMock(),
-      null
+      pacemakerNetworkServiceMock as unknown as PacemakerNetworkService,
+      eventHubServiceMock as unknown as EventHubService,
+      contractServiceMock as unknown as ContractService,
+      reportGenFactoryMock as unknown as ReportGenFactoryService
     );
   });
 
@@ -36,15 +45,26 @@ describe('PacemakerFactoryService', () => {
     test('should read factory storage', async () => {
       await pacemakerFactory.onModuleInit();
 
-      expect(mockGetAggregatorFactoryStorage).toHaveBeenCalledTimes(1);
+      expect(mockGetAggregatorAddresses).toHaveBeenCalledTimes(1);
     });
 
-    const zeroAggregator: IAggregatorFactoryStorage = new MichelsonMap();
-    const oneAggregator: IAggregatorFactoryStorage = new MichelsonMap();
-    oneAggregator.set(['USD', 'ONE'], 'USD-ONE/Address');
-    const twoAggregator: IAggregatorFactoryStorage = new MichelsonMap();
-    twoAggregator.set(['USD', 'ONE'], 'USD-ONE/Address');
-    twoAggregator.set(['USD', 'TWO'], 'USD-TWO/Address');
+    const zeroAggregator: IAggregatorInformations[] = [];
+    const oneAggregator: IAggregatorInformations[] = [
+      {
+        pair: ['USD', 'ONE'],
+        aggregatorAddress: 'USD-ONE/Address'
+      }
+    ];
+    const twoAggregator: IAggregatorInformations[] = [
+      {
+        pair: ['USD', 'ONE'],
+        aggregatorAddress: 'USD-ONE/Address'
+      },
+      {
+        pair: ['USD', 'TWO'],
+        aggregatorAddress: 'USD-TWO/Address'
+      }
+    ];
 
     test.each`
       storage           | n
@@ -52,7 +72,7 @@ describe('PacemakerFactoryService', () => {
       ${oneAggregator}  | ${1}
       ${twoAggregator}  | ${2}
     `('should start $n Pacemaker services', async ({ storage, n }) => {
-      mockGetAggregatorFactoryStorage.mockReturnValue(storage);
+      mockGetAggregatorAddresses.mockReturnValue(storage);
 
       await pacemakerFactory.onModuleInit();
 
@@ -60,7 +80,7 @@ describe('PacemakerFactoryService', () => {
     });
 
     test('should provide correct pair name and address', async () => {
-      mockGetAggregatorFactoryStorage.mockReturnValue(oneAggregator);
+      mockGetAggregatorAddresses.mockReturnValue(oneAggregator);
 
       await pacemakerFactory.onModuleInit();
 
@@ -69,21 +89,21 @@ describe('PacemakerFactoryService', () => {
         aggregatorPair: ['USD', 'ONE'],
         timerProgressDurationMiliseconds: 30 * 1000,
         timerResendDurationMiliseconds: 15 * 1000,
-        oracleAddresses: []
+        oracleAddresses: mockedOracleAddresses
       };
 
       expect(PacemakerServiceMock).toHaveBeenCalledWith(
         OracleConfigMock,
-        null,
-        null,
-        expect.anything(),
-        null,
+        pacemakerNetworkServiceMock,
+        eventHubServiceMock,
+        contractServiceMock,
+        reportGenFactoryMock,
         expectedConfig
       );
     });
 
     test('should provide correct pair name and address for all aggregators', async () => {
-      mockGetAggregatorFactoryStorage.mockReturnValue(twoAggregator);
+      mockGetAggregatorAddresses.mockReturnValue(twoAggregator);
 
       await pacemakerFactory.onModuleInit();
 
@@ -92,7 +112,7 @@ describe('PacemakerFactoryService', () => {
         aggregatorPair: ['USD', 'ONE'],
         timerProgressDurationMiliseconds: 30 * 1000,
         timerResendDurationMiliseconds: 15 * 1000,
-        oracleAddresses: []
+        oracleAddresses: mockedOracleAddresses
       };
 
       const expectedConfigTwo: IPacemakerConfig = {
@@ -100,25 +120,25 @@ describe('PacemakerFactoryService', () => {
         aggregatorPair: ['USD', 'TWO'],
         timerProgressDurationMiliseconds: 30 * 1000,
         timerResendDurationMiliseconds: 15 * 1000,
-        oracleAddresses: []
+        oracleAddresses: mockedOracleAddresses
       };
 
       expect(PacemakerServiceMock).toHaveBeenNthCalledWith(
         1,
         OracleConfigMock,
-        null,
-        null,
-        expect.anything(),
-        null,
+        pacemakerNetworkServiceMock,
+        eventHubServiceMock,
+        contractServiceMock,
+        reportGenFactoryMock,
         expectedConfigOne
       );
       expect(PacemakerServiceMock).toHaveBeenNthCalledWith(
         2,
         OracleConfigMock,
-        null,
-        null,
-        expect.anything(),
-        null,
+        pacemakerNetworkServiceMock,
+        eventHubServiceMock,
+        contractServiceMock,
+        reportGenFactoryMock,
         expectedConfigTwo
       );
     });
@@ -129,7 +149,7 @@ describe('PacemakerFactoryService', () => {
       ${oneAggregator}  | ${1}
       ${twoAggregator}  | ${2}
     `('should initialize pacemaker service with $n aggregators', async ({ storage, n }) => {
-      mockGetAggregatorFactoryStorage.mockReturnValue(storage);
+      mockGetAggregatorAddresses.mockReturnValue(storage);
 
       await pacemakerFactory.onModuleInit();
 

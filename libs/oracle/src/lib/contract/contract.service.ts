@@ -11,11 +11,13 @@ import { IAttestedReport, ICompressedReport, IObservation, ISignature } from '..
 import { toTimestamp } from './helpers.js';
 import { TxManagerService } from '@tezosdynamics/tx-manager';
 import {
-  IAggregatorFactoryStorage,
+  AggregatorFactoryContractAbstraction,
+  IAggregatorInformations,
   IAggregatorStorage,
   IOracleInformations,
   IOracleObservationType
 } from '@tezosdynamics/contracts';
+import { IAggregatorConfig } from './contract.types.js';
 
 @Injectable()
 export class ContractService implements OnModuleInit {
@@ -28,13 +30,17 @@ export class ContractService implements OnModuleInit {
 
   public async onModuleInit(): Promise<void> {}
 
-  public async getAggregatorFactoryStorage(
-    aggregatorFactoryAddress: string
-  ): Promise<IAggregatorFactoryStorage> {
+  public async getAggregatorAddresses(aggregatorFactoryAddress: string): Promise<IAggregatorInformations[]> {
     const contractInstance = await (
       await this._txManagerService.getTezosToolkit()
-    ).contract.at(aggregatorFactoryAddress);
-    return await contractInstance.storage();
+    ).contract.at<AggregatorFactoryContractAbstraction>(aggregatorFactoryAddress);
+    const storage = await contractInstance.storage();
+    return [...storage.entries()].map(([pair, aggregatorAddress]) => {
+      return {
+        aggregatorAddress,
+        pair: [pair['0'], pair['1']]
+      } as IAggregatorInformations;
+    });
   }
 
   public async getOraclesAddresses(aggregatorAddress: string): Promise<IOracleInformations[]> {
@@ -272,17 +278,13 @@ export class ContractService implements OnModuleInit {
     };
   }
 
-  public async getBlockchainConfig(aggregatorAddress: string): Promise<{
-    heartBeatSeconds: number;
-    decimals: BigNumber;
-    alphaPercentPerThousand: BigNumber;
-  }> {
+  public async getAggregatorConfig(aggregatorAddress: string): Promise<IAggregatorConfig> {
     const contractInstance = await (
       await this._txManagerService.getTezosToolkit()
     ).contract.at(aggregatorAddress);
     const storage: IAggregatorStorage = await contractInstance.storage();
     return {
-      heartBeatSeconds: storage.heartBeatSeconds?.toNumber() || 60,
+      heartBeatSeconds: storage.heartBeatSeconds,
       decimals: storage.decimals,
       alphaPercentPerThousand: storage.alphaPercentPerThousand.div(1000)
     };

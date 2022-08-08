@@ -66,11 +66,11 @@ export class PacemakerService {
 
     this._epochAndLeader = {
       epoch,
-      leader: await this.leaderForEpoch(epoch)
+      leader: await this._leaderForEpoch(epoch)
     };
     this._newEpoch = epoch;
 
-    const blockchainConfig = await this._contractService.getBlockchainConfig(
+    const blockchainConfig = await this._contractService.getAggregatorConfig(
       this._pacemakerConfig.aggregatorAddress
     );
 
@@ -79,8 +79,8 @@ export class PacemakerService {
       leader: this._epochAndLeader.leader,
       aggregatorAddress: this._pacemakerConfig.aggregatorAddress,
       aggregatorPair: this._pacemakerConfig.aggregatorPair,
-      alpha: new BigNumber(blockchainConfig.alphaPercentPerThousand),
-      heartbeatSeconds: new BigNumber(blockchainConfig.heartBeatSeconds),
+      alpha: blockchainConfig.alphaPercentPerThousand,
+      heartbeatSeconds: blockchainConfig.heartBeatSeconds,
       oracleAddresses: this._pacemakerConfig.oracleAddresses
     });
 
@@ -196,7 +196,7 @@ export class PacemakerService {
 
     this._epochAndLeader = {
       epoch,
-      leader: await this.leaderForEpoch(epoch)
+      leader: await this._leaderForEpoch(epoch)
     };
 
     this._reportGenFactoryService.stopReportGen(this._pacemakerConfig.aggregatorAddress);
@@ -224,18 +224,15 @@ export class PacemakerService {
     }
   }
 
-  public async leaderForEpoch(epoch: number): Promise<string> {
-    const peersIdList: string[] = [];
+  private async _leaderForEpoch(epoch: number): Promise<string> {
     const oracleAddresses = await this._contractService.getOraclesAddresses(
       this._pacemakerConfig.aggregatorAddress
     );
-    for (const [, value] of oracleAddresses.entries()) {
-      peersIdList.push(value.oraclePeerId);
-    }
 
-    const oracleLeaderIndex = epoch % (peersIdList.length - 1);
+    const oraclePeersIdList: string[] = [...oracleAddresses.values()].map((infos) => infos.oraclePeerId);
+    const oracleLeaderIndex = epoch % oraclePeersIdList.length;
 
-    return peersIdList[oracleLeaderIndex];
+    return oraclePeersIdList[oracleLeaderIndex];
   }
 
   public getState(): IPaceMakerState {

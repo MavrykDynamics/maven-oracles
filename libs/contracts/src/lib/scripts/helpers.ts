@@ -269,8 +269,8 @@ export const saveContractAddress = async (
   const filePath =
     networkName === 'development' ? '../../../../../.env' : `../../../../../.${networkName}.env`;
 
-  const __dirname = new URL('.', import.meta.url).pathname;
-  const envFile = path.resolve(__dirname, filePath);
+  const dirname = new URL('.', import.meta.url).pathname;
+  const envFile = path.resolve(dirname, filePath);
   let data = fs.readFileSync(envFile, 'utf8');
 
   const present = data.match(new RegExp(`^${contractName}=.*$`, 'm'));

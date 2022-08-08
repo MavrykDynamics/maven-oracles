@@ -2,7 +2,11 @@
 /* eslint-disable @typescript-eslint/consistent-type-definitions */
 
 import { createRequire } from 'module';
+
+// eslint-disable-next-line @rushstack/typedef-var
 const require = createRequire(import.meta.url);
+
+// eslint-disable-next-line @rushstack/typedef-var
 const AggregatorRaw = require('./contracts/json/aggregatorFactory.json');
 
 import { MichelsonMap, MichelsonMapKey } from '@taquito/michelson-encoder';
