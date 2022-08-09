@@ -196,16 +196,8 @@ export class PacemakerService {
       Math.max(this._peersNewEpoch.get(from.toString()) ?? 0, newEpochMessage.newEpoch)
     );
 
-    try {
-      await this._checkAmplificationRule();
-    } catch (e) {
-      this._logger.error(`Error during amplification rule check: ${e.toString()}`);
-    }
-    try {
-      await this._checkAgreementRule();
-    } catch (e) {
-      this._logger.error(`Error during agreement rule check: ${e.toString()}`);
-    }
+    await this._checkAmplificationRule();
+    await this._checkAgreementRule();
   }
 
   /**

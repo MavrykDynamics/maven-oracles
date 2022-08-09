@@ -32,7 +32,7 @@ export class PacemakerNetworkService extends TypedEmitter<IPacemakerEvents> impl
 
   private _handleNewEpoch(msg: CustomEvent<Message>): void {
     const peerId = msg.detail.from;
-    const newEpochMessage = PacemakerNetworkService._deserializeNewEpochMessage(msg.detail.data);
+    const newEpochMessage = PacemakerNetworkService.deserializeNewEpochMessage(msg.detail.data);
     this._logger.debug(`Received newEpoch from ${peerId}: ${JSON.stringify(newEpochMessage)}`);
 
     this.emit('newEpoch', peerId, newEpochMessage);
@@ -40,11 +40,11 @@ export class PacemakerNetworkService extends TypedEmitter<IPacemakerEvents> impl
 
   public async broadcastNewEpoch(newEpochMessage: INewEpochMessage): Promise<void> {
     this._logger.debug(`Sending newEpoch: ${JSON.stringify(newEpochMessage)}`);
-    const serialized = PacemakerNetworkService._serializeNewEpochMessage(newEpochMessage);
+    const serialized = PacemakerNetworkService.serializeNewEpochMessage(newEpochMessage);
     await this._nodeService.node.pubsub.publish(this._topic, serialized);
   }
 
-  private static _serializeNewEpochMessage(newEpochMessage: INewEpochMessage): Uint8Array {
+  public static serializeNewEpochMessage(newEpochMessage: INewEpochMessage): Uint8Array {
     const encoder = new TextEncoder();
     return encoder.encode(
       JSON.stringify({
@@ -54,7 +54,7 @@ export class PacemakerNetworkService extends TypedEmitter<IPacemakerEvents> impl
     );
   }
 
-  private static _deserializeNewEpochMessage(newEpochMessage: Uint8Array): INewEpochMessage {
+  public static deserializeNewEpochMessage(newEpochMessage: Uint8Array): INewEpochMessage {
     const decoder = new TextDecoder();
     const parsed = JSON.parse(decoder.decode(newEpochMessage));
 

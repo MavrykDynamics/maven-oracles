@@ -1,5 +1,4 @@
 import { jest } from '@jest/globals';
-import { MichelsonMap } from '@taquito/taquito';
 import { IAggregatorInformations, IOracleInformations } from '@tezosdynamics/contracts';
 import BigNumber from 'bignumber.js';
 import { IAggregatorConfig } from '../contract.types.js';

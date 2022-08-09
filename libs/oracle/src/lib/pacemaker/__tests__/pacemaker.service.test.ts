@@ -8,7 +8,6 @@ import {
 import { OracleConfigMock } from '../../__mocks__/oracle.config.mock.js';
 import {
   mockBroadcastNewEpoch,
-  PacemakerNetworkServiceEventEmitterMock,
   PacemakerNetworkServiceMock
 } from '../__mocks__/pacemaker.network.service.mock.js';
 import {
@@ -25,6 +24,8 @@ import { IOracleInformations } from '@tezosdynamics/contracts';
 import { beforeEach, expect, jest } from '@jest/globals';
 import { TimerMock } from '../__mocks__/timer.mock.js';
 import { PeerId } from '@libp2p/interface-peer-id';
+import type { PacemakerService as PacemakerServiceType } from '../pacemaker.service.js';
+import { INewEpochMessage } from '../pacemaker.types.js';
 
 jest.unstable_mockModule('../timer.js', async () => ({
   Timer: TimerMock
@@ -34,7 +35,10 @@ jest.unstable_mockModule('../timer.js', async () => ({
 const { PacemakerService } = await import('../pacemaker.service.js');
 
 describe('PacemakerService', () => {
-  let pacemakerService: PacemakerService;
+  let pacemakerService: PacemakerServiceType;
+  let timerProgress: any;
+  let timerResend: any;
+  let onNewEpochReceived: (from: PeerId, newEpochMessage: INewEpochMessage) => Promise<void>;
   const pacemakerNetworkServiceMock = new PacemakerNetworkServiceMock();
   const eventHubServiceMock = new EventHubService();
   const contractServiceMock = new ContractServiceMock();
@@ -52,6 +56,16 @@ describe('PacemakerService', () => {
       reportGenFactoryMock as unknown as ReportGenFactoryService,
       PacemakerConfigMock
     );
+
+    // Dirty tricks to avoid errors due to properties/methods being private
+
+    // @ts-expect-error
+    timerProgress = pacemakerService._timerProgress;
+    // @ts-expect-error
+    timerResend = pacemakerService._timerResend;
+
+    // @ts-expect-error
+    onNewEpochReceived = pacemakerService._onNewEpochReceived.bind(pacemakerService);
   });
 
   afterEach(async () => {
@@ -125,7 +139,7 @@ describe('PacemakerService', () => {
       await pacemakerService.initialize();
 
       // This does not test what timer have been started, it could be the resend timer.
-      expect(pacemakerService._timerProgress.restart).toHaveBeenCalledTimes(1);
+      expect(timerProgress.restart).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -137,18 +151,16 @@ describe('PacemakerService', () => {
     });
 
     test('should have correct timeout value', async () => {
-      expect(pacemakerService._timerProgress.timeMs).toEqual(
-        PacemakerConfigMock.timerProgressDurationMiliseconds
-      );
+      expect(timerProgress.timeMs).toEqual(PacemakerConfigMock.timerProgressDurationMiliseconds);
     });
 
     test('should restart timer after timeout', async () => {
-      await pacemakerService._timerProgress.fakeTimeout();
-      expect(pacemakerService._timerProgress.restart).toHaveBeenCalledTimes(1);
+      await timerProgress.fakeTimeout();
+      expect(timerProgress.restart).toHaveBeenCalledTimes(1);
     });
 
     test('should broadcast epoch + 1 after timeout', async () => {
-      await pacemakerService._timerProgress.fakeTimeout();
+      await timerProgress.fakeTimeout();
       expect(mockBroadcastNewEpoch).toHaveBeenCalledTimes(1);
       expect(mockBroadcastNewEpoch).toHaveBeenCalledWith({
         newEpoch: mockedLastBlockchainReportEpoch + 1,
@@ -157,29 +169,29 @@ describe('PacemakerService', () => {
     });
 
     test('should store epoch + 1 as newEpoch after timeout', async () => {
-      await pacemakerService._timerProgress.fakeTimeout();
+      await timerProgress.fakeTimeout();
       const { newEpoch } = pacemakerService.getState();
       expect(newEpoch).toEqual(mockedLastBlockchainReportEpoch + 1);
     });
 
     test('should reset timer on progress event', async () => {
       eventHubServiceMock.progress(PacemakerConfigMock.aggregatorAddress);
-      expect(pacemakerService._timerProgress.restart).toHaveBeenCalledTimes(1);
+      expect(timerProgress.restart).toHaveBeenCalledTimes(1);
     });
 
     test('should not reset timer on progress event for another aggregator', async () => {
       eventHubServiceMock.progress('another aggregator');
-      expect(pacemakerService._timerProgress.restart).not.toHaveBeenCalled();
+      expect(timerProgress.restart).not.toHaveBeenCalled();
     });
 
     test('should reset timer on changeLeader event', async () => {
       eventHubServiceMock.changeLeader(PacemakerConfigMock.aggregatorAddress);
-      expect(pacemakerService._timerProgress.restart).toHaveBeenCalledTimes(1);
+      expect(timerProgress.restart).toHaveBeenCalledTimes(1);
     });
 
     test('should not reset timer on changeLeader event for another aggregator', async () => {
       eventHubServiceMock.changeLeader('another aggregator');
-      expect(pacemakerService._timerProgress.restart).not.toHaveBeenCalled();
+      expect(timerProgress.restart).not.toHaveBeenCalled();
     });
   });
 
@@ -191,18 +203,16 @@ describe('PacemakerService', () => {
     });
 
     test('should have correct timeout value', async () => {
-      expect(pacemakerService._timerResend.timeMs).toEqual(
-        PacemakerConfigMock.timerResendDurationMiliseconds
-      );
+      expect(timerResend.timeMs).toEqual(PacemakerConfigMock.timerResendDurationMiliseconds);
     });
 
     test('should restart timer after timeout', async () => {
-      await pacemakerService._timerResend.fakeTimeout();
-      expect(pacemakerService._timerResend.restart).toHaveBeenCalledTimes(1);
+      await timerResend.fakeTimeout();
+      expect(timerResend.restart).toHaveBeenCalledTimes(1);
     });
 
     test('should broadcast epoch after timeout', async () => {
-      await pacemakerService._timerResend.fakeTimeout();
+      await timerResend.fakeTimeout();
       expect(mockBroadcastNewEpoch).toHaveBeenCalledTimes(1);
       expect(mockBroadcastNewEpoch).toHaveBeenCalledWith({
         newEpoch: mockedLastBlockchainReportEpoch,
@@ -229,7 +239,7 @@ describe('PacemakerService', () => {
         toString: () => peerId
       } as unknown as PeerId;
 
-      await pacemakerService._onNewEpochReceived(id, {
+      await onNewEpochReceived(id, {
         aggregatorAddress: PacemakerConfigMock.aggregatorAddress,
         newEpoch: newEpoch
       });
@@ -244,7 +254,7 @@ describe('PacemakerService', () => {
         toString: () => mockedOracleAddresses[0].oraclePeerId
       } as unknown as PeerId;
 
-      await pacemakerService._onNewEpochReceived(id, {
+      await onNewEpochReceived(id, {
         aggregatorAddress: 'Other aggregator',
         newEpoch: 5
       });
@@ -266,11 +276,16 @@ describe('PacemakerService', () => {
       // Since there is 7 mocked oracles, f is 2.
       // So, amplification rule should pass with 3 newEpoch values over the current newEpoch (2)
 
-      const ids = mockedOracleAddresses.map((addrs) => addrs.oraclePeerId);
+      const ids = mockedOracleAddresses.map(
+        (addrs) =>
+          ({
+            toString: () => addrs.oraclePeerId
+          } as PeerId)
+      );
 
       await Promise.all(
         values.map((value, i) =>
-          pacemakerService._onNewEpochReceived(ids[i], {
+          onNewEpochReceived(ids[i], {
             aggregatorAddress: PacemakerConfigMock.aggregatorAddress,
             newEpoch: value
           })
@@ -284,11 +299,16 @@ describe('PacemakerService', () => {
     test('should broadcast newEpoch value if amplification rule pass', async () => {
       const values = [3, 3, 3];
       const expectedNewEpoch = 3;
-      const ids = mockedOracleAddresses.map((addrs) => addrs.oraclePeerId);
+      const ids = mockedOracleAddresses.map(
+        (addrs) =>
+          ({
+            toString: () => addrs.oraclePeerId
+          } as PeerId)
+      );
 
       await Promise.all(
         values.map((value, i) =>
-          pacemakerService._onNewEpochReceived(ids[i], {
+          onNewEpochReceived(ids[i], {
             aggregatorAddress: PacemakerConfigMock.aggregatorAddress,
             newEpoch: value
           })
@@ -304,11 +324,16 @@ describe('PacemakerService', () => {
 
     test('should not broadcast newEpoch value if amplification rule fail', async () => {
       const values = [1, 1, 1];
-      const ids = mockedOracleAddresses.map((addrs) => addrs.oraclePeerId);
+      const ids = mockedOracleAddresses.map(
+        (addrs) =>
+          ({
+            toString: () => addrs.oraclePeerId
+          } as PeerId)
+      );
 
       await Promise.all(
         values.map((value, i) =>
-          pacemakerService._onNewEpochReceived(ids[i], {
+          onNewEpochReceived(ids[i], {
             aggregatorAddress: PacemakerConfigMock.aggregatorAddress,
             newEpoch: value
           })
@@ -332,11 +357,16 @@ describe('PacemakerService', () => {
       // Since there is 7 mocked oracles, f is 2.
       // So, agreement rule should pass with 5 newEpoch values over the current epoch (2)
 
-      const ids = mockedOracleAddresses.map((addrs) => addrs.oraclePeerId);
+      const ids = mockedOracleAddresses.map(
+        (addrs) =>
+          ({
+            toString: () => addrs.oraclePeerId
+          } as PeerId)
+      );
 
       await Promise.all(
         values.map((value, i) =>
-          pacemakerService._onNewEpochReceived(ids[i], {
+          onNewEpochReceived(ids[i], {
             aggregatorAddress: PacemakerConfigMock.aggregatorAddress,
             newEpoch: value
           })
@@ -364,11 +394,16 @@ describe('PacemakerService', () => {
       // So, agreement rule should pass with 5 newEpoch values over the current epoch (2)
 
       const values = [3, 3, 3, 3, 3, 3, 3];
-      const ids = mockedOracleAddresses.map((addrs) => addrs.oraclePeerId);
+      const ids = mockedOracleAddresses.map(
+        (addrs) =>
+          ({
+            toString: () => addrs.oraclePeerId
+          } as PeerId)
+      );
 
       await Promise.all(
         values.map((value, i) =>
-          pacemakerService._onNewEpochReceived(ids[i], {
+          onNewEpochReceived(ids[i], {
             aggregatorAddress: PacemakerConfigMock.aggregatorAddress,
             newEpoch: value
           })
@@ -385,11 +420,16 @@ describe('PacemakerService', () => {
       // So, agreement rule should pass with 5 newEpoch values over the current epoch (2)
 
       const values = [1, 1, 1, 1, 1, 1]; // We also don't want to trigger the amplification rule
-      const ids = mockedOracleAddresses.map((addrs) => addrs.oraclePeerId);
+      const ids = mockedOracleAddresses.map(
+        (addrs) =>
+          ({
+            toString: () => addrs.oraclePeerId
+          } as PeerId)
+      );
 
       await Promise.all(
         values.map((value, i) =>
-          pacemakerService._onNewEpochReceived(ids[i], {
+          onNewEpochReceived(ids[i], {
             aggregatorAddress: PacemakerConfigMock.aggregatorAddress,
             newEpoch: value
           })
@@ -406,11 +446,16 @@ describe('PacemakerService', () => {
       // So, agreement rule should pass with 5 newEpoch values over the current epoch (2)
 
       const values = [3, 3, 3, 3, 3, 3, 3];
-      const ids = mockedOracleAddresses.map((addrs) => addrs.oraclePeerId);
+      const ids = mockedOracleAddresses.map(
+        (addrs) =>
+          ({
+            toString: () => addrs.oraclePeerId
+          } as PeerId)
+      );
 
       await Promise.all(
         values.map((value, i) =>
-          pacemakerService._onNewEpochReceived(ids[i], {
+          onNewEpochReceived(ids[i], {
             aggregatorAddress: PacemakerConfigMock.aggregatorAddress,
             newEpoch: value
           })
@@ -426,11 +471,16 @@ describe('PacemakerService', () => {
       // So, agreement rule should pass with 5 newEpoch values over the current epoch (2)
 
       const values = [1, 2, 2, 3, 4, 5, 6];
-      const ids = mockedOracleAddresses.map((addrs) => addrs.oraclePeerId);
+      const ids = mockedOracleAddresses.map(
+        (addrs) =>
+          ({
+            toString: () => addrs.oraclePeerId
+          } as PeerId)
+      );
 
       await Promise.all(
         values.map((value, i) =>
-          pacemakerService._onNewEpochReceived(ids[i], {
+          onNewEpochReceived(ids[i], {
             aggregatorAddress: PacemakerConfigMock.aggregatorAddress,
             newEpoch: value
           })
@@ -445,18 +495,23 @@ describe('PacemakerService', () => {
       // So, agreement rule should pass with 5 newEpoch values over the current epoch (2)
 
       const values = [3, 3, 3, 3, 3, 3, 3];
-      const ids = mockedOracleAddresses.map((addrs) => addrs.oraclePeerId);
+      const ids = mockedOracleAddresses.map(
+        (addrs) =>
+          ({
+            toString: () => addrs.oraclePeerId
+          } as PeerId)
+      );
 
       await Promise.all(
         values.map((value, i) =>
-          pacemakerService._onNewEpochReceived(ids[i], {
+          onNewEpochReceived(ids[i], {
             aggregatorAddress: PacemakerConfigMock.aggregatorAddress,
             newEpoch: value
           })
         )
       );
 
-      expect(pacemakerService._timerProgress.restart).toHaveBeenCalledTimes(1);
+      expect(timerProgress.restart).toHaveBeenCalledTimes(1);
     });
 
     test('should not restart progress timer when agreement rule pass', async () => {
@@ -464,38 +519,82 @@ describe('PacemakerService', () => {
       // So, agreement rule should pass with 5 newEpoch values over the current epoch (2)
 
       const values = [1, 2, 2, 3, 4, 5, 6];
-      const ids = mockedOracleAddresses.map((addrs) => addrs.oraclePeerId);
+      const ids = mockedOracleAddresses.map(
+        (addrs) =>
+          ({
+            toString: () => addrs.oraclePeerId
+          } as PeerId)
+      );
 
       await Promise.all(
         values.map((value, i) =>
-          pacemakerService._onNewEpochReceived(ids[i], {
+          onNewEpochReceived(ids[i], {
             aggregatorAddress: PacemakerConfigMock.aggregatorAddress,
             newEpoch: value
           })
         )
       );
 
-      expect(pacemakerService._timerProgress.restart).not.toHaveBeenCalled();
+      expect(timerProgress.restart).not.toHaveBeenCalled();
     });
 
-    test.skip('should emit startepoch if agreement rule pass and oracle is the leader', async () => {
+    test('should emit startepoch if agreement rule pass and oracle is the leader', async () => {
       // Since there is 7 mocked oracles, f is 2.
       // So, agreement rule should pass with 5 newEpoch values over the current epoch (2)
 
+      const listenerMock = jest.fn();
+      eventHubServiceMock.addListener('startepoch', listenerMock);
+
       const values = [3, 3, 3, 3, 3, 3, 3];
-      const ids = mockedOracleAddresses.map((addrs) => addrs.oraclePeerId);
+      const ids = mockedOracleAddresses.map(
+        (addrs) =>
+          ({
+            toString: () => addrs.oraclePeerId
+          } as PeerId)
+      );
 
       await Promise.all(
         values.map((value, i) =>
-          pacemakerService._onNewEpochReceived(ids[i], {
+          onNewEpochReceived(ids[i], {
             aggregatorAddress: PacemakerConfigMock.aggregatorAddress,
             newEpoch: value
           })
         )
       );
 
-      // TODO: the expect call
-      expect(pacemakerService._timerProgress.restart).toHaveBeenCalledTimes(1);
+      expect(listenerMock).toHaveBeenCalledTimes(1);
+      expect(listenerMock).toHaveBeenCalledWith(
+        PacemakerConfigMock.aggregatorAddress,
+        3,
+        OracleConfigMock.peerId
+      );
+    });
+
+    test('should not emit startepoch if agreement rule pass and oracle is not the leader', async () => {
+      // Since there is 7 mocked oracles, f is 2.
+      // So, agreement rule should pass with 5 newEpoch values over the current epoch (2)
+
+      const listenerMock = jest.fn();
+      eventHubServiceMock.addListener('startepoch', listenerMock);
+
+      const values = [4, 4, 4, 4, 4, 4, 4];
+      const ids = mockedOracleAddresses.map(
+        (addrs) =>
+          ({
+            toString: () => addrs.oraclePeerId
+          } as PeerId)
+      );
+
+      await Promise.all(
+        values.map((value, i) =>
+          onNewEpochReceived(ids[i], {
+            aggregatorAddress: PacemakerConfigMock.aggregatorAddress,
+            newEpoch: value
+          })
+        )
+      );
+
+      expect(listenerMock).not.toHaveBeenCalled();
     });
   });
 });
