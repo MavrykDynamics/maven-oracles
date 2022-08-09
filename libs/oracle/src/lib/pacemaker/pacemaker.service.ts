@@ -2,11 +2,11 @@ import { Logger } from '@nestjs/common';
 import { OracleConfig } from '../oracle.config.js';
 import { PacemakerNetworkService } from './pacemaker.network.service.js';
 import { PeerId } from '@libp2p/interface-peer-id';
-import { EventHubService } from '../event-hub/index.js';
+import { EventHubService, IEventHubEvents } from '../event-hub/index.js';
 import { ContractService } from '../contract/index.js';
 import { IPacemakerConfig } from './pacemaker.config.js';
 import { ReportGenFactoryService } from '../reportgen/index.js';
-import { INewEpochMessage, IPaceMakerState } from './index.js';
+import { INewEpochMessage, IPacemakerEvents, IPaceMakerState } from './index.js';
 import { computeFValueFrom } from './helpers.js';
 import { IOracleInformations } from '@tezosdynamics/contracts';
 import { Timer } from './timer.js';
@@ -56,6 +56,11 @@ export class PacemakerService {
   private readonly _timerProgress: Timer;
   private readonly _timerResend: Timer;
 
+  // Listeners stored so we can clear them
+  private progressListener: IEventHubEvents['progress'];
+  private changeLeaderListener: IEventHubEvents['changeLeader'];
+  private newEpochListener: IPacemakerEvents['newEpoch'];
+
   public constructor(
     private readonly _config: OracleConfig,
     private readonly _pacemakerNetworkService: PacemakerNetworkService,
@@ -80,10 +85,14 @@ export class PacemakerService {
   public async initialize(): Promise<void> {
     this._self = this._config.peerId;
 
+    this.progressListener = this._onProgress.bind(this);
+    this.changeLeaderListener = this._onChangeLeader.bind(this);
+    this.newEpochListener = this._onNewEpochReceived.bind(this);
+
     // Bind needed events to callbacks
-    this._eventHubService.addListener('progress', this._onProgress.bind(this));
-    this._eventHubService.addListener('changeLeader', this._onChangeLeader.bind(this));
-    this._pacemakerNetworkService.addListener('newEpoch', this._onNewEpochReceived.bind(this));
+    this._eventHubService.addListener('progress', this.progressListener);
+    this._eventHubService.addListener('changeLeader', this.changeLeaderListener);
+    this._pacemakerNetworkService.addListener('newEpoch', this.newEpochListener);
 
     // Read epoch from aggregator smart contract
     const { epoch } = await this._contractService.getLastBlockchainReport(
@@ -115,6 +124,14 @@ export class PacemakerService {
     });
 
     this._timerProgress.restart();
+  }
+
+  public async stop() {
+    this._timerProgress.stop();
+    this._timerResend.stop();
+    this._eventHubService.removeListener('progress', this.progressListener);
+    this._eventHubService.removeListener('changeLeader', this.changeLeaderListener);
+    this._pacemakerNetworkService.removeListener('newEpoch', this.newEpochListener);
   }
 
   /**
@@ -149,8 +166,6 @@ export class PacemakerService {
 
   private async _onResendTimerTimeout(): Promise<void> {
     await this._sendNewEpoch(this._newEpoch);
-
-    this._timerResend.restart();
   }
 
   private async _onProgressTimerTimeout(): Promise<void> {
@@ -181,8 +196,16 @@ export class PacemakerService {
       Math.max(this._peersNewEpoch.get(from.toString()) ?? 0, newEpochMessage.newEpoch)
     );
 
-    await this._checkAmplificationRule();
-    await this._checkAgreementRule();
+    try {
+      await this._checkAmplificationRule();
+    } catch (e) {
+      this._logger.error(`Error during amplification rule check: ${e.toString()}`);
+    }
+    try {
+      await this._checkAgreementRule();
+    } catch (e) {
+      this._logger.error(`Error during agreement rule check: ${e.toString()}`);
+    }
   }
 
   /**
@@ -210,7 +233,7 @@ export class PacemakerService {
 
     for (const newEpoch of peersNewEpochUnique) {
       // Count the number of peers that sent at least this value
-      const peersNewEpochGreaterThan = peersEpochs.filter((value) => value > newEpoch).length;
+      const peersNewEpochGreaterThan = peersEpochs.filter((value) => value >= newEpoch).length;
 
       if (peersNewEpochGreaterThan > f) {
         // If more than f have sent a greater value, keep the candidate value.
@@ -249,7 +272,8 @@ export class PacemakerService {
     // Example: [5, 3] if current epoch is 2
     const peersNewEpochUnique = [...new Set(peersEpochs)]
       .filter((epoch) => epoch > this._epochAndLeader.epoch)
-      .sort();
+      .sort()
+      .reverse();
 
     const f = computeFValueFrom(this._pacemakerConfig.oracleAddresses.length);
 
@@ -257,9 +281,7 @@ export class PacemakerService {
     let epoch = -1;
     for (const newEpoch of peersNewEpochUnique) {
       // Count the number of peers that sent at this value or greater
-      const peersNewEpochGreaterThan = peersEpochs.filter(
-        (value) => value >= this._epochAndLeader.epoch
-      ).length;
+      const peersNewEpochGreaterThan = peersEpochs.filter((value) => value >= newEpoch).length;
 
       if (peersNewEpochGreaterThan > 2 * f) {
         // If more than 2*f have sent a greater value, keep the candidate value.
@@ -302,8 +324,8 @@ export class PacemakerService {
       leader: this._epochAndLeader.leader,
       aggregatorAddress: this._pacemakerConfig.aggregatorAddress,
       aggregatorPair: this._pacemakerConfig.aggregatorPair,
-      alpha: blockchainConfig.heartBeatSeconds,
-      heartbeatSeconds: blockchainConfig.alphaPercentPerThousand,
+      alpha: blockchainConfig.alphaPercentPerThousand,
+      heartbeatSeconds: blockchainConfig.heartBeatSeconds,
       oracleAddresses: this._pacemakerConfig.oracleAddresses
     });
 

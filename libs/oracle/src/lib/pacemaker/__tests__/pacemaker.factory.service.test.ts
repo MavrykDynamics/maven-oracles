@@ -11,7 +11,6 @@ import { IPacemakerConfig } from '../pacemaker.config.js';
 import { PacemakerNetworkService } from '../pacemaker.network.service.js';
 import { PacemakerNetworkServiceMock } from '../__mocks__/pacemaker.network.service.mock.js';
 import { ReportgenFactoryServiceMock } from '../../reportgen/__mocks__/reportgen.factory.service.mock.js';
-import { EventHubServiceMock } from '../../event-hub/__mocks__/event-hub.mock.js';
 import { EventHubService } from '../../event-hub/index.js';
 import { ContractService } from '../../contract/index.js';
 import { ReportGenFactoryService } from '../../reportgen/index.js';
@@ -27,7 +26,7 @@ describe('PacemakerFactoryService', () => {
   // @ts-ignore
   let pacemakerFactory: PacemakerFactoryService;
   const pacemakerNetworkServiceMock = new PacemakerNetworkServiceMock();
-  const eventHubServiceMock = new EventHubServiceMock();
+  const eventHubServiceMock = new EventHubService();
   const reportGenFactoryMock = new ReportgenFactoryServiceMock();
   const contractServiceMock = new ContractServiceMock();
 
