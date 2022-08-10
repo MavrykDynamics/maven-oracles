@@ -5,7 +5,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "build:test": "tsc --noEmit",
-    "test": "NODE_OPTIONS=--experimental-vm-modules jest --config config/jest.config.cjs",
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest --config config/jest.config.cjs 2>&1",
     "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --config config/jest.config.cjs --watch"
   },
   "main": "dist/index.js",

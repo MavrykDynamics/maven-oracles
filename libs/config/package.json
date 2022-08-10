@@ -4,7 +4,8 @@
   "license": "MIT",
   "scripts": {
     "build": "heft build --clean",
-    "build:watch": "heft build"
+    "build:watch": "heft build",
+    "test": "echo 0"
   },
   "main": "dist/libs/config/src/index.js",
   "typings": "dist/libs/config/src/index.d.ts",

@@ -6,7 +6,8 @@
     "build": "heft build --clean",
     "build:watch": "heft build",
     "serve": "node dist/src/main.js",
-    "start": "heft start"
+    "start": "heft start",
+    "test": "echo 0"
   },
   "type": "module",
   "dependencies": {

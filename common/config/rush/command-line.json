@@ -168,6 +168,13 @@
     // }
 
     {
+      "name": "test",
+      "commandKind": "bulk",
+      "summary": "Build projects and watch for changes",
+      "description": "Run tests",
+      "enableParallelism": true
+    },
+    {
       "name": "build:watch",
       "commandKind": "bulk",
       "summary": "Build projects and watch for changes",
