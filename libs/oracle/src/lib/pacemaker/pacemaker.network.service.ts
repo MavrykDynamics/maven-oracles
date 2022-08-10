@@ -1,13 +1,17 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { TypedEmitter } from 'tiny-typed-emitter';
 import { NodeService } from '../node.service.js';
 import { Message } from '@libp2p/interface-pubsub';
 import { INewEpochMessage, IPacemakerEvents } from './pacemaker.types.js';
 
 @Injectable()
-export class PacemakerNetworkService extends TypedEmitter<IPacemakerEvents> implements OnModuleInit {
+export class PacemakerNetworkService
+  extends TypedEmitter<IPacemakerEvents>
+  implements OnModuleInit, OnModuleDestroy
+{
   private readonly _logger: Logger = new Logger(PacemakerNetworkService.name);
   private readonly _topic: string = 'newEpoch';
+  private readonly _messageListener = this._onPubSubMessage.bind(this);
 
   public constructor(private readonly _nodeService: NodeService) {
     super();
@@ -15,9 +19,12 @@ export class PacemakerNetworkService extends TypedEmitter<IPacemakerEvents> impl
 
   public async onModuleInit(): Promise<void> {
     await this._nodeService.node.pubsub.subscribe(this._topic);
-    await this._nodeService.node.pubsub.addEventListener('message', (msg: CustomEvent<Message>) => {
-      this._onPubSubMessage(msg);
-    });
+    await this._nodeService.node.pubsub.addEventListener('message', this._messageListener);
+  }
+
+  public async onModuleDestroy(): Promise<void> {
+    await this._nodeService.node.pubsub.unsubscribe(this._topic);
+    await this._nodeService.node.pubsub.removeEventListener('message', this._messageListener);
   }
 
   private _onPubSubMessage(msg: CustomEvent<Message>): void {

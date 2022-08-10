@@ -41,7 +41,7 @@ describe('PacemakerService', () => {
   let onNewEpochReceived: (from: PeerId, newEpochMessage: INewEpochMessage) => Promise<void>;
   const pacemakerNetworkServiceMock = new PacemakerNetworkServiceMock();
   const eventHubServiceMock = new EventHubService();
-  const contractServiceMock = new ContractServiceMock();
+  const contractServiceMock: any = new ContractServiceMock();
   const reportGenFactoryMock = new ReportgenFactoryServiceMock();
 
   beforeEach(async () => {
@@ -595,6 +595,35 @@ describe('PacemakerService', () => {
       );
 
       expect(listenerMock).not.toHaveBeenCalled();
+    });
+
+    test('should silently fail if aggregator config getter throws ', async () => {
+      // Since there is 7 mocked oracles, f is 2.
+      // So, agreement rule should pass with 5 newEpoch values over the current epoch (2)
+
+      contractServiceMock.getAggregatorConfig.mockRejectedValue(new Error('AggregatorConfigError'));
+
+      const listenerMock = jest.fn();
+      eventHubServiceMock.addListener('startepoch', listenerMock);
+
+      const values = [4, 4, 4, 4, 4, 4, 4];
+      const ids = mockedOracleAddresses.map(
+        (addrs) =>
+          ({
+            toString: () => addrs.oraclePeerId
+          } as PeerId)
+      );
+
+      await Promise.all(
+        values.map((value, i) =>
+          onNewEpochReceived(ids[i], {
+            aggregatorAddress: PacemakerConfigMock.aggregatorAddress,
+            newEpoch: value
+          })
+        )
+      );
+
+      expect(mockStartReportGen).not.toHaveBeenCalled();
     });
   });
 });

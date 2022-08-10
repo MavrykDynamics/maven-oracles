@@ -5,6 +5,29 @@ on:
       - ocr
 
 jobs:
+  tests:
+    name: Unit test (Node ${{ matrix.node }}, ${{ matrix.architecture }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: ['12', '14', '16', '18']
+        architecture: ['x64']
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node }}
+          architecture: ${{ matrix.architecture }}
+
+      - run: node common/scripts/install-run-rush.js install
+
+      - run: node common/scripts/install-run-rush.js build
+
+      - run: node common/scripts/install-run-rush.js test
+
   build-docker-image:
     name: Build base image
     runs-on: ubuntu-latest

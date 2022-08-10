@@ -3,13 +3,14 @@ import { OracleConfig } from '../oracle.config.js';
 import { PacemakerNetworkService } from './pacemaker.network.service.js';
 import { PeerId } from '@libp2p/interface-peer-id';
 import { EventHubService, IEventHubEvents } from '../event-hub/index.js';
-import { ContractService } from '../contract/index.js';
+import { ContractService, IAggregatorConfig } from '../contract/index.js';
 import { IPacemakerConfig } from './pacemaker.config.js';
 import { ReportGenFactoryService } from '../reportgen/index.js';
 import { INewEpochMessage, IPacemakerEvents, IPaceMakerState } from './index.js';
 import { computeFValueFrom } from './helpers.js';
 import { IOracleInformations } from '@tezosdynamics/contracts';
 import { Timer } from './timer.js';
+
 /**
  * The pacemaker service as described in https://research.chain.link/ocr.pdf Section 4.
  * With some differences:
@@ -57,9 +58,9 @@ export class PacemakerService {
   private readonly _timerResend: Timer;
 
   // Listeners stored so we can clear them
-  private progressListener: IEventHubEvents['progress'];
-  private changeLeaderListener: IEventHubEvents['changeLeader'];
-  private newEpochListener: IPacemakerEvents['newEpoch'];
+  private _progressListener: IEventHubEvents['progress'];
+  private _changeLeaderListener: IEventHubEvents['changeLeader'];
+  private _newEpochListener: IPacemakerEvents['newEpoch'];
 
   public constructor(
     private readonly _config: OracleConfig,
@@ -85,14 +86,14 @@ export class PacemakerService {
   public async initialize(): Promise<void> {
     this._self = this._config.peerId;
 
-    this.progressListener = this._onProgress.bind(this);
-    this.changeLeaderListener = this._onChangeLeader.bind(this);
-    this.newEpochListener = this._onNewEpochReceived.bind(this);
+    this._progressListener = this._onProgress.bind(this);
+    this._changeLeaderListener = this._onChangeLeader.bind(this);
+    this._newEpochListener = this._onNewEpochReceived.bind(this);
 
     // Bind needed events to callbacks
-    this._eventHubService.addListener('progress', this.progressListener);
-    this._eventHubService.addListener('changeLeader', this.changeLeaderListener);
-    this._pacemakerNetworkService.addListener('newEpoch', this.newEpochListener);
+    this._eventHubService.addListener('progress', this._progressListener);
+    this._eventHubService.addListener('changeLeader', this._changeLeaderListener);
+    this._pacemakerNetworkService.addListener('newEpoch', this._newEpochListener);
 
     // Read epoch from aggregator smart contract
     const { epoch } = await this._contractService.getLastBlockchainReport(
@@ -129,9 +130,9 @@ export class PacemakerService {
   public async stop() {
     this._timerProgress.stop();
     this._timerResend.stop();
-    this._eventHubService.removeListener('progress', this.progressListener);
-    this._eventHubService.removeListener('changeLeader', this.changeLeaderListener);
-    this._pacemakerNetworkService.removeListener('newEpoch', this.newEpochListener);
+    this._eventHubService.removeListener('progress', this._progressListener);
+    this._eventHubService.removeListener('changeLeader', this._changeLeaderListener);
+    this._pacemakerNetworkService.removeListener('newEpoch', this._newEpochListener);
   }
 
   /**
@@ -306,9 +307,17 @@ export class PacemakerService {
     // Update newEpoch
     this._newEpoch = Math.max(this._newEpoch, epoch);
 
-    const blockchainConfig = await this._contractService.getAggregatorConfig(
-      this._pacemakerConfig.aggregatorAddress
-    );
+    let aggregatorConfig: IAggregatorConfig;
+    try {
+      aggregatorConfig = await this._contractService.getAggregatorConfig(
+        this._pacemakerConfig.aggregatorAddress
+      );
+    } catch (e) {
+      this._logger.error(
+        `${this._pacemakerConfig.aggregatorAddress}/${this._epochAndLeader.epoch} - Failed to fetch aggregator config`
+      );
+      return;
+    }
 
     // Start new report generation instance
     this._reportGenFactoryService.startReportGen({
@@ -316,8 +325,8 @@ export class PacemakerService {
       leader: this._epochAndLeader.leader,
       aggregatorAddress: this._pacemakerConfig.aggregatorAddress,
       aggregatorPair: this._pacemakerConfig.aggregatorPair,
-      alpha: blockchainConfig.alphaPercentPerThousand,
-      heartbeatSeconds: blockchainConfig.heartBeatSeconds,
+      alpha: aggregatorConfig.alphaPercentPerThousand,
+      heartbeatSeconds: aggregatorConfig.heartBeatSeconds,
       oracleAddresses: this._pacemakerConfig.oracleAddresses
     });
 
