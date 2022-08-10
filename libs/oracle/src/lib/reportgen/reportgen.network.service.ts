@@ -5,7 +5,7 @@ import BigNumber from 'bignumber.js';
 import { PeerId } from '@libp2p/interface-peer-id';
 import { OracleConfig } from '../oracle.config.js';
 import { NodeService } from '../node.service.js';
-import { StreamManagerService } from '../stream-manager/stream-manager.service.js';
+import { StreamManagerService } from '../stream-manager/index.js';
 import {
   IFinalMessage,
   IReportReqMessage,
@@ -100,7 +100,7 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
 
   private _handleObserveReq(msg: CustomEvent<Message>): void {
     const peerId = msg.detail.from;
-    const observeReqMessage = ReportGenNetworkService._deserializeObserveReqMessage(msg.detail.data);
+    const observeReqMessage = ReportGenNetworkService.deserializeObserveReqMessage(msg.detail.data);
     this._logger.debug(`Received observeReq from ${peerId}: ${JSON.stringify(observeReqMessage)}`);
 
     this.emit('observeReq', peerId, observeReqMessage);
@@ -108,7 +108,7 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
 
   private _handleReportReq(msg: CustomEvent<Message>): void {
     const peerId = msg.detail.from;
-    const reportReqMessage = ReportGenNetworkService._deserializeReportReqMessage(msg.detail.data);
+    const reportReqMessage = ReportGenNetworkService.deserializeReportReqMessage(msg.detail.data);
     this._logger.debug(
       `Received reportReq from ${peerId} with report: ${JSON.stringify(reportReqMessage.report)}`
     );
@@ -118,7 +118,7 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
 
   private _handleFinal(msg: CustomEvent<Message>): void {
     const peerId = msg.detail.from;
-    const finalMessage = ReportGenNetworkService._deserializeFinalMessage(msg.detail.data);
+    const finalMessage = ReportGenNetworkService.deserializeFinalMessage(msg.detail.data);
     this._logger.debug(
       `Received final from ${peerId} with report: ${JSON.stringify(finalMessage.attestedReport)}`
     );
@@ -128,7 +128,7 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
 
   private _handleFinalEcho(msg: CustomEvent<Message>): void {
     const peerId = msg.detail.from;
-    const finalEchoMessage = ReportGenNetworkService._deserializeFinalEchoMessage(msg.detail.data);
+    const finalEchoMessage = ReportGenNetworkService.deserializeFinalEchoMessage(msg.detail.data);
     this._logger.debug(
       `Received finalEcho from ${peerId} with report: ${JSON.stringify(finalEchoMessage.attestedReport)}`
     );
@@ -139,19 +139,19 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
   public async broadcastObserveReq(observeReqMessage: IObserveReqMessage): Promise<void> {
     this._logger.debug(`Sending observeReq: ${JSON.stringify(observeReqMessage)}`);
 
-    const serialized = ReportGenNetworkService._serializeObserveReqMessage(observeReqMessage);
+    const serialized = ReportGenNetworkService.serializeObserveReqMessage(observeReqMessage);
 
     await this._nodeService.node.pubsub.publish(this._observeReqTopic, serialized);
   }
 
   public async broadcastFinalEcho(finalEchoMessage: IFinalEchoMessage): Promise<void> {
-    const serialized = ReportGenNetworkService._serializeFinalEchoMessage(finalEchoMessage);
+    const serialized = ReportGenNetworkService.serializeFinalEchoMessage(finalEchoMessage);
 
     await this._nodeService.node.pubsub.publish(this._finalEchoTopic, serialized);
   }
 
   public async broadcastFinal(finalMessage: IFinalMessage): Promise<void> {
-    const serialized = ReportGenNetworkService._serializeFinalMessage(finalMessage);
+    const serialized = ReportGenNetworkService.serializeFinalMessage(finalMessage);
 
     await this._nodeService.node.pubsub.publish(this._finalTopic, serialized);
   }
@@ -164,14 +164,14 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
       return;
     }
 
-    const serialized = ReportGenNetworkService._serializeObserveMessage(observeMessage);
+    const serialized = ReportGenNetworkService.serializeObserveMessage(observeMessage);
     const outboundStream = await this._streamManagerService.getOutboundStream(this._observeProtocol, to);
     outboundStream.push(serialized);
   }
 
   public async onObserve(data: Uint8Array, peerId: PeerId): Promise<void> {
     try {
-      const observeMessage = ReportGenNetworkService._deserializeObserveMessage(data);
+      const observeMessage = ReportGenNetworkService.deserializeObserveMessage(data);
       this._logger.debug(`Received observe from ${peerId.toString()}: ${JSON.stringify(observeMessage)}`);
       this.emit('observe', peerId, observeMessage);
     } catch (e) {
@@ -188,7 +188,7 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
       return;
     }
 
-    const serialized = ReportGenNetworkService._serializeReportMessage(reportMessage);
+    const serialized = ReportGenNetworkService.serializeReportMessage(reportMessage);
     try {
       const outboundStream = await this._streamManagerService.getOutboundStream(this._reportProtocol, to);
       outboundStream.push(serialized);
@@ -199,7 +199,7 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
 
   public async onReport(data: Uint8Array, peerId: PeerId): Promise<void> {
     try {
-      const reportMessage = ReportGenNetworkService._deserializeReportMessage(data);
+      const reportMessage = ReportGenNetworkService.deserializeReportMessage(data);
       this._logger.debug(`Received report from ${peerId.toString()}: ${JSON.stringify(reportMessage)}`);
       this.emit('report', peerId, reportMessage);
     } catch (e) {
@@ -209,11 +209,11 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
   }
 
   public async broadcastReportReq(reportReqMessage: IReportReqMessage): Promise<void> {
-    const serialized = ReportGenNetworkService._serializeReportReqMessage(reportReqMessage);
+    const serialized = ReportGenNetworkService.serializeReportReqMessage(reportReqMessage);
     await this._nodeService.node.pubsub.publish(this._reportReqTopic, serialized);
   }
 
-  private static _serializeObserveMessage(observeMessage: IObserveMessage): Uint8Array {
+  public static serializeObserveMessage(observeMessage: IObserveMessage): Uint8Array {
     const encoder = new TextEncoder();
     return encoder.encode(
       JSON.stringify({
@@ -226,7 +226,7 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
     );
   }
 
-  private static _deserializeObserveMessage(observeMessage: Uint8Array): IObserveMessage {
+  public static deserializeObserveMessage(observeMessage: Uint8Array): IObserveMessage {
     const decoder = new TextDecoder();
     const parsed = JSON.parse(decoder.decode(observeMessage));
 
@@ -239,7 +239,7 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
     };
   }
 
-  private static _serializeReportMessage(reportMessage: IReportMessage): Uint8Array {
+  public static serializeReportMessage(reportMessage: IReportMessage): Uint8Array {
     const encoder = new TextEncoder();
     return encoder.encode(
       JSON.stringify({
@@ -250,18 +250,23 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
     );
   }
 
-  private static _deserializeReportMessage(reportMessage: Uint8Array): IReportMessage {
+  public static deserializeReportMessage(reportMessage: Uint8Array): IReportMessage {
     const decoder = new TextDecoder();
     const parsed = JSON.parse(decoder.decode(reportMessage));
 
     return {
-      aggregatorAddress: parsed.aggregatorAddress,
-      compressedReport: parsed.compressedReport,
-      signature: parsed.signature
+      ...parsed,
+      compressedReport: {
+        ...parsed.compressedReport,
+        observations: parsed.compressedReport.observations.map((ob) => ({
+          ...ob,
+          price: new BigNumber(ob.price)
+        }))
+      }
     };
   }
 
-  private static _serializeObserveReqMessage(observeReqMessage: IObserveReqMessage): Uint8Array {
+  public static serializeObserveReqMessage(observeReqMessage: IObserveReqMessage): Uint8Array {
     const encoder = new TextEncoder();
     return encoder.encode(
       JSON.stringify({
@@ -271,7 +276,7 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
     );
   }
 
-  private static _deserializeObserveReqMessage(observeReqMessage: Uint8Array): IObserveReqMessage {
+  public static deserializeObserveReqMessage(observeReqMessage: Uint8Array): IObserveReqMessage {
     const decoder = new TextDecoder();
     const parsed = JSON.parse(decoder.decode(observeReqMessage));
 
@@ -281,7 +286,7 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
     };
   }
 
-  private static _serializeReportReqMessage(reportReqMessage: IReportReqMessage): Uint8Array {
+  public static serializeReportReqMessage(reportReqMessage: IReportReqMessage): Uint8Array {
     const encoder = new TextEncoder();
     return encoder.encode(
       JSON.stringify({
@@ -299,7 +304,7 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
     );
   }
 
-  private static _deserializeReportReqMessage(reportReq: Uint8Array): IReportReqMessage {
+  public static deserializeReportReqMessage(reportReq: Uint8Array): IReportReqMessage {
     const decoder = new TextDecoder();
     const parsed = JSON.parse(decoder.decode(reportReq));
 
@@ -317,7 +322,7 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
     };
   }
 
-  private static _serializeFinalMessage(finalMessage: IFinalMessage): Uint8Array {
+  public static serializeFinalMessage(finalMessage: IFinalMessage): Uint8Array {
     const encoder = new TextEncoder();
     return encoder.encode(
       JSON.stringify({
@@ -335,7 +340,7 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
     );
   }
 
-  private static _deserializeFinalMessage(finalMessage: Uint8Array): IFinalMessage {
+  public static deserializeFinalMessage(finalMessage: Uint8Array): IFinalMessage {
     const decoder = new TextDecoder();
     const parsed = JSON.parse(decoder.decode(finalMessage));
 
@@ -353,7 +358,7 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
     };
   }
 
-  private static _serializeFinalEchoMessage(finalEchoMessage: IFinalEchoMessage): Uint8Array {
+  public static serializeFinalEchoMessage(finalEchoMessage: IFinalEchoMessage): Uint8Array {
     const encoder = new TextEncoder();
     return encoder.encode(
       JSON.stringify({
@@ -371,7 +376,7 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
     );
   }
 
-  private static _deserializeFinalEchoMessage(finalEchoMessage: Uint8Array): IFinalEchoMessage {
+  public static deserializeFinalEchoMessage(finalEchoMessage: Uint8Array): IFinalEchoMessage {
     const decoder = new TextDecoder();
     const parsed = JSON.parse(decoder.decode(finalEchoMessage));
     return {

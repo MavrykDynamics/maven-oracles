@@ -23,7 +23,7 @@ jest.unstable_mockModule('../pacemaker.service.js', async () => ({
 const { PacemakerFactoryService } = await import('../pacemaker.factory.service.js');
 
 describe('PacemakerFactoryService', () => {
-  // @ts-ignore
+  // @ts-expect-error
   let pacemakerFactory: PacemakerFactoryService;
   const pacemakerNetworkServiceMock = new PacemakerNetworkServiceMock();
   const eventHubServiceMock = new EventHubService();
