@@ -4,7 +4,7 @@ import { OracleConfigMock } from '../../__mocks__/oracle.config.mock.js';
 import { EventHubService } from '../../event-hub/index.js';
 import { ContractService } from '../../contract/index.js';
 import { ReportGenNetworkService } from '../../reportgen/index.js';
-import { ReportGenNetworkServiceMock } from '../__mocks__/reportgen.service.mock.js';
+import { ReportGenNetworkServiceMock } from '../__mocks__/reportgen.network.service.mock.js';
 import { PriceService } from '../../price/index.js';
 import { PriceServiceMock } from '../../price/__mocks__/price.service.mock.js';
 import {

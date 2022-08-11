@@ -13,12 +13,14 @@ export const mockRemoveListener = jest
 
 export const mockBroadcastObserveReq = jest.fn();
 export const mockBroadcastReportReq = jest.fn();
+export const mockBroadcastFinal = jest.fn();
 
 export const ReportGenNetworkServiceMock = jest.fn().mockImplementation(() => {
   return {
     addListener: mockAddListener,
     removeListener: mockRemoveListener,
     broadcastObserveReq: mockBroadcastObserveReq,
-    broadcastReportReq: mockBroadcastReportReq
+    broadcastReportReq: mockBroadcastReportReq,
+    broadcastFinal: mockBroadcastFinal
   };
 });

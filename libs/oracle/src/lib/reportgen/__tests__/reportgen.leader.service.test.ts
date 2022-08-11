@@ -1,6 +1,7 @@
 import {
   ContractServiceMock,
-  mockedOracleAddresses
+  mockedOracleAddresses,
+  mockVerifyReportSignature
 } from '../../contract/__mocks__/contract.service.mock.js';
 import { EventHubService, IEventHubEvents } from '../../event-hub/index.js';
 import { TimerMock } from '../../pacemaker/__mocks__/timer.mock.js';
@@ -10,12 +11,12 @@ import {
   mockBroadcastObserveReq,
   mockBroadcastReportReq,
   ReportGenNetworkServiceMock
-} from '../__mocks__/reportgen.service.mock.js';
+} from '../__mocks__/reportgen.network.service.mock.js';
 import { ReportGenNetworkService } from '../reportgen.network.service.js';
 import { ContractService } from '../../contract/index.js';
 import { ReportGenConfigMock } from '../__mocks__/reportgen.config.mock.js';
 import { expect, jest } from '@jest/globals';
-import { IReportGenEvents, Phase } from '../reportgen.types.js';
+import { IReportGenEvents, IReportMessage, Phase } from '../reportgen.types.js';
 import { PeerId } from '@libp2p/interface-peer-id';
 import BigNumber from 'bignumber.js';
 import { mockVerifyData } from '../__mocks__/helpers.mock.js';
@@ -70,6 +71,7 @@ describe('PacemakerService', () => {
     onStartEpoch = reportGenLeaderService._onStartEpoch.bind(reportGenLeaderService);
 
     mockVerifyData.mockReturnValue(true);
+    mockVerifyReportSignature.mockReturnValue(true);
   });
 
   afterEach(async () => {
@@ -250,7 +252,7 @@ describe('PacemakerService', () => {
         observation: new BigNumber(123),
         round: 1,
         signature: new Uint8Array([1, 2, 3]),
-        epoch: ReportGenConfigMock.epoch + 1, // Changed epoch here
+        epoch: ReportGenConfigMock.epoch + 1, // Mismatched epoch here
         aggregatorAddress: ReportGenConfigMock.aggregatorAddress
       });
 
@@ -267,10 +269,29 @@ describe('PacemakerService', () => {
 
       await onObserve(id, {
         observation: new BigNumber(123),
-        round: 2, // Changed round here
+        round: 2, // Mismatched round here
         signature: new Uint8Array([1, 2, 3]),
         epoch: ReportGenConfigMock.epoch,
         aggregatorAddress: ReportGenConfigMock.aggregatorAddress
+      });
+
+      const { observe } = reportGenLeaderService.getState();
+
+      expect(observe).toEqual(new Map());
+    });
+
+    test('should not store observation if aggregatorAddress do not match', async () => {
+      const id = {
+        toString: () => mockedOracleAddresses[0].oraclePeerId,
+        publicKey: mockedOracleAddresses[0].oraclePublicKey
+      } as unknown as PeerId;
+
+      await onObserve(id, {
+        observation: new BigNumber(123),
+        round: 1,
+        signature: new Uint8Array([1, 2, 3]),
+        epoch: ReportGenConfigMock.epoch,
+        aggregatorAddress: 'NotTheAggregatorAddress' // Mismatched address here
       });
 
       const { observe } = reportGenLeaderService.getState();
@@ -462,7 +483,26 @@ describe('PacemakerService', () => {
 
     const values = [3, 3, 3, 3, 3]; // 5 observations should trigger grace period
 
+    const reportMessageSender = {
+      toString: () => mockedOracleAddresses[0].oraclePeerId,
+      publicKey: mockedOracleAddresses[0].oraclePublicKey
+    } as unknown as PeerId;
+
+    let reportMessage: IReportMessage;
+
     beforeEach(async () => {
+      reportMessage = {
+        aggregatorAddress: ReportGenConfigMock.aggregatorAddress,
+        signature: {
+          oracle: mockedOracleAddresses[0].oraclePeerId,
+          signature: `sig${mockedOracleAddresses[0].oraclePeerId}`
+        },
+        compressedReport: {
+          epoch: ReportGenConfigMock.epoch,
+          observations: [],
+          round: 1
+        }
+      };
       await onStartEpoch(
         ReportGenConfigMock.aggregatorAddress,
         ReportGenConfigMock.epoch,
@@ -485,12 +525,15 @@ describe('PacemakerService', () => {
       // Make sure we are in the grace period
       const { phase } = reportGenLeaderService.getState();
       expect(phase).toEqual(Phase.Grace);
+
+      // Clear mocks before ending grace period to test calls happening at grace period timeout
+      jest.clearAllMocks();
+
+      // End grace period
+      await timerGrace.fakeTimeout();
     });
 
     test('should not accept observations', async () => {
-      // End grace period
-      await timerGrace.fakeTimeout();
-
       // Use address #5 since #0...#4 have already sent observations
       const id = {
         toString: () => mockedOracleAddresses[5].oraclePeerId,
@@ -511,9 +554,6 @@ describe('PacemakerService', () => {
     });
 
     test('should broadcast assembled report', async () => {
-      // End grace period
-      await timerGrace.fakeTimeout();
-
       expect(mockBroadcastReportReq).toHaveBeenCalledTimes(1);
       expect(mockBroadcastReportReq).toHaveBeenCalledWith({
         aggregatorAddress: ReportGenConfigMock.aggregatorAddress,
@@ -549,6 +589,92 @@ describe('PacemakerService', () => {
           ]
         }
       });
+    });
+
+    test('should store received report', async () => {
+      await onReport(reportMessageSender, reportMessage);
+
+      const { reports } = reportGenLeaderService.getState();
+
+      expect(reports).toEqual(
+        new Map([
+          [
+            reportMessageSender.toString(),
+            {
+              report: reportMessage.compressedReport,
+              signature: reportMessage.signature
+            }
+          ]
+        ])
+      );
+    });
+
+    test('should not store received report if epoch do not match', async () => {
+      reportMessage.compressedReport.epoch += 1; // Mismatched epoch
+
+      await onReport(reportMessageSender, reportMessage);
+
+      const { reports } = reportGenLeaderService.getState();
+
+      expect(reports.size).toEqual(0);
+    });
+
+    test('should not store received report if round do not match', async () => {
+      reportMessage.compressedReport.round += 1; // Mismatched round
+
+      await onReport(reportMessageSender, reportMessage);
+
+      const { reports } = reportGenLeaderService.getState();
+
+      expect(reports.size).toEqual(0);
+    });
+
+    test('should not store received report if report signature check fails', async () => {
+      mockVerifyReportSignature.mockReturnValue(false);
+
+      await onReport(reportMessageSender, reportMessage);
+
+      const { reports } = reportGenLeaderService.getState();
+
+      expect(reports.size).toEqual(0);
+    });
+
+    test.each`
+      nReports | expectedPhase
+      ${1}     | ${Phase.Report}
+      ${2}     | ${Phase.Report}
+      ${3}     | ${Phase.Final}
+      ${4}     | ${Phase.Final}
+    `('should be in $expectedPhase after receiving $nReports', async ({ nReports, expectedPhase }) => {
+      // Since there is 7 mocked oracles, f is 2.
+      // So, final phase should start after 3 (f + 1) received reports
+
+      const range = Array(nReports)
+        .fill(1)
+        .map((x, y) => x + y); // generate array of nReport element to iterate over
+
+      const ids = mockedOracleAddresses.map(
+        (addrs) =>
+          ({
+            toString: () => addrs.oraclePeerId
+          } as PeerId)
+      );
+
+      await Promise.all(
+        range.map((id, i) =>
+          onReport(ids[i], {
+            ...reportMessage,
+            signature: {
+              oracle: ids[i].toString(),
+              signature: `sig${ids[i].toString()}`
+            }
+          })
+        )
+      );
+
+      const { phase } = reportGenLeaderService.getState();
+
+      expect(phase).toEqual(expectedPhase);
     });
   });
 });

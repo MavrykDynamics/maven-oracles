@@ -4,11 +4,11 @@ import { ReportGenLeaderService } from './reportgen.leader.service.js';
 
 export interface IReportGenEvents {
   observe: (from: PeerId, observeMessage: IObserveMessage) => Promise<void>;
-  observeReq: (from: PeerId, round: IObserveReqMessage) => {};
-  reportReq: (from: PeerId, reportReqMessage: IReportReqMessage) => {};
-  report: (from: PeerId, reportMessage: IReportMessage) => {};
-  final: (from: PeerId, finalMessage: IFinalMessage) => {};
-  finalEcho: (from: PeerId, finalEchoMessage: IFinalEchoMessage) => {};
+  observeReq: (from: PeerId, round: IObserveReqMessage) => Promise<void>;
+  reportReq: (from: PeerId, reportReqMessage: IReportReqMessage) => Promise<void>;
+  report: (from: PeerId, reportMessage: IReportMessage) => Promise<void>;
+  final: (from: PeerId, finalMessage: IFinalMessage) => Promise<void>;
+  finalEcho: (from: PeerId, finalEchoMessage: IFinalEchoMessage) => Promise<void>;
 }
 
 export interface IObserveMessage {
