@@ -1,5 +1,2 @@
 codecov:
   branch: ocr
-
-fixes:
-  - '::libs/oracle'

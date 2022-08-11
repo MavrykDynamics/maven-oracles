@@ -28,10 +28,12 @@ jobs:
 
       - run: node common/scripts/install-run-rush.js test
 
+      - run: cat ./libs/oracle/temp/coverage/clover.xml
+
       - uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
-          files: ./libs/oracle/temp/coverage/lcov.info # optional
+          files: ./libs/oracle/temp/coverage/clover.xml # optional
           fail_ci_if_error: true # optional (default = false)
           verbose: true # optional (default = false)
 
