@@ -6,7 +6,11 @@ import { EventHubService, IEventHubEvents } from '../../event-hub/index.js';
 import { TimerMock } from '../../pacemaker/__mocks__/timer.mock.js';
 import { OracleConfigMock } from '../../__mocks__/oracle.config.mock.js';
 import type { ReportGenLeaderService as ReportGenLeaderServiceType } from '../reportgen.leader.service.js';
-import { mockBroadcastObserveReq, ReportGenNetworkServiceMock } from '../__mocks__/reportgen.service.mock.js';
+import {
+  mockBroadcastObserveReq,
+  mockBroadcastReportReq,
+  ReportGenNetworkServiceMock
+} from '../__mocks__/reportgen.service.mock.js';
 import { ReportGenNetworkService } from '../reportgen.network.service.js';
 import { ContractService } from '../../contract/index.js';
 import { ReportGenConfigMock } from '../__mocks__/reportgen.config.mock.js';
@@ -263,7 +267,7 @@ describe('PacemakerService', () => {
 
       await onObserve(id, {
         observation: new BigNumber(123),
-        round: 2, // Changed epoch here
+        round: 2, // Changed round here
         signature: new Uint8Array([1, 2, 3]),
         epoch: ReportGenConfigMock.epoch,
         aggregatorAddress: ReportGenConfigMock.aggregatorAddress
@@ -282,7 +286,7 @@ describe('PacemakerService', () => {
 
       await onObserve(id, {
         observation: new BigNumber(123),
-        round: 1, // Changed epoch here
+        round: 1,
         signature: new Uint8Array([1, 2, 3]),
         epoch: ReportGenConfigMock.epoch,
         aggregatorAddress: ReportGenConfigMock.aggregatorAddress
@@ -291,7 +295,7 @@ describe('PacemakerService', () => {
       // Send a second observation
       await onObserve(id, {
         observation: new BigNumber(456),
-        round: 1, // Changed epoch here
+        round: 1,
         signature: new Uint8Array([4, 5, 6]),
         epoch: ReportGenConfigMock.epoch,
         aggregatorAddress: ReportGenConfigMock.aggregatorAddress
@@ -311,6 +315,240 @@ describe('PacemakerService', () => {
           ]
         ])
       );
+    });
+
+    test('should start grace timer if not enough observation are received', async () => {
+      // Since there is 7 mocked oracles, f is 2.
+      // So, grace timer should start when 5 values are received (2*f+1)
+
+      const values = [3, 3, 3, 3]; // 4 observations should not trigger grace period
+
+      const ids = mockedOracleAddresses.map(
+        (addrs) =>
+          ({
+            toString: () => addrs.oraclePeerId,
+            publicKey: addrs.oraclePublicKey
+          } as unknown as PeerId)
+      );
+
+      await Promise.all(
+        values.map((value, i) =>
+          onObserve(ids[i], {
+            observation: new BigNumber(value),
+            round: 1,
+            signature: new Uint8Array([i]),
+            epoch: ReportGenConfigMock.epoch,
+            aggregatorAddress: ReportGenConfigMock.aggregatorAddress
+          })
+        )
+      );
+
+      const { phase } = reportGenLeaderService.getState();
+
+      expect(phase).toEqual(Phase.Observe);
+      expect(timerGrace.restart).not.toHaveBeenCalled();
+    });
+
+    test('should start grace timer if enough observation are received', async () => {
+      // Since there is 7 mocked oracles, f is 2.
+      // So, grace timer should start when 5 values are received (2*f+1)
+
+      const values = [3, 3, 3, 3, 3]; // 5 observations should trigger grace period
+
+      const ids = mockedOracleAddresses.map(
+        (addrs) =>
+          ({
+            toString: () => addrs.oraclePeerId,
+            publicKey: addrs.oraclePublicKey
+          } as unknown as PeerId)
+      );
+
+      await Promise.all(
+        values.map((value, i) =>
+          onObserve(ids[i], {
+            observation: new BigNumber(value),
+            round: 1,
+            signature: new Uint8Array([i]),
+            epoch: ReportGenConfigMock.epoch,
+            aggregatorAddress: ReportGenConfigMock.aggregatorAddress
+          })
+        )
+      );
+
+      const { phase } = reportGenLeaderService.getState();
+
+      expect(timerGrace.restart).toHaveBeenCalledTimes(1);
+      expect(phase).toEqual(Phase.Grace);
+    });
+  });
+
+  describe('during grace period', () => {
+    const ids = mockedOracleAddresses.map(
+      (addrs) =>
+        ({
+          toString: () => addrs.oraclePeerId,
+          publicKey: addrs.oraclePublicKey
+        } as unknown as PeerId)
+    );
+    // Since there is 7 mocked oracles, f is 2.
+    // So, grace timer should start when 5 values are received (2*f+1)
+
+    const values = [3, 3, 3, 3, 3]; // 5 observations should trigger grace period
+
+    beforeEach(async () => {
+      await onStartEpoch(
+        ReportGenConfigMock.aggregatorAddress,
+        ReportGenConfigMock.epoch,
+        ReportGenConfigMock.leader
+      );
+
+      // Send 2*f + 1 observations
+      await Promise.all(
+        values.map((value, i) =>
+          onObserve(ids[i], {
+            observation: new BigNumber(value),
+            round: 1,
+            signature: new Uint8Array([i]),
+            epoch: ReportGenConfigMock.epoch,
+            aggregatorAddress: ReportGenConfigMock.aggregatorAddress
+          })
+        )
+      );
+
+      // Make sure we are in the grace period
+      const { phase } = reportGenLeaderService.getState();
+      expect(phase).toEqual(Phase.Grace);
+
+      jest.clearAllMocks();
+    });
+
+    test('should still accept observations', async () => {
+      // Use address #5 since #0...#4 have already sent observations
+      const id = {
+        toString: () => mockedOracleAddresses[5].oraclePeerId,
+        publicKey: mockedOracleAddresses[5].oraclePublicKey
+      } as unknown as PeerId;
+
+      await onObserve(id, {
+        observation: new BigNumber(456),
+        round: 1,
+        signature: new Uint8Array([4, 5, 6]),
+        epoch: ReportGenConfigMock.epoch,
+        aggregatorAddress: ReportGenConfigMock.aggregatorAddress
+      });
+
+      const { observe } = reportGenLeaderService.getState();
+      expect(observe.size).toEqual(values.length + 1);
+    });
+
+    test('should end grace period on timer timeout', async () => {
+      await timerGrace.fakeTimeout();
+
+      const { phase } = reportGenLeaderService.getState();
+      expect(phase).toEqual(Phase.Report);
+    });
+  });
+
+  describe('during report period', () => {
+    const ids = mockedOracleAddresses.map(
+      (addrs) =>
+        ({
+          toString: () => addrs.oraclePeerId,
+          publicKey: addrs.oraclePublicKey
+        } as unknown as PeerId)
+    );
+    // Since there is 7 mocked oracles, f is 2.
+    // So, grace timer should start when 5 values are received (2*f+1)
+
+    const values = [3, 3, 3, 3, 3]; // 5 observations should trigger grace period
+
+    beforeEach(async () => {
+      await onStartEpoch(
+        ReportGenConfigMock.aggregatorAddress,
+        ReportGenConfigMock.epoch,
+        ReportGenConfigMock.leader
+      );
+
+      // Send 2*f + 1 observations
+      await Promise.all(
+        values.map((value, i) =>
+          onObserve(ids[i], {
+            observation: new BigNumber(value),
+            round: 1,
+            signature: new Uint8Array([i]),
+            epoch: ReportGenConfigMock.epoch,
+            aggregatorAddress: ReportGenConfigMock.aggregatorAddress
+          })
+        )
+      );
+
+      // Make sure we are in the grace period
+      const { phase } = reportGenLeaderService.getState();
+      expect(phase).toEqual(Phase.Grace);
+    });
+
+    test('should not accept observations', async () => {
+      // End grace period
+      await timerGrace.fakeTimeout();
+
+      // Use address #5 since #0...#4 have already sent observations
+      const id = {
+        toString: () => mockedOracleAddresses[5].oraclePeerId,
+        publicKey: mockedOracleAddresses[5].oraclePublicKey
+      } as unknown as PeerId;
+
+      await onObserve(id, {
+        observation: new BigNumber(456),
+        round: 1,
+        signature: new Uint8Array([4, 5, 6]),
+        epoch: ReportGenConfigMock.epoch,
+        aggregatorAddress: ReportGenConfigMock.aggregatorAddress
+      });
+
+      // Observation count should remain unchanged
+      const { observe } = reportGenLeaderService.getState();
+      expect(observe.size).toEqual(values.length);
+    });
+
+    test('should broadcast assembled report', async () => {
+      // End grace period
+      await timerGrace.fakeTimeout();
+
+      expect(mockBroadcastReportReq).toHaveBeenCalledTimes(1);
+      expect(mockBroadcastReportReq).toHaveBeenCalledWith({
+        aggregatorAddress: ReportGenConfigMock.aggregatorAddress,
+        report: {
+          epoch: ReportGenConfigMock.epoch,
+          round: 1,
+          observations: [
+            {
+              oracle: 'oracle1/peerId',
+              price: new BigNumber(values[0]),
+              signature: new Uint8Array([0])
+            },
+            {
+              oracle: 'oracle2/peerId',
+              price: new BigNumber(values[1]),
+              signature: new Uint8Array([1])
+            },
+            {
+              oracle: 'oracle3/peerId',
+              price: new BigNumber(values[3]),
+              signature: new Uint8Array([2])
+            },
+            {
+              oracle: 'oracle4/peerId',
+              price: new BigNumber(values[3]),
+              signature: new Uint8Array([3])
+            },
+            {
+              oracle: 'oracle5/peerId',
+              price: new BigNumber(values[4]),
+              signature: new Uint8Array([4])
+            }
+          ]
+        }
+      });
     });
   });
 });

@@ -12,11 +12,13 @@ export const mockRemoveListener = jest
   .mockImplementation(PacemakerNetworkServiceEventEmitterMock.removeListener);
 
 export const mockBroadcastObserveReq = jest.fn();
+export const mockBroadcastReportReq = jest.fn();
 
 export const ReportGenNetworkServiceMock = jest.fn().mockImplementation(() => {
   return {
     addListener: mockAddListener,
     removeListener: mockRemoveListener,
-    broadcastObserveReq: mockBroadcastObserveReq
+    broadcastObserveReq: mockBroadcastObserveReq,
+    broadcastReportReq: mockBroadcastReportReq
   };
 });
