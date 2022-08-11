@@ -1,5 +1,6 @@
 import { PeerId } from '@libp2p/interface-peer-id';
 import BigNumber from 'bignumber.js';
+import { ReportGenLeaderService } from './reportgen.leader.service.js';
 
 export interface IReportGenEvents {
   observe: (from: PeerId, observeMessage: IObserveMessage) => {};
@@ -77,4 +78,32 @@ export interface IReportMessage {
 export interface IReportReqMessage {
   aggregatorAddress: string;
   report: IReport;
+}
+
+export enum Phase {
+  Observe,
+  Grace,
+  Report,
+  Final
+}
+
+export interface IReportGenLeaderState {
+  epoch: number;
+  leader: string;
+  round: number;
+  observe: Map<
+    string,
+    {
+      observation: BigNumber;
+      signature: Uint8Array;
+    }
+  >;
+  reports: Map<
+    string,
+    {
+      report: ICompressedReport;
+      signature: ISignature;
+    }
+  >;
+  phase: Phase | null;
 }

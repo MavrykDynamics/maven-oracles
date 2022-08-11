@@ -301,12 +301,6 @@ export class PacemakerService {
       leader: this._leaderForEpoch(this._pacemakerConfig.oracleAddresses, epoch)
     };
 
-    // Stop the previous report generation instance
-    this._reportGenFactoryService.stopReportGen(this._pacemakerConfig.aggregatorAddress);
-
-    // Update newEpoch
-    this._newEpoch = Math.max(this._newEpoch, epoch);
-
     let aggregatorConfig: IAggregatorConfig;
     try {
       aggregatorConfig = await this._contractService.getAggregatorConfig(
@@ -318,6 +312,12 @@ export class PacemakerService {
       );
       return;
     }
+
+    // Stop the previous report generation instance
+    this._reportGenFactoryService.stopReportGen(this._pacemakerConfig.aggregatorAddress);
+
+    // Update newEpoch
+    this._newEpoch = Math.max(this._newEpoch, epoch);
 
     // Start new report generation instance
     this._reportGenFactoryService.startReportGen({

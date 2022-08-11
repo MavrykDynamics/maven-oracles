@@ -6,13 +6,17 @@ export const PacemakerNetworkServiceEventEmitterMock = new TypedEmitter<IPacemak
 export const mockAddListener = jest
   .fn()
   .mockImplementation(PacemakerNetworkServiceEventEmitterMock.addListener);
+
 export const mockRemoveListener = jest
   .fn()
   .mockImplementation(PacemakerNetworkServiceEventEmitterMock.removeListener);
 
+export const mockBroadcastObserveReq = jest.fn();
+
 export const ReportGenNetworkServiceMock = jest.fn().mockImplementation(() => {
   return {
     addListener: mockAddListener,
-    removeListener: mockRemoveListener
+    removeListener: mockRemoveListener,
+    broadcastObserveReq: mockBroadcastObserveReq
   };
 });

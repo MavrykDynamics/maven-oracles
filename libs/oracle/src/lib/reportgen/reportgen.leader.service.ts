@@ -7,8 +7,10 @@ import {
   IObserveMessage,
   IReport,
   IReportGenEvents,
+  IReportGenLeaderState,
   IReportMessage,
-  ISignature
+  ISignature,
+  Phase
 } from './reportgen.types.js';
 import { PeerId } from '@libp2p/interface-peer-id';
 import { EventHubService, IEventHubEvents } from '../event-hub';
@@ -17,13 +19,7 @@ import { verifyData } from './helpers.js';
 import { OracleConfig } from '../oracle.config.js';
 import { IReportGenConfig } from './reportgen.config.js';
 import { computeFValueFrom } from '../pacemaker/helpers.js';
-
-enum Phase {
-  Observe,
-  Grace,
-  Report,
-  Final
-}
+import { Timer } from '../pacemaker/timer.js';
 
 export class ReportGenLeaderService {
   private readonly _logger: Logger = new Logger(ReportGenLeaderService.name);
@@ -49,17 +45,28 @@ export class ReportGenLeaderService {
     }
   > = new Map();
 
-  private _timerRound: NodeJS.Timeout | null = null;
-  private _timerGrace: NodeJS.Timeout | null = null;
-
   private _phase: Phase | null = null;
 
   private readonly _timerGraceDurationMiliseconds: number = 2 * 1000;
   private readonly _timerRoundDurationMiliseconds: number = 15 * 1000;
 
+  private _timerRound: Timer = new Timer(
+    this._onTimerRoundTimeout.bind(this),
+    this._timerGraceDurationMiliseconds
+  );
+
+  private _timerGrace: Timer = new Timer(
+    this._onGraceTimerTimeout.bind(this),
+    this._timerRoundDurationMiliseconds
+  );
+
+  private readonly _onObserveHandle: IReportGenEvents['observe'] = this._onObserve.bind(this);
+  private readonly _onReportHandle: IReportGenEvents['report'] = this._onReport.bind(this);
+  private readonly _onStartEpochHandle: IEventHubEvents['startepoch'] = this._onStartEpoch.bind(this);
+
   public constructor(
     private readonly _oracleConfig: OracleConfig,
-    private readonly _reportgenNetworkService: ReportGenNetworkService,
+    private readonly _reportGenNetworkService: ReportGenNetworkService,
     private readonly _eventHubService: EventHubService,
     private readonly _contractService: ContractService,
     private readonly _reportGenConfig: IReportGenConfig
@@ -69,8 +76,8 @@ export class ReportGenLeaderService {
     this._logger.log(
       `${this._reportGenConfig.aggregatorAddress}/${this._epoch} Starting reportgen leader instance with leader ${this._leader}`
     );
-    this._reportgenNetworkService.addListener('observe', this._onObserveHandle);
-    this._reportgenNetworkService.addListener('report', this._onReportHandle);
+    this._reportGenNetworkService.addListener('observe', this._onObserveHandle);
+    this._reportGenNetworkService.addListener('report', this._onReportHandle);
     this._eventHubService.addListener('startepoch', this._onStartEpochHandle);
   }
 
@@ -78,30 +85,14 @@ export class ReportGenLeaderService {
     this._logger.log(
       `${this._reportGenConfig.aggregatorAddress}/${this._epoch} Stopping reportgen leader instance`
     );
-    this._stopGraceTimer();
-    this._stopRoundTimer();
-    this._reportgenNetworkService.removeListener('observe', this._onObserveHandle);
-    this._reportgenNetworkService.removeListener('report', this._onReportHandle);
+    this._timerGrace.stop();
+    this._timerRound.stop();
+    this._reportGenNetworkService.removeListener('observe', this._onObserveHandle);
+    this._reportGenNetworkService.removeListener('report', this._onReportHandle);
     this._eventHubService.removeListener('startepoch', this._onStartEpochHandle);
   }
 
-  private readonly _onObserveHandle: IReportGenEvents['observe'] = (
-    from: PeerId,
-    observeMessage: IObserveMessage
-  ) => this._onObserve(from, observeMessage);
-
-  private readonly _onReportHandle: IReportGenEvents['report'] = (
-    from: PeerId,
-    reportMessage: IReportMessage
-  ) => this._onReport(from, reportMessage);
-
-  private readonly _onStartEpochHandle: IEventHubEvents['startepoch'] = (
-    aggregatorAddress: string,
-    epoch: number,
-    leader: string
-  ) => this.onStartEpoch(aggregatorAddress, epoch, leader);
-
-  public async onStartEpoch(aggregatorAddress: string, epoch: number, leader: string): Promise<void> {
+  private async _onStartEpoch(aggregatorAddress: string, epoch: number, leader: string): Promise<void> {
     if (aggregatorAddress !== this._reportGenConfig.aggregatorAddress) {
       return;
     }
@@ -123,11 +114,11 @@ export class ReportGenLeaderService {
     this._observe = new Map();
     this._report = new Map();
     this._phase = Phase.Observe;
-    await this._reportgenNetworkService.broadcastObserveReq({
+    await this._reportGenNetworkService.broadcastObserveReq({
       aggregatorAddress: this._reportGenConfig.aggregatorAddress,
       round: this._round
     });
-    this._restartRoundTimer();
+    this._timerRound.restart();
   }
 
   private async _onObserve(
@@ -212,7 +203,7 @@ export class ReportGenLeaderService {
         `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${this._round} - Enough observations have been collected, starting grace period`
       );
 
-      this._restartGraceTimer();
+      this._timerGrace.restart();
       this._phase = Phase.Grace;
     }
   }
@@ -227,7 +218,7 @@ export class ReportGenLeaderService {
     );
 
     const assembledReport = this._assembleReport();
-    await this._reportgenNetworkService.broadcastReportReq({
+    await this._reportGenNetworkService.broadcastReportReq({
       aggregatorAddress: this._reportGenConfig.aggregatorAddress,
       report: assembledReport
     });
@@ -334,7 +325,7 @@ export class ReportGenLeaderService {
       signatures: [...this._report.values()].map((report) => report.signature)
     };
 
-    await this._reportgenNetworkService.broadcastFinal({
+    await this._reportGenNetworkService.broadcastFinal({
       aggregatorAddress: this._reportGenConfig.aggregatorAddress,
       attestedReport
     });
@@ -365,28 +356,6 @@ export class ReportGenLeaderService {
     );
   }
 
-  private _stopGraceTimer(): void {
-    if (this._timerGrace !== null) {
-      clearTimeout(this._timerGrace);
-    }
-  }
-
-  private _restartGraceTimer(): void {
-    this._stopGraceTimer();
-    this._timerGrace = setTimeout(() => this._onGraceTimerTimeout(), this._timerGraceDurationMiliseconds);
-  }
-
-  private _stopRoundTimer(): void {
-    if (this._timerRound !== null) {
-      clearTimeout(this._timerRound);
-    }
-  }
-
-  private _restartRoundTimer(): void {
-    this._stopRoundTimer();
-    this._timerRound = setTimeout(() => this._onTimerRoundTimeout(), this._timerRoundDurationMiliseconds);
-  }
-
   private _assembleReport(): IReport {
     return {
       epoch: this._epoch,
@@ -398,6 +367,17 @@ export class ReportGenLeaderService {
           signature: observation.signature
         }))
         .sort((a, b) => a.oracle.localeCompare(b.oracle))
+    };
+  }
+
+  public getState(): IReportGenLeaderState {
+    return {
+      epoch: this._epoch,
+      leader: this._leader,
+      round: this._round,
+      observe: this._observe,
+      reports: this._report,
+      phase: this._phase
     };
   }
 }
