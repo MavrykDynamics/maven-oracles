@@ -3,7 +3,7 @@ import BigNumber from 'bignumber.js';
 import { ReportGenLeaderService } from './reportgen.leader.service.js';
 
 export interface IReportGenEvents {
-  observe: (from: PeerId, observeMessage: IObserveMessage) => {};
+  observe: (from: PeerId, observeMessage: IObserveMessage) => Promise<void>;
   observeReq: (from: PeerId, round: IObserveReqMessage) => {};
   reportReq: (from: PeerId, reportReqMessage: IReportReqMessage) => {};
   report: (from: PeerId, reportMessage: IReportMessage) => {};
