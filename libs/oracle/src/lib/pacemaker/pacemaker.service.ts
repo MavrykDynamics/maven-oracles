@@ -119,7 +119,7 @@ export class PacemakerService {
       leader: this._epochAndLeader.leader,
       aggregatorAddress: this._pacemakerConfig.aggregatorAddress,
       aggregatorPair: this._pacemakerConfig.aggregatorPair,
-      alpha: blockchainConfig.alphaPercentPerThousand,
+      alphaPerThousand: blockchainConfig.alphaPercentPerThousand,
       heartbeatSeconds: blockchainConfig.heartBeatSeconds,
       oracleAddresses: this._pacemakerConfig.oracleAddresses
     });
@@ -325,7 +325,7 @@ export class PacemakerService {
       leader: this._epochAndLeader.leader,
       aggregatorAddress: this._pacemakerConfig.aggregatorAddress,
       aggregatorPair: this._pacemakerConfig.aggregatorPair,
-      alpha: aggregatorConfig.alphaPercentPerThousand,
+      alphaPerThousand: aggregatorConfig.alphaPercentPerThousand,
       heartbeatSeconds: aggregatorConfig.heartBeatSeconds,
       oracleAddresses: this._pacemakerConfig.oracleAddresses
     });

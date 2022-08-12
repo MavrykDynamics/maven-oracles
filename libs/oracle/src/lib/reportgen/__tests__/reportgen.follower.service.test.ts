@@ -1,5 +1,6 @@
 import {
   ContractServiceMock,
+  mockedOracleAddresses,
   mockVerifyReportSignature
 } from '../../contract/__mocks__/contract.service.mock.js';
 import { EventHubService } from '../../event-hub/index.js';
@@ -10,12 +11,14 @@ import { ReportGenNetworkServiceMock } from '../__mocks__/reportgen.network.serv
 import { ReportGenNetworkService } from '../reportgen.network.service.js';
 import { ContractService } from '../../contract/index.js';
 import { ReportGenConfigMock } from '../__mocks__/reportgen.config.mock.js';
-import { jest } from '@jest/globals';
+import { beforeEach, jest } from '@jest/globals';
 import { IReportGenEvents } from '../reportgen.types.js';
 import { mockComputeMedian, mockSignData, mockVerifyData } from '../__mocks__/helpers.mock.js';
 
 import { PriceService } from '../../price/index.js';
 import { PriceServiceMock } from '../../price/__mocks__/price.service.mock.js';
+import { PeerId } from '@libp2p/interface-peer-id';
+import BigNumber from 'bignumber.js';
 
 jest.unstable_mockModule('../../pacemaker/timer.js', async () => ({
   Timer: TimerMock
@@ -74,7 +77,112 @@ describe('ReportGenFollowerService', () => {
     jest.clearAllMocks();
   });
 
-  describe('test', () => {
-    test('test', async () => {});
+  describe('on observe req', () => {
+    const leader = {
+      toString: () => mockedOracleAddresses[ReportGenConfigMock.epoch].oraclePeerId,
+      publicKey: mockedOracleAddresses[ReportGenConfigMock.epoch].oraclePublicKey
+    } as unknown as PeerId;
+
+    test('should TODO', async () => {
+      await onObserveReqReceived(leader, {
+        aggregatorAddress: ReportGenConfigMock.aggregatorAddress,
+        round: 1
+      });
+    });
+  });
+
+  describe('on report req', () => {
+    const leader = {
+      toString: () => mockedOracleAddresses[ReportGenConfigMock.epoch].oraclePeerId,
+      publicKey: mockedOracleAddresses[ReportGenConfigMock.epoch].oraclePublicKey
+    } as unknown as PeerId;
+
+    beforeEach(async () => {
+      // Trigger setting round to 1
+      await onObserveReqReceived(leader, {
+        aggregatorAddress: ReportGenConfigMock.aggregatorAddress,
+        round: 1
+      });
+    });
+
+    test('should TODO', async () => {
+      await onReportReqReceived(leader, {
+        aggregatorAddress: ReportGenConfigMock.aggregatorAddress,
+        report: {
+          epoch: ReportGenConfigMock.epoch,
+          round: 1,
+          observations: [
+            {
+              oracle: mockedOracleAddresses[0].oraclePeerId,
+              signature: new Uint8Array([0]),
+              price: new BigNumber(0)
+            },
+            {
+              oracle: mockedOracleAddresses[1].oraclePeerId,
+              signature: new Uint8Array([1]),
+              price: new BigNumber(1)
+            },
+            {
+              oracle: mockedOracleAddresses[2].oraclePeerId,
+              signature: new Uint8Array([2]),
+              price: new BigNumber(2)
+            },
+            {
+              oracle: mockedOracleAddresses[3].oraclePeerId,
+              signature: new Uint8Array([3]),
+              price: new BigNumber(3)
+            },
+            {
+              oracle: mockedOracleAddresses[3].oraclePeerId,
+              signature: new Uint8Array([3]),
+              price: new BigNumber(3)
+            },
+            {
+              oracle: mockedOracleAddresses[4].oraclePeerId,
+              signature: new Uint8Array([4]),
+              price: new BigNumber(4)
+            }
+          ]
+        }
+      });
+    });
+  });
+
+  describe('on final', () => {
+    const leader = {
+      toString: () => mockedOracleAddresses[ReportGenConfigMock.epoch].oraclePeerId,
+      publicKey: mockedOracleAddresses[ReportGenConfigMock.epoch].oraclePublicKey
+    } as unknown as PeerId;
+
+    test('should TODO', async () => {
+      await onFinalReceived(leader, {
+        aggregatorAddress: ReportGenConfigMock.aggregatorAddress,
+        attestedReport: {
+          epoch: ReportGenConfigMock.epoch,
+          round: 0,
+          signatures: [],
+          observations: []
+        }
+      });
+    });
+  });
+
+  describe('on final echo', () => {
+    const leader = {
+      toString: () => mockedOracleAddresses[ReportGenConfigMock.epoch].oraclePeerId,
+      publicKey: mockedOracleAddresses[ReportGenConfigMock.epoch].oraclePublicKey
+    } as unknown as PeerId;
+
+    test('should TODO', async () => {
+      await onFinalEchoReceived(leader, {
+        aggregatorAddress: ReportGenConfigMock.aggregatorAddress,
+        attestedReport: {
+          epoch: ReportGenConfigMock.epoch,
+          round: 0,
+          signatures: [],
+          observations: []
+        }
+      });
+    });
   });
 });

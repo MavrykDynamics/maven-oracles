@@ -15,6 +15,7 @@ import {
   IFinalEchoMessage
 } from './reportgen.types.js';
 import { IReportGenEvents } from './reportgen.types.js';
+import { createFromJSON } from '@libp2p/peer-id-factory';
 
 @Injectable()
 export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> implements OnModuleInit {
@@ -393,7 +394,10 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
     };
   }
 
-  public async getPublicKeyOfPeerId(peerId: PeerId): Promise<Uint8Array> {
+  public async getPublicKeyOfPeerId(peerIdString: string): Promise<Uint8Array> {
+    const peerId = await createFromJSON({
+      id: peerIdString
+    });
     return this._nodeService.node.getPublicKey(peerId);
   }
 }

@@ -128,7 +128,7 @@ describe('PacemakerService', () => {
         epoch: mockedLastBlockchainReportEpoch,
         aggregatorAddress: PacemakerConfigMock.aggregatorAddress,
         aggregatorPair: PacemakerConfigMock.aggregatorPair,
-        alpha: mockedBlockchainConfig.alphaPercentPerThousand,
+        alphaPerThousand: mockedBlockchainConfig.alphaPercentPerThousand,
         heartbeatSeconds: mockedBlockchainConfig.heartBeatSeconds,
         leader: mockedOracleAddresses[2].oraclePeerId, // Mocked epoch is 2
         oracleAddresses: mockedOracleAddresses
@@ -380,7 +380,7 @@ describe('PacemakerService', () => {
           leader: expect.anything(),
           aggregatorAddress: PacemakerConfigMock.aggregatorAddress,
           aggregatorPair: PacemakerConfigMock.aggregatorPair,
-          alpha: mockedBlockchainConfig.alphaPercentPerThousand,
+          alphaPerThousand: mockedBlockchainConfig.alphaPercentPerThousand,
           heartbeatSeconds: mockedBlockchainConfig.heartBeatSeconds,
           oracleAddresses: PacemakerConfigMock.oracleAddresses
         });

@@ -17,7 +17,8 @@ export const mockGetAggregatorAddresses = jest.fn().mockReturnValue(mockedAggreg
 export const mockedLastBlockchainReportEpoch = 2;
 
 export const mockGetLastBlockchainReport = jest.fn().mockReturnValue({
-  epoch: mockedLastBlockchainReportEpoch
+  epoch: mockedLastBlockchainReportEpoch,
+  price: new BigNumber(100)
 });
 
 export const mockedOracleAddresses: IOracleInformations[] = [
@@ -60,6 +61,8 @@ export const mockedOracleAddresses: IOracleInformations[] = [
 
 export const mockGetOraclesAddresses = jest.fn().mockReturnValue(mockedOracleAddresses);
 export const mockVerifyReportSignature = jest.fn().mockReturnValue(true);
+export const mockVerifyAttestedReport = jest.fn().mockReturnValue(true);
+export const mockSignCompressedReport = jest.fn();
 
 export const mockedBlockchainConfig: IAggregatorConfig = {
   heartBeatSeconds: new BigNumber(30),
@@ -75,6 +78,8 @@ export const ContractServiceMock = jest.fn().mockImplementation(() => {
     getLastBlockchainReport: mockGetLastBlockchainReport,
     getOraclesAddresses: mockGetOraclesAddresses,
     getAggregatorConfig: mockGetAggregatorConfig,
-    verifyReportSignature: mockVerifyReportSignature
+    verifyReportSignature: mockVerifyReportSignature,
+    verifyAttestedReport: mockVerifyAttestedReport,
+    signCompressedReport: mockSignCompressedReport
   };
 });

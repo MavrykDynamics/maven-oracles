@@ -19,7 +19,6 @@ import { computeMedian } from './helpers.js';
 import { signData, verifyData } from './helpers.js';
 import { ContractService } from '../contract/index.js';
 import { PriceService } from '../price/index.js';
-import { createFromJSON } from '@libp2p/peer-id-factory';
 import { IReportGenConfig } from './reportgen.config.js';
 import { computeFValueFrom } from '../pacemaker/helpers.js';
 
@@ -168,11 +167,7 @@ export class ReportGenFollowerService {
 
     const signaturesChecks = await Promise.all(
       report.observations.map(async (ob) => {
-        const pubKey = await this._reportGenNetworkService.getPublicKeyOfPeerId(
-          await createFromJSON({
-            id: ob.oracle
-          })
-        );
+        const pubKey = await this._reportGenNetworkService.getPublicKeyOfPeerId(ob.oracle);
         return this._verifyObservationSignature(ob.price, ob.signature, pubKey);
       })
     );
@@ -403,20 +398,20 @@ export class ReportGenFollowerService {
     }
 
     const reportMedian = computeMedian(report);
-    const deviation = lastReport.price.minus(reportMedian).div(lastReport.price).abs();
+    const deviationPerThousand = lastReport.price.minus(reportMedian).div(lastReport.price).abs().times(1000);
 
     this._logger.debug(
-      `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${this._round} - Median: ${reportMedian}, previousMedian: ${lastReport.price}. Deviation: ${deviation}`
+      `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${this._round} - Median: ${reportMedian}, previousMedian: ${lastReport.price}. Deviation(‰): ${deviationPerThousand}`
     );
 
-    if (lastReport.price.minus(reportMedian).div(lastReport.price).abs().gt(this._reportGenConfig.alpha)) {
+    if (deviationPerThousand.gt(this._reportGenConfig.alphaPerThousand)) {
       this._logger.log(
-        `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${this._round} - Deviation (${deviation}) is greater than alpha (${this._reportGenConfig.alpha}). Will report`
+        `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${this._round} - Deviation (${deviationPerThousand}) is greater than alpha (${this._reportGenConfig.alphaPerThousand}). Will report`
       );
       return true;
     }
     this._logger.verbose(
-      `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${this._round} - Deviation (${deviation}) is lower than alpha (${this._reportGenConfig.alpha}). Will not report`
+      `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${this._round} - Deviation (${deviationPerThousand}) is lower than alpha (${this._reportGenConfig.alphaPerThousand}). Will not report`
     );
     return false;
   }

@@ -6,8 +6,8 @@ export const ReportGenConfigMock: IReportGenConfig = {
   aggregatorAddress: 'aggregatorAddressMock',
   aggregatorPair: ['TEST', 'USD'],
   oracleAddresses: mockedOracleAddresses,
-  alpha: new BigNumber(600),
+  alphaPerThousand: new BigNumber(200),
   heartbeatSeconds: new BigNumber(1000),
-  epoch: 2,
+  epoch: 3,
   leader: mockedOracleAddresses[3].oraclePeerId
 };
