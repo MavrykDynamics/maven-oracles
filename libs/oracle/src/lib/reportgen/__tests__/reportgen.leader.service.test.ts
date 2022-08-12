@@ -32,7 +32,7 @@ jest.unstable_mockModule('../helpers.js', async () => ({
 // Use async import to make sure we get the mocked one
 const { ReportGenLeaderService } = await import('../reportgen.leader.service.js');
 
-describe('PacemakerService', () => {
+describe('ReportGenLeaderService', () => {
   let reportGenLeaderService: ReportGenLeaderServiceType;
   let timerRound: any;
   let timerGrace: any;
@@ -499,7 +499,12 @@ describe('PacemakerService', () => {
         },
         compressedReport: {
           epoch: ReportGenConfigMock.epoch,
-          observations: [],
+          observations: [
+            {
+              price: new BigNumber(12),
+              oracle: mockedOracleAddresses[0].oraclePeerId
+            }
+          ],
           round: 1
         }
       };
@@ -609,6 +614,16 @@ describe('PacemakerService', () => {
       );
     });
 
+    test('should not store received report if aggregator address do not match', async () => {
+      reportMessage.aggregatorAddress = 'NotTheAggregator'; // Mismatched aggregator
+
+      await onReport(reportMessageSender, reportMessage);
+
+      const { reports } = reportGenLeaderService.getState();
+
+      expect(reports.size).toEqual(0);
+    });
+
     test('should not store received report if epoch do not match', async () => {
       reportMessage.compressedReport.epoch += 1; // Mismatched epoch
 
@@ -617,6 +632,46 @@ describe('PacemakerService', () => {
       const { reports } = reportGenLeaderService.getState();
 
       expect(reports.size).toEqual(0);
+    });
+
+    test('should not store report if already received report', async () => {
+      await onReport(reportMessageSender, reportMessage);
+
+      const reportMessage2: IReportMessage = {
+        ...reportMessage,
+        compressedReport: {
+          ...reportMessage.compressedReport,
+          observations: []
+        }
+      };
+
+      await onReport(reportMessageSender, reportMessage2);
+
+      const { reports } = reportGenLeaderService.getState();
+
+      expect(reports).toEqual(
+        new Map([
+          [
+            reportMessageSender.toString(),
+            {
+              report: reportMessage.compressedReport,
+              signature: reportMessage.signature
+            }
+          ]
+        ])
+      );
+
+      expect(reports).not.toEqual(
+        new Map([
+          [
+            reportMessageSender.toString(),
+            {
+              report: reportMessage2.compressedReport,
+              signature: reportMessage2.signature
+            }
+          ]
+        ])
+      );
     });
 
     test('should not store received report if round do not match', async () => {

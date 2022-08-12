@@ -38,9 +38,17 @@ export class ReportGenFollowerService {
 
   private readonly _roundMax: number = 3; // 3 - 20 recommended by OCR white paper
 
+  private readonly _onObserveReqReceivedHandler: IReportGenEvents['observeReq'] =
+    this._onObserveReqReceived.bind(this);
+  private readonly _onReportReqReceivedHandler: IReportGenEvents['reportReq'] =
+    this._onReportReqReceived.bind(this);
+  private readonly _onFinalReceivedHandler: IReportGenEvents['final'] = this._onFinalReceived.bind(this);
+  private readonly _onFinalEchoReceivedHandler: IReportGenEvents['finalEcho'] =
+    this._onFinalEchoReceived.bind(this);
+
   public constructor(
     private readonly _oracleConfig: OracleConfig,
-    private readonly _reportgenNetworkService: ReportGenNetworkService,
+    private readonly _reportGenNetworkService: ReportGenNetworkService,
     private readonly _eventHubService: EventHubService,
     private readonly _contractService: ContractService,
     private readonly _priceService: PriceService,
@@ -52,43 +60,23 @@ export class ReportGenFollowerService {
     this._logger.log(
       `${this._reportGenConfig.aggregatorAddress}/${this._epoch} Starting reportgen follower instance with leader ${this._leader}`
     );
-    this._reportgenNetworkService.addListener('observeReq', this._onObserveReqReceivedHandler);
-    this._reportgenNetworkService.addListener('reportReq', this._onReportReqReceivedHandler);
-    this._reportgenNetworkService.addListener('final', this._onFinalReceivedHandler);
-    this._reportgenNetworkService.addListener('finalEcho', this._onFinalEchoReceivedHandler);
+    this._reportGenNetworkService.addListener('observeReq', this._onObserveReqReceivedHandler);
+    this._reportGenNetworkService.addListener('reportReq', this._onReportReqReceivedHandler);
+    this._reportGenNetworkService.addListener('final', this._onFinalReceivedHandler);
+    this._reportGenNetworkService.addListener('finalEcho', this._onFinalEchoReceivedHandler);
   }
 
   public stop(): void {
     this._logger.log(
       `${this._reportGenConfig.aggregatorAddress}/${this._epoch}  Stopping reportgen follower instance`
     );
-    this._reportgenNetworkService.removeListener('observeReq', this._onObserveReqReceivedHandler);
-    this._reportgenNetworkService.removeListener('reportReq', this._onReportReqReceivedHandler);
-    this._reportgenNetworkService.removeListener('final', this._onFinalReceivedHandler);
-    this._reportgenNetworkService.removeListener('finalEcho', this._onFinalEchoReceivedHandler);
+    this._reportGenNetworkService.removeListener('observeReq', this._onObserveReqReceivedHandler);
+    this._reportGenNetworkService.removeListener('reportReq', this._onReportReqReceivedHandler);
+    this._reportGenNetworkService.removeListener('final', this._onFinalReceivedHandler);
+    this._reportGenNetworkService.removeListener('finalEcho', this._onFinalEchoReceivedHandler);
   }
 
-  private readonly _onObserveReqReceivedHandler: IReportGenEvents['observeReq'] = (
-    from: PeerId,
-    observeReqMessage: IObserveReqMessage
-  ) => this.onObserveReqReceived(from, observeReqMessage);
-
-  private readonly _onReportReqReceivedHandler: IReportGenEvents['reportReq'] = (
-    from: PeerId,
-    reportReqMessage: IReportReqMessage
-  ) => this.onReportReqReceived(from, reportReqMessage);
-
-  private readonly _onFinalReceivedHandler: IReportGenEvents['final'] = (
-    from: PeerId,
-    finalMessage: IFinalMessage
-  ) => this.onFinalReceived(from, finalMessage);
-
-  private readonly _onFinalEchoReceivedHandler: IReportGenEvents['finalEcho'] = (
-    from: PeerId,
-    finalEchoMessage: IFinalEchoMessage
-  ) => this.onFinalEchoReceived(from, finalEchoMessage);
-
-  public async onObserveReqReceived(from: PeerId, observeReqMessage: IObserveReqMessage): Promise<void> {
+  private async _onObserveReqReceived(from: PeerId, observeReqMessage: IObserveReqMessage): Promise<void> {
     if (observeReqMessage.aggregatorAddress !== this._reportGenConfig.aggregatorAddress) {
       // Silently ignore messages for other aggregators
       return;
@@ -134,7 +122,7 @@ export class ReportGenFollowerService {
 
     const signature = await this._signObservation(observation);
 
-    await this._reportgenNetworkService.sendObserve(from, {
+    await this._reportGenNetworkService.sendObserve(from, {
       aggregatorAddress: this._reportGenConfig.aggregatorAddress,
       epoch: this._epoch,
       round: observeReqMessage.round,
@@ -143,7 +131,7 @@ export class ReportGenFollowerService {
     });
   }
 
-  public async onReportReqReceived(
+  private async _onReportReqReceived(
     from: PeerId,
     { report, aggregatorAddress }: IReportReqMessage
   ): Promise<void> {
@@ -154,7 +142,7 @@ export class ReportGenFollowerService {
 
     // a.oracle.localeCompare(b.oracle)
     const isReportSorted = report.observations.every(
-      (v, i, a) => i === 0 || report.observations[i - 1].oracle.localeCompare(v.oracle) <= 0
+      (v, i) => i === 0 || report.observations[i - 1].oracle.localeCompare(v.oracle) <= 0
     );
 
     if (!isReportSorted) {
@@ -180,7 +168,7 @@ export class ReportGenFollowerService {
 
     const signaturesChecks = await Promise.all(
       report.observations.map(async (ob) => {
-        const pubKey = await this._reportgenNetworkService.getPublicKeyOfPeerId(
+        const pubKey = await this._reportGenNetworkService.getPublicKeyOfPeerId(
           await createFromJSON({
             id: ob.oracle
           })
@@ -204,7 +192,7 @@ export class ReportGenFollowerService {
       const signature = await this._signCompressedReport(compressedReport);
       this._sentReport = true;
 
-      await this._reportgenNetworkService.sendReport(from, {
+      await this._reportGenNetworkService.sendReport(from, {
         aggregatorAddress: this._reportGenConfig.aggregatorAddress,
         compressedReport,
         signature
@@ -214,7 +202,7 @@ export class ReportGenFollowerService {
     }
   }
 
-  public async onFinalReceived(
+  private async _onFinalReceived(
     from: PeerId,
     { attestedReport, aggregatorAddress }: IFinalMessage
   ): Promise<void> {
@@ -271,13 +259,13 @@ export class ReportGenFollowerService {
     );
 
     this._sentEcho = attestedReport;
-    await this._reportgenNetworkService.broadcastFinalEcho({
+    await this._reportGenNetworkService.broadcastFinalEcho({
       aggregatorAddress: this._reportGenConfig.aggregatorAddress,
       attestedReport
     });
   }
 
-  public async onFinalEchoReceived(
+  private async _onFinalEchoReceived(
     from: PeerId,
     { attestedReport, aggregatorAddress }: IFinalEchoMessage
   ): Promise<void> {
@@ -350,7 +338,7 @@ export class ReportGenFollowerService {
         `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${this._round} - Sending final echo`
       );
 
-      await this._reportgenNetworkService.broadcastFinalEcho({
+      await this._reportGenNetworkService.broadcastFinalEcho({
         aggregatorAddress: this._reportGenConfig.aggregatorAddress,
         attestedReport
       });
