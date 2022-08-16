@@ -52,12 +52,12 @@ export class ReportGenLeaderService {
 
   private _timerRound: Timer = new Timer(
     this._onTimerRoundTimeout.bind(this),
-    this._timerGraceDurationMiliseconds
+    this._timerRoundDurationMiliseconds
   );
 
   private _timerGrace: Timer = new Timer(
     this._onGraceTimerTimeout.bind(this),
-    this._timerRoundDurationMiliseconds
+    this._timerGraceDurationMiliseconds
   );
 
   private readonly _onObserveHandle: IReportGenEvents['observe'] = this._onObserve.bind(this);
