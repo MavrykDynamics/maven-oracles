@@ -14,7 +14,7 @@
   "type": "module",
   "dependencies": {
     "@chainsafe/libp2p-gossipsub": "3.5.0",
-    "@chainsafe/libp2p-noise": "7.0.1",
+    "@chainsafe/libp2p-noise": "8.0.0",
     "@libp2p/bootstrap": "^2.0.0",
     "@libp2p/crypto": "~1.0.0",
     "@libp2p/floodsub": "^3.0.2",
@@ -59,7 +59,7 @@
     "it-length-prefixed": "~7.0.1",
     "it-map": "~1.0.6",
     "it-pipe": "~2.0.3",
-    "libp2p": "0.37.3-e6f646e",
+    "libp2p": "0.37.3-509e56a",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.0.0",
     "seedrandom": "^3.0.5",
