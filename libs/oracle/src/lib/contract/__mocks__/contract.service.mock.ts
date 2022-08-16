@@ -62,7 +62,8 @@ export const mockedOracleAddresses: IOracleInformations[] = [
 export const mockGetOraclesAddresses = jest.fn().mockReturnValue(mockedOracleAddresses);
 export const mockVerifyReportSignature = jest.fn().mockReturnValue(true);
 export const mockVerifyAttestedReport = jest.fn().mockReturnValue(true);
-export const mockSignCompressedReport = jest.fn();
+export const mockedCompressedReport = 'mockedCompressedReport';
+export const mockSignCompressedReport = jest.fn().mockResolvedValue(mockedCompressedReport);
 
 export const mockedBlockchainConfig: IAggregatorConfig = {
   heartBeatSeconds: new BigNumber(30),

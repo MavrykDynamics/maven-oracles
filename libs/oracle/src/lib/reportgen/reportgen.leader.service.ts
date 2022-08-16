@@ -20,9 +20,13 @@ import { OracleConfig } from '../oracle.config.js';
 import { IReportGenConfig } from './reportgen.config.js';
 import { computeFValueFrom } from '../pacemaker/helpers.js';
 import { Timer } from '../pacemaker/timer.js';
+import { useMutex } from '../helpers/useMutex.js';
+import { Mutex } from 'async-mutex';
 
 export class ReportGenLeaderService {
   private readonly _logger: Logger = new Logger(ReportGenLeaderService.name);
+
+  private readonly _mutex = new Mutex();
 
   private _epoch: number;
   private _leader: string;
@@ -92,6 +96,7 @@ export class ReportGenLeaderService {
     this._eventHubService.removeListener('startepoch', this._onStartEpochHandle);
   }
 
+  @useMutex()
   private async _onStartEpoch(aggregatorAddress: string, epoch: number, leader: string): Promise<void> {
     if (aggregatorAddress !== this._reportGenConfig.aggregatorAddress) {
       return;
@@ -105,6 +110,7 @@ export class ReportGenLeaderService {
     await this._startRound();
   }
 
+  @useMutex()
   private async _onTimerRoundTimeout(): Promise<void> {
     await this._startRound();
   }
@@ -121,6 +127,7 @@ export class ReportGenLeaderService {
     this._timerRound.restart();
   }
 
+  @useMutex()
   private async _onObserve(
     from: PeerId,
     { observation, epoch, round, signature, aggregatorAddress }: IObserveMessage
@@ -208,6 +215,7 @@ export class ReportGenLeaderService {
     }
   }
 
+  @useMutex()
   private async _onGraceTimerTimeout(): Promise<void> {
     if (this._phase !== Phase.Grace) {
       return;
@@ -225,6 +233,7 @@ export class ReportGenLeaderService {
     this._phase = Phase.Report;
   }
 
+  @useMutex()
   private async _onReport(
     from: PeerId,
     { compressedReport, signature, aggregatorAddress }: IReportMessage

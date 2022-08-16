@@ -21,9 +21,13 @@ import { ContractService } from '../contract/index.js';
 import { PriceService } from '../price/index.js';
 import { IReportGenConfig } from './reportgen.config.js';
 import { computeFValueFrom } from '../pacemaker/helpers.js';
+import { useMutex } from '../helpers/useMutex.js';
+import { Mutex } from 'async-mutex';
 
 export class ReportGenFollowerService {
   private readonly _logger: Logger = new Logger(ReportGenFollowerService.name);
+
+  private readonly _mutex = new Mutex();
 
   private readonly _epoch: number;
   private readonly _leader: string;
@@ -75,6 +79,7 @@ export class ReportGenFollowerService {
     this._reportGenNetworkService.removeListener('finalEcho', this._onFinalEchoReceivedHandler);
   }
 
+  @useMutex()
   private async _onObserveReqReceived(from: PeerId, observeReqMessage: IObserveReqMessage): Promise<void> {
     if (observeReqMessage.aggregatorAddress !== this._reportGenConfig.aggregatorAddress) {
       // Silently ignore messages for other aggregators
@@ -130,6 +135,7 @@ export class ReportGenFollowerService {
     });
   }
 
+  @useMutex()
   private async _onReportReqReceived(
     from: PeerId,
     { report, aggregatorAddress }: IReportReqMessage
@@ -197,6 +203,7 @@ export class ReportGenFollowerService {
     }
   }
 
+  @useMutex()
   private async _onFinalReceived(
     from: PeerId,
     { attestedReport, aggregatorAddress }: IFinalMessage
@@ -260,6 +267,7 @@ export class ReportGenFollowerService {
     });
   }
 
+  @useMutex()
   private async _onFinalEchoReceived(
     from: PeerId,
     { attestedReport, aggregatorAddress }: IFinalEchoMessage

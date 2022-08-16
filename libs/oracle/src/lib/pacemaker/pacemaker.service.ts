@@ -10,6 +10,8 @@ import { INewEpochMessage, IPacemakerEvents, IPaceMakerState } from './index.js'
 import { computeFValueFrom } from './helpers.js';
 import { IOracleInformations } from '@tezosdynamics/contracts';
 import { Timer } from './timer.js';
+import { Mutex } from 'async-mutex';
+import { useMutex } from '../helpers/useMutex.js';
 
 /**
  * The pacemaker service as described in https://research.chain.link/ocr.pdf Section 4.
@@ -32,6 +34,8 @@ import { Timer } from './timer.js';
  */
 export class PacemakerService {
   private readonly _logger: Logger = new Logger(PacemakerService.name);
+
+  private readonly _mutex = new Mutex();
 
   // PeerId of currently running oracle
   private _self: string;
@@ -58,9 +62,9 @@ export class PacemakerService {
   private readonly _timerResend: Timer;
 
   // Listeners stored so we can clear them
-  private _progressListener: IEventHubEvents['progress'];
-  private _changeLeaderListener: IEventHubEvents['changeLeader'];
-  private _newEpochListener: IPacemakerEvents['newEpoch'];
+  private _progressListener: IEventHubEvents['progress'] = this._onProgress.bind(this);
+  private _changeLeaderListener: IEventHubEvents['changeLeader'] = this._onChangeLeader.bind(this);
+  private _newEpochListener: IPacemakerEvents['newEpoch'] = this._onNewEpochReceived.bind(this);
 
   public constructor(
     private readonly _config: OracleConfig,
@@ -85,11 +89,6 @@ export class PacemakerService {
    */
   public async initialize(): Promise<void> {
     this._self = this._config.peerId;
-
-    this._progressListener = this._onProgress.bind(this);
-    this._changeLeaderListener = this._onChangeLeader.bind(this);
-    this._newEpochListener = this._onNewEpochReceived.bind(this);
-
     // Bind needed events to callbacks
     this._eventHubService.addListener('progress', this._progressListener);
     this._eventHubService.addListener('changeLeader', this._changeLeaderListener);
@@ -148,6 +147,7 @@ export class PacemakerService {
     };
   }
 
+  @useMutex()
   private async _onProgress(aggregatorAddress: string): Promise<void> {
     if (aggregatorAddress !== this._pacemakerConfig.aggregatorAddress) {
       return;
@@ -165,10 +165,12 @@ export class PacemakerService {
     this._timerResend.restart();
   }
 
+  @useMutex()
   private async _onResendTimerTimeout(): Promise<void> {
     await this._sendNewEpoch(this._newEpoch);
   }
 
+  @useMutex()
   private async _onProgressTimerTimeout(): Promise<void> {
     this._logger.log(
       `${this._pacemakerConfig.aggregatorAddress}/${this._epochAndLeader.epoch} - Progress timer timeout with leader: ${this._epochAndLeader.leader}`
@@ -177,6 +179,7 @@ export class PacemakerService {
     await this._sendNewEpoch(Math.max(this._epochAndLeader.epoch + 1, this._newEpoch));
   }
 
+  @useMutex()
   private async _onChangeLeader(aggregatorAddress: string): Promise<void> {
     if (aggregatorAddress !== this._pacemakerConfig.aggregatorAddress) {
       return;
@@ -186,6 +189,7 @@ export class PacemakerService {
     await this._sendNewEpoch(Math.max(this._epochAndLeader.epoch + 1, this._newEpoch));
   }
 
+  @useMutex()
   private async _onNewEpochReceived(from: PeerId, newEpochMessage: INewEpochMessage): Promise<void> {
     if (newEpochMessage.aggregatorAddress !== this._pacemakerConfig.aggregatorAddress) {
       // Silently ignore new epoch message for other aggregators

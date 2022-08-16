@@ -17,7 +17,7 @@ import {
 } from '../../reportgen/__mocks__/reportgen.factory.service.mock.js';
 import { PacemakerConfigMock } from '../__mocks__/pacemaker.config.mock.js';
 import { PacemakerNetworkService } from '../pacemaker.network.service.js';
-import { EventHubService } from '../../event-hub/index.js';
+import { EventHubService, IEventHubEvents } from '../../event-hub/index.js';
 import { ContractService } from '../../contract/index.js';
 import { ReportGenFactoryService } from '../../reportgen/index.js';
 import { IOracleInformations } from '@tezosdynamics/contracts';
@@ -25,7 +25,7 @@ import { beforeEach, expect, jest } from '@jest/globals';
 import { TimerMock } from '../__mocks__/timer.mock.js';
 import { PeerId } from '@libp2p/interface-peer-id';
 import type { PacemakerService as PacemakerServiceType } from '../pacemaker.service.js';
-import { INewEpochMessage } from '../pacemaker.types.js';
+import { IPacemakerEvents } from '../pacemaker.types.js';
 
 jest.unstable_mockModule('../timer.js', async () => ({
   Timer: TimerMock
@@ -38,7 +38,9 @@ describe('PacemakerService', () => {
   let pacemakerService: PacemakerServiceType;
   let timerProgress: any;
   let timerResend: any;
-  let onNewEpochReceived: (from: PeerId, newEpochMessage: INewEpochMessage) => Promise<void>;
+  let onProgressEvent: IEventHubEvents['progress'];
+  let onChangeLeaderEvent: IEventHubEvents['changeLeader'];
+  let onNewEpochReceived: IPacemakerEvents['newEpoch'];
   const pacemakerNetworkServiceMock = new PacemakerNetworkServiceMock();
   const eventHubServiceMock = new EventHubService();
   const contractServiceMock: any = new ContractServiceMock();
@@ -66,6 +68,12 @@ describe('PacemakerService', () => {
 
     // @ts-expect-error
     onNewEpochReceived = pacemakerService._onNewEpochReceived.bind(pacemakerService);
+
+    // @ts-expect-error
+    onProgressEvent = pacemakerService._progressListener.bind(pacemakerService);
+
+    // @ts-expect-error
+    onChangeLeaderEvent = pacemakerService._changeLeaderListener.bind(pacemakerService);
   });
 
   afterEach(async () => {
@@ -175,22 +183,22 @@ describe('PacemakerService', () => {
     });
 
     test('should reset timer on progress event', async () => {
-      eventHubServiceMock.progress(PacemakerConfigMock.aggregatorAddress);
+      await onProgressEvent(PacemakerConfigMock.aggregatorAddress);
       expect(timerProgress.restart).toHaveBeenCalledTimes(1);
     });
 
     test('should not reset timer on progress event for another aggregator', async () => {
-      eventHubServiceMock.progress('another aggregator');
+      await onProgressEvent('another aggregator');
       expect(timerProgress.restart).not.toHaveBeenCalled();
     });
 
     test('should reset timer on changeLeader event', async () => {
-      eventHubServiceMock.changeLeader(PacemakerConfigMock.aggregatorAddress);
+      await onChangeLeaderEvent(PacemakerConfigMock.aggregatorAddress);
       expect(timerProgress.restart).toHaveBeenCalledTimes(1);
     });
 
     test('should not reset timer on changeLeader event for another aggregator', async () => {
-      eventHubServiceMock.changeLeader('another aggregator');
+      await onChangeLeaderEvent('another aggregator');
       expect(timerProgress.restart).not.toHaveBeenCalled();
     });
   });
@@ -374,7 +382,6 @@ describe('PacemakerService', () => {
       );
 
       if (expected === 'pass') {
-        expect(mockStartReportGen).toHaveBeenCalledTimes(1);
         expect(mockStartReportGen).toHaveBeenCalledWith({
           epoch: expectedEpoch,
           leader: expect.anything(),
