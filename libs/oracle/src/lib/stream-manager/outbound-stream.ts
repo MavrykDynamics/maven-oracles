@@ -32,6 +32,7 @@ export class OutboundStream {
 
   public close(): void {
     this._closeController.abort();
+    this._pushable.return();
     this._rawStream.close();
   }
 

@@ -7,16 +7,21 @@ import { EventHubService } from '../../event-hub/index.js';
 import { TimerMock } from '../../pacemaker/__mocks__/timer.mock.js';
 import { OracleConfigMock } from '../../__mocks__/oracle.config.mock.js';
 import type { ReportGenFollowerService as ReportGenFollowerServiceType } from '../reportgen.follower.service.js';
-import { ReportGenNetworkServiceMock } from '../__mocks__/reportgen.network.service.mock.js';
+import { mockSendObserve, ReportGenNetworkServiceMock } from '../__mocks__/reportgen.network.service.mock.js';
 import { ReportGenNetworkService } from '../reportgen.network.service.js';
 import { ContractService } from '../../contract/index.js';
 import { ReportGenConfigMock } from '../__mocks__/reportgen.config.mock.js';
-import { beforeEach, jest } from '@jest/globals';
+import { beforeEach, expect, jest } from '@jest/globals';
 import { IReportGenEvents } from '../reportgen.types.js';
-import { mockComputeMedian, mockSignData, mockVerifyData } from '../__mocks__/helpers.mock.js';
+import {
+  mockComputeMedian,
+  mockedSignature,
+  mockSignData,
+  mockVerifyData
+} from '../__mocks__/helpers.mock.js';
 
 import { PriceService } from '../../price/index.js';
-import { PriceServiceMock } from '../../price/__mocks__/price.service.mock.js';
+import { mockedPrice, PriceServiceMock } from '../../price/__mocks__/price.service.mock.js';
 import { PeerId } from '@libp2p/interface-peer-id';
 import BigNumber from 'bignumber.js';
 
@@ -83,10 +88,19 @@ describe('ReportGenFollowerService', () => {
       publicKey: mockedOracleAddresses[ReportGenConfigMock.epoch].oraclePublicKey
     } as unknown as PeerId;
 
-    test('should TODO', async () => {
+    test('should send observation', async () => {
       await onObserveReqReceived(leader, {
         aggregatorAddress: ReportGenConfigMock.aggregatorAddress,
         round: 1
+      });
+
+      expect(mockSendObserve).toHaveBeenCalledTimes(1);
+      expect(mockSendObserve).toHaveBeenCalledWith(leader, {
+        aggregatorAddress: ReportGenConfigMock.aggregatorAddress,
+        round: 1,
+        epoch: ReportGenConfigMock.epoch,
+        observation: mockedPrice,
+        signature: mockedSignature
       });
     });
   });

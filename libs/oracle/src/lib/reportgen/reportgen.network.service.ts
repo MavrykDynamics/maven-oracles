@@ -100,6 +100,10 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
   }
 
   private _handleObserveReq(msg: CustomEvent<Message>): void {
+    if (msg.detail.type !== 'signed') {
+      this._logger.warn('Received unsigned message, discarding');
+      return;
+    }
     const peerId = msg.detail.from;
     const observeReqMessage = ReportGenNetworkService.deserializeObserveReqMessage(msg.detail.data);
     this._logger.debug(`Received observeReq from ${peerId}: ${JSON.stringify(observeReqMessage)}`);
@@ -108,6 +112,10 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
   }
 
   private _handleReportReq(msg: CustomEvent<Message>): void {
+    if (msg.detail.type !== 'signed') {
+      this._logger.warn('Received unsigned message, discarding');
+      return;
+    }
     const peerId = msg.detail.from;
     const reportReqMessage = ReportGenNetworkService.deserializeReportReqMessage(msg.detail.data);
     this._logger.debug(
@@ -118,6 +126,10 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
   }
 
   private _handleFinal(msg: CustomEvent<Message>): void {
+    if (msg.detail.type !== 'signed') {
+      this._logger.warn('Received unsigned message, discarding');
+      return;
+    }
     const peerId = msg.detail.from;
     const finalMessage = ReportGenNetworkService.deserializeFinalMessage(msg.detail.data);
     this._logger.debug(
@@ -128,6 +140,10 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
   }
 
   private _handleFinalEcho(msg: CustomEvent<Message>): void {
+    if (msg.detail.type !== 'signed') {
+      this._logger.warn('Received unsigned message, discarding');
+      return;
+    }
     const peerId = msg.detail.from;
     const finalEchoMessage = ReportGenNetworkService.deserializeFinalEchoMessage(msg.detail.data);
     this._logger.debug(

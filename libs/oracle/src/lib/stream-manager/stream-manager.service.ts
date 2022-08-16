@@ -71,7 +71,7 @@ export class StreamManagerService implements OnModuleDestroy {
         for await (const data of source) {
           this._logger.debug(`Data received on ${protocol}/${id}/${inboundStream.id()}`);
           try {
-            await handler(data, peerId);
+            await handler(data.subarray(), peerId);
           } catch (err) {
             this._logger.error(`Error on ${protocol}/${id}/${inboundStream.id()}: ${JSON.stringify(err)}`);
           }

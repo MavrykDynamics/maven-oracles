@@ -2,9 +2,10 @@ import { Stream } from '@libp2p/interface-connection';
 import { abortableSource } from 'abortable-iterator';
 import { pipe } from 'it-pipe';
 import { decode } from 'it-length-prefixed';
+import { Uint8ArrayList } from 'uint8arraylist';
 
 export class InboundStream {
-  public readonly source: AsyncIterable<Uint8Array>;
+  public readonly source: AsyncIterable<Uint8ArrayList>;
 
   private readonly _rawStream: Stream;
   private readonly _closeController: AbortController;

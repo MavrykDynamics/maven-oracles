@@ -38,6 +38,10 @@ export class PacemakerNetworkService
   }
 
   private _handleNewEpoch(msg: CustomEvent<Message>): void {
+    if (msg.detail.type !== 'signed') {
+      this._logger.warn('Received unsigned message, discarding');
+      return;
+    }
     const peerId = msg.detail.from;
     const newEpochMessage = PacemakerNetworkService.deserializeNewEpochMessage(msg.detail.data);
     this._logger.debug(`Received newEpoch from ${peerId}: ${JSON.stringify(newEpochMessage)}`);
