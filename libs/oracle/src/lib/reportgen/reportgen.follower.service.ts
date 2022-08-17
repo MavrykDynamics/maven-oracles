@@ -96,7 +96,7 @@ export class ReportGenFollowerService {
       );
       return;
     }
-    if (!(this._round < observeReqMessage.round && observeReqMessage.round <= this._roundMax + 1)) {
+    if (this._round >= observeReqMessage.round || observeReqMessage.round > this._roundMax + 1) {
       this._logger.warn(
         `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${this._round} - Observation request invalid round number (${observeReqMessage.round}), discarding request`
       );

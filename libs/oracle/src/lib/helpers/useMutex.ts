@@ -1,8 +1,8 @@
 export function useMutex(): any {
-  return (descriptor) => {
-    const originalMethod = descriptor.descriptor.value;
+  return (target, propertyKey, descriptor) => {
+    const originalMethod = descriptor.value;
 
-    descriptor.descriptor.value = function (...args) {
+    descriptor.value = function (...args) {
       if (this._mutex === undefined) {
         throw new Error('Class should have a _mutex property');
       }
