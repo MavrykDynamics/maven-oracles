@@ -81,11 +81,6 @@ export class ReportGenFollowerService {
 
   @useMutex()
   private async _onObserveReqReceived(from: PeerId, observeReqMessage: IObserveReqMessage): Promise<void> {
-    if (observeReqMessage.aggregatorAddress !== this._reportGenConfig.aggregatorAddress) {
-      // Silently ignore messages for other aggregators
-      return;
-    }
-
     if (from.toString() !== this._leader) {
       this._logger.warn(
         `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${
@@ -96,6 +91,12 @@ export class ReportGenFollowerService {
       );
       return;
     }
+
+    if (observeReqMessage.aggregatorAddress !== this._reportGenConfig.aggregatorAddress) {
+      // Silently ignore messages for other aggregators
+      return;
+    }
+
     if (this._round >= observeReqMessage.round || observeReqMessage.round > this._roundMax + 1) {
       this._logger.warn(
         `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${this._round} - Observation request invalid round number (${observeReqMessage.round}), discarding request`
@@ -140,6 +141,17 @@ export class ReportGenFollowerService {
     from: PeerId,
     { report, aggregatorAddress }: IReportReqMessage
   ): Promise<void> {
+    if (from.toString() !== this._leader) {
+      this._logger.warn(
+        `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${
+          this._round
+        } - Report req received from ${from.toString()}, which is not the leader (${
+          this._leader
+        }), discarding`
+      );
+      return;
+    }
+
     if (aggregatorAddress !== this._reportGenConfig.aggregatorAddress) {
       // Silently ignore messages for other aggregators
       return;
@@ -166,7 +178,9 @@ export class ReportGenFollowerService {
       this._logger.warn(
         `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${
           this._round
-        } - Report received from ${from.toString()} is has not enough observation from different oracles, discarding`
+        } - Report received from ${from.toString()} is has not enough observation (${
+          distinctOracleObservations.length
+        }) from different oracles, discarding`
       );
       return;
     }
@@ -208,17 +222,17 @@ export class ReportGenFollowerService {
     from: PeerId,
     { attestedReport, aggregatorAddress }: IFinalMessage
   ): Promise<void> {
-    if (aggregatorAddress !== this._reportGenConfig.aggregatorAddress) {
-      // Silently ignore messages for other aggregators
-      return;
-    }
-
     if (from.toString() !== this._leader) {
       this._logger.warn(
         `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${
           this._round
         } - Final received from ${from.toString()}, which is not the leader (${this._leader}), discarding`
       );
+      return;
+    }
+
+    if (aggregatorAddress !== this._reportGenConfig.aggregatorAddress) {
+      // Silently ignore messages for other aggregators
       return;
     }
 
@@ -272,6 +286,13 @@ export class ReportGenFollowerService {
     from: PeerId,
     { attestedReport, aggregatorAddress }: IFinalEchoMessage
   ): Promise<void> {
+    if (
+      !this._reportGenConfig.oracleAddresses.map((oracle) => oracle.oraclePeerId).includes(from.toString())
+    ) {
+      this._logger.warn(`Received finalEcho message from unknown oracle: ${from.toString()}`);
+      return;
+    }
+
     if (aggregatorAddress !== this._reportGenConfig.aggregatorAddress) {
       // Silently ignore messages for other aggregators
       return;

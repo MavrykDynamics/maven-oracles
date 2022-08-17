@@ -1,7 +1,9 @@
 import {
   ContractServiceMock,
   mockedCompressedReport,
+  mockedLastBlockchainReportPrice,
   mockedOracleAddresses,
+  mockVerifyAttestedReport,
   mockVerifyReportSignature
 } from '../../contract/__mocks__/contract.service.mock.js';
 import { EventHubService } from '../../event-hub/index.js';
@@ -79,8 +81,9 @@ describe('ReportGenFollowerService', () => {
     // @ts-expect-error
     onFinalEchoReceived = reportGenFollowerService._onFinalEchoReceivedHandler.bind(reportGenFollowerService);
 
-    mockVerifyData.mockReturnValue(true);
-    mockVerifyReportSignature.mockReturnValue(true);
+    mockVerifyData.mockResolvedValue(true);
+    mockVerifyReportSignature.mockResolvedValue(true);
+    mockVerifyAttestedReport.mockResolvedValue(true);
   });
 
   afterEach(async () => {
@@ -94,7 +97,7 @@ describe('ReportGenFollowerService', () => {
       publicKey: mockedOracleAddresses[ReportGenConfigMock.epoch].oraclePublicKey
     } as unknown as PeerId;
     const notTheLeader = {
-      toString: () => mockedOracleAddresses[0].oraclePeerId, // oracle #0 is not the
+      toString: () => mockedOracleAddresses[0].oraclePeerId, // oracle #0 is not the leader
       publicKey: mockedOracleAddresses[0].oraclePublicKey
     } as unknown as PeerId;
     const round = 1;
@@ -157,6 +160,10 @@ describe('ReportGenFollowerService', () => {
       toString: () => mockedOracleAddresses[ReportGenConfigMock.epoch].oraclePeerId,
       publicKey: mockedOracleAddresses[ReportGenConfigMock.epoch].oraclePublicKey
     } as unknown as PeerId;
+    const notTheLeader = {
+      toString: () => mockedOracleAddresses[0].oraclePeerId, // oracle #0 is not the leader
+      publicKey: mockedOracleAddresses[0].oraclePublicKey
+    } as unknown as PeerId;
     const round = 1;
     const observations = [
       {
@@ -180,14 +187,14 @@ describe('ReportGenFollowerService', () => {
         price: new BigNumber(3)
       },
       {
-        oracle: mockedOracleAddresses[3].oraclePeerId,
-        signature: new Uint8Array([3]),
-        price: new BigNumber(3)
-      },
-      {
         oracle: mockedOracleAddresses[4].oraclePeerId,
         signature: new Uint8Array([4]),
         price: new BigNumber(4)
+      },
+      {
+        oracle: mockedOracleAddresses[5].oraclePeerId,
+        signature: new Uint8Array([5]),
+        price: new BigNumber(5)
       }
     ];
     beforeEach(async () => {
@@ -236,9 +243,22 @@ describe('ReportGenFollowerService', () => {
       expect(mockSendReport).not.toHaveBeenCalled();
     });
 
+    test('if sender is not the leader', async () => {
+      await onReportReqReceived(notTheLeader, {
+        aggregatorAddress: ReportGenConfigMock.aggregatorAddress,
+        report: {
+          epoch: ReportGenConfigMock.epoch,
+          round,
+          observations
+        }
+      });
+
+      expect(mockSendReport).not.toHaveBeenCalled();
+    });
+
     test('should not send report if report observation is not sorted', async () => {
       await onReportReqReceived(leader, {
-        aggregatorAddress: 'not the aggregator address',
+        aggregatorAddress: ReportGenConfigMock.aggregatorAddress,
         report: {
           epoch: ReportGenConfigMock.epoch,
           round,
@@ -248,12 +268,82 @@ describe('ReportGenFollowerService', () => {
 
       expect(mockSendReport).not.toHaveBeenCalled();
     });
+
+    test.each`
+      nObservation | expected
+      ${0}         | ${'not send'}
+      ${2}         | ${'not send'}
+      ${3}         | ${'not send'}
+      ${4}         | ${'not send'}
+      ${5}         | ${'send'}
+      ${6}         | ${'send'}
+    `(
+      'should $expect report when report contains $nObservation obervations',
+      async ({ nObservation, expected }) => {
+        // Since there is 7 mocked oracles, f is 2.
+        // So, it should send when there is at least 5 observations (2*f +1)
+
+        await onReportReqReceived(leader, {
+          aggregatorAddress: ReportGenConfigMock.aggregatorAddress,
+          report: {
+            epoch: ReportGenConfigMock.epoch,
+            round,
+            observations: observations.slice(0, nObservation)
+          }
+        });
+
+        if (expected === 'send') {
+          expect(mockSendReport).toHaveBeenCalledTimes(1);
+        } else {
+          expect(mockSendReport).not.toHaveBeenCalled();
+        }
+      }
+    );
+
+    test('should not send if signature verification fails', async () => {
+      mockVerifyData.mockResolvedValue(false);
+
+      await onReportReqReceived(leader, {
+        aggregatorAddress: ReportGenConfigMock.aggregatorAddress,
+        report: {
+          epoch: ReportGenConfigMock.epoch,
+          round,
+          observations
+        }
+      });
+
+      expect(mockSendReport).not.toHaveBeenCalled();
+    });
+
+    test('should emit progress if shouldReport check fails', async () => {
+      // shouldReport check should fail if deviation is lower than alpha
+      // So, to simulate it, we will set observations to previous median, so deviation will be 0
+      const listener = jest.fn();
+      eventHubServiceMock.addListener('progress', listener);
+      mockComputeMedian.mockReturnValue(new BigNumber(100));
+
+      await onReportReqReceived(leader, {
+        aggregatorAddress: ReportGenConfigMock.aggregatorAddress,
+        report: {
+          epoch: ReportGenConfigMock.epoch,
+          round,
+          observations: observations
+        }
+      });
+
+      expect(listener).toHaveBeenCalledTimes(1);
+      eventHubServiceMock.removeListener('progress', listener);
+    });
   });
 
   describe('on final', () => {
     const leader = {
       toString: () => mockedOracleAddresses[ReportGenConfigMock.epoch].oraclePeerId,
       publicKey: mockedOracleAddresses[ReportGenConfigMock.epoch].oraclePublicKey
+    } as unknown as PeerId;
+    const notTheLeader = {
+      toString: () => mockedOracleAddresses[0].oraclePeerId, // oracle #0 is not the leader
+      publicKey: mockedOracleAddresses[0].oraclePublicKey
     } as unknown as PeerId;
     const round = 0;
     const observations = [
@@ -278,14 +368,14 @@ describe('ReportGenFollowerService', () => {
         price: new BigNumber(3)
       },
       {
-        oracle: mockedOracleAddresses[3].oraclePeerId,
-        signature: new Uint8Array([3]),
-        price: new BigNumber(3)
-      },
-      {
         oracle: mockedOracleAddresses[4].oraclePeerId,
         signature: new Uint8Array([4]),
         price: new BigNumber(4)
+      },
+      {
+        oracle: mockedOracleAddresses[5].oraclePeerId,
+        signature: new Uint8Array([5]),
+        price: new BigNumber(5)
       }
     ];
 
@@ -312,6 +402,77 @@ describe('ReportGenFollowerService', () => {
           observations
         }
       });
+    });
+
+    test('should not broadcast final echo if aggregator address do not match', async () => {
+      await onFinalReceived(leader, {
+        aggregatorAddress: 'not the aggregator',
+        attestedReport: {
+          epoch: ReportGenConfigMock.epoch,
+          round,
+          signatures,
+          observations
+        }
+      });
+
+      expect(mockBroadcastFinalEcho).not.toHaveBeenCalled();
+    });
+
+    test('should not broadcast final echo if sender is not the leader', async () => {
+      await onFinalReceived(notTheLeader, {
+        aggregatorAddress: ReportGenConfigMock.aggregatorAddress,
+        attestedReport: {
+          epoch: ReportGenConfigMock.epoch,
+          round,
+          signatures,
+          observations
+        }
+      });
+
+      expect(mockBroadcastFinalEcho).not.toHaveBeenCalled();
+    });
+
+    test('should not broadcast final echo if epoch do not match', async () => {
+      await onFinalReceived(leader, {
+        aggregatorAddress: ReportGenConfigMock.aggregatorAddress,
+        attestedReport: {
+          epoch: ReportGenConfigMock.epoch + 1, // mismatching epoch
+          round,
+          signatures,
+          observations
+        }
+      });
+
+      expect(mockBroadcastFinalEcho).not.toHaveBeenCalled();
+    });
+
+    test('should not broadcast final echo if round do not match', async () => {
+      await onFinalReceived(leader, {
+        aggregatorAddress: ReportGenConfigMock.aggregatorAddress,
+        attestedReport: {
+          epoch: ReportGenConfigMock.epoch,
+          round: round + 1, // mismatching round
+          signatures,
+          observations
+        }
+      });
+
+      expect(mockBroadcastFinalEcho).not.toHaveBeenCalled();
+    });
+
+    test('should not broadcast final echo if report verification fails', async () => {
+      mockVerifyAttestedReport.mockResolvedValue(false);
+      await onFinalReceived(leader, {
+        aggregatorAddress: ReportGenConfigMock.aggregatorAddress,
+        attestedReport: {
+          epoch: ReportGenConfigMock.epoch,
+          round,
+          signatures,
+          observations
+        }
+      });
+
+      expect(mockBroadcastFinalEcho).not.toHaveBeenCalled();
     });
   });
 
@@ -340,14 +501,14 @@ describe('ReportGenFollowerService', () => {
         price: new BigNumber(3)
       },
       {
-        oracle: mockedOracleAddresses[3].oraclePeerId,
-        signature: new Uint8Array([3]),
-        price: new BigNumber(3)
-      },
-      {
         oracle: mockedOracleAddresses[4].oraclePeerId,
         signature: new Uint8Array([4]),
         price: new BigNumber(4)
+      },
+      {
+        oracle: mockedOracleAddresses[5].oraclePeerId,
+        signature: new Uint8Array([5]),
+        price: new BigNumber(5)
       }
     ];
     const signatures = [];
@@ -399,6 +560,163 @@ describe('ReportGenFollowerService', () => {
           signatures
         }
       );
+    });
+
+    test('should not transmit if oracles are unknown', async () => {
+      const nReports = 3;
+      const range = Array(nReports)
+        .fill(1)
+        .map((x, y) => x + y); // generate array of nReport element to iterate over
+
+      const ids = mockedOracleAddresses.map(
+        (addrs) =>
+          ({
+            toString: () => `not oracle ${addrs.oraclePeerId}`, // make the oracle unknown by changing its peer id
+            publicKey: addrs.oraclePublicKey
+          } as unknown as PeerId)
+      );
+
+      await Promise.all(
+        range.map((_, i) =>
+          onFinalEchoReceived(ids[i], {
+            aggregatorAddress: ReportGenConfigMock.aggregatorAddress,
+            attestedReport: {
+              epoch: ReportGenConfigMock.epoch,
+              round,
+              signatures,
+              observations
+            }
+          })
+        )
+      );
+
+      expect(transmitMock).not.toHaveBeenCalled();
+    });
+
+    test('should not transmit if aggregator address do not match', async () => {
+      const nReports = 3;
+      const range = Array(nReports)
+        .fill(1)
+        .map((x, y) => x + y); // generate array of nReport element to iterate over
+
+      const ids = mockedOracleAddresses.map(
+        (addrs) =>
+          ({
+            toString: () => addrs.oraclePeerId,
+            publicKey: addrs.oraclePublicKey
+          } as unknown as PeerId)
+      );
+
+      await Promise.all(
+        range.map((_, i) =>
+          onFinalEchoReceived(ids[i], {
+            aggregatorAddress: 'not the aggregator', // changed here
+            attestedReport: {
+              epoch: ReportGenConfigMock.epoch,
+              round,
+              signatures,
+              observations
+            }
+          })
+        )
+      );
+
+      expect(transmitMock).not.toHaveBeenCalled();
+    });
+
+    test('should not transmit if epoch do not match', async () => {
+      const nReports = 3;
+      const range = Array(nReports)
+        .fill(1)
+        .map((x, y) => x + y); // generate array of nReport element to iterate over
+
+      const ids = mockedOracleAddresses.map(
+        (addrs) =>
+          ({
+            toString: () => addrs.oraclePeerId,
+            publicKey: addrs.oraclePublicKey
+          } as unknown as PeerId)
+      );
+
+      await Promise.all(
+        range.map((_, i) =>
+          onFinalEchoReceived(ids[i], {
+            aggregatorAddress: ReportGenConfigMock.aggregatorAddress,
+            attestedReport: {
+              epoch: ReportGenConfigMock.epoch + 1, // changed here
+              round,
+              signatures,
+              observations
+            }
+          })
+        )
+      );
+
+      expect(transmitMock).not.toHaveBeenCalled();
+    });
+
+    test('should not transmit if round do not match', async () => {
+      const nReports = 3;
+      const range = Array(nReports)
+        .fill(1)
+        .map((x, y) => x + y); // generate array of nReport element to iterate over
+
+      const ids = mockedOracleAddresses.map(
+        (addrs) =>
+          ({
+            toString: () => addrs.oraclePeerId,
+            publicKey: addrs.oraclePublicKey
+          } as unknown as PeerId)
+      );
+
+      await Promise.all(
+        range.map((_, i) =>
+          onFinalEchoReceived(ids[i], {
+            aggregatorAddress: ReportGenConfigMock.aggregatorAddress,
+            attestedReport: {
+              epoch: ReportGenConfigMock.epoch,
+              round: round + 1, // changed here
+              signatures,
+              observations
+            }
+          })
+        )
+      );
+
+      expect(transmitMock).not.toHaveBeenCalled();
+    });
+
+    test('should not transmit if report verification fails', async () => {
+      const nReports = 3;
+      const range = Array(nReports)
+        .fill(1)
+        .map((x, y) => x + y); // generate array of nReport element to iterate over
+
+      const ids = mockedOracleAddresses.map(
+        (addrs) =>
+          ({
+            toString: () => addrs.oraclePeerId,
+            publicKey: addrs.oraclePublicKey
+          } as unknown as PeerId)
+      );
+
+      mockVerifyAttestedReport.mockResolvedValue(false);
+
+      await Promise.all(
+        range.map((_, i) =>
+          onFinalEchoReceived(ids[i], {
+            aggregatorAddress: ReportGenConfigMock.aggregatorAddress,
+            attestedReport: {
+              epoch: ReportGenConfigMock.epoch,
+              round,
+              signatures,
+              observations
+            }
+          })
+        )
+      );
+
+      expect(transmitMock).not.toHaveBeenCalled();
     });
   });
 });

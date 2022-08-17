@@ -196,6 +196,13 @@ export class PacemakerService {
       return;
     }
 
+    if (
+      !this._pacemakerConfig.oracleAddresses.map((oracle) => oracle.oraclePeerId).includes(from.toString())
+    ) {
+      this._logger.warn(`Received newEpoch message from unknown oracle: ${from.toString()}`);
+      return;
+    }
+
     this._peersNewEpoch.set(
       from.toString(),
       Math.max(this._peersNewEpoch.get(from.toString()) ?? 0, newEpochMessage.newEpoch)

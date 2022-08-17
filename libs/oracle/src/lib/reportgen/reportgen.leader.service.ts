@@ -97,41 +97,17 @@ export class ReportGenLeaderService {
   }
 
   @useMutex()
-  private async _onStartEpoch(aggregatorAddress: string, epoch: number, leader: string): Promise<void> {
-    if (aggregatorAddress !== this._reportGenConfig.aggregatorAddress) {
-      return;
-    }
-    if (this._epoch !== epoch || this._leader !== leader) {
-      this._logger.warn(
-        `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${this._round} - Epoch/leader mismatch: received ${epoch}/${leader}`
-      );
-      return;
-    }
-    await this._startRound();
-  }
-
-  @useMutex()
-  private async _onTimerRoundTimeout(): Promise<void> {
-    await this._startRound();
-  }
-
-  private async _startRound(): Promise<void> {
-    this._round += 1;
-    this._observe = new Map();
-    this._report = new Map();
-    this._phase = Phase.Observe;
-    await this._reportGenNetworkService.broadcastObserveReq({
-      aggregatorAddress: this._reportGenConfig.aggregatorAddress,
-      round: this._round
-    });
-    this._timerRound.restart();
-  }
-
-  @useMutex()
   private async _onObserve(
     from: PeerId,
     { observation, epoch, round, signature, aggregatorAddress }: IObserveMessage
   ): Promise<void> {
+    if (
+      !this._reportGenConfig.oracleAddresses.map((oracle) => oracle.oraclePeerId).includes(from.toString())
+    ) {
+      this._logger.warn(`Received observe message from unknown oracle: ${from.toString()}`);
+      return;
+    }
+
     if (aggregatorAddress !== this._reportGenConfig.aggregatorAddress) {
       // Silently ignore messages for other aggregators
       return;
@@ -151,13 +127,6 @@ export class ReportGenLeaderService {
         `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${
           this._round
         } - Observation received from ${from.toString()} with wrong round (${round}), discarding`
-      );
-      return;
-    }
-
-    if (this._oracleConfig.peerId.toString() !== this._leader) {
-      this._logger.warn(
-        `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${this._round} - I'm not the leader, discarding observation`
       );
       return;
     }
@@ -216,39 +185,19 @@ export class ReportGenLeaderService {
   }
 
   @useMutex()
-  private async _onGraceTimerTimeout(): Promise<void> {
-    if (this._phase !== Phase.Grace) {
-      return;
-    }
-
-    this._logger.log(
-      `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${this._round} - Grace period finished, assembling report`
-    );
-
-    const assembledReport = this._assembleReport();
-    await this._reportGenNetworkService.broadcastReportReq({
-      aggregatorAddress: this._reportGenConfig.aggregatorAddress,
-      report: assembledReport
-    });
-    this._phase = Phase.Report;
-  }
-
-  @useMutex()
   private async _onReport(
     from: PeerId,
     { compressedReport, signature, aggregatorAddress }: IReportMessage
   ): Promise<void> {
-    if (aggregatorAddress !== this._reportGenConfig.aggregatorAddress) {
-      // Silently ignore messages for other aggregators
+    if (
+      !this._reportGenConfig.oracleAddresses.map((oracle) => oracle.oraclePeerId).includes(from.toString())
+    ) {
+      this._logger.warn(`Received report message from unknown oracle: ${from.toString()}`);
       return;
     }
 
-    if (this._oracleConfig.peerId.toString() !== this._leader) {
-      this._logger.warn(
-        `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${
-          this._round
-        } - Received report from ${from.toString()}, but I'm not the leader, discarding`
-      );
+    if (aggregatorAddress !== this._reportGenConfig.aggregatorAddress) {
+      // Silently ignore messages for other aggregators
       return;
     }
 
@@ -340,6 +289,55 @@ export class ReportGenLeaderService {
     });
 
     this._phase = Phase.Final;
+  }
+
+  @useMutex()
+  private async _onStartEpoch(aggregatorAddress: string, epoch: number, leader: string): Promise<void> {
+    if (aggregatorAddress !== this._reportGenConfig.aggregatorAddress) {
+      return;
+    }
+    if (this._epoch !== epoch || this._leader !== leader) {
+      this._logger.warn(
+        `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${this._round} - Epoch/leader mismatch: received ${epoch}/${leader}`
+      );
+      return;
+    }
+    await this._startRound();
+  }
+
+  private async _startRound(): Promise<void> {
+    this._round += 1;
+    this._observe = new Map();
+    this._report = new Map();
+    this._phase = Phase.Observe;
+    await this._reportGenNetworkService.broadcastObserveReq({
+      aggregatorAddress: this._reportGenConfig.aggregatorAddress,
+      round: this._round
+    });
+    this._timerRound.restart();
+  }
+
+  @useMutex()
+  private async _onTimerRoundTimeout(): Promise<void> {
+    await this._startRound();
+  }
+
+  @useMutex()
+  private async _onGraceTimerTimeout(): Promise<void> {
+    if (this._phase !== Phase.Grace) {
+      return;
+    }
+
+    this._logger.log(
+      `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${this._round} - Grace period finished, assembling report`
+    );
+
+    const assembledReport = this._assembleReport();
+    await this._reportGenNetworkService.broadcastReportReq({
+      aggregatorAddress: this._reportGenConfig.aggregatorAddress,
+      report: assembledReport
+    });
+    this._phase = Phase.Report;
   }
 
   private async _verifyObservationSignature(

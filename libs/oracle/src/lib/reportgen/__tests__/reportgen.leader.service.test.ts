@@ -70,8 +70,8 @@ describe('ReportGenLeaderService', () => {
     // @ts-expect-error
     onStartEpoch = reportGenLeaderService._onStartEpoch.bind(reportGenLeaderService);
 
-    mockVerifyData.mockReturnValue(true);
-    mockVerifyReportSignature.mockReturnValue(true);
+    mockVerifyData.mockResolvedValue(true);
+    mockVerifyReportSignature.mockResolvedValue(true);
   });
 
   afterEach(async () => {
@@ -227,7 +227,7 @@ describe('ReportGenLeaderService', () => {
         publicKey: mockedOracleAddresses[0].oraclePublicKey
       } as unknown as PeerId;
 
-      mockVerifyData.mockReturnValue(false);
+      mockVerifyData.mockResolvedValue(false);
 
       await onObserve(id, {
         observation: new BigNumber(123),
@@ -685,7 +685,7 @@ describe('ReportGenLeaderService', () => {
     });
 
     test('should not store received report if report signature check fails', async () => {
-      mockVerifyReportSignature.mockReturnValue(false);
+      mockVerifyReportSignature.mockResolvedValue(false);
 
       await onReport(reportMessageSender, reportMessage);
 

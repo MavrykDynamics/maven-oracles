@@ -2,6 +2,8 @@ import { jest } from '@jest/globals';
 import { IAggregatorInformations, IOracleInformations } from '@tezosdynamics/contracts';
 import BigNumber from 'bignumber.js';
 import { IAggregatorConfig } from '../contract.types.js';
+import { verifyData } from '../../reportgen/index.js';
+import { ContractService } from '../contract.service.js';
 
 export const mockInitialize = jest.fn();
 
@@ -15,10 +17,11 @@ export const mockGetAggregatorAddresses = jest.fn().mockReturnValue(mockedAggreg
 
 // Be careful before modifying this value, some tests depends on epoch being 2
 export const mockedLastBlockchainReportEpoch = 2;
+export const mockedLastBlockchainReportPrice = new BigNumber(100);
 
 export const mockGetLastBlockchainReport = jest.fn().mockReturnValue({
   epoch: mockedLastBlockchainReportEpoch,
-  price: new BigNumber(100)
+  price: mockedLastBlockchainReportPrice
 });
 
 export const mockedOracleAddresses: IOracleInformations[] = [
@@ -59,18 +62,28 @@ export const mockedOracleAddresses: IOracleInformations[] = [
   }
 ];
 
-export const mockGetOraclesAddresses = jest.fn().mockReturnValue(mockedOracleAddresses);
-export const mockVerifyReportSignature = jest.fn().mockReturnValue(true);
-export const mockVerifyAttestedReport = jest.fn().mockReturnValue(true);
+export const mockGetOraclesAddresses = jest
+  .fn<ContractService['getOraclesAddresses']>()
+  .mockResolvedValue(mockedOracleAddresses);
+export const mockVerifyReportSignature = jest
+  .fn<ContractService['verifyReportSignature']>()
+  .mockResolvedValue(true);
+export const mockVerifyAttestedReport = jest
+  .fn<ContractService['verifyAttestedReport']>()
+  .mockResolvedValue(true);
 export const mockedCompressedReport = 'mockedCompressedReport';
-export const mockSignCompressedReport = jest.fn().mockResolvedValue(mockedCompressedReport);
+export const mockSignCompressedReport = jest
+  .fn<ContractService['signCompressedReport']>()
+  .mockResolvedValue(mockedCompressedReport);
 
 export const mockedBlockchainConfig: IAggregatorConfig = {
   heartBeatSeconds: new BigNumber(30),
   decimals: new BigNumber(8),
   alphaPercentPerThousand: new BigNumber(500)
 };
-export const mockGetAggregatorConfig = jest.fn().mockReturnValue(mockedBlockchainConfig);
+export const mockGetAggregatorConfig = jest
+  .fn<ContractService['getAggregatorConfig']>()
+  .mockResolvedValue(mockedBlockchainConfig);
 
 export const ContractServiceMock = jest.fn().mockImplementation(() => {
   return {
