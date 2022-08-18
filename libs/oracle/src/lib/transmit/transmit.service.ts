@@ -7,6 +7,7 @@ import { default as Heap } from 'heap';
 import BigNumber from 'bignumber.js';
 import { randomPermutation } from './helpers.js';
 import { IOracleInformations } from '@tezosdynamics/contracts';
+import { Timer } from '../pacemaker/timer.js';
 
 @Injectable()
 export class TransmitService implements OnModuleInit {
@@ -29,7 +30,7 @@ export class TransmitService implements OnModuleInit {
   > = new Map();
 
   private _deltaStage: number = 20;
-  private _timerTransmit: NodeJS.Timeout | null = null;
+  private _timerTransmit: Timer = new Timer(this._onTransmitTimerTimeout.bind(this),0);
 
   public constructor(
     private readonly _config: OracleConfig,
@@ -42,7 +43,7 @@ export class TransmitService implements OnModuleInit {
   }
 
   public async initialize(): Promise<void> {
-    this._eventHubService.on('transmit', (aggregatorAddress, oracleAddresses, reportToTransmit) =>
+    this._eventHubService.addListener('transmit', (aggregatorAddress, oracleAddresses, reportToTransmit) =>
       this.onTransmit(aggregatorAddress, oracleAddresses, reportToTransmit)
     );
   }
@@ -53,6 +54,7 @@ export class TransmitService implements OnModuleInit {
     report: IAttestedReport
   ): Promise<void> {
     const lastBlockchainReport = await this._getLastBlockchainEpochAndRound(aggregatorAddress);
+    
     this._logger.log(`${aggregatorAddress}/${report.epoch}/${report.round} - Treating report`);
 
     if (
@@ -97,6 +99,7 @@ export class TransmitService implements OnModuleInit {
 
     const reportMedian = computeMedian(report);
     const previousMedian = computeMedian(lastTransmitedReport.report);
+
     const deviation = reportMedian.minus(previousMedian).abs().div(previousMedian.abs()).multipliedBy(1000);
     const perThousandThreshold = new BigNumber(3); // TODO: fetch value from blockchain
 
@@ -123,7 +126,7 @@ export class TransmitService implements OnModuleInit {
       )
     ) {
       this._logger.log(
-        `${aggregatorAddress}/${report.epoch}/${report.round} - Deviation is over threshold, doing transmit`
+        `${aggregatorAddress}/${report.epoch}/${report.round} - Deviation is not over threshold, but new epoch/round, doing transmit`
       );
       await this.doTransmit(report.epoch, report.round, aggregatorAddress, oracleAddresses, report);
       return;
@@ -176,7 +179,7 @@ export class TransmitService implements OnModuleInit {
       } pushed to report queue. Will transmit at ${new Date(peekedReport.time)}`
     );
 
-    this._restartTransmitTimer(peekedReport.time - Date.now());
+    this._timerTransmit.restart(peekedReport.time - Date.now());
   }
 
   private async _getTransmitDelayMs(
@@ -227,24 +230,14 @@ export class TransmitService implements OnModuleInit {
       return;
     }
 
-    this._restartTransmitTimer(peekedReport.time - Date.now());
-  }
-
-  private _stopTransmitTimer(): void {
-    if (this._timerTransmit !== null) {
-      clearTimeout(this._timerTransmit);
-    }
-  }
-
-  private _restartTransmitTimer(delayMs: number): void {
-    this._stopTransmitTimer();
-    this._timerTransmit = setTimeout(() => this._onTransmitTimerTimeout(), delayMs);
+    this._timerTransmit.restart(peekedReport.time - Date.now());
   }
 
   private async _getLastBlockchainEpochAndRound(aggregatorAddress: string): Promise<{
     epoch: number;
     round: number;
     price: BigNumber;
+    time: number;
   } | null> {
     return await this._contractService.getLastBlockchainReport(aggregatorAddress);
   }

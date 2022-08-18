@@ -3,9 +3,9 @@ export class Timer {
 
   public constructor(private readonly _callback: () => void, private readonly _timeMs: number) {}
 
-  public restart(): void {
+  public restart(timeMs?: number): void {
     this.stop();
-    this._timer = setTimeout(this._callback, this._timeMs);
+    this._timer = setTimeout(this._callback, timeMs ?? this._timeMs);
   }
 
   public stop(): void {

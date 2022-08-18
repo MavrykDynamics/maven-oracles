@@ -21,4 +21,4 @@ sleep 10
 docker-compose up -d elastic db api indexer metrics gui
 sleep 20
 
-docker-compose up -d
+docker-compose up -d --build
