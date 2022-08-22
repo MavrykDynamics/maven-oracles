@@ -10,10 +10,24 @@ export class TxManagerConfig {
 
   @Property({
     default: '',
-    env: 'TEZOS_SECRET_KEY',
+    env: 'SIGNER_URL',
     format: String
   })
-  public tezosSecretKey: string;
+  public signerUrl: string;
+
+  @Property({
+    default: '',
+    env: 'TEZOS_ADDRESS',
+    format: String
+  })
+  public tezosPublicKeyHash: string;
+
+  // @Property({
+  //   default: '',
+  //   env: 'TEZOS_SECRET_KEY',
+  //   format: String
+  // })
+  // public tezosSecretKey: string;
 
   @Property({
     default: 5000,

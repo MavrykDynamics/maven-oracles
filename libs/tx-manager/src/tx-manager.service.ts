@@ -9,7 +9,7 @@ import { Mutex } from 'async-mutex';
 import { randomUUID } from 'crypto';
 import { ParamsWithKind } from '@taquito/taquito/dist/types/operations/types';
 import { CronJob } from 'cron';
-import { InMemorySigner } from '@taquito/signer';
+import { RemoteSigner } from '@taquito/remote-signer';
 
 interface IBatchQueueRequest {
   uuid: string;
@@ -152,7 +152,11 @@ export class TxManagerService implements OnModuleInit {
     }
 
     const toolkit = new TezosToolkit(this._txManagerConfig.rpcUrl);
-    const signer = new InMemorySigner(this._txManagerConfig.tezosSecretKey);
+    //const signer = new InMemorySigner(this._txManagerConfig.tezosSecretKey);
+    const signer = new RemoteSigner(
+      this._txManagerConfig.tezosPublicKeyHash,
+      this._txManagerConfig.signerUrl
+    );
 
     toolkit.setSignerProvider(signer);
 

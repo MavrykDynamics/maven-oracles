@@ -366,6 +366,16 @@ services:
     env_file:
       - .env
 
+  signatory:
+    image: ecadlabs/signatory:v0.3.3-beta-rc1-amd64
+    ports:
+      - '6732:6732'
+    volumes:
+      - ./signatory.dev.yaml:/etc/signatory.yaml
+      - ./secret.json:/etc/secret.json
+    networks:
+      p2p:
+
 networks:
   p2p:
     ipam:

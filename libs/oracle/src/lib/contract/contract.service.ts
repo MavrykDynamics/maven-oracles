@@ -1,10 +1,9 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { MichelsonType, packDataBytes } from '@taquito/michel-codec';
-import { InMemorySigner } from '@taquito/signer';
 import { verifySignature } from '@taquito/utils';
 
 import { OracleConfig } from '../oracle.config.js';
-import { MichelsonMap, OpKind } from '@taquito/taquito';
+import { MichelsonMap, OpKind, Signer } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 import { Schema } from '@taquito/michelson-encoder';
 import { IAttestedReport, ICompressedReport, IObservation, ISignature } from '../reportgen';
@@ -115,11 +114,12 @@ export class ContractService implements OnModuleInit {
   }
 
   public async signOraclePriceResponses(
-    oraclePriceResponsesForPack: MichelsonMap<string, IOracleObservationType>,
-    signer: InMemorySigner
+    oraclePriceResponsesForPack: MichelsonMap<string, IOracleObservationType>
   ): Promise<string> {
-    const signature_observations = await signer.sign(
-      await this._packObservations(oraclePriceResponsesForPack)
+    const toolkit = await this._txManagerService.getTezosToolkit();
+
+    const signature_observations = await toolkit.signer.sign(
+      `0x${await this._packObservations(oraclePriceResponsesForPack)}`
     );
     return signature_observations.sig;
   }
@@ -128,11 +128,9 @@ export class ContractService implements OnModuleInit {
     aggregatorAddress: string,
     oracleAddresses: IOracleInformations[],
     observations: IObservation[],
-    secretKey: string,
     epoch: number,
     round: number
   ): Promise<string> {
-    const signer = new InMemorySigner(secretKey);
     const oraclePriceResponsesForPack = new MichelsonMap<string, IOracleObservationType>();
 
     for (const { oracle, price } of observations) {
@@ -147,7 +145,7 @@ export class ContractService implements OnModuleInit {
         aggregatorAddress
       });
     }
-    return await this.signOraclePriceResponses(oraclePriceResponsesForPack, signer);
+    return await this.signOraclePriceResponses(oraclePriceResponsesForPack);
   }
 
   public async verifyReportSignature(

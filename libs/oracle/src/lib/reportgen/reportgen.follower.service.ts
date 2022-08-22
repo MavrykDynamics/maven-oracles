@@ -403,7 +403,7 @@ export class ReportGenFollowerService {
       this._reportGenConfig.aggregatorAddress,
       this._reportGenConfig.oracleAddresses,
       report.observations,
-      this._oracleConfig.tezosSecretKey,
+
       report.epoch,
       report.round
     );
