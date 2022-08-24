@@ -4,7 +4,7 @@ module.exports = {
   verbose: false,
   clearMocks: true,
   rootDir: '..',
-  testURL: 'http://localhost/',
+  testEnvironmentOptions: { url: 'http://localhost/' },
   testMatch: ['**/*.test.{ts,tsx}'],
   testPathIgnorePatterns: ['/node_modules/'],
   coverageDirectory: '<rootDir>/temp/coverage',
@@ -31,10 +31,10 @@ module.exports = {
   collectCoverage: true,
   coverageThreshold: {
     global: {
-      branches: 5,
-      functions: 5,
-      lines: 5,
-      statements: 5
+      branches: 0,
+      functions: 0,
+      lines: 0,
+      statements: 0
     }
   },
   transform: {

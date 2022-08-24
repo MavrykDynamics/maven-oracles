@@ -115,7 +115,7 @@
                   EQ ;
                   IF { DUP 4 ;
                        GET 3 ;
-                       GET 3 ;
+                       GET 5 ;
                        DUP 3 ;
                        COMPARE ;
                        LE ;

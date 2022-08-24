@@ -182,7 +182,7 @@ function verifyInfosFromObservation(const oracleObservations: map (address, orac
 
   if (epoch < store.lastResult.epoch) then failwith("epoch should be greater than previous result")
   else if (epoch = store.lastResult.epoch) then {
-    if (round <= store.lastResult.epoch) then failwith("round should be greater than previous result")
+    if (round <= store.lastResult.round) then failwith("round should be greater than previous result")
     else skip;
   }
   else skip;
