@@ -8,7 +8,7 @@ import {
 } from '@tezosdynamics/contracts';
 import { InMemorySigner } from '@taquito/signer';
 
-describe('Integration test - oracles should have make one contract call', () => {
+describe('Integration test 1', () => {
   let toolkit: TezosToolkit;
   let factoryAddress: string;
   let networkName: string = 'development';
@@ -30,7 +30,8 @@ describe('Integration test - oracles should have make one contract call', () => 
     });
   });
 
-  it('epoch should be greater than 0', async () => {
+  it('step-1', async () => {
+    // epoch should be greater than 0
     const aggregatorFactory = await toolkit.contract.at<AggregatorFactoryContractAbstraction>(factoryAddress);
     const storage: IAggregatorFactoryStorage = await aggregatorFactory.storage();
 
@@ -41,6 +42,48 @@ describe('Integration test - oracles should have make one contract call', () => 
       const aggregator = await toolkit.contract.at<AggregatorContractAbstraction>(address);
       const storage: IAggregatorStorage = await aggregator.storage();
       expect(storage.lastResult.epoch.toNumber()).toBeGreaterThan(0);
+    }
+  });
+
+  it('step-2', async () => {
+    // dates difference should be greater than 1.5 minutes
+    const aggregatorFactory = await toolkit.contract.at<AggregatorFactoryContractAbstraction>(factoryAddress);
+    const storage: IAggregatorFactoryStorage = await aggregatorFactory.storage();
+
+    const addresses = [...storage.entries()].map(([pair, aggregatorAddress]) => {
+      return aggregatorAddress;
+    });
+    for (const address of addresses) {
+      const aggregator = await toolkit.contract.at<AggregatorContractAbstraction>(address);
+      const storage: IAggregatorStorage = await aggregator.storage();
+      const storageTime = Date.parse(storage.lastResult.time) / 1000;
+
+      const currentDate = new Date();
+      var currentDateTime = currentDate.getTime() / 1000;
+
+      const timestampDiff = Math.abs(currentDateTime - storageTime);
+      expect(timestampDiff).toBeGreaterThan(90); // 1.5 min since lastResult update on blockchain
+    }
+  });
+
+  it('step-3', async () => {
+    // dates difference should be less than 1 minute
+    const aggregatorFactory = await toolkit.contract.at<AggregatorFactoryContractAbstraction>(factoryAddress);
+    const storage: IAggregatorFactoryStorage = await aggregatorFactory.storage();
+
+    const addresses = [...storage.entries()].map(([pair, aggregatorAddress]) => {
+      return aggregatorAddress;
+    });
+    for (const address of addresses) {
+      const aggregator = await toolkit.contract.at<AggregatorContractAbstraction>(address);
+      const storage: IAggregatorStorage = await aggregator.storage();
+      const storageTime = Date.parse(storage.lastResult.time) / 1000;
+
+      const currentDate = new Date();
+      var currentDateTime = currentDate.getTime() / 1000;
+
+      const timestampDiff = Math.abs(currentDateTime - storageTime);
+      expect(timestampDiff).toBeLessThanOrEqual(60);
     }
   });
 });
