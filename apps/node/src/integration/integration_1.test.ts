@@ -11,7 +11,7 @@ import { InMemorySigner } from '@taquito/signer';
 describe('Integration test 1', () => {
   let toolkit: TezosToolkit;
   let factoryAddress: string;
-  let networkName: string = 'development';
+  const networkName: string = 'development';
 
   beforeAll(async () => {
     const factoryAddressArg = process.argv.filter((x) => x.startsWith('-factoryAddress='))[0];
@@ -59,7 +59,7 @@ describe('Integration test 1', () => {
       const storageTime = Date.parse(storage.lastResult.time) / 1000;
 
       const currentDate = new Date();
-      var currentDateTime = currentDate.getTime() / 1000;
+      const currentDateTime = currentDate.getTime() / 1000;
 
       const timestampDiff = Math.abs(currentDateTime - storageTime);
       expect(timestampDiff).toBeGreaterThan(90); // 1.5 min since lastResult update on blockchain
@@ -80,7 +80,7 @@ describe('Integration test 1', () => {
       const storageTime = Date.parse(storage.lastResult.time) / 1000;
 
       const currentDate = new Date();
-      var currentDateTime = currentDate.getTime() / 1000;
+      const currentDateTime = currentDate.getTime() / 1000;
 
       const timestampDiff = Math.abs(currentDateTime - storageTime);
       expect(timestampDiff).toBeLessThanOrEqual(60);
