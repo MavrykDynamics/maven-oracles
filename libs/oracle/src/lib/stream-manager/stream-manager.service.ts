@@ -49,11 +49,11 @@ export class StreamManagerService implements OnModuleDestroy {
     handler: (data: Uint8Array, peerId: PeerId) => Promise<void>
   ): Promise<void> {
     const id = peerId.toString();
-
-    // TODO make this behavior more robust
-    // This behavior is different than for outbound streams
-    // If a peer initiates a new inbound connection
-    // we assume that one is the new canonical inbound stream
+    
+    if (this._streamsInbound.get(protocol) === undefined){
+      this._streamsInbound.set(protocol, new Map<string, InboundStream>());
+    }
+    
     const priorInboundStream = this._streamsInbound.get(protocol)?.get(id);
 
     if (priorInboundStream !== undefined) {
@@ -92,6 +92,9 @@ export class StreamManagerService implements OnModuleDestroy {
     // TODO make this behavior more robust
     // This behavior is different than for inbound streams
     // If an outbound stream already exists, don't create a new stream
+    if (this._streamsOutbound.get(protocol) === undefined){
+      this._streamsOutbound.set(protocol, new Map<string, OutboundStream>());
+    }
 
     this._logger.debug(`Waiting mutex to create outbound stream for ${protocol}/${id}`);
     return await this._streamsOutboundCreationMutex.runExclusive(async () => {
