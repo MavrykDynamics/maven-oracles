@@ -13,86 +13,93 @@ vaults:
 
 # List enabled public keys hashes here
 tezos:
+  tz1MnmtP4uAcgMpeZN6JtyziXeFqqwQG6yn6: # Oracle 1
+    log_payloads: true
+    allowed_operations:
+      # List of [generic, block, endorsement]
+      - generic
+      - block
+      - endorsement
+      - failing_noop
+    allowed_kinds:
+      # List of [endorsement, ballot, reveal, transaction, origination, delegation, seed_nonce_revelation, activate_account]
+      - transaction
+      - endorsement
+
   # Default policy allows "block" and "endorsement" operations
-  tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb: # Alice
+  tz1MBNfBnNn8fZCJVrrXV95FSgyuUxbmt3Mm: # Oracle 2
     log_payloads: true
     allowed_operations:
       # List of [generic, block, endorsement]
       - generic
       - block
       - endorsement
+      - failing_noop
     allowed_kinds:
       # List of [endorsement, ballot, reveal, transaction, origination, delegation, seed_nonce_revelation, activate_account]
       - transaction
       - endorsement
 
-  tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6: # Bob
+  tz1PSmvRd3ySbh5aviFEMYGD6542LL5QnrMk: # Oracle 3
     log_payloads: true
     allowed_operations:
       # List of [generic, block, endorsement]
       - generic
       - block
       - endorsement
+      - failing_noop
     allowed_kinds:
       # List of [endorsement, ballot, reveal, transaction, origination, delegation, seed_nonce_revelation, activate_account]
       - transaction
       - endorsement
 
-  tz1MnmtP4uAcgMpeZN6JtyziXeFqqwQG6yn6: # Eve
+  tz1KrELvNVY4xKnujkXwrVLWuzWJEg9FvA8v: # Oracle 4
     log_payloads: true
     allowed_operations:
       # List of [generic, block, endorsement]
       - generic
       - block
       - endorsement
+      - failing_noop
     allowed_kinds:
       # List of [endorsement, ballot, reveal, transaction, origination, delegation, seed_nonce_revelation, activate_account]
       - transaction
       - endorsement
 
-  tz1R2oNqANNy2vZhnZBJc8iMEqW79t85Fv7L: # Mallory
+  tz1YKquTvvSE2B5kvGyf1AYeXD6b6cMDSzDe: # Oracle 5
     log_payloads: true
     allowed_operations:
       # List of [generic, block, endorsement]
       - generic
       - block
       - endorsement
+      - failing_noop
     allowed_kinds:
       # List of [endorsement, ballot, reveal, transaction, origination, delegation, seed_nonce_revelation, activate_account]
       - transaction
       - endorsement
 
-  tz1VGyrip8uZDWoyssXDP7d1boGdpQcaaMXc: # Oscar
+  tz1TQ4fpSFNZ6D9vrcwBz9yzM2SNjDj5YoU7: # Oracle 6
     log_payloads: true
     allowed_operations:
       # List of [generic, block, endorsement]
       - generic
       - block
       - endorsement
+      - failing_noop
     allowed_kinds:
       # List of [endorsement, ballot, reveal, transaction, origination, delegation, seed_nonce_revelation, activate_account]
       - transaction
       - endorsement
 
-  tz1NdjbFHLxbKEUXhXgjyLfQSCbq6oy5b7Px: # Trudy
+  tz1bPLbmiseCCWtW7RZ9t2RkNyboB9XT4exJ: # Oracle 7
     log_payloads: true
     allowed_operations:
       # List of [generic, block, endorsement]
       - generic
       - block
       - endorsement
-    allowed_kinds:
-      # List of [endorsement, ballot, reveal, transaction, origination, delegation, seed_nonce_revelation, activate_account]
-      - transaction
-      - endorsement
-
-  tz1Uqnf6CKSXTkhRNwkr59ZCkjM9TckqyzRb: # Isaac
-    log_payloads: true
-    allowed_operations:
-      # List of [generic, block, endorsement]
-      - generic
-      - block
-      - endorsement
+      - failing_noop
     allowed_kinds:
       # List of [endorsement, ballot, reveal, transaction, origination, delegation, seed_nonce_revelation, activate_account]
       - transaction

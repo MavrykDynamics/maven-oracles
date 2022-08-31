@@ -63,6 +63,8 @@ export default async function (
 
   await opFactory.confirmation();
 
+  console.log(`Aggregator factory origination confirmed`);
+
   // AGGREGATORS CONTRACT ORIGINATION
 
   const pairs: IPair[] = [
