@@ -9,6 +9,22 @@ import { randomPermutation } from './helpers.js';
 import { IOracleInformations } from '@tezosdynamics/contracts';
 import { Timer } from '../pacemaker/timer.js';
 
+/**
+ * The pacemaker service as described in https://research.chain.link/ocr.pdf Section 5.4
+ * Transmit service is responsible for transmitting a final report to the smart contract on the Tezos blockchain
+ * 
+ * How it works:
+ * The service is listening on the event "transmit"
+ * When this event is trigger, we will do some checks and do a transmit only if theses 3 conditions are accepted:
+ *    - last report on blockchain is null so this is the forst one
+ *    - we have a deviation:  the difference between the new and the previous report median is greater than the deviation threshold 
+ *    - we have a new epoch / round on the report
+ * The transmit operation is quite simple. We first get the delay, calculated with a random permutation.
+ * Then we start the timer and we wait for it to end.
+ * When the timer will be end, the report is sent to the blockchain
+ * 
+ */
+
 @Injectable()
 export class TransmitService implements OnModuleInit {
   private readonly _logger: Logger = new Logger(TransmitService.name);
@@ -29,7 +45,7 @@ export class TransmitService implements OnModuleInit {
     }
   > = new Map();
 
-  private _deltaStage: number = 20;
+  private _deltaStage: number = 20 * 1000; // miliseconds number between two stages
   private _timerTransmit: Timer = new Timer(this._onTransmitTimerTimeout.bind(this),0);
 
   public constructor(
@@ -42,6 +58,9 @@ export class TransmitService implements OnModuleInit {
     await this.initialize();
   }
 
+  /**
+   * Initialize the transmit service state and start listening to the transmit event
+   */
   public async initialize(): Promise<void> {
     this._eventHubService.addListener('transmit', (aggregatorAddress, oracleAddresses, reportToTransmit) =>
       this.onTransmit(aggregatorAddress, oracleAddresses, reportToTransmit)
@@ -196,9 +215,10 @@ export class TransmitService implements OnModuleInit {
     );
 
     const k = permuted.findIndex((oracle) => oracle === this._config.tezosAddress);
-    return k * this._deltaStage * 1000;
+    return k * this._deltaStage;
   }
 
+  // _timerTransmit end will trigger this method 
   private async _onTransmitTimerTimeout(): Promise<void> {
     const timeAndReport = this._reports.pop();
     if (timeAndReport === undefined) {
@@ -207,6 +227,7 @@ export class TransmitService implements OnModuleInit {
     const { report, aggregatorAddress, oracleAddresses } = timeAndReport;
     const lastBlockchainReport = await this._getLastBlockchainEpochAndRound(aggregatorAddress);
 
+    // if we have epoch/round is higher than the one in the blockchain OR if this is the first time we commit (report on blockchain is null)
     if (
       lastBlockchainReport === null ||
       !this._isNewerEpochRound(
@@ -226,10 +247,11 @@ export class TransmitService implements OnModuleInit {
     }
 
     const peekedReport = this._reports.peek();
+    // if nothing is in the queue, we stop
     if (peekedReport === undefined) {
       return;
     }
-
+    // else we restart the timer
     this._timerTransmit.restart(peekedReport.time - Date.now());
   }
 

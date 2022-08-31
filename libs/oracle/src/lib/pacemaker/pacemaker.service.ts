@@ -35,8 +35,6 @@ import { useMutex } from '../helpers/useMutex.js';
 export class PacemakerService {
   private readonly _logger: Logger = new Logger(PacemakerService.name);
 
-  private readonly _mutex = new Mutex();
-
   // PeerId of currently running oracle
   private _self: string;
 

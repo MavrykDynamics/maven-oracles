@@ -26,8 +26,8 @@ export class PriceService {
   }
 
   public async getPrice(decimals: BigNumber, pair: [string, string]): Promise<BigNumber> {
+    // if we use fakeprice, we return a price between 100 and 102
     if (this._oracleConfig.useFakePrices) {
-      // return new BigNumber(10);
       const currentSeconds = new Date().getSeconds();
       const currentMinutes = new Date().getMinutes();
 
@@ -38,6 +38,7 @@ export class PriceService {
       return new BigNumber(Math.round(val100To102 * 10 ** decimals.toNumber()));
     }
 
+    // we call the getPrice method for each price fetcher
     const prices: (number | null)[] = await Promise.all(
       this._priceFetchers.map(async (pf) => {
         let price;
@@ -69,6 +70,7 @@ export class PriceService {
       throw new Error(`All price fetcher failed to fetch value for pair ${pair[0]}/${pair[1]}`);
     }
 
+    // we return the median of the pricefetcher responses
     return PriceService._median(
       notNullPrices.map((value) =>
         new BigNumber(value).multipliedBy(new BigNumber(10).exponentiatedBy(decimals))

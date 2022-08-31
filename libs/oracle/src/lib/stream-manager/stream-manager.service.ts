@@ -17,7 +17,6 @@ export class StreamManagerService implements OnModuleDestroy {
   private readonly _streamsOutboundCreationMutex: Mutex = new Mutex();
 
   public constructor(private readonly _nodeService: NodeService) {
-    // TODO: these maps should be generated on the fly if they don't exist for a given protocol
     this._streamsInbound.set('/observe/1.0.0', new Map<string, InboundStream>());
     this._streamsInbound.set('/report/1.0.0', new Map<string, InboundStream>());
     this._streamsOutbound.set('/observe/1.0.0', new Map<string, OutboundStream>());
@@ -89,9 +88,7 @@ export class StreamManagerService implements OnModuleDestroy {
 
   public async getOutboundStream(protocol: string, peerId: PeerId): Promise<OutboundStream> {
     const id = peerId.toString();
-    // TODO make this behavior more robust
-    // This behavior is different than for inbound streams
-    // If an outbound stream already exists, don't create a new stream
+
     if (this._streamsOutbound.get(protocol) === undefined){
       this._streamsOutbound.set(protocol, new Map<string, OutboundStream>());
     }

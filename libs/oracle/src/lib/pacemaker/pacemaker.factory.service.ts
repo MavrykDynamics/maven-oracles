@@ -9,6 +9,7 @@ import { ReportGenFactoryService } from '../reportgen/index.js';
 
 @Injectable()
 export class PacemakerFactoryService implements OnModuleInit {
+  // map of the pacemakers we will start on the init
   public pacemakers: Map<string, PacemakerService> = new Map();
 
   public constructor(
@@ -20,11 +21,13 @@ export class PacemakerFactoryService implements OnModuleInit {
   ) {}
 
   public async onModuleInit(): Promise<void> {
+    // we get the factory address to get informations on aggregators
     const { aggregatorFactoryAddress } = this._oracleConfig;
     const aggregatorInformations = await this._contractService.getAggregatorAddresses(
       aggregatorFactoryAddress
     );
 
+    // for each aggregator, we start a new pacemaker service
     for (const { pair, aggregatorAddress } of aggregatorInformations) {
       const oracleAddresses = await this._contractService.getOraclesAddresses(aggregatorAddress);
 

@@ -11,7 +11,7 @@ export class PacemakerNetworkService
 {
   private readonly _logger: Logger = new Logger(PacemakerNetworkService.name);
   private readonly _topic: string = 'newEpoch';
-  private readonly _messageListener = this._onPubSubMessage.bind(this);
+  private readonly _messageListener: any = this._onPubSubMessage.bind(this);
 
   public constructor(private readonly _nodeService: NodeService) {
     super();
