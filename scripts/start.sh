@@ -18,7 +18,7 @@ docker-compose up -d flextesa
 sleep 10
 
 (cd $PRJT_ROOT/libs/contracts && rushx migrate)
-docker-compose up -d elastic db api indexer metrics gui
+docker-compose up -d elastic db api indexer metrics gui signatory
 sleep 20
 
 docker-compose up -d --build
