@@ -117,7 +117,6 @@ export class ContractService implements OnModuleInit {
     oraclePriceResponsesForPack: MichelsonMap<string, IOracleObservationType>
   ): Promise<string> {
     const toolkit = await this._txManagerService.getTezosToolkit();
-
     const signature_observations = await toolkit.signer.sign(
       `0x${await this._packObservations(oraclePriceResponsesForPack)}`
     );

@@ -1,20 +1,13 @@
 import { OracleConfigMock } from '../../__mocks__/oracle.config.mock.js';
-import { EventHubService } from '../../event-hub/index.js';
 import { beforeEach, expect, jest } from '@jest/globals';
 import type { ContractService as ContractServiceType } from '../contract.service.js';
 import {
-  AggregatorFactoryContractAbstraction,
-  IAggregatorInformations,
-  IAggregatorStorage,
   IOracleInformations,
-  IOracleObservationType
 } from '@tezosdynamics/contracts';
 
 import BigNumber from 'bignumber.js';
-import { TimerMock } from '../../pacemaker/__mocks__/timer.mock.js';
-import { TxManagerService } from '@tezosdynamics/tx-manager';
 import { TxManagerServiceMock } from '../__mocks__/tx-manager.service.mock.js';
-import { IAttestedReport, ICompressedReport, IObservation } from 'src/lib/reportgen/index.js';
+import { IAttestedReport, IObservation } from 'src/lib/reportgen/index.js';
 
 
 // Use async import to make sure we get the mocked one
@@ -22,17 +15,20 @@ const { ContractService } = await import('../contract.service.js');
 
 describe('ContractService', () => {
   let contractService: ContractServiceType;
-  const txManagerServiceMock = new TxManagerServiceMock();
+  let contractServiceOther: ContractServiceType;
+
+  const txManagerServiceMock = new TxManagerServiceMock("edskRpPWgoNUfJgZRiycPg9539KMX6Ksw5yNVDw2ukds8VEgqXLLuBDrB6dr6m7fgsAZrLMDpPkxN7kRpcNyRzwkPYhoWsBJsZ");
+  const txManagerServiceMockOther = new TxManagerServiceMock("edsk3Sb16jcx9KrgMDsbZDmKnuN11v4AbTtPBgBSBTqYftd8Cq3i1e");
 
   beforeEach(async () => {
-
     contractService = new ContractService(
       OracleConfigMock,
       txManagerServiceMock as any
     );
-
-    // @ts-expect-error
-    // timerTransmit = transmitService._timerTransmit;
+    contractServiceOther = new ContractService(
+      OracleConfigMock,
+      txManagerServiceMockOther as any
+    );
     
   });
 
@@ -67,14 +63,12 @@ describe('ContractService', () => {
               "price": new BigNumber(10144537815)
            }
         ];
-        const secretKey: string = "edskRpPWgoNUfJgZRiycPg9539KMX6Ksw5yNVDw2ukds8VEgqXLLuBDrB6dr6m7fgsAZrLMDpPkxN7kRpcNyRzwkPYhoWsBJsZ"; // oracle2
         const epoch: number = 2;
         const round: number = 1;
       const signature: string = await contractService.signCompressedReport(
         aggregatorAddress,
         oracleAddresses,
         observations,
-        secretKey,
         epoch,
         round
       );
@@ -109,14 +103,12 @@ describe('ContractService', () => {
               "price": new BigNumber(10144537815)
            }
         ];
-        const secretKey: string = "edskRpPWgoNUfJgZRiycPg9539KMX6Ksw5yNVDw2ukds8VEgqXLLuBDrB6dr6m7fgsAZrLMDpPkxN7kRpcNyRzwkPYhoWsBJsZ"; // oracle2
         const epoch: number = 2;
         const round: number = 1;
       const signature: string = await contractService.signCompressedReport(
         aggregatorAddress,
         oracleAddresses,
         observations,
-        secretKey,
         epoch,
         round
       );
@@ -135,14 +127,12 @@ describe('ContractService', () => {
               "price": new BigNumber(10144537815)
            }
         ];
-        const secretKey: string = "edskRpPWgoNUfJgZRiycPg9539KMX6Ksw5yNVDw2ukds8VEgqXLLuBDrB6dr6m7fgsAZrLMDpPkxN7kRpcNyRzwkPYhoWsBJsZ"; // oracle2
         const epoch: number = 2;
         const round: number = 1;
       const signature: string = await contractService.signCompressedReport(
         aggregatorAddress,
         oracleAddresses,
         observations,
-        secretKey,
         epoch,
         round
       );
@@ -186,14 +176,12 @@ describe('ContractService', () => {
               "price": new BigNumber(10144537815)
            }
         ];
-        const secretKey: string = "edskRpPWgoNUfJgZRiycPg9539KMX6Ksw5yNVDw2ukds8VEgqXLLuBDrB6dr6m7fgsAZrLMDpPkxN7kRpcNyRzwkPYhoWsBJsZ"; // oracle2
         const epoch: number = 2;
         const round: number = 1;
       const signature: string = await contractService.signCompressedReport(
         aggregatorAddress,
         oracleAddresses,
         observations,
-        secretKey,
         epoch,
         round
       );
@@ -231,17 +219,14 @@ describe('ContractService', () => {
          "price": new BigNumber(10144537815)
       }
     ];
-    const secretKey1: string = "edsk3Sb16jcx9KrgMDsbZDmKnuN11v4AbTtPBgBSBTqYftd8Cq3i1e"; // oracle1
-    const secretKey2: string = "edskRpPWgoNUfJgZRiycPg9539KMX6Ksw5yNVDw2ukds8VEgqXLLuBDrB6dr6m7fgsAZrLMDpPkxN7kRpcNyRzwkPYhoWsBJsZ"; // oracle2
     const epoch: number = 2;
     const round: number = 1;
     test('verifyAttestedReport OK', async () => {
 
-      const signature1: string = await contractService.signCompressedReport(
+      const signature1: string = await contractServiceOther.signCompressedReport(
         aggregatorAddress,
         oracleAddresses,
         observations,
-        secretKey1,
         epoch,
         round
       );
@@ -249,7 +234,6 @@ describe('ContractService', () => {
         aggregatorAddress,
         oracleAddresses,
         observations,
-        secretKey2,
         epoch,
         round
       );
@@ -287,7 +271,6 @@ describe('ContractService', () => {
         aggregatorAddress,
         oracleAddresses,
         observations,
-        secretKey1,
         epoch,
         round
       );
@@ -295,7 +278,6 @@ describe('ContractService', () => {
         aggregatorAddress,
         oracleAddresses,
         observations,
-        secretKey2,
         epoch,
         round
       );
@@ -333,7 +315,6 @@ describe('ContractService', () => {
         aggregatorAddress,
         oracleAddresses,
         observations,
-        secretKey1,
         epoch,
         round
       );
@@ -341,7 +322,6 @@ describe('ContractService', () => {
         aggregatorAddress,
         oracleAddresses,
         observations,
-        secretKey2,
         epoch,
         round
       );
@@ -388,7 +368,6 @@ describe('ContractService', () => {
         aggregatorAddress,
         oracleAddresses,
         observations,
-        secretKey1,
         epoch,
         round
       );
@@ -396,7 +375,6 @@ describe('ContractService', () => {
         aggregatorAddress,
         oracleAddresses,
         observations,
-        secretKey2,
         epoch,
         round
       );
