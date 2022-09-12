@@ -494,6 +494,10 @@
     {
       "packageName": "@tezosdynamics/config",
       "projectFolder": "libs/config"
+    },
+    {
+      "packageName": "@tezosdynamics/ecvrf",
+      "projectFolder": "libs/ecvrf"
     }
   ]
 }
