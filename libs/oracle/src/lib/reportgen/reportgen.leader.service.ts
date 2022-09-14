@@ -23,10 +23,28 @@ import { Timer } from '../pacemaker/timer.js';
 import { useMutex } from '../helpers/useMutex.js';
 import { Mutex } from 'async-mutex';
 
+/**
+ * Report Generation Leader service as described in {@link https://research.chain.link/ocr.pdf} Section 5.3
+ *
+ * ReportGenLeaderService are instantiated by the Pacemaker service using the ReportGenFactoryService service.
+ * It is instantiated only if the oracle is the leader of the epoch
+ *
+ *
+ *  How it works:
+ *
+ *
+ */
 export class ReportGenLeaderService {
   private readonly _logger: Logger = new Logger(ReportGenLeaderService.name);
 
-  private readonly _mutex = new Mutex();
+  // Do not remove, it is used by @useMutex annotations
+  // This is used to make sure that handlers are executed sequentially
+  // See first paragraph of Section 5 in https://research.chain.link/ocr.pdf:
+  //
+  // "Handlers are executed atomically, i.e., in a serializable
+  // and mutually exclusive way, per protocol instance and per node such that no two handler executions of the same
+  // instance interleave."
+  private readonly _mutex: Mutex = new Mutex();
 
   private _epoch: number;
   private _leader: string;

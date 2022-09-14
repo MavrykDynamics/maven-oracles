@@ -10,25 +10,29 @@ import { IOracleInformations } from '@tezosdynamics/contracts';
 import { Timer } from '../pacemaker/timer.js';
 
 /**
- * The pacemaker service as described in https://research.chain.link/ocr.pdf Section 5.4
- * Transmit service is responsible for transmitting a final report to the smart contract on the Tezos blockchain
- * 
+ * The transmit service as described in {@link https://research.chain.link/ocr.pdf} Section 5.4
+ * Transmit service is responsible for transmitting a final report to the smart contract on the blockchain
+ *
  * How it works:
- * The service is listening on the event "transmit"
- * When this event is trigger, we will do some checks and do a transmit only if theses 3 conditions are accepted:
- *    - last report on blockchain is null so this is the forst one
- *    - we have a deviation:  the difference between the new and the previous report median is greater than the deviation threshold 
- *    - we have a new epoch / round on the report
- * The transmit operation is quite simple. We first get the delay, calculated with a random permutation.
- * Then we start the timer and we wait for it to end.
- * When the timer will be end, the report is sent to the blockchain
- * 
+ *
+ * The service logic is triggered on the "transmit" event
+ * When this event is trigger, we will do some checks and transmit only if one of these 3 conditions is accepted:
+ *    - The report is the first one (last report on blockchain is epoch/round 0/0)
+ *    - A deviation is detected: the difference between the new and the previous report median is greater than the deviation threshold
+ *    - The report epoch/round is fresher than the one on the blockchain
+ *
+ * The transmit operation is quite simple:
+ * - We first compute our oracle delay for sending the report, each oracle get a different value, which varies each round
+ * (Random is seeded by common value between all oracle, this ensures every oracle get the same pseudo-random permutation)
+ * - Then we start the timer and wait for it to end.
+ * - When the timer end, the report is sent to the blockchain if it isn't present there yet
  */
 
 @Injectable()
 export class TransmitService implements OnModuleInit {
   private readonly _logger: Logger = new Logger(TransmitService.name);
-  // Highest newEpoch received for each peer (including ourself)
+
+  // Report queue ordered by time (the most imminent is first)
   private _reports: Heap<{
     time: number;
     report: IAttestedReport;
@@ -36,7 +40,9 @@ export class TransmitService implements OnModuleInit {
     oracleAddresses: IOracleInformations[];
   }> = new Heap((a, b) => a.time - b.time); // Order by report time
 
-  private _lastTransmitedReport: Map<
+  // Cached last report transmitted for each aggregator:
+  // aggregator address -> last report infos
+  private _lastTransmittedReport: Map<
     string,
     {
       epoch: number;
@@ -45,8 +51,11 @@ export class TransmitService implements OnModuleInit {
     }
   > = new Map();
 
-  private _deltaStage: number = 20 * 1000; // miliseconds number between two stages
-  private _timerTransmit: Timer = new Timer(this._onTransmitTimerTimeout.bind(this),0);
+  // Time between oracle try to send the report to the blockchain. This value should be greater than the block time to avoid failing transactions
+  private _delta: number = 20 * 1000; // miliseconds number between two stages
+
+  /// Transmit timer
+  private _timerTransmit: Timer = new Timer(this._onTransmitTimerTimeout.bind(this), 0);
 
   public constructor(
     private readonly _config: OracleConfig,
@@ -67,15 +76,27 @@ export class TransmitService implements OnModuleInit {
     );
   }
 
+  /**
+   * Entrypoint of the service, it is called on transmit event.
+   *
+   * First, check if the report should be sent
+   * If so, place it in the report queue.
+   * Then, restart the timer, so it wakes up when the most imminent report is due.
+   *
+   * @param aggregatorAddress - Aggregator smart contract address
+   * @param oracleAddresses - Information about the oracles (pk, pkh and peer id)
+   * @param report - Report to transmit
+   */
   public async onTransmit(
     aggregatorAddress: string,
     oracleAddresses: IOracleInformations[],
     report: IAttestedReport
   ): Promise<void> {
-    const lastBlockchainReport = await this._getLastBlockchainEpochAndRound(aggregatorAddress);
-    
+    const lastBlockchainReport = await this._contractService.getLastBlockchainReport(aggregatorAddress);
+
     this._logger.log(`${aggregatorAddress}/${report.epoch}/${report.round} - Treating report`);
 
+    // Check if received report is more recent than the last one in the aggregator smart contract
     if (
       lastBlockchainReport !== null &&
       this._isNewerEpochRound(
@@ -91,24 +112,28 @@ export class TransmitService implements OnModuleInit {
       return;
     }
 
-    const lastTransmitedReport = this._lastTransmitedReport.get(aggregatorAddress);
+    // Fetch last transmitted report from the cache
+    const lastTransmittedReport = this._lastTransmittedReport.get(aggregatorAddress);
 
+    // Check if received report is more recent than the last one in the cache
+    // If it is not, discard the report
     if (
-      lastTransmitedReport !== undefined &&
+      lastTransmittedReport !== undefined &&
       this._isNewerEpochRound(
         report.epoch,
         report.round,
-        lastTransmitedReport.epoch,
-        lastTransmitedReport.round
+        lastTransmittedReport.epoch,
+        lastTransmittedReport.round
       )
     ) {
       this._logger.debug(
-        `${aggregatorAddress}/${report.epoch}/${report.round} - Last report accepted from transmission is more recent than epoch/round: ${lastTransmitedReport.epoch}/${lastTransmitedReport.round}, discarding`
+        `${aggregatorAddress}/${report.epoch}/${report.round} - Last report accepted from transmission is more recent than epoch/round: ${lastTransmittedReport.epoch}/${lastTransmittedReport.round}, discarding`
       );
       return;
     }
 
-    if (lastTransmitedReport === undefined) {
+    // If there is no last transmitted report in cache, queue the report for transmission
+    if (lastTransmittedReport === undefined) {
       this._logger.log(
         `${aggregatorAddress}/${report.epoch}/${report.round} - This is the first report accepted for transmission, doing transmit`
       );
@@ -116,10 +141,11 @@ export class TransmitService implements OnModuleInit {
       return;
     }
 
+    // Compute the deviation to see if it is above threshold
     const reportMedian = computeMedian(report);
-    const previousMedian = computeMedian(lastTransmitedReport.report);
+    const previousMedian = computeMedian(lastTransmittedReport.report);
 
-    const deviation = reportMedian.minus(previousMedian).abs().div(previousMedian.abs()).multipliedBy(1000);
+    const deviation = reportMedian.minus(previousMedian).abs().div(previousMedian.abs()).multipliedBy(1000); // We compute in ‰ (per thousand, so we multiply the value by 1000)
     const perThousandThreshold = new BigNumber(3); // TODO: fetch value from blockchain
 
     this._logger.log(
@@ -128,6 +154,7 @@ export class TransmitService implements OnModuleInit {
     this._logger.log(`${aggregatorAddress}/${report.epoch}/${report.round} - Median: ${reportMedian}`);
     this._logger.log(`${aggregatorAddress}/${report.epoch}/${report.round} - Deviation: ${deviation}‰`);
 
+    // If a deviation is detected, queue the report for transmission
     if (deviation.gte(perThousandThreshold)) {
       this._logger.log(
         `${aggregatorAddress}/${report.epoch}/${report.round} - Deviation is over threshold, doing transmit`
@@ -136,10 +163,11 @@ export class TransmitService implements OnModuleInit {
       return;
     }
 
+    // If the report is more recent than last transmitted report, queue the report for transmission
     if (
       this._isNewerEpochRound(
-        lastTransmitedReport.epoch,
-        lastTransmitedReport.round,
+        lastTransmittedReport.epoch,
+        lastTransmittedReport.round,
         report.epoch,
         report.round
       )
@@ -152,6 +180,23 @@ export class TransmitService implements OnModuleInit {
     }
   }
 
+  /**
+   * Compute if epoch/round (e1/r1) is newer than (e2/r2)
+   * Examples:
+   * - (2/0) is more recent than (1/3)
+   * - (1/1) is more recent than (1/0)
+   * - (1/1) is not more recent than (1/1)
+   * - (1/1) is not more recent than (1/2)
+   * - (0/3) is not more recent than (1/0)
+   *
+   * @param baseEpoch - e1
+   * @param baseRound - r1
+   * @param otherEpoch - e2
+   * @param otherRound - r2
+   * @private
+   *
+   * @returns boolean
+   */
   private _isNewerEpochRound(
     baseEpoch: number,
     baseRound: number,
@@ -169,6 +214,19 @@ export class TransmitService implements OnModuleInit {
     return false;
   }
 
+  /**
+   * Queue report for transmission:
+   *
+   * - Compute the delay between now and transmission attempt
+   * - Add report to queue
+   * - Restart timer, so it wakes up for the most imminent report
+   *
+   * @param epoch - Report epoch
+   * @param round - Report round
+   * @param aggregatorAddress - Aggregator smart contract address
+   * @param oracleAddresses - Information about the oracles (pk, pkh and peer id)
+   * @param report - Report
+   */
   public async doTransmit(
     epoch: number,
     round: number,
@@ -176,13 +234,15 @@ export class TransmitService implements OnModuleInit {
     oracleAddresses: IOracleInformations[],
     report: IAttestedReport
   ): Promise<void> {
-    this._lastTransmitedReport.set(aggregatorAddress, {
+    this._lastTransmittedReport.set(aggregatorAddress, {
       epoch,
       round,
       report
     });
 
+    // Compute oracle delay for this report
     const delay = await this._getTransmitDelayMs(aggregatorAddress, oracleAddresses, epoch, round);
+
     this._reports.push({
       time: Date.now() + delay,
       report,
@@ -198,9 +258,26 @@ export class TransmitService implements OnModuleInit {
       } pushed to report queue. Will transmit at ${new Date(peekedReport.time)}`
     );
 
+    // Restart timer, so it wakes up for the most imminent report
     this._timerTransmit.restart(peekedReport.time - Date.now());
   }
 
+  /**
+   * Compute delay for oracle based on a pseudo random permutation.
+   *
+   * Random is seeded by common value between all oracle, this ensures every oracle get the same pseudo-random permutation
+   * The delay is computed by: `i * delta`, with
+   * - `i` being the oracle index in the permutation
+   * - `delay` being a constant value
+   *
+   * See Algorithm 5, "transmit-delay" from {@link https://research.chain.link/ocr.pdf}
+   *
+   * @param aggregatorAddress
+   * @param oracleAddresses
+   * @param epoch
+   * @param round
+   * @private
+   */
   private async _getTransmitDelayMs(
     aggregatorAddress: string,
     oracleAddresses: IOracleInformations[],
@@ -215,17 +292,26 @@ export class TransmitService implements OnModuleInit {
     );
 
     const k = permuted.findIndex((oracle) => oracle === this._config.tezosAddress);
-    return k * this._deltaStage;
+    return k * this._delta;
   }
 
-  // _timerTransmit end will trigger this method 
+  /**
+   * Triggered by the end of transmit timer
+   *
+   * This will take the first report in the queue, check if it still needs to be sent to the aggregator.
+   * If so, it will send it.
+   *
+   * @private
+   */
   private async _onTransmitTimerTimeout(): Promise<void> {
     const timeAndReport = this._reports.pop();
+
+    // No report to send, ignoring
     if (timeAndReport === undefined) {
       return;
     }
     const { report, aggregatorAddress, oracleAddresses } = timeAndReport;
-    const lastBlockchainReport = await this._getLastBlockchainEpochAndRound(aggregatorAddress);
+    const lastBlockchainReport = await this._contractService.getLastBlockchainReport(aggregatorAddress);
 
     // if we have epoch/round is higher than the one in the blockchain OR if this is the first time we commit (report on blockchain is null)
     if (
@@ -246,21 +332,15 @@ export class TransmitService implements OnModuleInit {
       );
     }
 
+    // Restart the timer for the next report
+
     const peekedReport = this._reports.peek();
-    // if nothing is in the queue, we stop
+
+    // if nothing is in the queue, just ignore.
     if (peekedReport === undefined) {
       return;
     }
     // else we restart the timer
     this._timerTransmit.restart(peekedReport.time - Date.now());
-  }
-
-  private async _getLastBlockchainEpochAndRound(aggregatorAddress: string): Promise<{
-    epoch: number;
-    round: number;
-    price: BigNumber;
-    time: number;
-  } | null> {
-    return await this._contractService.getLastBlockchainReport(aggregatorAddress);
   }
 }

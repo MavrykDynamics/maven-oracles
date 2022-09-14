@@ -14,11 +14,16 @@ then
     cp "$envExample" "$env"
 fi
 
+# Start blockchain only
 docker-compose up -d flextesa
-sleep 10
+sleep 10 # Wait for it to be up
 
+# Deploy smart contracts
 (cd $PRJT_ROOT/libs/contracts && rushx migrate)
+
+# Start utilitary stack
 docker-compose up -d elastic db api indexer metrics gui signatory
 sleep 20
 
+# Start all oracles
 docker-compose up -d --build

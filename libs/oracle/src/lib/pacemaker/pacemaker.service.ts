@@ -14,7 +14,7 @@ import { Mutex } from 'async-mutex';
 import { useMutex } from '../helpers/useMutex.js';
 
 /**
- * The pacemaker service as described in https://research.chain.link/ocr.pdf Section 4.
+ * The Pacemaker service as described in {@link https://research.chain.link/ocr.pdf} Section 5.2
  * With some differences:
  * - The state (epoch) is initialized from the smart contract. So if all oracles restart at the same time,
  *   it does not have to count from 0 to the smart contract epoch.
@@ -35,7 +35,14 @@ import { useMutex } from '../helpers/useMutex.js';
 export class PacemakerService {
   private readonly _logger: Logger = new Logger(PacemakerService.name);
 
-  private readonly _mutex = new Mutex();
+  // Do not remove, it is used by @useMutex annotations
+  // This is used to make sure that handlers are executed sequentially
+  // See first paragraph of Section 5 in https://research.chain.link/ocr.pdf:
+  //
+  // "Handlers are executed atomically, i.e., in a serializable
+  // and mutually exclusive way, per protocol instance and per node such that no two handler executions of the same
+  // instance interleave."
+  private readonly _mutex: Mutex = new Mutex();
 
   // PeerId of currently running oracle
   private _self: string;
@@ -95,9 +102,15 @@ export class PacemakerService {
     this._pacemakerNetworkService.addListener('newEpoch', this._newEpochListener);
 
     // Read epoch from aggregator smart contract
-    const { epoch } = await this._contractService.getLastBlockchainReport(
+    const lastBlockchainReport = await this._contractService.getLastBlockchainReport(
       this._pacemakerConfig.aggregatorAddress
     );
+
+    if (lastBlockchainReport === null) {
+      throw new Error('Last blockchain report not found');
+    }
+
+    const { epoch } = lastBlockchainReport;
 
     this._logger.log(
       `${this._pacemakerConfig.aggregatorAddress}/${epoch} - Starting pacemaker with epoch from blockchain: ${epoch}`
@@ -353,6 +366,20 @@ export class PacemakerService {
     }
   }
 
+  /**
+   * Compute the leader for a given epoch
+   *
+   * @param oracleAddresses - Information about the oracles (pk, pkh and peer id)
+   * @param epoch - Current epoch
+   *
+   * @private
+   *
+   * This is a simple implementation:
+   *  i = epoch % nOracles
+   *  leader = oracles[i]
+   *
+   * See "The leader function", section 5.2 in {@link https://research.chain.link/ocr.pdf}
+   */
   private _leaderForEpoch(oracleAddresses: IOracleInformations[], epoch: number): string {
     const oraclePeersIdList: string[] = [...oracleAddresses.values()].map((infos) => infos.oraclePeerId);
     const oracleLeaderIndex = epoch % oraclePeersIdList.length;

@@ -3,7 +3,7 @@ import { MichelsonType, packDataBytes } from '@taquito/michel-codec';
 import { verifySignature } from '@taquito/utils';
 
 import { OracleConfig } from '../oracle.config.js';
-import { MichelsonMap, OpKind, Signer } from '@taquito/taquito';
+import { MichelsonMap, OpKind } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 import { Schema } from '@taquito/michelson-encoder';
 import { IAttestedReport, ICompressedReport, IObservation, ISignature } from '../reportgen';
@@ -18,6 +18,11 @@ import {
 } from '@tezosdynamics/contracts';
 import { IAggregatorConfig } from './contract.types.js';
 
+/**
+ * Contract service
+ *
+ * Provide an abstraction of the contract capabilities to the other services.
+ */
 @Injectable()
 export class ContractService implements OnModuleInit {
   private readonly _logger: Logger = new Logger(ContractService.name);
@@ -29,6 +34,11 @@ export class ContractService implements OnModuleInit {
 
   public async onModuleInit(): Promise<void> {}
 
+  /**
+   * Fetch aggregators registered in the aggregator factory
+   *
+   * @param aggregatorFactoryAddress - Address of the aggregator factory smart contract to fetch from
+   */
   public async getAggregatorAddresses(aggregatorFactoryAddress: string): Promise<IAggregatorInformations[]> {
     const contractInstance = await (
       await this._txManagerService.getTezosToolkit()
@@ -42,6 +52,11 @@ export class ContractService implements OnModuleInit {
     });
   }
 
+  /**
+   * Fetch oracle addresses listed in an aggregator
+   *
+   * @param aggregatorAddress - Address of the aggregator smart contract to fetch from
+   */
   public async getOraclesAddresses(aggregatorAddress: string): Promise<IOracleInformations[]> {
     const contractInstance = await (
       await this._txManagerService.getTezosToolkit()
@@ -54,6 +69,16 @@ export class ContractService implements OnModuleInit {
     }));
   }
 
+  /**
+   * Serialize report into Tezos format
+   * @param aggregatorAddress - Aggregator smart contract address
+   * @param oracleAddresses - Information about the oracles (pk, pkh and peer id)
+   * @param report - Report to pack
+   *
+   * @returns - Packed report
+   *
+   * @private
+   */
   private async _packReport(
     aggregatorAddress: string,
     oracleAddresses: IOracleInformations[],
@@ -76,6 +101,14 @@ export class ContractService implements OnModuleInit {
     return await this._packObservations(oraclePriceResponsesForPack);
   }
 
+  /**
+   * Serialize observations into Tezos format
+   * @param oraclePriceResponsesForPack - Observations to pack
+   *
+   * @returns - Packed observation
+   *
+   * @private
+   */
   private async _packObservations(
     oraclePriceResponsesForPack: MichelsonMap<string, IOracleObservationType>
   ): Promise<string> {
@@ -113,6 +146,13 @@ export class ContractService implements OnModuleInit {
     return priceCodec.bytes;
   }
 
+  /**
+   * Sign oracle prices using Tezos signer key
+   *
+   * @param oraclePriceResponsesForPack - Observation map
+   *
+   * @returns - Signature
+   */
   public async signOraclePriceResponses(
     oraclePriceResponsesForPack: MichelsonMap<string, IOracleObservationType>
   ): Promise<string> {
@@ -123,6 +163,17 @@ export class ContractService implements OnModuleInit {
     return signature_observations.sig;
   }
 
+  /**
+   * Sign compressed report using Tezos signer key
+   *
+   * @param aggregatorAddress - Aggregator smart contract address
+   * @param oracleAddresses - Information about the oracles (pk, pkh and peer id)
+   * @param observations - Oracles observations
+   * @param epoch - Report epoch
+   * @param round - Report round
+   *
+   * @returns - Signature
+   */
   public async signCompressedReport(
     aggregatorAddress: string,
     oracleAddresses: IOracleInformations[],
@@ -147,6 +198,16 @@ export class ContractService implements OnModuleInit {
     return await this.signOraclePriceResponses(oraclePriceResponsesForPack);
   }
 
+  /**
+   * Check if report is correctly signed
+   *
+   * @param aggregatorAddress - Aggregator smart contract address
+   * @param oracleAddresses - Information about the oracles (pk, pkh and peer id)
+   * @param report - Report
+   * @param signature - Signature to check
+   *
+   * @returns boolean
+   */
   public async verifyReportSignature(
     aggregatorAddress: string,
     oracleAddresses: IOracleInformations[],
@@ -178,9 +239,9 @@ export class ContractService implements OnModuleInit {
   /**
    * Verify that the report contains as least f signatures
    *
-   * @param aggregatorAddress - Address of the aggregator
+   * @param aggregatorAddress - Aggregator smart contract address
    * @param attestedReport - Report with signatures
-   * @param oracleAddresses - Informations about the oracles (pk, pkh and peer id)
+   * @param oracleAddresses - Information about the oracles (pk, pkh and peer id)
    * @param f - Minimum number of trusted oracles
    * @returns if the report has enough signatures
    */
@@ -208,6 +269,13 @@ export class ContractService implements OnModuleInit {
     return signaturesOk.every((ok) => ok) && signaturesOk.length > f;
   }
 
+  /**
+   * Send a report to the aggregator smart contract
+   *
+   * @param aggregatorAddress - Aggregator smart contract address
+   * @param oracleAddresses - Information about the oracles (pk, pkh and peer id)
+   * @param report - Report to send
+   */
   public async sendReportBlockchain(
     aggregatorAddress: string,
     oracleAddresses: IOracleInformations[],
@@ -256,12 +324,19 @@ export class ContractService implements OnModuleInit {
     }
   }
 
+  /**
+   * Fetch the last blockchain report from the aggregator smart contract
+   * @param aggregatorAddress - Aggregator smart contract address
+   *
+   * @returns - Should always return a value if the aggregator exists (and is a valid aggregator)
+   * since the smart contract storage is initialized with zero values
+   */
   public async getLastBlockchainReport(aggregatorAddress: string): Promise<{
     epoch: number;
     round: number;
     price: BigNumber;
     time: number;
-  }> {
+  } | null> {
     const contractInstance = await (
       await this._txManagerService.getTezosToolkit()
     ).contract.at(aggregatorAddress);
@@ -275,6 +350,11 @@ export class ContractService implements OnModuleInit {
     };
   }
 
+  /**
+   * Fetch aggregator configuration from the smart contract
+   *
+   * @param aggregatorAddress - Aggregator smart contract address
+   */
   public async getAggregatorConfig(aggregatorAddress: string): Promise<IAggregatorConfig> {
     const contractInstance = await (
       await this._txManagerService.getTezosToolkit()

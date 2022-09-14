@@ -31,7 +31,7 @@ export class TxManagerConfig {
 
   @Property({
     default: 5000,
-    env: 'POLLING_INTERVAL_MILLISECONDS',
+    env: 'TEZOS_POLLING_INTERVAL_MILLISECONDS',
     format: Number
   })
   public pollingIntervalMilliseconds: number;

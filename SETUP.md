@@ -1,22 +1,8 @@
-# Setup an oracle on Raspberry Pi
+## How to deploy an oracle using Docker Compose
 
-The goal the oracles is to be deployed on Raspberry Pi using a Ledger device to store the private keys.  
-But, as of now, the necessary Ledger App is not yet developed, so, right now, we are using [Signatory](https://github.com/ecadlabs/signatory) either with secret file on the Raspberry (NOT RECOMMENDED) or a cloud signer (See [supported backends](https://github.com/ecadlabs/signatory#backend-kmshsm-support-status))
+### Docker (if it is already installed, you can skip this step)
 
-## Prerequisites
-
-To follow this guide you will need
-
-- a Raspberry Pi
-- a SD card that matches your Raspberry Pi
-
-## Install Raspberry Pi OS
-
-- Install [Raspberry Pi imager](https://www.raspberrypi.com/software/)
-- Launch it and install Raspberry Pi OS on your SD card. Make sure to have a way to login to your Raspberry Pi (either ssh or login/password) in the imager options
-- Put your SD card in the Rasberry Pi and plug it
-
-## Install Docker
+Prerequisite: Docker (with Docker Compose).
 
 Here is the fast install instructions:
 ```
@@ -28,45 +14,69 @@ sudo usermod -aG docker $USER
 newgrp docker
 ```
 
-
 See [manual install instructions](https://docs.docker.com/engine/install/debian/)
- 
 
-## Install Mavryk oracle
+### Set up
+Create `docker-compose.yml` file:
 
-- Login to your Raspberry pi using ssh or login/password
-
-- Create a `db` folder
-- Create a `docker-compose.yml` file:
-```
+```yaml
+# docker-compose.yml
 version: '3.7'
 
 services:
-  oracle:
-    restart: always
-    image: tezosdynamics/mavryk-oracle:latest
-    environment:
-      - RPC_URL=<YOUR_RPC_URL>
-      - ORACLE_PKH=<YOUR_ADDRESS>
-      - ORACLE_WITHDRAW_ADDRESS=<YOUR_ADDRESS>
-      - ENABLE_DEVIATION_TRIGGER=true
-      - SIGNER_URL=http://signatory-oracle-1:6732
-      - COMMIT_DATA_DB_FILE=/home/node/db/database.oracle1.db
-    env_file:
-      - .contracts.ithacanet.env
-    volumes:
-      - ./db:/home/node/db
-
-  signatory-oracle-1:
-    restart: always
-    image: tezosdynamics/signatory:v0.3.0-beta-rc2
+  signatory:
+    image: ecadlabs/signatory:v0.3.3-beta-rc1-amd64
+    ports:
+      - '6732:6732'
     volumes:
       - ./signatory.yaml:/etc/signatory.yaml
       - ./secret.json:/etc/secret.json
+
+  oracle:
+    container_name: oracle
+    image: ocr-latest
+    env_file:
+      - .env
 ```
 
-- Create a `signatory.yaml` file:
+Create `.env` file (See [config reference](./CONFIG.md):
+```dotenv
+# .env
+
+# Replace with your RPC url
+RPC_URL=https://ithacanet.ecadinfra.com
+SIGNER_URL=http://signatory:6732
+
+# Bootstrap peers addresses, separated by a white space
+P2P_BOOTSTRAP_PEERS=/ip4/172.24.2.100/tcp/23456/p2p/QmcrQZ6RJdpYuGvZqD5QEHAv6qX4BrQLJLQPQUrTrzdcgm /ip4/172.24.2.2/tcp/23456/p2p/12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2 /ip4/172.24.2.3/tcp/23456/p2p/12D3KooWLL2Y1JmrAXkY7r8xbuSRtasfJLAarXmAaZPYxPnzgAJ3 /ip4/172.24.2.4/tcp/23456/p2p/12D3KooWK87KmBGJZZMP3keux62VF515mFRbNRFwbYxib7wWQR34 /ip4/172.24.2.5/tcp/23456/p2p/12D3KooWDgabT39cFp5j5mvJgiGPEppMuVgDCsNtBCh1Q8ejBCA5 /ip4/172.24.2.6/tcp/23456/p2p/12D3KooWEKXXjviRoWwoB37UzBT4qjUBbQH8bypWy3YWmyfvR736 /ip4/172.24.2.7/tcp/23456/p2p/12D3KooWRGcN9uh633ucfUJ3XQ69n31mB2jPHKtrw7mfCSJdLz97
+
+# Your own generated libp2p peer id, public and private key
+P2P_PEER_ID=
+P2P_PEER_PUBLIC_KEY=
+P2P_PEER_PRIVATE_KEY=
+
+# Tezos public key and public key hash (= Address)
+TEZOS_ADDRESS=
+TEZOS_PUBLIC_KEY=
+
+# Put your Alphavantage API key here
+ALPHAVANTAGE_API_KEY=""
+
+# Put your Messar API key here
+MESSARI_API_KEY=""
+
+# Tezos polling interval for taquito. Must be lower than block time
+TEZOS_POLLING_INTERVAL_MILLISECONDS=2000
+
+# Aggregator factory smart contract address. Change this based on which network you are operating on.
+AGGREGATOR_FACTORY_SMART_CONTRACT_ADDRESS=KT1Qq4RD4vWcFshShSMt5vGLXP7gZBdiykEU
 ```
+
+Setup signatory following [this configuration guide](https://github.com/ecadlabs/signatory/blob/main/docs/README.md)
+Below is an example with a local private key. THIS IS NOT RECOMMENDED FOR PRODUCTION, Use local key storage for testing/development only.
+
+Create `signatory.yaml` file (THIS IS NOT RECOMMENDED FOR PRODUCTION, Use local key storage for testing/development only.): 
+```yaml
 server:
   # Address/Port that Signatory listens on
   address: :6732
@@ -75,6 +85,7 @@ server:
 
 vaults:
   # Name of vault
+  # THIS IS NOT RECOMMENDED FOR PRODUCTION, Use local key storage for testing/development only.
   local_file_keys:
     driver: file
     config:
@@ -82,51 +93,36 @@ vaults:
 
 # List enabled public keys hashes here
 tezos:
-  # Default policy allows "block" and "endorsement" operations
-  <YOUR_ADDRESS>:
+  YOUR_TEZOS_ADDRESS: # Your tezos address
     log_payloads: true
     allowed_operations:
       # List of [generic, block, endorsement]
       - generic
       - block
       - endorsement
+      - failing_noop
     allowed_kinds:
       # List of [endorsement, ballot, reveal, transaction, origination, delegation, seed_nonce_revelation, activate_account]
       - transaction
       - endorsement
-
 ```
 
-- Create a `secret.json`
-```
+Create `secret.json` file (THIS IS NOT RECOMMENDED FOR PRODUCTION, Use local key storage for testing/development only.): 
+```json5
+// THIS IS NOT RECOMMENDED FOR PRODUCTION, Use local key storage for testing/development only.
 [
   {
-    "name": "oracle-key",
-    "value": "<YOUR_PRIVATE_KEY>"
+    "name": "oracle1",
+    "value": "YOUR_TEZOS_PRIVATE_KEY"
   }
 ]
-
 ```
 
+Once everything is set up, simply do:
+```shell
+# Docker v2 +
+docker compose up
 
-Once everything is setup, your folder should look like this:
-
-```
-/home/pi
-├── docker-compose.yml
-├── secret.json
-├── signatory.dev.yaml
-└── db/
-
-```
-
-You can now run:
-
-```
-docker-compose up -d
-```
-
-To see the logs, do:
-```
-docker-compose logs orale -f
+# Docker v1
+docker-compose up
 ```

@@ -24,23 +24,66 @@ import { computeFValueFrom } from '../pacemaker/helpers.js';
 import { useMutex } from '../helpers/useMutex.js';
 import { Mutex } from 'async-mutex';
 
+/**
+ * Report Generation Follower service as described in {@link https://research.chain.link/ocr.pdf} Section 5.3
+ *
+ * ReportGenLeaderService are instantiated by the Pacemaker service using the ReportGenFactoryService service.
+ * It is instantiated in pair with {@link ReportGenLeaderService} if the oracle is the leader of the epoch
+ *
+ * The role of the report generation service is to handle an epoch:
+ *  - It keeps track of the current round, which increment
+ *  - It request observation from price fetchers
+ *  - It communicate with other oracles to establish a report containing observations from everyone
+ *  - It gives the report to the TransmitService once it's ready
+ *
+ *
+ *  How it works:
+ *
+ *
+ */
 export class ReportGenFollowerService {
   private readonly _logger: Logger = new Logger(ReportGenFollowerService.name);
 
-  private readonly _mutex = new Mutex();
+  // Do not remove, it is used by @useMutex annotations
+  // This is used to make sure that handlers are executed sequentially
+  // See first paragraph of Section 5 in https://research.chain.link/ocr.pdf:
+  //
+  // "Handlers are executed atomically, i.e., in a serializable
+  // and mutually exclusive way, per protocol instance and per node such that no two handler executions of the same
+  // instance interleave."
+  private readonly _mutex: Mutex = new Mutex();
 
+  // Current epoch and leader
   private readonly _epoch: number;
   private readonly _leader: string;
 
-  // Current round of the epoch
+  // Current round of the epoch, start at 0 and is increment after each report generation.
+  // Once it hit _roundMax, we stop and emit a "changeLeader" event
   private _round: number = 0;
+
+  // Report sent after "final" is received, null if we don't have received it yet.
+  // It is reset to null at the beginning of each round (on receiving 'observeReq')
   private _sentEcho: IAttestedReport | null = null;
+
+  // Flag indicating if we already sent a report for the current round.
+  // It is reset to false at the beginning of each round (on receiving 'observeReq')
   private _sentReport: boolean = false;
+
+  // Flag indicating the current round is completed
+  // It is reset to false at the beginning of each round (on receiving 'observeReq')
   private _completedRound: boolean = false;
+
+  // Map of received "finalEcho" message from other oracles for the current round.
+  // Used to know when enough oracle agree on the report
+  // It is reset to an empty map at the beginning of each round (on receiving 'observeReq')
   private _receivedEcho: Map<string, boolean> = new Map();
 
-  private readonly _roundMax: number = 3; // 3 - 20 recommended by OCR white paper
+  // Max number of rounds in an epoch
+  // 3 - 20 recommended by OCR white paper
+  private readonly _roundMax: number = 3;
 
+  // Handlers for events
+  // We declare them as property to be able to remove listeners on service shutdown
   private readonly _onObserveReqReceivedHandler: IReportGenEvents['observeReq'] =
     this._onObserveReqReceived.bind(this);
   private readonly _onReportReqReceivedHandler: IReportGenEvents['reportReq'] =
@@ -63,6 +106,8 @@ export class ReportGenFollowerService {
     this._logger.log(
       `${this._reportGenConfig.aggregatorAddress}/${this._epoch} Starting reportgen follower instance with leader ${this._leader}`
     );
+
+    // Start listening to event
     this._reportGenNetworkService.addListener('observeReq', this._onObserveReqReceivedHandler);
     this._reportGenNetworkService.addListener('reportReq', this._onReportReqReceivedHandler);
     this._reportGenNetworkService.addListener('final', this._onFinalReceivedHandler);
@@ -73,14 +118,36 @@ export class ReportGenFollowerService {
     this._logger.log(
       `${this._reportGenConfig.aggregatorAddress}/${this._epoch}  Stopping reportgen follower instance`
     );
+    // Stop listening to event
     this._reportGenNetworkService.removeListener('observeReq', this._onObserveReqReceivedHandler);
     this._reportGenNetworkService.removeListener('reportReq', this._onReportReqReceivedHandler);
     this._reportGenNetworkService.removeListener('final', this._onFinalReceivedHandler);
     this._reportGenNetworkService.removeListener('finalEcho', this._onFinalEchoReceivedHandler);
   }
 
+  /**
+   * Handler for "observeReq" message.
+   * Leader is asking us for our price observation.
+   *
+   * @param from - Sender of the message
+   * @param observeReqMessage - received "observeReq" message
+   * @private
+   *
+   * Start by doing checks on received information:
+   *   - Is aggregator address the same as ours ? (We receive message for all aggregators)
+   *   - Is sender the leader ?
+   *   - Is round number correct greater than the previous one ?
+   *   - Is round number correct lower than max round ?
+   *
+   * If all these checks pass, fetch price using PriceFetcherService, sign it and send it back
+   */
   @useMutex()
   private async _onObserveReqReceived(from: PeerId, observeReqMessage: IObserveReqMessage): Promise<void> {
+    if (observeReqMessage.aggregatorAddress !== this._reportGenConfig.aggregatorAddress) {
+      // Silently ignore messages for other aggregators
+      return;
+    }
+
     if (from.toString() !== this._leader) {
       this._logger.warn(
         `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${
@@ -92,11 +159,6 @@ export class ReportGenFollowerService {
       return;
     }
 
-    if (observeReqMessage.aggregatorAddress !== this._reportGenConfig.aggregatorAddress) {
-      // Silently ignore messages for other aggregators
-      return;
-    }
-
     if (this._round >= observeReqMessage.round || observeReqMessage.round > this._roundMax + 1) {
       this._logger.warn(
         `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${this._round} - Observation request invalid round number (${observeReqMessage.round}), discarding request`
@@ -104,6 +166,7 @@ export class ReportGenFollowerService {
       return;
     }
 
+    // Increment round
     this._round = observeReqMessage.round;
 
     if (this._round > this._roundMax) {
@@ -114,14 +177,15 @@ export class ReportGenFollowerService {
       return;
     }
 
+    // Reset state
     this._sentEcho = null;
     this._sentReport = false;
     this._completedRound = false;
     this._receivedEcho = new Map();
 
-    const decimals: BigNumber = (
-      await this._contractService.getAggregatorConfig(this._reportGenConfig.aggregatorAddress)
-    ).decimals;
+    const { decimals } = await this._contractService.getAggregatorConfig(
+      this._reportGenConfig.aggregatorAddress
+    );
 
     const observation = await this._priceService.getPrice(decimals, this._reportGenConfig.aggregatorPair);
 
@@ -136,11 +200,34 @@ export class ReportGenFollowerService {
     });
   }
 
+  /**
+   * Handler for "reportReq" message.
+   * Leader is asking us to sign a report.
+   *
+   * @param from - Sender of the message
+   * @param report - Report to sign
+   * @param aggregatorAddress - Address of the aggregator smart contract
+   * @private
+   *
+   * Start by doing checks on received information:
+   *   - Is aggregator address the same as ours ? (We receive message for all aggregators)
+   *   - Is sender the leader ?
+   *   - Is report observations sorted ?
+   *   - Does report have enough observations ? (It needs at least 2f + 1)
+   *   - Does observations signatures matches ?
+   *
+   * If all of these checks pass, compress report (= remove observation signatures), sign it and send it back to the leader.
+   */
   @useMutex()
   private async _onReportReqReceived(
     from: PeerId,
     { report, aggregatorAddress }: IReportReqMessage
   ): Promise<void> {
+    if (aggregatorAddress !== this._reportGenConfig.aggregatorAddress) {
+      // Silently ignore messages for other aggregators
+      return;
+    }
+
     if (from.toString() !== this._leader) {
       this._logger.warn(
         `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${
@@ -149,11 +236,6 @@ export class ReportGenFollowerService {
           this._leader
         }), discarding`
       );
-      return;
-    }
-
-    if (aggregatorAddress !== this._reportGenConfig.aggregatorAddress) {
-      // Silently ignore messages for other aggregators
       return;
     }
 
@@ -203,6 +285,9 @@ export class ReportGenFollowerService {
 
     const shouldReport = await this._shouldReport(report);
     if (shouldReport) {
+      // Compress report (= remove observations signatures)
+      // Observation signatures are not needed after verifying them
+      // We add our signature to it
       const compressedReport = this._compressReport(report);
       const signature = await this._signCompressedReport(compressedReport);
       this._sentReport = true;
@@ -217,22 +302,39 @@ export class ReportGenFollowerService {
     }
   }
 
+  /**
+   * Handler for "final" message.
+   *
+   * @param from - Sender of the message
+   * @param attestedReport - Report to broadcast
+   * @param aggregatorAddress - Address of the aggregator smart contract
+   * @private
+   *
+   * Start by doing checks on received information:
+   *   - Is aggregator address the same as ours ? (We receive message for all aggregators)
+   *   - Is sender the leader ?
+   *   - Does epoch and round match ours ?
+   *   - Did I already sent echo ?
+   *   - Is report valid (= have enough valid signatures from oracles)
+   *
+   * If all of these check pass, broadcast "finalEcho" message
+   */
   @useMutex()
   private async _onFinalReceived(
     from: PeerId,
     { attestedReport, aggregatorAddress }: IFinalMessage
   ): Promise<void> {
+    if (aggregatorAddress !== this._reportGenConfig.aggregatorAddress) {
+      // Silently ignore messages for other aggregators
+      return;
+    }
+
     if (from.toString() !== this._leader) {
       this._logger.warn(
         `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${
           this._round
         } - Final received from ${from.toString()}, which is not the leader (${this._leader}), discarding`
       );
-      return;
-    }
-
-    if (aggregatorAddress !== this._reportGenConfig.aggregatorAddress) {
-      // Silently ignore messages for other aggregators
       return;
     }
 
@@ -281,20 +383,39 @@ export class ReportGenFollowerService {
     });
   }
 
+  /**
+   * Handler for "finalEcho" message.
+   *
+   * @param from - Sender of the message
+   * @param attestedReport - Report to broadcast
+   * @param aggregatorAddress - Address of the aggregator smart contract
+   * @private
+   *
+   * Start by doing checks on received information:
+   *   - Is aggregator address the same as ours ? (We receive message for all aggregators)
+   *   - Is sender a valid oracle ?
+   *   - Does epoch and round match ours ?
+   *   - Did I already received echo from him ?
+   *   - Is report valid (= have enough valid signatures from oracles)
+   *
+   * If all these checks pass:
+   *    - Broadcast finalEcho if we didn't do it already
+   *    - Give report to TransmitService and end round if enough finalEcho have been received (at least f+1)
+   */
   @useMutex()
   private async _onFinalEchoReceived(
     from: PeerId,
     { attestedReport, aggregatorAddress }: IFinalEchoMessage
   ): Promise<void> {
+    if (aggregatorAddress !== this._reportGenConfig.aggregatorAddress) {
+      // Silently ignore messages for other aggregators
+      return;
+    }
+
     if (
       !this._reportGenConfig.oracleAddresses.map((oracle) => oracle.oraclePeerId).includes(from.toString())
     ) {
       this._logger.warn(`Received finalEcho message from unknown oracle: ${from.toString()}`);
-      return;
-    }
-
-    if (aggregatorAddress !== this._reportGenConfig.aggregatorAddress) {
-      // Silently ignore messages for other aggregators
       return;
     }
 
@@ -385,6 +506,14 @@ export class ReportGenFollowerService {
     }
   }
 
+  /**
+   * Remove signatures from report
+   *
+   * @param report - Report with signature
+   * @private
+   *
+   * @returns {ICompressedReport} - Compressed report (without signature)
+   */
   private _compressReport(report: IReport): ICompressedReport {
     return {
       epoch: report.epoch,
@@ -393,11 +522,23 @@ export class ReportGenFollowerService {
     };
   }
 
+  /**
+   * Sign observation using peer private key
+   *
+   * @param observation - Observation to sign
+   * @private
+   */
   private async _signObservation(observation: BigNumber): Promise<Uint8Array> {
     const encodedObservation = new TextEncoder().encode(observation.toString());
     return await signData(this._oracleConfig.peerPrivateKey, encodedObservation);
   }
 
+  /**
+   * Sign compressed report using tezos private key
+   *
+   * @param report
+   * @private
+   */
   private async _signCompressedReport(report: ICompressedReport): Promise<ISignature> {
     const signature = await this._contractService.signCompressedReport(
       this._reportGenConfig.aggregatorAddress,
@@ -413,6 +554,19 @@ export class ReportGenFollowerService {
     };
   }
 
+  /**
+   * Check if report should be given to the transmit service
+   *
+   * @param report - Report to check
+   * @private
+   *
+   * Steps:
+   *  - Fetch last blockchain report
+   *  - Check if report has a deviation of as least `alphaPerThousand`
+   *  - Check if last report was older than `heartbeatSeconds`
+   *
+   *  If any of these checks pass, return true, false otherwise
+   */
   private async _shouldReport(report: IReport): Promise<boolean> {
     const lastReport = await this._contractService.getLastBlockchainReport(
       this._reportGenConfig.aggregatorAddress
@@ -422,12 +576,21 @@ export class ReportGenFollowerService {
       return true;
     }
 
-    if (Date.now() - lastReport.time > this._reportGenConfig.heartbeatSeconds.toNumber() * 1000) {
+    const secondsMultiplicator = 1000;
+    if (
+      Date.now() - lastReport.time >
+      this._reportGenConfig.heartbeatSeconds.toNumber() * secondsMultiplicator
+    ) {
       return true;
     }
 
     const reportMedian = computeMedian(report);
-    const deviationPerThousand = lastReport.price.minus(reportMedian).div(lastReport.price).abs().times(1000);
+    const perThousandMultiplicator = 1000;
+    const deviationPerThousand = lastReport.price
+      .minus(reportMedian)
+      .div(lastReport.price)
+      .abs()
+      .times(perThousandMultiplicator);
 
     this._logger.debug(
       `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${this._round} - Median: ${reportMedian}, previousMedian: ${lastReport.price}. Deviation(‰): ${deviationPerThousand}`
@@ -445,11 +608,21 @@ export class ReportGenFollowerService {
     return false;
   }
 
+  /**
+   * Complete the round and emit a {@link IEventHubEvents.progress} event
+   * @private
+   */
   private async _completeRound(): Promise<void> {
     this._completedRound = true;
     this._eventHubService.progress(this._reportGenConfig.aggregatorAddress);
   }
 
+  /**
+   * Verify that the report contains as least f signatures
+   *
+   * @param attestedReport
+   * @private
+   */
   private async _verifyAttestedReport(attestedReport: IAttestedReport): Promise<boolean> {
     const f = computeFValueFrom(this._reportGenConfig.oracleAddresses.length);
 
@@ -461,6 +634,16 @@ export class ReportGenFollowerService {
     );
   }
 
+  /**
+   * Verify if signature match
+   *
+   * @param observation - Observation
+   * @param signature - Signature with peer private key
+   * @param publicKey - Public key of oracle
+   * @private
+   *
+   * @returns If the signature match
+   */
   private async _verifyObservationSignature(
     observation: BigNumber,
     signature: Uint8Array,

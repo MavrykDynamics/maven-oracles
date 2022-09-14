@@ -9,11 +9,7 @@ import { ContractService } from '../../contract/index.js';
 import { beforeEach, expect, jest } from '@jest/globals';
 import type { TransmitService as TransmitServiceType } from '../transmit.service.js';
 import { mockedEmptyAttestedRepport } from '../__mocks__/transmit.service.mock.js';
-import {
-  mockComputeMedian,
-  mockSignData,
-  mockVerifyData
-} from '../../reportgen/__mocks__/helpers.mock';
+import { mockComputeMedian, mockSignData, mockVerifyData } from '../../reportgen/__mocks__/helpers.mock';
 import BigNumber from 'bignumber.js';
 import { mockRandomPermutation } from '../__mocks__/helpers.mock.js';
 import { TimerMock } from '../../pacemaker/__mocks__/timer.mock.js';
@@ -29,7 +25,7 @@ jest.unstable_mockModule('../../reportgen/helpers.js', async () => ({
 }));
 
 jest.unstable_mockModule('../helpers.js', async () => ({
-  randomPermutation: mockRandomPermutation,
+  randomPermutation: mockRandomPermutation
 }));
 
 // Use async import to make sure we get the mocked one
@@ -39,13 +35,12 @@ describe('TransmitService', () => {
   let transmitService: TransmitServiceType;
   let eventHubServiceMock = new EventHubService();
   let timerTransmit: any;
-  let lastTransmitedReport: any;
+  let lastTransmittedReport: any;
   let reports: any;
 
   const contractServiceMock = new ContractServiceMock();
 
   beforeEach(async () => {
-
     transmitService = new TransmitService(
       OracleConfigMock,
       eventHubServiceMock as unknown as EventHubService,
@@ -56,11 +51,10 @@ describe('TransmitService', () => {
     timerTransmit = transmitService._timerTransmit;
 
     // @ts-expect-error
-    lastTransmitedReport = transmitService._lastTransmitedReport;
+    lastTransmittedReport = transmitService._lastTransmittedReport;
 
     // @ts-expect-error
     reports = transmitService._reports;
-    
   });
 
   afterEach(async () => {
@@ -68,7 +62,6 @@ describe('TransmitService', () => {
   });
 
   describe('initialize', () => {
-
     test('onModuleInit', async () => {
       const initializeMock: any = jest.fn();
       transmitService.initialize = initializeMock;
@@ -85,7 +78,6 @@ describe('TransmitService', () => {
     });
 
     test('transmit listener should be call on initialize', async () => {
-
       const onTransmitMock: any = jest.fn();
       transmitService.onTransmit = onTransmitMock;
 
@@ -95,7 +87,7 @@ describe('TransmitService', () => {
         mockedOracleAddresses,
         mockedEmptyAttestedRepport
       );
-      
+
       expect(onTransmitMock).toHaveBeenCalledTimes(1);
     });
   });
@@ -107,59 +99,68 @@ describe('TransmitService', () => {
     });
 
     test('onTransmit should go to doTransmit because: lastTransmitedReport === undefined', async () => {
-        await transmitService.onTransmit(
-          mockedAggregatorAddresses[0].aggregatorAddress,
-          mockedOracleAddresses,
-          mockedEmptyAttestedRepport
-        );
-      await timerTransmit.fakeTimeout();
-      expect((contractServiceMock as any).getLastBlockchainReport).toHaveBeenNthCalledWith(2, mockedAggregatorAddresses[0].aggregatorAddress);
-      expect((contractServiceMock as any).sendReportBlockchain).toHaveBeenCalledTimes(1);
-      expect(timerTransmit.restart).toHaveBeenCalledTimes(1);      
-    });
-
-    test('onTransmit should go to doTransmit because: _isNewerEpochRound === true', async () => {
-      lastTransmitedReport.set(mockedAggregatorAddresses[0].aggregatorAddress,{
-        epoch: 2,
-        round: 2,
-        report: mockedEmptyAttestedRepport
-      })
       await transmitService.onTransmit(
         mockedAggregatorAddresses[0].aggregatorAddress,
         mockedOracleAddresses,
         mockedEmptyAttestedRepport
       );
       await timerTransmit.fakeTimeout();
-      expect((contractServiceMock as any).getLastBlockchainReport).toHaveBeenNthCalledWith(2, mockedAggregatorAddresses[0].aggregatorAddress);
+      expect((contractServiceMock as any).getLastBlockchainReport).toHaveBeenNthCalledWith(
+        2,
+        mockedAggregatorAddresses[0].aggregatorAddress
+      );
       expect((contractServiceMock as any).sendReportBlockchain).toHaveBeenCalledTimes(1);
-      expect(timerTransmit.restart).toHaveBeenCalledTimes(1);      
+      expect(timerTransmit.restart).toHaveBeenCalledTimes(1);
+    });
+
+    test('onTransmit should go to doTransmit because: _isNewerEpochRound === true', async () => {
+      lastTransmittedReport.set(mockedAggregatorAddresses[0].aggregatorAddress, {
+        epoch: 2,
+        round: 2,
+        report: mockedEmptyAttestedRepport
+      });
+      await transmitService.onTransmit(
+        mockedAggregatorAddresses[0].aggregatorAddress,
+        mockedOracleAddresses,
+        mockedEmptyAttestedRepport
+      );
+      await timerTransmit.fakeTimeout();
+      expect((contractServiceMock as any).getLastBlockchainReport).toHaveBeenNthCalledWith(
+        2,
+        mockedAggregatorAddresses[0].aggregatorAddress
+      );
+      expect((contractServiceMock as any).sendReportBlockchain).toHaveBeenCalledTimes(1);
+      expect(timerTransmit.restart).toHaveBeenCalledTimes(1);
     });
 
     test('onTransmit should go to doTransmit because: Deviation is over threshold', async () => {
       mockComputeMedian.mockReturnValueOnce(new BigNumber(50));
-      lastTransmitedReport.set(mockedAggregatorAddresses[0].aggregatorAddress,{
+      lastTransmittedReport.set(mockedAggregatorAddresses[0].aggregatorAddress, {
         epoch: 2,
         round: 2,
         report: mockedEmptyAttestedRepport
-      })
+      });
       await transmitService.onTransmit(
         mockedAggregatorAddresses[0].aggregatorAddress,
         mockedOracleAddresses,
         mockedEmptyAttestedRepport
       );
       await timerTransmit.fakeTimeout();
-      expect((contractServiceMock as any).getLastBlockchainReport).toHaveBeenNthCalledWith(2, mockedAggregatorAddresses[0].aggregatorAddress);
+      expect((contractServiceMock as any).getLastBlockchainReport).toHaveBeenNthCalledWith(
+        2,
+        mockedAggregatorAddresses[0].aggregatorAddress
+      );
       expect((contractServiceMock as any).sendReportBlockchain).toHaveBeenCalledTimes(1);
-      expect(timerTransmit.restart).toHaveBeenCalledTimes(1);      
+      expect(timerTransmit.restart).toHaveBeenCalledTimes(1);
     });
 
     test('onTransmit should go to doTransmit because: on _onTransmitTimerTimeout, this._reports.pop() === undefined', async () => {
       mockComputeMedian.mockReturnValueOnce(new BigNumber(50));
-      lastTransmitedReport.set(mockedAggregatorAddresses[0].aggregatorAddress,{
+      lastTransmittedReport.set(mockedAggregatorAddresses[0].aggregatorAddress, {
         epoch: 2,
         round: 2,
         report: mockedEmptyAttestedRepport
-      })
+      });
       await transmitService.onTransmit(
         mockedAggregatorAddresses[0].aggregatorAddress,
         mockedOracleAddresses,
@@ -167,18 +168,21 @@ describe('TransmitService', () => {
       );
       reports.clear();
       await timerTransmit.fakeTimeout();
-      expect((contractServiceMock as any).getLastBlockchainReport).toHaveBeenNthCalledWith(1, mockedAggregatorAddresses[0].aggregatorAddress);
+      expect((contractServiceMock as any).getLastBlockchainReport).toHaveBeenNthCalledWith(
+        1,
+        mockedAggregatorAddresses[0].aggregatorAddress
+      );
       expect((contractServiceMock as any).sendReportBlockchain).not.toHaveBeenCalled();
-      expect(timerTransmit.restart).toHaveBeenCalledTimes(1);       
+      expect(timerTransmit.restart).toHaveBeenCalledTimes(1);
     });
 
     test('onTransmit should go to doTransmit because: NOT TRANSMITTING', async () => {
       mockComputeMedian.mockReturnValueOnce(new BigNumber(50));
-      lastTransmitedReport.set(mockedAggregatorAddresses[0].aggregatorAddress,{
+      lastTransmittedReport.set(mockedAggregatorAddresses[0].aggregatorAddress, {
         epoch: 2,
         round: 2,
         report: mockedEmptyAttestedRepport
-      })
+      });
       await transmitService.onTransmit(
         mockedAggregatorAddresses[0].aggregatorAddress,
         mockedOracleAddresses,
@@ -191,7 +195,7 @@ describe('TransmitService', () => {
           epoch: 2,
           round: 0,
           observations: [],
-          signatures: [],
+          signatures: []
         },
         aggregatorAddress: mockedAggregatorAddresses[0].aggregatorAddress,
         oracleAddresses: mockedOracleAddresses
@@ -202,24 +206,27 @@ describe('TransmitService', () => {
           epoch: 2,
           round: 0,
           observations: [],
-          signatures: [],
+          signatures: []
         },
         aggregatorAddress: mockedAggregatorAddresses[0].aggregatorAddress,
         oracleAddresses: mockedOracleAddresses
       });
       await timerTransmit.fakeTimeout();
-      expect((contractServiceMock as any).getLastBlockchainReport).toHaveBeenNthCalledWith(2, mockedAggregatorAddresses[0].aggregatorAddress);
+      expect((contractServiceMock as any).getLastBlockchainReport).toHaveBeenNthCalledWith(
+        2,
+        mockedAggregatorAddresses[0].aggregatorAddress
+      );
       expect((contractServiceMock as any).sendReportBlockchain).not.toHaveBeenCalled();
-      expect(timerTransmit.restart).toHaveBeenCalledTimes(2);      
+      expect(timerTransmit.restart).toHaveBeenCalledTimes(2);
     });
 
     test('onTransmit should go to doTransmit because: on _onTransmitTimerTimeout, this._reports.pop() === undefined', async () => {
       mockComputeMedian.mockReturnValueOnce(new BigNumber(50));
-      lastTransmitedReport.set(mockedAggregatorAddresses[0].aggregatorAddress,{
+      lastTransmittedReport.set(mockedAggregatorAddresses[0].aggregatorAddress, {
         epoch: 2,
         round: 2,
         report: mockedEmptyAttestedRepport
-      })
+      });
       await transmitService.onTransmit(
         mockedAggregatorAddresses[0].aggregatorAddress,
         mockedOracleAddresses,
@@ -227,9 +234,12 @@ describe('TransmitService', () => {
       );
       reports.clear();
       await timerTransmit.fakeTimeout();
-      expect((contractServiceMock as any).getLastBlockchainReport).toHaveBeenNthCalledWith(1, mockedAggregatorAddresses[0].aggregatorAddress);
+      expect((contractServiceMock as any).getLastBlockchainReport).toHaveBeenNthCalledWith(
+        1,
+        mockedAggregatorAddresses[0].aggregatorAddress
+      );
       expect((contractServiceMock as any).sendReportBlockchain).not.toHaveBeenCalled();
-      expect(timerTransmit.restart).toHaveBeenCalledTimes(1);       
+      expect(timerTransmit.restart).toHaveBeenCalledTimes(1);
     });
 
     test('onTransmit should not succeed because lastBlockchainReport is not null and last report on blockchain is more recent than epoch/round', async () => {
@@ -240,21 +250,24 @@ describe('TransmitService', () => {
           epoch: 0, // 0 < 2
           round: 0,
           observations: [],
-          signatures: [],
+          signatures: []
         }
       );
-      expect((contractServiceMock as any).getLastBlockchainReport).toHaveBeenNthCalledWith(1, mockedAggregatorAddresses[0].aggregatorAddress);
+      expect((contractServiceMock as any).getLastBlockchainReport).toHaveBeenNthCalledWith(
+        1,
+        mockedAggregatorAddresses[0].aggregatorAddress
+      );
       expect((contractServiceMock as any).sendReportBlockchain).not.toHaveBeenCalled();
-      expect(timerTransmit.restart).not.toHaveBeenCalled();      
+      expect(timerTransmit.restart).not.toHaveBeenCalled();
     });
 
     test('onTransmit should not succeed because lastBlockchainReport is null and last report on blockchain is more recent than epoch/round', async () => {
       (contractServiceMock as any).getLastBlockchainReport.mockResolvedValue(null);
-      lastTransmitedReport.set(mockedAggregatorAddresses[0].aggregatorAddress,{
+      lastTransmittedReport.set(mockedAggregatorAddresses[0].aggregatorAddress, {
         epoch: 2,
         round: 2,
         report: mockedEmptyAttestedRepport
-      })
+      });
       await transmitService.onTransmit(
         mockedAggregatorAddresses[0].aggregatorAddress,
         mockedOracleAddresses,
@@ -262,21 +275,24 @@ describe('TransmitService', () => {
           epoch: 0, // 0 < 2
           round: 0,
           observations: [],
-          signatures: [],
+          signatures: []
         }
       );
-      expect((contractServiceMock as any).getLastBlockchainReport).toHaveBeenNthCalledWith(1, mockedAggregatorAddresses[0].aggregatorAddress);
+      expect((contractServiceMock as any).getLastBlockchainReport).toHaveBeenNthCalledWith(
+        1,
+        mockedAggregatorAddresses[0].aggregatorAddress
+      );
       expect((contractServiceMock as any).sendReportBlockchain).not.toHaveBeenCalled();
-      expect(timerTransmit.restart).not.toHaveBeenCalled();      
+      expect(timerTransmit.restart).not.toHaveBeenCalled();
     });
 
     test('onTransmit should not succeed because lastBlockchainReport is null and last report on blockchain is more recent than epoch/round', async () => {
       (contractServiceMock as any).getLastBlockchainReport.mockResolvedValue(null);
-      lastTransmitedReport.set(mockedAggregatorAddresses[0].aggregatorAddress,{
+      lastTransmittedReport.set(mockedAggregatorAddresses[0].aggregatorAddress, {
         epoch: 3,
         round: 3,
         report: mockedEmptyAttestedRepport
-      })
+      });
       await transmitService.onTransmit(
         mockedAggregatorAddresses[0].aggregatorAddress,
         mockedOracleAddresses,
@@ -284,14 +300,15 @@ describe('TransmitService', () => {
           epoch: 3, // 3 == 3
           round: 0, // 0 < 3
           observations: [],
-          signatures: [],
+          signatures: []
         }
       );
-      expect((contractServiceMock as any).getLastBlockchainReport).toHaveBeenNthCalledWith(1, mockedAggregatorAddresses[0].aggregatorAddress);
+      expect((contractServiceMock as any).getLastBlockchainReport).toHaveBeenNthCalledWith(
+        1,
+        mockedAggregatorAddresses[0].aggregatorAddress
+      );
       expect((contractServiceMock as any).sendReportBlockchain).not.toHaveBeenCalled();
-      expect(timerTransmit.restart).not.toHaveBeenCalled();      
+      expect(timerTransmit.restart).not.toHaveBeenCalled();
     });
-
   });
-
 });

@@ -51,18 +51,11 @@ export class OracleConfig {
   public aggregatorFactoryAddress: string;
 
   @Property({
-    default: 'https://rpc.tzkt.io/jakartanet/',
+    default: 'https://ithacanet.ecadinfra.com/',
     env: 'RPC_URL',
     format: String
   })
   public rpcUrl: string;
-
-  @Property({
-    default: '',
-    env: 'TEZOS_SECRET_KEY',
-    format: String
-  })
-  public tezosSecretKey: string;
 
   @Property({
     default: '',
