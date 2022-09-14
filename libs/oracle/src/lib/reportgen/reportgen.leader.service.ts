@@ -31,8 +31,13 @@ import { Mutex } from 'async-mutex';
  *
  *
  *  How it works:
- *
- *
+ *    - on round start, broadcast {@link IReportGenEvents.observeReq} message.
+ *    - store observations received in {@link IReportGenEvents.observe} messages.
+ *    - once enough observation (2f + 1) have been received, start a grace period of 2 seconds, accepting some more observations.
+ *    - once the grace period is over, build a report with all observations.
+ *    - broadcast generated {@link IReportGenEvents.reportReq} message, asking oracles to verify it and sign it.
+ *    - store signed report received in {@link IReportGenEvents.report} messages.
+ *    - once enough reports (f + 1) have been received, broadcast it with all the signatures using {@link IReportGenEvents.final} message
  */
 export class ReportGenLeaderService {
   private readonly _logger: Logger = new Logger(ReportGenLeaderService.name);
@@ -46,12 +51,14 @@ export class ReportGenLeaderService {
   // instance interleave."
   private readonly _mutex: Mutex = new Mutex();
 
-  private _epoch: number;
-  private _leader: string;
+  // Current epoch and leader
+  private readonly _epoch: number;
+  private readonly _leader: string;
 
   // Current round of the epoch
   private _round: number = 0;
 
+  // Observations received in "observe" messages
   private _observe: Map<
     string,
     {
@@ -59,6 +66,8 @@ export class ReportGenLeaderService {
       signature: Uint8Array;
     }
   > = new Map();
+
+  // Reports received in "report" messages
   private _report: Map<
     string,
     {
@@ -67,11 +76,14 @@ export class ReportGenLeaderService {
     }
   > = new Map();
 
+  // Current phase of the current round
   private _phase: Phase | null = null;
 
+  // Timer duration constants
   private readonly _timerGraceDurationMiliseconds: number = 2 * 1000;
   private readonly _timerRoundDurationMiliseconds: number = 15 * 1000;
 
+  // Timers
   private _timerRound: Timer = new Timer(
     this._onTimerRoundTimeout.bind(this),
     this._timerRoundDurationMiliseconds
@@ -82,6 +94,8 @@ export class ReportGenLeaderService {
     this._timerGraceDurationMiliseconds
   );
 
+  // Handlers for events
+  // We declare them as property to be able to remove listeners on service shutdown
   private readonly _onObserveHandle: IReportGenEvents['observe'] = this._onObserve.bind(this);
   private readonly _onReportHandle: IReportGenEvents['report'] = this._onReport.bind(this);
   private readonly _onStartEpochHandle: IEventHubEvents['startepoch'] = this._onStartEpoch.bind(this);
@@ -114,20 +128,45 @@ export class ReportGenLeaderService {
     this._eventHubService.removeListener('startepoch', this._onStartEpochHandle);
   }
 
+  /**
+   * Handler for {@link IReportGenEvents.observe} message.
+   * Follower is sending us its observation
+   *
+   *
+   * @param from - Sender of the message
+   * @param observation - Observation value
+   * @param epoch - Report epoch
+   * @param round - Report round
+   * @param signature - Observation signature using peer private key
+   * @param aggregatorAddress - Aggregator smart contract address
+   * @private
+   *
+   * Start by doing checks on received information:
+   *   - Is aggregator address the same as ours ? (We receive message for all aggregators)
+   *   - Is sender an oracle ?
+   *   - Does epoch and round match ?
+   *   - Does the oracle already sent value ? (fail if true, obviously)
+   *   - Are we in phase {@link Phase.Grace} or {@link Phase.Observe} ?
+   *   - Is signature valid ?
+   *
+   * If all these checks pass, store observation.
+   *
+   * If number of stored observations is now 2 * f + 1, start grace period.
+   */
   @useMutex()
   private async _onObserve(
     from: PeerId,
     { observation, epoch, round, signature, aggregatorAddress }: IObserveMessage
   ): Promise<void> {
+    if (aggregatorAddress !== this._reportGenConfig.aggregatorAddress) {
+      // Silently ignore messages for other aggregators
+      return;
+    }
+
     if (
       !this._reportGenConfig.oracleAddresses.map((oracle) => oracle.oraclePeerId).includes(from.toString())
     ) {
       this._logger.warn(`Received observe message from unknown oracle: ${from.toString()}`);
-      return;
-    }
-
-    if (aggregatorAddress !== this._reportGenConfig.aggregatorAddress) {
-      // Silently ignore messages for other aggregators
       return;
     }
 
@@ -202,20 +241,41 @@ export class ReportGenLeaderService {
     }
   }
 
+  /**
+   * Handler for {@link IReportGenEvents.report} message.
+   *
+   * @param from - Sender of the message
+   * @param compressedReport - Received report
+   * @param signature - Report signature, using Tezos private key
+   * @param aggregatorAddress - Aggregator smart contract address
+   * @private
+   *
+   * Start by doing checks on received information:
+   *   - Is aggregator address the same as ours ? (We receive message for all aggregators)
+   *   - Is sender an oracle ?
+   *   - Does epoch and round match ?
+   *   - Does the oracle already sent report ? (fail if true, obviously)
+   *   - Are we in phase {@link Phase.Report} ?
+   *   - Is signature valid ?
+   *
+   * If all of these checks pass, store report.
+   *
+   * If number of stored reports is now over f, broadcast {@link IReportGenEvents.final} message and set phase to {@link Phase.Final}.
+   */
   @useMutex()
   private async _onReport(
     from: PeerId,
     { compressedReport, signature, aggregatorAddress }: IReportMessage
   ): Promise<void> {
+    if (aggregatorAddress !== this._reportGenConfig.aggregatorAddress) {
+      // Silently ignore messages for other aggregators
+      return;
+    }
+
     if (
       !this._reportGenConfig.oracleAddresses.map((oracle) => oracle.oraclePeerId).includes(from.toString())
     ) {
       this._logger.warn(`Received report message from unknown oracle: ${from.toString()}`);
-      return;
-    }
-
-    if (aggregatorAddress !== this._reportGenConfig.aggregatorAddress) {
-      // Silently ignore messages for other aggregators
       return;
     }
 
@@ -259,6 +319,7 @@ export class ReportGenLeaderService {
       return;
     }
 
+    // Check report signature
     if (!(await this._verifyReportSignature(compressedReport, signature))) {
       this._logger.warn(
         `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${
@@ -274,6 +335,7 @@ export class ReportGenLeaderService {
       } - Saving report from ${from.toString()}`
     );
 
+    // Store report
     this._report.set(from.toString(), {
       report: compressedReport,
       signature
@@ -285,7 +347,9 @@ export class ReportGenLeaderService {
 
     if (numberOfReports <= f) {
       this._logger.debug(
-        `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${this._round} - Not enough report yet (got ${numberOfReports}, need ${f})`
+        `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${
+          this._round
+        } - Not enough report yet (got ${numberOfReports}, need ${f + 1})`
       );
       return;
     }
@@ -309,6 +373,16 @@ export class ReportGenLeaderService {
     this._phase = Phase.Final;
   }
 
+  /**
+   * Handle {@link IEventHubEvents.startepoch} event.
+   *
+   * @param aggregatorAddress - Aggregator smart contract address
+   * @param epoch - Starting epoch round
+   * @param leader - epoch leader
+   * @private
+   *
+   * Check if aggregatorAddress, epoch and leader matches. If so, start the round
+   */
   @useMutex()
   private async _onStartEpoch(aggregatorAddress: string, epoch: number, leader: string): Promise<void> {
     if (aggregatorAddress !== this._reportGenConfig.aggregatorAddress) {
@@ -323,6 +397,14 @@ export class ReportGenLeaderService {
     await this._startRound();
   }
 
+  /**
+   * Start a round
+   *
+   * Increment round and reinitialise values,
+   * Broadcast {@link IReportGenEvents.observeReq} event
+   *
+   * @private
+   */
   private async _startRound(): Promise<void> {
     this._round += 1;
     this._observe = new Map();
@@ -335,11 +417,26 @@ export class ReportGenLeaderService {
     this._timerRound.restart();
   }
 
+  /**
+   * Handler for round timer
+   * @private
+   *
+   * Simply restart the round
+   */
   @useMutex()
   private async _onTimerRoundTimeout(): Promise<void> {
     await this._startRound();
   }
 
+  /**
+   * Handler for grace timer
+   * @private
+   *
+   * - Assemble the report
+   * - Broadcast {@link IReportGenEvents.reportReq}
+   * - Change phase to {@link Phase.Report}
+   *
+   */
   @useMutex()
   private async _onGraceTimerTimeout(): Promise<void> {
     if (this._phase !== Phase.Grace) {
@@ -358,6 +455,14 @@ export class ReportGenLeaderService {
     this._phase = Phase.Report;
   }
 
+  /**
+   * Check observation signature
+   *
+   * @param observation - Observation
+   * @param signature - Observation signature using peer private key
+   * @param publicKey - Peer public key
+   * @private
+   */
   private async _verifyObservationSignature(
     observation: BigNumber,
     signature: Uint8Array,
@@ -372,6 +477,13 @@ export class ReportGenLeaderService {
     return await verifyData(publicKey, new TextEncoder().encode(observation.toString()), signature);
   }
 
+  /**
+   * Check report signature
+   *
+   * @param report - Report
+   * @param signature - Report signature using Tezos private key
+   * @private
+   */
   private async _verifyReportSignature(report: ICompressedReport, signature: ISignature): Promise<boolean> {
     return await this._contractService.verifyReportSignature(
       this._reportGenConfig.aggregatorAddress,
@@ -381,6 +493,11 @@ export class ReportGenLeaderService {
     );
   }
 
+  /**
+   * Build report from received observations
+   *
+   * @private
+   */
   private _assembleReport(): IReport {
     return {
       epoch: this._epoch,
@@ -395,6 +512,9 @@ export class ReportGenLeaderService {
     };
   }
 
+  /**
+   * Internal state, used for testing
+   */
   public getState(): IReportGenLeaderState {
     return {
       epoch: this._epoch,

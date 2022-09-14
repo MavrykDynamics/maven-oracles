@@ -38,7 +38,10 @@ import { Mutex } from 'async-mutex';
  *
  *
  *  How it works:
- *
+ *    - on receiving {@link IReportGenEvents.observeReq} message from the leader, fetch observation, sign it and send it back in an {@link IReportGenEvents.observe} message.
+ *    - on receiving {@link IReportGenEvents.reportReq} message from the leader, verify report, sign it and send it back in a {@link IReportGenEvents.report} message.
+ *    - on receiving {@link IReportGenEvents.final} message from the leader, verify report and broadcast {@link IReportGenEvents.finalEcho} message.
+ *    - on receiving enough {@link IReportGenEvents.finalEcho} message, give the report to TransmitService for transmission.
  *
  */
 export class ReportGenFollowerService {
