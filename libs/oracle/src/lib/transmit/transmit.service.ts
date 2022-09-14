@@ -88,6 +88,7 @@ export class TransmitService implements OnModuleInit {
    * @param aggregatorAddress - Aggregator smart contract address
    * @param oracleAddresses - Information about the oracles (pk, pkh and peer id)
    * @param report - Report to transmit
+   * @param alphaPerThousand - Threshold value
    */
   public async onTransmit(
     aggregatorAddress: string,
@@ -100,13 +101,14 @@ export class TransmitService implements OnModuleInit {
     this._logger.log(`${aggregatorAddress}/${report.epoch}/${report.round} - Treating report`);
 
     // Check if received report is more recent than the last one in the aggregator smart contract
+    // (Oe, Or) ≤ (Ce, Cr)
     if (
       lastBlockchainReport !== null &&
-      this._isNewerEpochRound(
-        report.epoch,
-        report.round,
-        lastBlockchainReport.epoch,
-        lastBlockchainReport.round
+      this._isNewerOrEqualEpochRound(
+        report.epoch, // Oe
+        report.round, // Or
+        lastBlockchainReport.epoch, // Ce
+        lastBlockchainReport.round // Cr
       )
     ) {
       this._logger.debug(
@@ -120,13 +122,14 @@ export class TransmitService implements OnModuleInit {
 
     // Check if received report is more recent than the last one in the cache
     // If it is not, discard the report
+    // (Oe, Or) ≤ (Le, Lr)
     if (
       lastTransmittedReport !== undefined &&
-      this._isNewerEpochRound(
-        report.epoch,
-        report.round,
-        lastTransmittedReport.epoch,
-        lastTransmittedReport.round
+      this._isNewerOrEqualEpochRound(
+        report.epoch, // Oe
+        report.round, // Or
+        lastTransmittedReport.epoch, // Le
+        lastTransmittedReport.round // Lr
       )
     ) {
       this._logger.debug(
@@ -165,13 +168,15 @@ export class TransmitService implements OnModuleInit {
       return;
     }
 
-    // If the report is more recent than last transmitted report, queue the report for transmission
+    // If last transmitted report is older than the blockchain report, queue the report for transmission
+    // (Le, Lr) ≤ (Ce, Cr)
     if (
-      this._isNewerEpochRound(
-        lastTransmittedReport.epoch,
-        lastTransmittedReport.round,
-        report.epoch,
-        report.round
+      lastBlockchainReport !== null &&
+      this._isNewerOrEqualEpochRound(
+        lastTransmittedReport.epoch, //Ce
+        lastTransmittedReport.round, //Cr
+        lastBlockchainReport.epoch, // Le
+        lastBlockchainReport.round // Lr
       )
     ) {
       this._logger.log(
@@ -183,13 +188,15 @@ export class TransmitService implements OnModuleInit {
   }
 
   /**
-   * Compute if epoch/round (e1/r1) is newer than (e2/r2)
+   * Compute if epoch/round (e2/r2) is newer than (e1/r1).
+   * Return true if epoch/round are equal
+   *
    * Examples:
-   * - (2/0) is more recent than (1/3)
-   * - (1/1) is more recent than (1/0)
-   * - (1/1) is not more recent than (1/1)
-   * - (1/1) is not more recent than (1/2)
-   * - (0/3) is not more recent than (1/0)
+   * - (2/0) is more recent than (2/0)(1/3)
+   * - (1/1) is more recent than (1/1)(1/0)
+   * - (1/1) is not more recent than (1/1)(1/1)
+   * - (1/1) is not more recent than (1/1)(1/2)
+   * - (0/3) is not more recent than (0/3)(1/0)
    *
    * @param baseEpoch - e1
    * @param baseRound - r1
@@ -199,7 +206,7 @@ export class TransmitService implements OnModuleInit {
    *
    * @returns boolean
    */
-  private _isNewerEpochRound(
+  private _isNewerOrEqualEpochRound(
     baseEpoch: number,
     baseRound: number,
     otherEpoch: number,
@@ -210,7 +217,7 @@ export class TransmitService implements OnModuleInit {
     }
 
     if (otherEpoch === baseEpoch) {
-      return otherRound > baseRound;
+      return otherRound >= baseRound;
     }
 
     return false;
@@ -318,7 +325,7 @@ export class TransmitService implements OnModuleInit {
     // if we have epoch/round is higher than the one in the blockchain OR if this is the first time we commit (report on blockchain is null)
     if (
       lastBlockchainReport === null ||
-      !this._isNewerEpochRound(
+      !this._isNewerOrEqualEpochRound(
         report.epoch,
         report.round,
         lastBlockchainReport.epoch,

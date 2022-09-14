@@ -98,9 +98,10 @@ describe('TransmitService', () => {
     beforeEach(async () => {
       await transmitService.initialize();
       jest.clearAllMocks();
+      lastTransmittedReport.set(mockedAggregatorAddresses[0].aggregatorAddress, undefined); // reset lastTransmittedReport
     });
 
-    test('onTransmit should go to doTransmit because: lastTransmitedReport === undefined', async () => {
+    test('onTransmit should go to doTransmit because: lastTransmittedReport === undefined', async () => {
       await transmitService.onTransmit(
         mockedAggregatorAddresses[0].aggregatorAddress,
         mockedOracleAddresses,
@@ -116,10 +117,19 @@ describe('TransmitService', () => {
       expect(timerTransmit.restart).toHaveBeenCalledTimes(1);
     });
 
-    test('onTransmit should go to doTransmit because: _isNewerEpochRound === true', async () => {
+    test('onTransmit should go to doTransmit because last transmitted report is older than the blockchain report', async () => {
+      // We need to set up reports so that
+      // (Oe, Or) > (Ce, Cr)
+      // (Oe, Or) > (Le, Lr)
+      // (Le, Lr) ≤ (Ce, Cr)
+
+      // (Oe, Or) = (3, 0) -> report that we are sending in onTransmit
+      // (Le, Lr) = (2, 2) -> last transmitted report (set up below)
+      // (Ce, Cr) = (2, 2) -> returned by contract service mock
+
       lastTransmittedReport.set(mockedAggregatorAddresses[0].aggregatorAddress, {
-        epoch: 2,
-        round: 2,
+        epoch: 2, // Le
+        round: 2, // Lr
         report: mockedEmptyAttestedRepport
       });
       await transmitService.onTransmit(
