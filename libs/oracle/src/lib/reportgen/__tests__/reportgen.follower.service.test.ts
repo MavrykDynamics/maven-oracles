@@ -1,7 +1,6 @@
 import {
   ContractServiceMock,
   mockedCompressedReport,
-  mockedLastBlockchainReportPrice,
   mockedOracleAddresses,
   mockVerifyAttestedReport,
   mockVerifyReportSignature
@@ -558,7 +557,8 @@ describe('ReportGenFollowerService', () => {
           round,
           observations,
           signatures
-        }
+        },
+        ReportGenConfigMock.alphaPerThousand
       );
     });
 

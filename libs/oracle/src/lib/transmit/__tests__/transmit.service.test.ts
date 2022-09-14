@@ -13,6 +13,7 @@ import { mockComputeMedian, mockSignData, mockVerifyData } from '../../reportgen
 import BigNumber from 'bignumber.js';
 import { mockRandomPermutation } from '../__mocks__/helpers.mock.js';
 import { TimerMock } from '../../pacemaker/__mocks__/timer.mock.js';
+import { ReportGenConfigMock } from '../../reportgen/__mocks__/reportgen.config.mock.js';
 
 jest.unstable_mockModule('../../pacemaker/timer.js', async () => ({
   Timer: TimerMock
@@ -85,7 +86,8 @@ describe('TransmitService', () => {
       eventHubServiceMock.transmit(
         mockedAggregatorAddresses[0].aggregatorAddress,
         mockedOracleAddresses,
-        mockedEmptyAttestedRepport
+        mockedEmptyAttestedRepport,
+        ReportGenConfigMock.alphaPerThousand
       );
 
       expect(onTransmitMock).toHaveBeenCalledTimes(1);
@@ -102,7 +104,8 @@ describe('TransmitService', () => {
       await transmitService.onTransmit(
         mockedAggregatorAddresses[0].aggregatorAddress,
         mockedOracleAddresses,
-        mockedEmptyAttestedRepport
+        mockedEmptyAttestedRepport,
+        ReportGenConfigMock.alphaPerThousand
       );
       await timerTransmit.fakeTimeout();
       expect((contractServiceMock as any).getLastBlockchainReport).toHaveBeenNthCalledWith(
@@ -122,7 +125,8 @@ describe('TransmitService', () => {
       await transmitService.onTransmit(
         mockedAggregatorAddresses[0].aggregatorAddress,
         mockedOracleAddresses,
-        mockedEmptyAttestedRepport
+        mockedEmptyAttestedRepport,
+        ReportGenConfigMock.alphaPerThousand
       );
       await timerTransmit.fakeTimeout();
       expect((contractServiceMock as any).getLastBlockchainReport).toHaveBeenNthCalledWith(
@@ -143,7 +147,8 @@ describe('TransmitService', () => {
       await transmitService.onTransmit(
         mockedAggregatorAddresses[0].aggregatorAddress,
         mockedOracleAddresses,
-        mockedEmptyAttestedRepport
+        mockedEmptyAttestedRepport,
+        ReportGenConfigMock.alphaPerThousand
       );
       await timerTransmit.fakeTimeout();
       expect((contractServiceMock as any).getLastBlockchainReport).toHaveBeenNthCalledWith(
@@ -164,7 +169,8 @@ describe('TransmitService', () => {
       await transmitService.onTransmit(
         mockedAggregatorAddresses[0].aggregatorAddress,
         mockedOracleAddresses,
-        mockedEmptyAttestedRepport
+        mockedEmptyAttestedRepport,
+        ReportGenConfigMock.alphaPerThousand
       );
       reports.clear();
       await timerTransmit.fakeTimeout();
@@ -186,7 +192,8 @@ describe('TransmitService', () => {
       await transmitService.onTransmit(
         mockedAggregatorAddresses[0].aggregatorAddress,
         mockedOracleAddresses,
-        mockedEmptyAttestedRepport
+        mockedEmptyAttestedRepport,
+        ReportGenConfigMock.alphaPerThousand
       );
       reports.clear();
       reports.push({
@@ -230,7 +237,8 @@ describe('TransmitService', () => {
       await transmitService.onTransmit(
         mockedAggregatorAddresses[0].aggregatorAddress,
         mockedOracleAddresses,
-        mockedEmptyAttestedRepport
+        mockedEmptyAttestedRepport,
+        ReportGenConfigMock.alphaPerThousand
       );
       reports.clear();
       await timerTransmit.fakeTimeout();
@@ -251,7 +259,8 @@ describe('TransmitService', () => {
           round: 0,
           observations: [],
           signatures: []
-        }
+        },
+        ReportGenConfigMock.alphaPerThousand
       );
       expect((contractServiceMock as any).getLastBlockchainReport).toHaveBeenNthCalledWith(
         1,
@@ -276,7 +285,8 @@ describe('TransmitService', () => {
           round: 0,
           observations: [],
           signatures: []
-        }
+        },
+        ReportGenConfigMock.alphaPerThousand
       );
       expect((contractServiceMock as any).getLastBlockchainReport).toHaveBeenNthCalledWith(
         1,
@@ -301,7 +311,8 @@ describe('TransmitService', () => {
           round: 0, // 0 < 3
           observations: [],
           signatures: []
-        }
+        },
+        ReportGenConfigMock.alphaPerThousand
       );
       expect((contractServiceMock as any).getLastBlockchainReport).toHaveBeenNthCalledWith(
         1,

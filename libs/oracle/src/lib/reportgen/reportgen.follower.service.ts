@@ -503,7 +503,8 @@ export class ReportGenFollowerService {
       await this._eventHubService.transmit(
         this._reportGenConfig.aggregatorAddress,
         this._reportGenConfig.oracleAddresses,
-        attestedReport
+        attestedReport,
+        this._reportGenConfig.alphaPerThousand
       );
       await this._completeRound();
     }

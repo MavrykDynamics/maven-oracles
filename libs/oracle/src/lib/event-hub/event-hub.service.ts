@@ -3,6 +3,7 @@ import { TypedEmitter } from 'tiny-typed-emitter';
 import { IAttestedReport } from '../reportgen';
 import { IEventHubEvents } from './event-hub.types.js';
 import { IOracleInformations } from '@tezosdynamics/contracts';
+import BigNumber from 'bignumber.js';
 
 /**
  * Event Hub service
@@ -51,11 +52,12 @@ export class EventHubService extends TypedEmitter<IEventHubEvents> {
   public transmit(
     aggregatorAddress: string,
     oracleAddresses: IOracleInformations[],
-    reportToTransmit: IAttestedReport
+    reportToTransmit: IAttestedReport,
+    alphaPerThousand: BigNumber
   ): void {
     this._logger.debug(
       `Dispatching transmit event for ${aggregatorAddress} with report ${reportToTransmit.epoch}/${reportToTransmit.round}`
     );
-    this.emit('transmit', aggregatorAddress, oracleAddresses, reportToTransmit);
+    this.emit('transmit', aggregatorAddress, oracleAddresses, reportToTransmit, alphaPerThousand);
   }
 }

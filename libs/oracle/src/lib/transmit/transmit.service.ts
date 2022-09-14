@@ -71,8 +71,10 @@ export class TransmitService implements OnModuleInit {
    * Initialize the transmit service state and start listening to the transmit event
    */
   public async initialize(): Promise<void> {
-    this._eventHubService.addListener('transmit', (aggregatorAddress, oracleAddresses, reportToTransmit) =>
-      this.onTransmit(aggregatorAddress, oracleAddresses, reportToTransmit)
+    this._eventHubService.addListener(
+      'transmit',
+      (aggregatorAddress, oracleAddresses, reportToTransmit, alphaPerThousand) =>
+        this.onTransmit(aggregatorAddress, oracleAddresses, reportToTransmit, alphaPerThousand)
     );
   }
 
@@ -90,7 +92,8 @@ export class TransmitService implements OnModuleInit {
   public async onTransmit(
     aggregatorAddress: string,
     oracleAddresses: IOracleInformations[],
-    report: IAttestedReport
+    report: IAttestedReport,
+    alphaPerThousand: BigNumber
   ): Promise<void> {
     const lastBlockchainReport = await this._contractService.getLastBlockchainReport(aggregatorAddress);
 
@@ -146,7 +149,6 @@ export class TransmitService implements OnModuleInit {
     const previousMedian = computeMedian(lastTransmittedReport.report);
 
     const deviation = reportMedian.minus(previousMedian).abs().div(previousMedian.abs()).multipliedBy(1000); // We compute in ‰ (per thousand, so we multiply the value by 1000)
-    const perThousandThreshold = new BigNumber(3); // TODO: fetch value from blockchain
 
     this._logger.log(
       `${aggregatorAddress}/${report.epoch}/${report.round} - Previous median: ${previousMedian}`
@@ -155,7 +157,7 @@ export class TransmitService implements OnModuleInit {
     this._logger.log(`${aggregatorAddress}/${report.epoch}/${report.round} - Deviation: ${deviation}‰`);
 
     // If a deviation is detected, queue the report for transmission
-    if (deviation.gte(perThousandThreshold)) {
+    if (deviation.gte(alphaPerThousand)) {
       this._logger.log(
         `${aggregatorAddress}/${report.epoch}/${report.round} - Deviation is over threshold, doing transmit`
       );
