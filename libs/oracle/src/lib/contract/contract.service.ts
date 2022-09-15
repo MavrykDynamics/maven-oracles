@@ -304,7 +304,7 @@ export class ContractService implements OnModuleInit {
       }
     }
 
-    const op = contractInstance.methodsObject.verify({
+    const op = contractInstance.methodsObject.update({
       oracleObservations,
       signatures
     });
