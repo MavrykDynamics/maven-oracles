@@ -343,10 +343,10 @@ export class ContractService implements OnModuleInit {
     const storage: IAggregatorStorage = await contractInstance.storage();
 
     return {
-      epoch: storage.lastResult.epoch.toNumber(),
-      round: storage.lastResult.round.toNumber(),
-      price: storage.lastResult.price,
-      time: toTimestamp(storage.lastResult.time)
+      epoch: storage.lastCompletedPrice.epoch.toNumber(),
+      round: storage.lastCompletedPrice.round.toNumber(),
+      price: storage.lastCompletedPrice.price,
+      time: toTimestamp(storage.lastCompletedPrice.time)
     };
   }
 
@@ -361,9 +361,9 @@ export class ContractService implements OnModuleInit {
     ).contract.at(aggregatorAddress);
     const storage: IAggregatorStorage = await contractInstance.storage();
     return {
-      heartBeatSeconds: storage.heartBeatSeconds,
-      decimals: storage.decimals,
-      alphaPercentPerThousand: storage.alphaPercentPerThousand.div(1000)
+      heartBeatSeconds: storage.config.heartBeatSeconds,
+      decimals: storage.config.decimals,
+      alphaPercentPerThousand: storage.config.alphaPercentPerThousand.div(1000)
     };
   }
 }

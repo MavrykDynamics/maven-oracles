@@ -71,10 +71,12 @@ export interface IAggregatorInformations {
 
 export type IAggregatorStorage = {
   oracleAddresses: MichelsonMap<string, IOracleInformation>;
-  lastResult: OracleLastResultType;
-  heartBeatSeconds: BigNumber;
-  alphaPercentPerThousand: BigNumber;
-  decimals: BigNumber;
+  lastCompletedPrice: OracleLastResultType;
+  config: {
+    heartBeatSeconds: BigNumber;
+    alphaPercentPerThousand: BigNumber;
+    decimals: BigNumber;
+  };
 };
 
 type AggregatorContractMethods<T extends ContractProvider | Wallet> = {

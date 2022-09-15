@@ -41,7 +41,7 @@ describe('Integration test 1', () => {
     for (const address of addresses) {
       const aggregator = await toolkit.contract.at<AggregatorContractAbstraction>(address);
       const storage: IAggregatorStorage = await aggregator.storage();
-      expect(storage.lastResult.epoch.toNumber()).toBeGreaterThan(0);
+      expect(storage.lastCompletedPrice.epoch.toNumber()).toBeGreaterThan(0);
     }
   });
 
@@ -56,13 +56,13 @@ describe('Integration test 1', () => {
     for (const address of addresses) {
       const aggregator = await toolkit.contract.at<AggregatorContractAbstraction>(address);
       const storage: IAggregatorStorage = await aggregator.storage();
-      const storageTime = Date.parse(storage.lastResult.time) / 1000;
+      const storageTime = Date.parse(storage.lastCompletedPrice.time) / 1000;
 
       const currentDate = new Date();
       const currentDateTime = currentDate.getTime() / 1000;
 
       const timestampDiff = Math.abs(currentDateTime - storageTime);
-      expect(timestampDiff).toBeGreaterThan(90); // 1.5 min since lastResult update on blockchain
+      expect(timestampDiff).toBeGreaterThan(90); // 1.5 min since lastCompletedPrice update on blockchain
     }
   });
 
@@ -77,7 +77,7 @@ describe('Integration test 1', () => {
     for (const address of addresses) {
       const aggregator = await toolkit.contract.at<AggregatorContractAbstraction>(address);
       const storage: IAggregatorStorage = await aggregator.storage();
-      const storageTime = Date.parse(storage.lastResult.time) / 1000;
+      const storageTime = Date.parse(storage.lastCompletedPrice.time) / 1000;
 
       const currentDate = new Date();
       const currentDateTime = currentDate.getTime() / 1000;
