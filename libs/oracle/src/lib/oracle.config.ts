@@ -59,13 +59,6 @@ export class OracleConfig {
 
   @Property({
     default: '',
-    env: 'TEZOS_PUBLIC_KEY',
-    format: String
-  })
-  public tezosPublicKey: string;
-
-  @Property({
-    default: '',
     env: 'TEZOS_ADDRESS',
     format: String
   })

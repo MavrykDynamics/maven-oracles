@@ -35,4 +35,4 @@ WORKDIR /home/node
 
 COPY --from=build --chown=node:node /home/node/common/deploy .
 
-CMD [ "node", "/home/node/apps/node/dist/src/main.js" ]
+  CMD [ "node", "/home/node/apps/node/dist/main.js" ]
