@@ -1,7 +1,7 @@
-import { toTimestamp } from "../helpers";
+import { toTimestamp } from '../helpers';
 
 it('toTimestamp', () => {
-  const dateString: string = "Thu Aug 18 2022 10:40:10";
+  const dateString: string = '2022-09-15T12:22:25Z';
   const timestamp: number = toTimestamp(dateString);
-  expect(timestamp).toEqual(1660812010000);
+  expect(timestamp).toEqual(1663244545000);
 });
