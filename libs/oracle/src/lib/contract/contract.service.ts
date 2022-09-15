@@ -44,7 +44,7 @@ export class ContractService implements OnModuleInit {
       await this._txManagerService.getTezosToolkit()
     ).contract.at<AggregatorFactoryContractAbstraction>(aggregatorFactoryAddress);
     const storage = await contractInstance.storage();
-    return [...storage.entries()].map(([pair, aggregatorAddress]) => {
+    return [...storage.trackedAggregators.entries()].map(([pair, aggregatorAddress]) => {
       return {
         aggregatorAddress,
         pair: [pair['0'], pair['1']]

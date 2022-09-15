@@ -26,7 +26,9 @@ export const AggregatorFactoryCode: any = AggregatorRaw.michelson;
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export type IPair = { 0: string; 1: string };
 
-export type IAggregatorFactoryStorage = MichelsonMap<IPair, string>;
+export type IAggregatorFactoryStorage = {
+  trackedAggregators: MichelsonMap<IPair, string>;
+};
 
 type AggregatorFactoryContractMethods<T extends ContractProvider | Wallet> = {
   createAggregator: (

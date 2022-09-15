@@ -38,10 +38,9 @@ export default async function (
   });
 
   // AGGREGATOR FACTORY CONTRACT ORIGINATION
-  const aggregatorFactoryStorage: IAggregatorFactoryStorage = MichelsonMap.fromLiteral({}) as MichelsonMap<
-    { 0: string; 1: string },
-    string
-  >;
+  const aggregatorFactoryStorage: IAggregatorFactoryStorage = {
+    trackedAggregators: MichelsonMap.fromLiteral({}) as MichelsonMap<{ 0: string; 1: string }, string>
+  };
   console.log('Originating Aggregator factory');
   const opFactory: OriginationOperation = await toolkit.contract.originate({
     code: AggregatorFactoryCode,

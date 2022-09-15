@@ -35,7 +35,7 @@ describe('Integration test 1', () => {
     const aggregatorFactory = await toolkit.contract.at<AggregatorFactoryContractAbstraction>(factoryAddress);
     const storage: IAggregatorFactoryStorage = await aggregatorFactory.storage();
 
-    const addresses = [...storage.entries()].map(([pair, aggregatorAddress]) => {
+    const addresses = [...storage.trackedAggregators.entries()].map(([pair, aggregatorAddress]) => {
       return aggregatorAddress;
     });
     for (const address of addresses) {
@@ -50,7 +50,7 @@ describe('Integration test 1', () => {
     const aggregatorFactory = await toolkit.contract.at<AggregatorFactoryContractAbstraction>(factoryAddress);
     const storage: IAggregatorFactoryStorage = await aggregatorFactory.storage();
 
-    const addresses = [...storage.entries()].map(([pair, aggregatorAddress]) => {
+    const addresses = [...storage.trackedAggregators.entries()].map(([pair, aggregatorAddress]) => {
       return aggregatorAddress;
     });
     for (const address of addresses) {
@@ -71,7 +71,7 @@ describe('Integration test 1', () => {
     const aggregatorFactory = await toolkit.contract.at<AggregatorFactoryContractAbstraction>(factoryAddress);
     const storage: IAggregatorFactoryStorage = await aggregatorFactory.storage();
 
-    const addresses = [...storage.entries()].map(([pair, aggregatorAddress]) => {
+    const addresses = [...storage.trackedAggregators.entries()].map(([pair, aggregatorAddress]) => {
       return aggregatorAddress;
     });
     for (const address of addresses) {
