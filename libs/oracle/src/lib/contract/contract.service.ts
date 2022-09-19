@@ -311,16 +311,36 @@ export class ContractService implements OnModuleInit {
 
     try {
       this._logger.log(`Sending report ${report.epoch}/${report.round} sent to the blockchain!`);
-      await this._txManagerService.addBatch([
+      const response = await this._txManagerService.addBatch([
         {
           ...op.toTransferParams(),
           kind: OpKind.TRANSACTION
         }
       ]);
-      this._logger.log(`Sent ${report.epoch}/${report.round} sent to the blockchain!`);
+      if (response.type === 'success') {
+        this._logger.log(
+          `${aggregatorAddress}/${report.epoch}/${report.round} - Report sent to the blockchain (op hash: ${response.response.opHash})!`
+        );
+      }
+
+      if (response.type === 'error') {
+        this._logger.error(
+          `${aggregatorAddress}/${report.epoch}/${
+            report.round
+          } - Error while sending tx to the aggregator: ${JSON.stringify(response.error)}`
+        );
+        return;
+      }
+
+      this._logger.error(
+        `${aggregatorAddress}/${report.epoch}/${report.round} - Unknown response type ${response.type}, should not happen.`
+      );
     } catch (e) {
-      this._logger.error(`Report not sent to the blockchain!`);
-      this._logger.error(JSON.stringify(e));
+      this._logger.error(
+        `${aggregatorAddress}/${report.epoch}/${
+          report.round
+        } - Error while sending tx to the aggregator: ${JSON.stringify(e)}`
+      );
     }
   }
 
