@@ -10,8 +10,8 @@ export interface INewEpochMessage {
 }
 
 export interface IPaceMakerState {
-  epoch: number;
-  leader: string;
+  epoch: number | undefined; // Can be null before initialization
+  leader: string | undefined; // Can be null before initialization
   newEpoch: number;
   peersNewEpoch: Map<string, number>;
 }

@@ -48,7 +48,8 @@ export class PacemakerService {
   private _self: string;
 
   // Current epoch and leader. Group then in the same structure to make sure these are updated at the same time
-  private _epochAndLeader: {
+  // Can be undefined before initialization
+  private _epochAndLeader?: {
     epoch: number;
     leader: string;
   };
@@ -94,6 +95,7 @@ export class PacemakerService {
   /**
    * Initialize the pacemaker service state and start listening to the necessary events
    */
+  @useMutex()
   public async initialize(): Promise<void> {
     this._self = this._config.peerId;
     // Bind needed events to callbacks
@@ -139,7 +141,7 @@ export class PacemakerService {
     this._timerProgress.restart();
   }
 
-  public async stop() {
+  public async stop(): Promise<void> {
     this._timerProgress.stop();
     this._timerResend.stop();
     this._eventHubService.removeListener('progress', this._progressListener);
@@ -153,8 +155,8 @@ export class PacemakerService {
    */
   public getState(): IPaceMakerState {
     return {
-      epoch: this._epochAndLeader.epoch,
-      leader: this._epochAndLeader.leader,
+      epoch: this._epochAndLeader?.epoch,
+      leader: this._epochAndLeader?.leader,
       newEpoch: this._newEpoch,
       peersNewEpoch: this._peersNewEpoch
     };
@@ -185,21 +187,34 @@ export class PacemakerService {
 
   @useMutex()
   private async _onProgressTimerTimeout(): Promise<void> {
+    if (this._epochAndLeader === undefined) {
+      // Round is not initialized yet
+      return;
+    }
+
+    const { epoch, leader } = this._epochAndLeader;
+
     this._logger.log(
-      `${this._pacemakerConfig.aggregatorAddress}/${this._epochAndLeader.epoch} - Progress timer timeout with leader: ${this._epochAndLeader.leader}`
+      `${this._pacemakerConfig.aggregatorAddress}/${epoch} - Progress timer timeout with leader: ${leader}`
     );
     this._timerProgress.restart();
-    await this._sendNewEpoch(Math.max(this._epochAndLeader.epoch + 1, this._newEpoch));
+    await this._sendNewEpoch(Math.max(epoch + 1, this._newEpoch));
   }
 
   @useMutex()
   private async _onChangeLeader(aggregatorAddress: string): Promise<void> {
+    if (this._epochAndLeader === undefined) {
+      // Round is not initialized yet
+      return;
+    }
+    const { epoch } = this._epochAndLeader;
+
     if (aggregatorAddress !== this._pacemakerConfig.aggregatorAddress) {
       return;
     }
 
     this._timerProgress.restart();
-    await this._sendNewEpoch(Math.max(this._epochAndLeader.epoch + 1, this._newEpoch));
+    await this._sendNewEpoch(Math.max(epoch + 1, this._newEpoch));
   }
 
   @useMutex()
@@ -232,6 +247,11 @@ export class PacemakerService {
    * @private
    */
   private async _checkAmplificationRule(): Promise<void> {
+    if (this._epochAndLeader === undefined) {
+      // Round is not initialized yet
+      return;
+    }
+
     // Construct array with values received from peers
     // Example: [3, 2, 5, 3, 5]
     const peersEpochs = Array.from(this._peersNewEpoch.values());
@@ -281,6 +301,10 @@ export class PacemakerService {
    * @private
    */
   private async _checkAgreementRule(): Promise<void> {
+    if (this._epochAndLeader === undefined) {
+      return;
+    }
+    const { epoch } = this._epochAndLeader;
     // Construct array with values received from peers
     // Example: [3, 2, 5, 3, 5]
     const peersEpochs = Array.from(this._peersNewEpoch.values());
@@ -288,41 +312,41 @@ export class PacemakerService {
     // Deduplicate, sort values (greater to lower) and filter only values greater than current epoch
     // Example: [5, 3] if current epoch is 2
     const peersNewEpochUnique = [...new Set(peersEpochs)]
-      .filter((epoch) => epoch > this._epochAndLeader.epoch)
+      .filter((e) => e > epoch)
       .sort()
       .reverse();
 
     const f = computeFValueFrom(this._pacemakerConfig.oracleAddresses.length);
 
     // Tmp value to check against if agreement check fails
-    let epoch = -1;
+    let epochAccumulator = -1;
     for (const newEpoch of peersNewEpochUnique) {
       // Count the number of peers that sent at this value or greater
       const peersNewEpochGreaterThan = peersEpochs.filter((value) => value >= newEpoch).length;
 
       if (peersNewEpochGreaterThan > 2 * f) {
         // If more than 2*f have sent a greater value, keep the candidate value.
-        epoch = newEpoch;
+        epochAccumulator = newEpoch;
 
         // We are sure that it's the biggest value since we iterate on a descending sorted array
         break;
       }
     }
 
-    // If no values have matched the find, epoch is still equal to -1
-    if (epoch === -1) {
+    // If no values have matched the find, epochAccumulator is still equal to -1
+    if (epochAccumulator === -1) {
       // If agreement check fails, simply returns.
       return;
     }
 
     this._logger.log(
-      `${this._pacemakerConfig.aggregatorAddress}/${this._epochAndLeader.epoch} - Agreement rule passed for epoch ${epoch}`
+      `${this._pacemakerConfig.aggregatorAddress}/${epoch} - Agreement rule passed for epoch ${epochAccumulator}`
     );
 
     // Set the current epoch and compute the new leader
     this._epochAndLeader = {
-      epoch,
-      leader: this._leaderForEpoch(this._pacemakerConfig.oracleAddresses, epoch)
+      epoch: epochAccumulator,
+      leader: this._leaderForEpoch(this._pacemakerConfig.oracleAddresses, epochAccumulator)
     };
 
     let aggregatorConfig: IAggregatorConfig;
@@ -332,7 +356,7 @@ export class PacemakerService {
       );
     } catch (e) {
       this._logger.error(
-        `${this._pacemakerConfig.aggregatorAddress}/${this._epochAndLeader.epoch} - Failed to fetch aggregator config`
+        `${this._pacemakerConfig.aggregatorAddress}/${epochAccumulator} - Failed to fetch aggregator config`
       );
       return;
     }
@@ -341,7 +365,7 @@ export class PacemakerService {
     this._reportGenFactoryService.stopReportGen(this._pacemakerConfig.aggregatorAddress);
 
     // Update newEpoch
-    this._newEpoch = Math.max(this._newEpoch, epoch);
+    this._newEpoch = Math.max(this._newEpoch, epochAccumulator);
 
     // Start new report generation instance
     this._reportGenFactoryService.startReportGen({
