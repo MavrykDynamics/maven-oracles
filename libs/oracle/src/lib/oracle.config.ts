@@ -65,7 +65,7 @@ export class OracleConfig {
   public tezosAddress: string;
 
   @Property({
-    default: true,
+    default: false,
     env: 'USE_FAKE_PRICES',
     format: Boolean
   })
