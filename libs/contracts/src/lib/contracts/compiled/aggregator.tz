@@ -1,16 +1,17 @@
 { parameter
     (or (or (unit %reset) (unit %unknown))
-        (pair %verify
+        (pair %updateData
            (map %oracleObservations
               address
               (pair (nat %price) (nat %epoch) (nat %round) (address %aggregatorAddress)))
            (map %signatures address signature))) ;
   storage
     (pair (map %oracleAddresses address (pair (key %oraclePublicKey) (string %oraclePeerId)))
-          (pair %lastResult (nat %price) (nat %epoch) (nat %round) (timestamp %time))
-          (nat %heartBeatSeconds)
-          (nat %alphaPercentPerThousand)
-          (nat %decimals)) ;
+          (pair %lastCompletedPrice (nat %price) (nat %epoch) (nat %round) (timestamp %time))
+          (pair %config
+             (nat %heartBeatSeconds)
+             (nat %alphaPercentPerThousand)
+             (nat %decimals))) ;
   code { UNPAIR ;
          IF_LEFT
            { IF_LEFT

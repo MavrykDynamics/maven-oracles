@@ -44,7 +44,7 @@ export default async function (
   console.log('Originating Aggregator factory');
   const opFactory: OriginationOperation = await toolkit.contract.originate({
     code: AggregatorFactoryCode,
-    storage: aggregatorFactoryStorage
+    storage: aggregatorFactoryStorage.trackedAggregators
   });
   console.log(`Aggregator factory origination done at: ${opFactory.contractAddress}`);
 

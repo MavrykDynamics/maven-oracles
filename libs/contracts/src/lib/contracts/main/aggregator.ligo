@@ -12,11 +12,17 @@ type oracleObservationType is [@layout:comb] record [
        aggregatorAddress: address;
 ];
 
-type oracleLastResultType is [@layout:comb] record [
+type lastCompletedPriceType is [@layout:comb] record [
        price: nat;
        epoch: nat;
        round: nat;
        time: timestamp;
+];
+
+type configType is [@layout:comb] record [
+    heartBeatSeconds : nat;
+    alphaPercentPerThousand : nat;
+    decimals : nat;
 ];
 
 
@@ -26,15 +32,13 @@ type leaderReponseType is   [@layout:comb] record [
 ];
 
 type aggregatorStorage is [@layout:comb] record [
-    oracleAddresses    : oracleAddressesType;
-    lastResult  : oracleLastResultType;
-    heartBeatSeconds : nat;
-    alphaPercentPerThousand : nat;
-    decimals : nat;
+    oracleAddresses     : oracleAddressesType;
+    lastCompletedPrice  : lastCompletedPriceType;
+    config              : configType;   
 ];
 
 type parameter is
-  Verify of leaderReponseType
+  UpdateData of leaderReponseType
   | Reset
   | Unknown
 
@@ -180,9 +184,9 @@ function verifyInfosFromObservation(const oracleObservations: map (address, orac
       if (not (round = value.round)) then failwith("different round in the observations");
   };
 
-  if (epoch < store.lastResult.epoch) then failwith("epoch should be greater than previous result")
-  else if (epoch = store.lastResult.epoch) then {
-    if (round <= store.lastResult.round) then failwith("round should be greater than previous result")
+  if (epoch < store.lastCompletedPrice.epoch) then failwith("epoch should be greater than previous result")
+  else if (epoch = store.lastCompletedPrice.epoch) then {
+    if (round <= store.lastCompletedPrice.round) then failwith("round should be greater than previous result")
     else skip;
   }
   else skip;
@@ -193,7 +197,7 @@ function verifyInfosFromObservation(const oracleObservations: map (address, orac
 
 // Main
 
-function verify (var store : aggregatorStorage; const leaderReponse : leaderReponseType) : aggregatorStorage is
+function updateData (var store : aggregatorStorage; const leaderReponse : leaderReponseType) : aggregatorStorage is
   block {
 
     // verify obervations and signatures have the same size
@@ -208,7 +212,7 @@ function verify (var store : aggregatorStorage; const leaderReponse : leaderRepo
 
     // get median
     const median: nat = getMedianFromMap(pivotObservationMap(leaderReponse.oracleObservations), Map.size (leaderReponse.oracleObservations));
-    store.lastResult := record[
+    store.lastCompletedPrice := record[
       price=median;
       epoch=epochAndRound.0;
       round=epochAndRound.1;
@@ -220,7 +224,7 @@ function verify (var store : aggregatorStorage; const leaderReponse : leaderRepo
 // reset epoch and round - FOR TESTING
 function reset (var store : aggregatorStorage) : aggregatorStorage is
   block {
-    store.lastResult := record[
+    store.lastCompletedPrice := record[
       price=0n;
       epoch=0n;
       round=0n;
@@ -235,7 +239,7 @@ function reset (var store : aggregatorStorage) : aggregatorStorage is
 function main (const action : parameter; const store : aggregatorStorage) : return is
  ((nil : list (operation)),    // No operations
   case action of [
-    | Verify (msg)  -> verify (store, msg)
+    | UpdateData (msg)  -> updateData (store, msg)
     | Reset         -> reset (store)
     | Unknown       -> store
   ])
@@ -280,7 +284,7 @@ record [
         oraclePeerId=("12D3KooWRGcN9uh633ucfUJ3XQ69n31mB2jPHKtrw7mfCSJdLz97" : string);
     ];
     ];
-    lastResult=record[
+    lastCompletedPrice=record[
       price=(0n : nat);
       epoch=(0n : nat);
       round=(0n : nat);
@@ -319,7 +323,7 @@ record [
         oraclePeerId=("12D3KooWDgabT39cFp5j5mvJgiGPEppMuVgDCsNtBCh1Q8ejBCA5" : string);
     ];
     ];
-    lastResult=record[
+    lastCompletedPrice=record[
       price=(0n : nat);
       epoch=(0n : nat);
       round=(0n : nat);

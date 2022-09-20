@@ -83,7 +83,7 @@
                 }
               ],
               "annots": [
-                "%verify"
+                "%updateData"
               ]
             }
           ]
@@ -153,25 +153,33 @@
                 }
               ],
               "annots": [
-                "%lastResult"
+                "%lastCompletedPrice"
               ]
             },
             {
-              "prim": "nat",
+              "prim": "pair",
+              "args": [
+                {
+                  "prim": "nat",
+                  "annots": [
+                    "%heartBeatSeconds"
+                  ]
+                },
+                {
+                  "prim": "nat",
+                  "annots": [
+                    "%alphaPercentPerThousand"
+                  ]
+                },
+                {
+                  "prim": "nat",
+                  "annots": [
+                    "%decimals"
+                  ]
+                }
+              ],
               "annots": [
-                "%heartBeatSeconds"
-              ]
-            },
-            {
-              "prim": "nat",
-              "annots": [
-                "%alphaPercentPerThousand"
-              ]
-            },
-            {
-              "prim": "nat",
-              "annots": [
-                "%decimals"
+                "%config"
               ]
             }
           ]

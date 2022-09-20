@@ -9,10 +9,8 @@ type storage is record [
 
 
 type createAggregatorParamsType is string * string * [@layout:comb] record[
-    alphaPercentPerThousand : nat;
-    decimals : nat;
-    heartBeatSeconds : nat;
-    oracleAddresses    : oracleAddressesType;
+    config              : configType;   
+    oracleAddresses     : oracleAddressesType;
 ];
 
 type templateAction is
@@ -49,15 +47,17 @@ function createAggregator(const createAggregatorParams: createAggregatorParamsTy
 block {
         const originatedAggregatorStorage: aggregatorStorage = record [
           oracleAddresses=createAggregatorParams.2.oracleAddresses;
-          lastResult=record[
+          lastCompletedPrice=record[
             price=(0n : nat);
             epoch=(0n : nat);
             round=(0n : nat);
             time=(0 : timestamp);
           ];
-          heartBeatSeconds=createAggregatorParams.2.heartBeatSeconds;
-          alphaPercentPerThousand=createAggregatorParams.2.alphaPercentPerThousand;
-          decimals=createAggregatorParams.2.decimals;
+          config=record[
+            heartBeatSeconds=createAggregatorParams.2.config.heartBeatSeconds;
+            alphaPercentPerThousand=createAggregatorParams.2.config.alphaPercentPerThousand;
+            decimals=createAggregatorParams.2.config.decimals;
+          ]
         ];
 
         const aggregatorOrigination: (operation * address) = createAggregatorFunc(

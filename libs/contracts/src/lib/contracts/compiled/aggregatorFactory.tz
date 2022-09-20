@@ -1,9 +1,10 @@
 { parameter
     (or (pair %createAggregator
            (pair string string)
-           (nat %alphaPercentPerThousand)
-           (nat %decimals)
-           (nat %heartBeatSeconds)
+           (pair %config
+              (nat %heartBeatSeconds)
+              (nat %alphaPercentPerThousand)
+              (nat %decimals))
            (map %oracleAddresses address (pair (key %oraclePublicKey) (string %oraclePeerId))))
         (nat %first)) ;
   storage (map (pair string string) address) ;
@@ -11,22 +12,26 @@
          IF_LEFT
            { DUP ;
              CDR ;
-             GET 3 ;
+             CAR ;
+             GET 4 ;
              DUP 2 ;
              CDR ;
              CAR ;
+             GET 3 ;
              DUP 3 ;
              CDR ;
-             GET 5 ;
+             CAR ;
+             CAR ;
+             PAIR 3 ;
              PUSH timestamp 0 ;
              PUSH nat 0 ;
              PUSH nat 0 ;
              PUSH nat 0 ;
              PAIR 4 ;
-             DUP 5 ;
+             DUP 3 ;
              CDR ;
-             GET 6 ;
-             PAIR 5 ;
+             CDR ;
+             PAIR 3 ;
              PUSH mutez 0 ;
              NONE key_hash ;
              PAIR ;
@@ -35,17 +40,18 @@
              CREATE_CONTRACT
                { parameter
                    (or (or (unit %reset) (unit %unknown))
-                       (pair %verify
+                       (pair %updateData
                           (map %oracleObservations
                              address
                              (pair (nat %price) (nat %epoch) (nat %round) (address %aggregatorAddress)))
                           (map %signatures address signature))) ;
                  storage
                    (pair (map %oracleAddresses address (pair (key %oraclePublicKey) (string %oraclePeerId)))
-                         (pair %lastResult (nat %price) (nat %epoch) (nat %round) (timestamp %time))
-                         (nat %heartBeatSeconds)
-                         (nat %alphaPercentPerThousand)
-                         (nat %decimals)) ;
+                         (pair %lastCompletedPrice (nat %price) (nat %epoch) (nat %round) (timestamp %time))
+                         (pair %config
+                            (nat %heartBeatSeconds)
+                            (nat %alphaPercentPerThousand)
+                            (nat %decimals))) ;
                  code { UNPAIR ;
                         IF_LEFT
                           { IF_LEFT

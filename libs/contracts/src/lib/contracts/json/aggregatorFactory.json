@@ -22,21 +22,29 @@
                   ]
                 },
                 {
-                  "prim": "nat",
+                  "prim": "pair",
+                  "args": [
+                    {
+                      "prim": "nat",
+                      "annots": [
+                        "%heartBeatSeconds"
+                      ]
+                    },
+                    {
+                      "prim": "nat",
+                      "annots": [
+                        "%alphaPercentPerThousand"
+                      ]
+                    },
+                    {
+                      "prim": "nat",
+                      "annots": [
+                        "%decimals"
+                      ]
+                    }
+                  ],
                   "annots": [
-                    "%alphaPercentPerThousand"
-                  ]
-                },
-                {
-                  "prim": "nat",
-                  "annots": [
-                    "%decimals"
-                  ]
-                },
-                {
-                  "prim": "nat",
-                  "annots": [
-                    "%heartBeatSeconds"
+                    "%config"
                   ]
                 },
                 {
@@ -124,10 +132,13 @@
                   "prim": "CDR"
                 },
                 {
+                  "prim": "CAR"
+                },
+                {
                   "prim": "GET",
                   "args": [
                     {
-                      "int": "3"
+                      "int": "4"
                     }
                   ]
                 },
@@ -146,6 +157,14 @@
                   "prim": "CAR"
                 },
                 {
+                  "prim": "GET",
+                  "args": [
+                    {
+                      "int": "3"
+                    }
+                  ]
+                },
+                {
                   "prim": "DUP",
                   "args": [
                     {
@@ -157,10 +176,16 @@
                   "prim": "CDR"
                 },
                 {
-                  "prim": "GET",
+                  "prim": "CAR"
+                },
+                {
+                  "prim": "CAR"
+                },
+                {
+                  "prim": "PAIR",
                   "args": [
                     {
-                      "int": "5"
+                      "int": "3"
                     }
                   ]
                 },
@@ -220,7 +245,7 @@
                   "prim": "DUP",
                   "args": [
                     {
-                      "int": "5"
+                      "int": "3"
                     }
                   ]
                 },
@@ -228,18 +253,13 @@
                   "prim": "CDR"
                 },
                 {
-                  "prim": "GET",
-                  "args": [
-                    {
-                      "int": "6"
-                    }
-                  ]
+                  "prim": "CDR"
                 },
                 {
                   "prim": "PAIR",
                   "args": [
                     {
-                      "int": "5"
+                      "int": "3"
                     }
                   ]
                 },
@@ -357,7 +377,7 @@
                                   }
                                 ],
                                 "annots": [
-                                  "%verify"
+                                  "%updateData"
                                 ]
                               }
                             ]
@@ -427,25 +447,33 @@
                                   }
                                 ],
                                 "annots": [
-                                  "%lastResult"
+                                  "%lastCompletedPrice"
                                 ]
                               },
                               {
-                                "prim": "nat",
+                                "prim": "pair",
+                                "args": [
+                                  {
+                                    "prim": "nat",
+                                    "annots": [
+                                      "%heartBeatSeconds"
+                                    ]
+                                  },
+                                  {
+                                    "prim": "nat",
+                                    "annots": [
+                                      "%alphaPercentPerThousand"
+                                    ]
+                                  },
+                                  {
+                                    "prim": "nat",
+                                    "annots": [
+                                      "%decimals"
+                                    ]
+                                  }
+                                ],
                                 "annots": [
-                                  "%heartBeatSeconds"
-                                ]
-                              },
-                              {
-                                "prim": "nat",
-                                "annots": [
-                                  "%alphaPercentPerThousand"
-                                ]
-                              },
-                              {
-                                "prim": "nat",
-                                "annots": [
-                                  "%decimals"
+                                  "%config"
                                 ]
                               }
                             ]
