@@ -321,6 +321,7 @@ export class ContractService implements OnModuleInit {
         this._logger.log(
           `${aggregatorAddress}/${report.epoch}/${report.round} - Report sent to the blockchain (op hash: ${response.response.opHash})!`
         );
+        return;
       }
 
       if (response.type === 'error') {
