@@ -19,6 +19,8 @@ See [manual install instructions](https://docs.docker.com/engine/install/debian/
 ### Set up
 Create `docker-compose.yml` file:
 
+*Note: if you are deploying on a raspberry pi, use `tezosdynamics/signatory:v0.3.3-beta-rc1-armv7` docker image for signatory instead of `ecadlabs/signatory:v0.3.3-beta-rc1-amd64`.*
+
 ```yaml
 # docker-compose.yml
 version: '3.7'
