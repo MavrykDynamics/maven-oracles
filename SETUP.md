@@ -24,6 +24,15 @@ Create `docker-compose.yml` file:
 version: '3.7'
 
 services:
+  oracle:
+    restart: always
+    image: tezosdynamics/mavryk-oracle:ocr-latest
+    env_file:
+      - .env
+    environment:
+      - SIGNER_URL=http://localhost:6732
+    network_mode: host
+
   signatory:
     image: ecadlabs/signatory:v0.3.3-beta-rc1-amd64
     ports:
@@ -31,12 +40,6 @@ services:
     volumes:
       - ./signatory.yaml:/etc/signatory.yaml
       - ./secret.json:/etc/secret.json
-
-  oracle:
-    container_name: oracle
-    image: ocr-latest
-    env_file:
-      - .env
 ```
 
 Create `.env` file (See [config reference](./CONFIG.md):
