@@ -5,7 +5,7 @@
   "scripts": {
     "build": "heft build --clean",
     "build:watch": "heft build",
-    "serve": "node dist/src/main.js",
+    "serve": "node dist/main.js",
     "start": "heft start",
     "test": "echo 0",
     "test:integration": "NODE_OPTIONS=--experimental-vm-modules jest --config config/jest.integration.config.cjs 2>&1"

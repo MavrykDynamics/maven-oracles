@@ -57,10 +57,11 @@ This will start an environment with:
   - 7 oracles
 
 ```shell
-./script/start.sh
+rush build
+./scripts/start.sh
 
 # To stop, use
-# ./script/stop.sh
+# ./scripts/stop.sh
 ```
 
 ## Test
