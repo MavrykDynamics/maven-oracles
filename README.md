@@ -51,14 +51,30 @@ cd mavryk-oracles
 
 ## Start
 
+This will start an environment with:
+  - A local blokchain (flextesa)
+  - A blockchain explorer (better call dev)
+  - 7 oracles
+
 ```shell
 ./script/start.sh
+
+# To stop, use
+# ./script/stop.sh
 ```
 
 ## Test
 
+Run the repository unit tests using:
+
 ```shell
 rush test
+```
+
+Run the integration tests using:
+
+```shell
+./integration/integration_1.sh
 ```
 
 ## Using data aggregator API keys
@@ -67,18 +83,6 @@ Edit the api key env file to set your data sources api keys
 
 ```shell
 vi .api-keys.env
-```
-
-## Start
-
-```shell
-./scripts/start.sh
-```
-
-## Stop
-
-```shell
-./scripts/stop.sh
 ```
 
 # License
