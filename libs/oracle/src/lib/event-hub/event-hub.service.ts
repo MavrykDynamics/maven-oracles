@@ -1,9 +1,11 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { TypedEmitter } from 'tiny-typed-emitter';
 import { IAttestedReport } from '../reportgen';
 import { IEventHubEvents } from './event-hub.types.js';
 import { IOracleInformations } from '@tezosdynamics/contracts';
 import BigNumber from 'bignumber.js';
+import { getLogger } from '../logger.js';
+import { Logger } from 'winston';
 
 /**
  * Event Hub service
@@ -16,7 +18,11 @@ import BigNumber from 'bignumber.js';
  */
 @Injectable()
 export class EventHubService extends TypedEmitter<IEventHubEvents> {
-  private readonly _logger: Logger = new Logger(EventHubService.name);
+  private readonly _logger: Logger = getLogger({
+    defaultMeta: {
+      service: EventHubService.name
+    }
+  });
 
   public constructor() {
     super();

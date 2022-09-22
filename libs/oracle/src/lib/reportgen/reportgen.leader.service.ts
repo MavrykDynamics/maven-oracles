@@ -1,4 +1,3 @@
-import { Logger } from '@nestjs/common';
 import BigNumber from 'bignumber.js';
 import { ReportGenNetworkService } from './reportgen.network.service.js';
 import {
@@ -22,6 +21,8 @@ import { computeFValueFrom } from '../pacemaker/helpers.js';
 import { Timer } from '../pacemaker/timer.js';
 import { useMutex } from '../helpers/useMutex.js';
 import { Mutex } from 'async-mutex';
+import { getLogger } from '../logger.js';
+import { Logger } from 'winston';
 
 /**
  * Report Generation Leader service as described in {@link https://research.chain.link/ocr.pdf} Section 5.3
@@ -40,7 +41,11 @@ import { Mutex } from 'async-mutex';
  *    - once enough reports (f + 1) have been received, broadcast it with all the signatures using {@link IReportGenEvents.final} message
  */
 export class ReportGenLeaderService {
-  private readonly _logger: Logger = new Logger(ReportGenLeaderService.name);
+  private readonly _logger: Logger = getLogger({
+    defaultMeta: {
+      service: ReportGenLeaderService.name
+    }
+  });
 
   // Do not remove, it is used by @useMutex annotations
   // This is used to make sure that handlers are executed sequentially
@@ -109,7 +114,7 @@ export class ReportGenLeaderService {
   ) {
     this._epoch = _reportGenConfig.epoch;
     this._leader = _reportGenConfig.leader;
-    this._logger.log(
+    this._logger.info(
       `${this._reportGenConfig.aggregatorAddress}/${this._epoch} Starting reportgen leader instance with leader ${this._leader}`
     );
     this._reportGenNetworkService.addListener('observe', this._onObserveHandle);
@@ -118,7 +123,7 @@ export class ReportGenLeaderService {
   }
 
   public stop(): void {
-    this._logger.log(
+    this._logger.info(
       `${this._reportGenConfig.aggregatorAddress}/${this._epoch} Stopping reportgen leader instance`
     );
     this._timerGrace.stop();
@@ -217,7 +222,7 @@ export class ReportGenLeaderService {
       return;
     }
 
-    this._logger.log(
+    this._logger.info(
       `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${
         this._round
       } - Saving observation from ${from.toString()}: ${observation}`
@@ -232,7 +237,7 @@ export class ReportGenLeaderService {
 
     const f = computeFValueFrom(this._reportGenConfig.oracleAddresses.length);
     if (numberOfObservation === 2 * f + 1) {
-      this._logger.log(
+      this._logger.info(
         `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${this._round} - Enough observations have been collected, starting grace period`
       );
 
@@ -329,7 +334,7 @@ export class ReportGenLeaderService {
       return;
     }
 
-    this._logger.log(
+    this._logger.info(
       `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${
         this._round
       } - Saving report from ${from.toString()}`
@@ -354,7 +359,7 @@ export class ReportGenLeaderService {
       return;
     }
 
-    this._logger.log(
+    this._logger.info(
       `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${this._round} - Received enough report, starting final phase`
     );
 
@@ -443,7 +448,7 @@ export class ReportGenLeaderService {
       return;
     }
 
-    this._logger.log(
+    this._logger.info(
       `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${this._round} - Grace period finished, assembling report`
     );
 

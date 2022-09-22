@@ -1,4 +1,4 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { WalletParamsWithKind } from '@taquito/taquito/dist/types/wallet/wallet';
 import { PollingSubscribeProvider, TezosToolkit } from '@taquito/taquito';
 import { TxManagerConfig } from './tx-manager.config.js';
@@ -10,6 +10,8 @@ import { randomUUID } from 'crypto';
 import { ParamsWithKind } from '@taquito/taquito/dist/types/operations/types';
 import { CronJob } from 'cron';
 import { RemoteSigner } from '@taquito/remote-signer';
+import { getLogger } from './logger.js';
+import { Logger } from 'winston';
 
 interface IBatchQueueRequest {
   uuid: string;
@@ -33,7 +35,11 @@ type BatchQueueResponse = IBatchQueueResponseSuccess | IBatchQueueResponseError;
 
 @Injectable()
 export class TxManagerService implements OnModuleInit {
-  private readonly _logger: Logger = new Logger(TxManagerService.name);
+  private readonly _logger: Logger = getLogger({
+    defaultMeta: {
+      service: TxManagerService.name
+    }
+  });
   private _pool: Pool = [];
   private _tezosToolkit: TezosToolkit;
   private _batchResponse$: Subject<BatchQueueResponse> = new Subject();

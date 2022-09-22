@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { createLibp2p, Libp2p } from 'libp2p';
 import { Mplex } from '@libp2p/mplex';
 import { Noise } from '@chainsafe/libp2p-noise';
@@ -11,10 +11,17 @@ import { ContractService } from './contract/index.js';
 import { TCP } from '@libp2p/tcp';
 import { Transport } from '@libp2p/interface-transport';
 import { Libp2pNode } from 'libp2p/dist/src/libp2p.js';
+import { getLogger } from './logger.js';
+import { Logger } from 'winston';
 
 @Injectable()
 export class NodeService {
-  private readonly _logger: Logger = new Logger(NodeService.name);
+  private readonly _logger: Logger = getLogger({
+    defaultMeta: {
+      service: NodeService.name
+    }
+  });
+
   private _node: Libp2p;
 
   public constructor(
@@ -114,11 +121,7 @@ export class NodeService {
     await this._node.start();
 
     // Output listen addresses to the console
-    console.log('Listener ready, listening on:');
-
-    this._node.getMultiaddrs().forEach((ma) => {
-      this._logger.verbose(ma.toString());
-    });
+    this._logger.info(`Listener ready, listening on: ${this._node.getMultiaddrs().join(',')}`);
   }
 
   public get node(): Libp2p {

@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { OracleConfig } from '../oracle.config.js';
 import BigNumber from 'bignumber.js';
 
@@ -7,10 +7,16 @@ import { IPriceFetcher } from '@tezosdynamics/price-fetcher';
 import { MessariFetcherService } from '@tezosdynamics/messari-fetcher';
 import { CoingeckoFetcherService } from '@tezosdynamics/coingecko-fetcher';
 import { AlphavantageFetcherService } from '@tezosdynamics/alphavantage-fetcher';
+import { getLogger } from '../logger.js';
+import { Logger } from 'winston';
 
 @Injectable()
 export class PriceService {
-  private readonly _logger: Logger = new Logger(PriceService.name);
+  private readonly _logger: Logger = getLogger({
+    defaultMeta: {
+      service: PriceService.name
+    }
+  });
   private readonly _priceFetchers: IPriceFetcher[] = [];
 
   public constructor(

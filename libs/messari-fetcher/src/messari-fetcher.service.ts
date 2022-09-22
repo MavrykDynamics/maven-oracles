@@ -1,14 +1,20 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import { AxiosResponse } from 'axios';
 import BigNumber from 'bignumber.js';
 import { MessariFetcherConfig } from './messari-fetcher.config.js';
 import { IPriceFetcher } from '@tezosdynamics/price-fetcher';
+import { getLogger } from './logger.js';
+import { Logger } from 'winston';
 
 @Injectable()
 export class MessariFetcherService implements IPriceFetcher {
-  private readonly _logger: Logger = new Logger(MessariFetcherService.name);
+  private readonly _logger: Logger = getLogger({
+    defaultMeta: {
+      service: MessariFetcherService.name
+    }
+  });
   private readonly _baseUrl: string = 'https://data.messari.io/api/v1';
 
   public constructor(

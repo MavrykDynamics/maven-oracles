@@ -1,4 +1,3 @@
-import { Logger } from '@nestjs/common';
 import { OracleConfig } from '../oracle.config.js';
 import BigNumber from 'bignumber.js';
 import { ReportGenNetworkService } from './reportgen.network.service.js';
@@ -23,6 +22,8 @@ import { IReportGenConfig } from './reportgen.config.js';
 import { computeFValueFrom } from '../pacemaker/helpers.js';
 import { useMutex } from '../helpers/useMutex.js';
 import { Mutex } from 'async-mutex';
+import { getLogger } from '../logger.js';
+import { Logger } from 'winston';
 
 /**
  * Report Generation Follower service as described in {@link https://research.chain.link/ocr.pdf} Section 5.3
@@ -45,7 +46,11 @@ import { Mutex } from 'async-mutex';
  *
  */
 export class ReportGenFollowerService {
-  private readonly _logger: Logger = new Logger(ReportGenFollowerService.name);
+  private readonly _logger: Logger = getLogger({
+    defaultMeta: {
+      service: ReportGenFollowerService.name
+    }
+  });
 
   // Do not remove, it is used by @useMutex annotations
   // This is used to make sure that handlers are executed sequentially
@@ -106,7 +111,7 @@ export class ReportGenFollowerService {
     this._epoch = this._reportGenConfig.epoch;
     this._leader = this._reportGenConfig.leader;
 
-    this._logger.log(
+    this._logger.info(
       `${this._reportGenConfig.aggregatorAddress}/${this._epoch} Starting reportgen follower instance with leader ${this._leader}`
     );
 
@@ -118,7 +123,7 @@ export class ReportGenFollowerService {
   }
 
   public stop(): void {
-    this._logger.log(
+    this._logger.info(
       `${this._reportGenConfig.aggregatorAddress}/${this._epoch}  Stopping reportgen follower instance`
     );
     // Stop listening to event
@@ -375,7 +380,7 @@ export class ReportGenFollowerService {
       return;
     }
 
-    this._logger.log(
+    this._logger.info(
       `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${this._round} - Sending final echo`
     );
 
@@ -471,7 +476,7 @@ export class ReportGenFollowerService {
       return;
     }
 
-    this._logger.log(
+    this._logger.info(
       `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${
         this._round
       } - Received final echo from ${from.toString()}`
@@ -482,7 +487,7 @@ export class ReportGenFollowerService {
     if (this._sentEcho === null) {
       this._sentEcho = attestedReport;
 
-      this._logger.log(
+      this._logger.info(
         `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${this._round} - Sending final echo`
       );
 
@@ -497,7 +502,7 @@ export class ReportGenFollowerService {
     const f = computeFValueFrom(this._reportGenConfig.oracleAddresses.length);
 
     if (numberOfFinalEchoReceived > f) {
-      this._logger.log(
+      this._logger.info(
         `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${this._round} - Enough final echo received (${numberOfFinalEchoReceived}), going to transmit`
       );
       await this._eventHubService.transmit(
@@ -601,7 +606,7 @@ export class ReportGenFollowerService {
     );
 
     if (deviationPerThousand.gt(this._reportGenConfig.alphaPerThousand)) {
-      this._logger.log(
+      this._logger.info(
         `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${this._round} - Deviation (${deviationPerThousand}) is greater than alpha (${this._reportGenConfig.alphaPerThousand}). Will report`
       );
       return true;

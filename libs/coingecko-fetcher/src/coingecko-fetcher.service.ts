@@ -1,14 +1,20 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { AxiosResponse } from 'axios';
 import { firstValueFrom } from 'rxjs';
 import { HttpService } from '@nestjs/axios';
 import BigNumber from 'bignumber.js';
 import { CoingeckoFetcherConfig } from './coingecko-fetcher.config.js';
 import { IPriceFetcher } from '@tezosdynamics/price-fetcher';
+import { getLogger } from './logger.js';
+import { Logger } from 'winston';
 
 @Injectable()
 export class CoingeckoFetcherService implements IPriceFetcher, OnModuleInit {
-  private readonly _logger: Logger = new Logger(CoingeckoFetcherService.name);
+  private readonly _logger: Logger = getLogger({
+    defaultMeta: {
+      service: CoingeckoFetcherService.name
+    }
+  });
   private readonly _baseUrl: string = 'https://api.coingecko.com/api/v3';
 
   private _symbolToId: Map<string, string> = new Map<string, string>();

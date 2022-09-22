@@ -12,14 +12,15 @@
   "type": "module",
   "dependencies": {
     "@nestjs/axios": "^0.1.0",
-    "@nestjs/common": "^8.0.0",
+    "@nestjs/common": "9.1.1",
     "axios": "^0.27.2",
     "bignumber.js": "^9.0.2",
     "rxjs": "^7.0.0",
     "ts-convict": "^1.1.0",
     "tslib": "^2.4.0",
     "@tezosdynamics/config": "workspace:*",
-    "@tezosdynamics/price-fetcher": "workspace:*"
+    "@tezosdynamics/price-fetcher": "workspace:*",
+    "winston": "^3.8.2"
   },
   "devDependencies": {
     "@rushstack/heft": "^0.45.8",

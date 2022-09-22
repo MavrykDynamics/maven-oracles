@@ -1,4 +1,4 @@
-import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
+import { Injectable, OnModuleDestroy } from '@nestjs/common';
 
 import { Stream } from '@libp2p/interface-connection';
 import { pipe } from 'it-pipe';
@@ -7,10 +7,16 @@ import { NodeService } from '../node.service.js';
 import { Mutex } from 'async-mutex';
 import { InboundStream } from './inbound-stream.js';
 import { OutboundStream } from './outbound-stream.js';
+import { getLogger } from '../logger.js';
+import { Logger } from 'winston';
 
 @Injectable()
 export class StreamManagerService implements OnModuleDestroy {
-  private readonly _logger: Logger = new Logger(StreamManagerService.name);
+  private readonly _logger: Logger = getLogger({
+    defaultMeta: {
+      service: StreamManagerService.name
+    }
+  });
 
   private readonly _streamsInbound: Map<string, Map<string, InboundStream>> = new Map();
   private readonly _streamsOutbound: Map<string, Map<string, OutboundStream>> = new Map();
@@ -48,11 +54,11 @@ export class StreamManagerService implements OnModuleDestroy {
     handler: (data: Uint8Array, peerId: PeerId) => Promise<void>
   ): Promise<void> {
     const id = peerId.toString();
-    
-    if (this._streamsInbound.get(protocol) === undefined){
+
+    if (this._streamsInbound.get(protocol) === undefined) {
       this._streamsInbound.set(protocol, new Map<string, InboundStream>());
     }
-    
+
     const priorInboundStream = this._streamsInbound.get(protocol)?.get(id);
 
     if (priorInboundStream !== undefined) {
@@ -89,7 +95,7 @@ export class StreamManagerService implements OnModuleDestroy {
   public async getOutboundStream(protocol: string, peerId: PeerId): Promise<OutboundStream> {
     const id = peerId.toString();
 
-    if (this._streamsOutbound.get(protocol) === undefined){
+    if (this._streamsOutbound.get(protocol) === undefined) {
       this._streamsOutbound.set(protocol, new Map<string, OutboundStream>());
     }
 

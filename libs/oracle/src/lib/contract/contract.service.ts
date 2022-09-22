@@ -1,4 +1,4 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { MichelsonType, packDataBytes } from '@taquito/michel-codec';
 import { verifySignature } from '@taquito/utils';
 
@@ -17,6 +17,8 @@ import {
   IOracleObservationType
 } from '@tezosdynamics/contracts';
 import { IAggregatorConfig } from './contract.types.js';
+import { getLogger } from '../logger.js';
+import { Logger } from 'winston';
 
 /**
  * Contract service
@@ -25,7 +27,11 @@ import { IAggregatorConfig } from './contract.types.js';
  */
 @Injectable()
 export class ContractService implements OnModuleInit {
-  private readonly _logger: Logger = new Logger(ContractService.name);
+  private readonly _logger: Logger = getLogger({
+    defaultMeta: {
+      service: ContractService.name
+    }
+  });
 
   public constructor(
     private readonly _config: OracleConfig,
@@ -310,7 +316,7 @@ export class ContractService implements OnModuleInit {
     });
 
     try {
-      this._logger.log(`Sending report ${report.epoch}/${report.round} sent to the blockchain!`);
+      this._logger.info(`Sending report ${report.epoch}/${report.round} sent to the blockchain!`);
       const response = await this._txManagerService.addBatch([
         {
           ...op.toTransferParams(),
@@ -318,7 +324,7 @@ export class ContractService implements OnModuleInit {
         }
       ]);
       if (response.type === 'success') {
-        this._logger.log(
+        this._logger.info(
           `${aggregatorAddress}/${report.epoch}/${report.round} - Report sent to the blockchain (op hash: ${response.response.opHash})!`
         );
         return;
@@ -332,10 +338,6 @@ export class ContractService implements OnModuleInit {
         );
         return;
       }
-
-      this._logger.error(
-        `${aggregatorAddress}/${report.epoch}/${report.round} - Unknown response type ${response.type}, should not happen.`
-      );
     } catch (e) {
       this._logger.error(
         `${aggregatorAddress}/${report.epoch}/${

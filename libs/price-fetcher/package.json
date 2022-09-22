@@ -11,7 +11,7 @@
   "typings": "dist/libs/price-fetcher/src/index.d.ts",
   "type": "module",
   "dependencies": {
-    "@nestjs/common": "^8.0.0",
+    "@nestjs/common": "9.1.1",
     "bignumber.js": "^9.0.2",
     "ts-convict": "^1.1.0",
     "tslib": "^2.0.0"

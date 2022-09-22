@@ -1,4 +1,4 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { TypedEmitter } from 'tiny-typed-emitter';
 import { Message } from '@libp2p/interface-pubsub';
 import BigNumber from 'bignumber.js';
@@ -16,10 +16,16 @@ import {
 } from './reportgen.types.js';
 import { IReportGenEvents } from './reportgen.types.js';
 import { createFromJSON } from '@libp2p/peer-id-factory';
+import { getLogger } from '../logger.js';
+import { Logger } from 'winston';
 
 @Injectable()
 export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> implements OnModuleInit {
-  private readonly _logger: Logger = new Logger(ReportGenNetworkService.name);
+  private readonly _logger: Logger = getLogger({
+    defaultMeta: {
+      service: ReportGenNetworkService.name
+    }
+  });
   private readonly _observeReqTopic: string = 'observeReq';
   private readonly _reportReqTopic: string = 'reportReq';
   private readonly _finalTopic: string = 'final';

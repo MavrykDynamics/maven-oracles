@@ -32,10 +32,10 @@
   "dependencies": {
     "@multiformats/multiaddr": "~10.3.3",
     "@nestjs/axios": "^0.0.7",
-    "@nestjs/common": "^8.0.0",
+    "@nestjs/common": "9.1.1",
     "@nestjs/core": "^8.0.0",
     "@nestjs/platform-express": "^8.0.0",
-    "@nestjs/schedule": "^1.0.2",
+    "@nestjs/schedule": "^2.1.0",
     "@noble/ed25519": "~1.6.0",
     "@nodeutils/defaults-deep": "^1.1.0",
     "@taquito/michel-codec": "^13.0.1",

@@ -1,15 +1,21 @@
-import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { TypedEmitter } from 'tiny-typed-emitter';
 import { NodeService } from '../node.service.js';
 import { Message } from '@libp2p/interface-pubsub';
 import { INewEpochMessage, IPacemakerEvents } from './pacemaker.types.js';
+import { getLogger } from '../logger.js';
+import { Logger } from 'winston';
 
 @Injectable()
 export class PacemakerNetworkService
   extends TypedEmitter<IPacemakerEvents>
   implements OnModuleInit, OnModuleDestroy
 {
-  private readonly _logger: Logger = new Logger(PacemakerNetworkService.name);
+  private readonly _logger: Logger = getLogger({
+    defaultMeta: {
+      service: PacemakerNetworkService.name
+    }
+  });
   private readonly _topic: string = 'newEpoch';
   private readonly _messageListener: any = this._onPubSubMessage.bind(this);
 

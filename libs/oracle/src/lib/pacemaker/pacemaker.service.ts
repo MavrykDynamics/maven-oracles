@@ -1,4 +1,3 @@
-import { Logger } from '@nestjs/common';
 import { OracleConfig } from '../oracle.config.js';
 import { PacemakerNetworkService } from './pacemaker.network.service.js';
 import { PeerId } from '@libp2p/interface-peer-id';
@@ -12,6 +11,8 @@ import { IOracleInformations } from '@tezosdynamics/contracts';
 import { Timer } from './timer.js';
 import { Mutex } from 'async-mutex';
 import { useMutex } from '../helpers/useMutex.js';
+import { getLogger } from '../logger.js';
+import { Logger } from 'winston';
 
 /**
  * The Pacemaker service as described in {@link https://research.chain.link/ocr.pdf} Section 5.2
@@ -33,7 +34,11 @@ import { useMutex } from '../helpers/useMutex.js';
  * Also, we keep track if the current epoch is running correctly using the progress events. If we do not hear the progress event for some time, we increment the current epoch and start broadcasting this new value
  */
 export class PacemakerService {
-  private readonly _logger: Logger = new Logger(PacemakerService.name);
+  private readonly _logger: Logger = getLogger({
+    defaultMeta: {
+      service: PacemakerService.name
+    }
+  });
 
   // Do not remove, it is used by @useMutex annotations
   // This is used to make sure that handlers are executed sequentially
@@ -114,7 +119,7 @@ export class PacemakerService {
 
     const { epoch } = lastBlockchainReport;
 
-    this._logger.log(
+    this._logger.info(
       `${this._pacemakerConfig.aggregatorAddress}/${epoch} - Starting pacemaker with epoch from blockchain: ${epoch}`
     );
 
@@ -194,7 +199,7 @@ export class PacemakerService {
 
     const { epoch, leader } = this._epochAndLeader;
 
-    this._logger.log(
+    this._logger.info(
       `${this._pacemakerConfig.aggregatorAddress}/${epoch} - Progress timer timeout with leader: ${leader}`
     );
     this._timerProgress.restart();
@@ -287,7 +292,7 @@ export class PacemakerService {
       return;
     }
 
-    this._logger.log(
+    this._logger.info(
       `${this._pacemakerConfig.aggregatorAddress}/${this._epochAndLeader.epoch} - Amplification rule passed for epoch ${epoch}`
     );
 
@@ -339,7 +344,7 @@ export class PacemakerService {
       return;
     }
 
-    this._logger.log(
+    this._logger.info(
       `${this._pacemakerConfig.aggregatorAddress}/${epoch} - Agreement rule passed for epoch ${epochAccumulator}`
     );
 

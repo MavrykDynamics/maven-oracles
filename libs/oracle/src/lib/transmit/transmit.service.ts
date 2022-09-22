@@ -1,4 +1,4 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { OracleConfig } from '../oracle.config.js';
 import { EventHubService } from '../event-hub/index.js';
 import { ContractService } from '../contract/index.js';
@@ -8,6 +8,8 @@ import BigNumber from 'bignumber.js';
 import { randomPermutation } from './helpers.js';
 import { IOracleInformations } from '@tezosdynamics/contracts';
 import { Timer } from '../pacemaker/timer.js';
+import { getLogger } from '../logger.js';
+import { Logger } from 'winston';
 
 /**
  * The transmit service as described in {@link https://research.chain.link/ocr.pdf} Section 5.4
@@ -30,7 +32,11 @@ import { Timer } from '../pacemaker/timer.js';
 
 @Injectable()
 export class TransmitService implements OnModuleInit {
-  private readonly _logger: Logger = new Logger(TransmitService.name);
+  private readonly _logger: Logger = getLogger({
+    defaultMeta: {
+      service: EventHubService.name
+    }
+  });
 
   // Report queue ordered by time (the most imminent is first)
   private _reports: Heap<{
@@ -98,7 +104,7 @@ export class TransmitService implements OnModuleInit {
   ): Promise<void> {
     const lastBlockchainReport = await this._contractService.getLastBlockchainReport(aggregatorAddress);
 
-    this._logger.log(`${aggregatorAddress}/${report.epoch}/${report.round} - Treating report`);
+    this._logger.info(`${aggregatorAddress}/${report.epoch}/${report.round} - Treating report`);
 
     // Check if received report is more recent than the last one in the aggregator smart contract
     // (Oe, Or) ≤ (Ce, Cr)
@@ -140,7 +146,7 @@ export class TransmitService implements OnModuleInit {
 
     // If there is no last transmitted report in cache, queue the report for transmission
     if (lastTransmittedReport === undefined) {
-      this._logger.log(
+      this._logger.info(
         `${aggregatorAddress}/${report.epoch}/${report.round} - This is the first report accepted for transmission, doing transmit`
       );
       await this.doTransmit(report.epoch, report.round, aggregatorAddress, oracleAddresses, report);
@@ -153,15 +159,15 @@ export class TransmitService implements OnModuleInit {
 
     const deviation = reportMedian.minus(previousMedian).abs().div(previousMedian.abs()).multipliedBy(1000); // We compute in ‰ (per thousand, so we multiply the value by 1000)
 
-    this._logger.log(
+    this._logger.info(
       `${aggregatorAddress}/${report.epoch}/${report.round} - Previous median: ${previousMedian}`
     );
-    this._logger.log(`${aggregatorAddress}/${report.epoch}/${report.round} - Median: ${reportMedian}`);
-    this._logger.log(`${aggregatorAddress}/${report.epoch}/${report.round} - Deviation: ${deviation}‰`);
+    this._logger.info(`${aggregatorAddress}/${report.epoch}/${report.round} - Median: ${reportMedian}`);
+    this._logger.info(`${aggregatorAddress}/${report.epoch}/${report.round} - Deviation: ${deviation}‰`);
 
     // If a deviation is detected, queue the report for transmission
     if (deviation.gte(alphaPerThousand)) {
-      this._logger.log(
+      this._logger.info(
         `${aggregatorAddress}/${report.epoch}/${report.round} - Deviation is over threshold, doing transmit`
       );
       await this.doTransmit(report.epoch, report.round, aggregatorAddress, oracleAddresses, report);
@@ -179,7 +185,7 @@ export class TransmitService implements OnModuleInit {
         lastBlockchainReport.round // Lr
       )
     ) {
-      this._logger.log(
+      this._logger.info(
         `${aggregatorAddress}/${report.epoch}/${report.round} - Deviation is not over threshold, but new epoch/round, doing transmit`
       );
       await this.doTransmit(report.epoch, report.round, aggregatorAddress, oracleAddresses, report);
@@ -332,7 +338,7 @@ export class TransmitService implements OnModuleInit {
         lastBlockchainReport.round
       )
     ) {
-      this._logger.log(`${aggregatorAddress}/${report.epoch}/${report.round} - Sending tx to blockchain`);
+      this._logger.info(`${aggregatorAddress}/${report.epoch}/${report.round} - Sending tx to blockchain`);
       await this._contractService.sendReportBlockchain(aggregatorAddress, oracleAddresses, report);
     } else {
       this._logger.verbose(
