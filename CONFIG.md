@@ -14,7 +14,7 @@
 | RPC_URL                                   | Tezos RPC url                                                       | string                                      | https://ithacanet.ecadinfra.com/ |
 | TEZOS_PUBLIC_KEY                          | Tezos public key                                                    | string                                      | None                             |
 | TEZOS_ADDRESS                             | Tezos address (public key hash)                                     | string                                      | None                             |
-| LOG_LEVEL                                 | Logger level.                                                       | 'error', 'warn', 'info', 'verbose', 'debug' | 'info                            |
+| LOG_LEVEL                                 | Logger level.                                                       | 'error', 'warn', 'info', 'verbose', 'debug' | 'info'                           |
 | USE_FAKE_PRICES                           | Dev flag to generate fake prices instead of requesting data source. | boolean                                     | false                            |
 
 
