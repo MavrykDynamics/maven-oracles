@@ -26,7 +26,7 @@ RUN node common/scripts/install-run-rush.js install
 COPY --chown=node:node . ./
 
 RUN node common/scripts/install-run-rush.js build
-RUN node common/scripts/install-run-rush.js deploy
+RUN node common/scripts/install-run-rush.js deploy --project @tezosdynamics/node
 
 FROM node:16.14.0-alpine3.14 AS prod-deps
 
