@@ -28,7 +28,7 @@ version: '3.7'
 services:
   oracle:
     restart: always
-    image: tezosdynamics/mavryk-oracle:ocr-latest
+    image: tezosdynamics/mavryk-oracle:latest
     env_file:
       - .env
     environment:
