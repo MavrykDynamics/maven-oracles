@@ -5,8 +5,8 @@
     "baseUrl": ".",
     "outDir": "dist",
     "declaration": true,
-    "types": ["node", "jest"]
+    "types": ["node"]
   },
-  "exclude": ["lib", "node_modules"],
+  "exclude": ["**/__tests__/*", "**/__mocks__/*", "lib", "node_modules"],
   "include": ["src/**/*.ts"]
 }
