@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js';
-import { IOracleInformations } from '@tezosdynamics/contracts';
+import { IOracleInformations } from '@mavrykdynamics/contracts';
 
 export interface IReportGenConfig {
   epoch: number;

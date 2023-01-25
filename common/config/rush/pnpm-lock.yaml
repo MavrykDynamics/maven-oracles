@@ -36,8 +36,8 @@ importers:
       '@taquito/michel-codec': ~13.0.0
       '@taquito/michelson-encoder': ^12.1.1
       '@taquito/remote-signer': ~13.0.0
-      '@tezosdynamics/config': workspace:*
-      '@tezosdynamics/oracle': workspace:*
+      '@mavrykdynamics/config': workspace:*
+      '@mavrykdynamics/oracle': workspace:*
       '@types/cron': ^1.7.3
       '@types/jest': 27.0.2
       '@types/node': ^16.11.7
@@ -93,8 +93,8 @@ importers:
       '@taquito/michel-codec': 13.0.1
       '@taquito/michelson-encoder': 12.1.1
       '@taquito/remote-signer': 13.0.1
-      '@tezosdynamics/config': link:../../libs/config
-      '@tezosdynamics/oracle': link:../../libs/oracle
+      '@mavrykdynamics/config': link:../../libs/config
+      '@mavrykdynamics/oracle': link:../../libs/oracle
       async-mutex: 0.3.2
       axios: 0.27.2
       bignumber.js: 9.1.0
@@ -161,8 +161,8 @@ importers:
       '@taquito/signer': ^13.0.1
       '@taquito/taquito': ^13.0.1
       '@taquito/utils': ~13.0.0
-      '@tezosdynamics/contracts': workspace:*
-      '@tezosdynamics/oracle': workspace:*
+      '@mavrykdynamics/contracts': workspace:*
+      '@mavrykdynamics/oracle': workspace:*
       '@types/cron': ^1.7.3
       '@types/jest': 27.0.2
       '@types/node': ^16.11.7
@@ -218,7 +218,7 @@ importers:
       '@taquito/michel-codec': 13.0.1
       '@taquito/remote-signer': 13.0.1
       '@taquito/utils': 13.0.1
-      '@tezosdynamics/oracle': link:../../libs/oracle
+      '@mavrykdynamics/oracle': link:../../libs/oracle
       async-mutex: 0.3.2
       axios: 0.27.2
       bignumber.js: 9.1.0
@@ -239,7 +239,7 @@ importers:
       '@taquito/michelson-encoder': 13.0.1
       '@taquito/signer': 13.0.1
       '@taquito/taquito': 13.0.1
-      '@tezosdynamics/contracts': link:../../libs/contracts
+      '@mavrykdynamics/contracts': link:../../libs/contracts
       '@types/cron': 1.7.3
       '@types/jest': 27.0.2
       '@types/node': 16.11.59
@@ -267,8 +267,8 @@ importers:
       '@nestjs/common': 9.1.1
       '@rushstack/eslint-config': ~2.6.1
       '@rushstack/heft': ^0.45.8
-      '@tezosdynamics/config': workspace:*
-      '@tezosdynamics/price-fetcher': workspace:*
+      '@mavrykdynamics/config': workspace:*
+      '@mavrykdynamics/data-fetcher': workspace:*
       '@types/node': ^16.11.7
       '@typescript-eslint/eslint-plugin': ~5.10.0
       '@typescript-eslint/parser': ~5.10.0
@@ -290,8 +290,8 @@ importers:
     dependencies:
       '@nestjs/axios': 0.1.0_@nestjs+common@9.1.1+rxjs@7.5.6
       '@nestjs/common': 9.1.1_rxjs@7.5.6
-      '@tezosdynamics/config': link:../config
-      '@tezosdynamics/price-fetcher': link:../price-fetcher
+      '@mavrykdynamics/config': link:../config
+      '@mavrykdynamics/data-fetcher': link:../data-fetcher
       axios: 0.27.2
       bignumber.js: 9.1.0
       rxjs: 7.5.6
@@ -320,8 +320,8 @@ importers:
       '@nestjs/common': 9.1.1
       '@rushstack/eslint-config': ~2.6.1
       '@rushstack/heft': ^0.45.8
-      '@tezosdynamics/config': workspace:*
-      '@tezosdynamics/price-fetcher': workspace:*
+      '@mavrykdynamics/config': workspace:*
+      '@mavrykdynamics/data-fetcher': workspace:*
       '@types/node': ^16.11.7
       '@typescript-eslint/eslint-plugin': ~5.10.0
       '@typescript-eslint/parser': ~5.10.0
@@ -343,8 +343,8 @@ importers:
     dependencies:
       '@nestjs/axios': 0.1.0_@nestjs+common@9.1.1+rxjs@7.5.6
       '@nestjs/common': 9.1.1_rxjs@7.5.6
-      '@tezosdynamics/config': link:../config
-      '@tezosdynamics/price-fetcher': link:../price-fetcher
+      '@mavrykdynamics/config': link:../config
+      '@mavrykdynamics/data-fetcher': link:../data-fetcher
       axios: 0.27.2
       bignumber.js: 9.1.0
       rxjs: 7.5.6
@@ -525,8 +525,8 @@ importers:
       '@nestjs/common': 9.1.1
       '@rushstack/eslint-config': ~2.6.1
       '@rushstack/heft': ^0.45.8
-      '@tezosdynamics/config': workspace:*
-      '@tezosdynamics/price-fetcher': workspace:*
+      '@mavrykdynamics/config': workspace:*
+      '@mavrykdynamics/data-fetcher': workspace:*
       '@types/node': ^16.11.7
       '@typescript-eslint/eslint-plugin': ~5.10.0
       '@typescript-eslint/parser': ~5.10.0
@@ -548,8 +548,8 @@ importers:
     dependencies:
       '@nestjs/axios': 0.1.0_@nestjs+common@9.1.1+rxjs@7.5.6
       '@nestjs/common': 9.1.1_rxjs@7.5.6
-      '@tezosdynamics/config': link:../config
-      '@tezosdynamics/price-fetcher': link:../price-fetcher
+      '@mavrykdynamics/config': link:../config
+      '@mavrykdynamics/data-fetcher': link:../data-fetcher
       axios: 0.27.2
       bignumber.js: 9.1.0
       rxjs: 7.5.6
@@ -616,13 +616,13 @@ importers:
       '@taquito/signer': ^13.0.1
       '@taquito/taquito': ^13.0.1
       '@taquito/utils': ^13.0.1
-      '@tezosdynamics/alphavantage-fetcher': workspace:*
-      '@tezosdynamics/coingecko-fetcher': workspace:*
-      '@tezosdynamics/config': workspace:*
-      '@tezosdynamics/contracts': workspace:*
-      '@tezosdynamics/messari-fetcher': workspace:*
-      '@tezosdynamics/price-fetcher': workspace:*
-      '@tezosdynamics/tx-manager': workspace:*
+      '@mavrykdynamics/alphavantage-fetcher': workspace:*
+      '@mavrykdynamics/coingecko-fetcher': workspace:*
+      '@mavrykdynamics/config': workspace:*
+      '@mavrykdynamics/contracts': workspace:*
+      '@mavrykdynamics/messari-fetcher': workspace:*
+      '@mavrykdynamics/data-fetcher': workspace:*
+      '@mavrykdynamics/tx-manager': workspace:*
       '@types/cron': ^1.7.3
       '@types/heap': ~0.2.31
       '@types/heft-jest': 1.0.3
@@ -701,13 +701,13 @@ importers:
       '@taquito/signer': 13.0.1
       '@taquito/taquito': 13.0.1
       '@taquito/utils': 13.0.1
-      '@tezosdynamics/alphavantage-fetcher': link:../alphavantage-fetcher
-      '@tezosdynamics/coingecko-fetcher': link:../coingecko-fetcher
-      '@tezosdynamics/config': link:../config
-      '@tezosdynamics/contracts': link:../contracts
-      '@tezosdynamics/messari-fetcher': link:../messari-fetcher
-      '@tezosdynamics/price-fetcher': link:../price-fetcher
-      '@tezosdynamics/tx-manager': link:../tx-manager
+      '@mavrykdynamics/alphavantage-fetcher': link:../alphavantage-fetcher
+      '@mavrykdynamics/coingecko-fetcher': link:../coingecko-fetcher
+      '@mavrykdynamics/config': link:../config
+      '@mavrykdynamics/contracts': link:../contracts
+      '@mavrykdynamics/messari-fetcher': link:../messari-fetcher
+      '@mavrykdynamics/data-fetcher': link:../data-fetcher
+      '@mavrykdynamics/tx-manager': link:../tx-manager
       abortable-iterator: 4.0.2
       async-mutex: 0.3.2
       axios: 0.27.2
@@ -769,7 +769,7 @@ importers:
       webpack-merge: 5.8.0
       webpack-node-externals: 3.0.0
 
-  ../../libs/price-fetcher:
+  ../../libs/data-fetcher:
     specifiers:
       '@nestjs/common': 9.1.1
       '@rushstack/eslint-config': ~2.6.1
@@ -819,7 +819,7 @@ importers:
       '@taquito/remote-signer': ^13.0.1
       '@taquito/signer': ^13.0.1
       '@taquito/taquito': ^13.0.1
-      '@tezosdynamics/config': workspace:*
+      '@mavrykdynamics/config': workspace:*
       '@types/node': ^16.11.7
       '@typescript-eslint/eslint-plugin': ~5.10.0
       '@typescript-eslint/parser': ~5.10.0
@@ -844,7 +844,7 @@ importers:
       '@taquito/remote-signer': 13.0.1
       '@taquito/signer': 13.0.1
       '@taquito/taquito': 13.0.1
-      '@tezosdynamics/config': link:../config
+      '@mavrykdynamics/config': link:../config
       async-mutex: 0.3.2
       cron: 2.1.0
       rxjs: 7.5.6

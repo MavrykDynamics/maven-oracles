@@ -283,7 +283,7 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
         ...parsed.compressedReport,
         observations: parsed.compressedReport.observations.map((ob) => ({
           ...ob,
-          price: new BigNumber(ob.price)
+          data: new BigNumber(ob.data)
         }))
       }
     };
@@ -319,7 +319,7 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
           round: reportReqMessage.report.round,
           observations: reportReqMessage.report.observations.map((ob) => ({
             oracle: ob.oracle,
-            price: new BigNumber(ob.price),
+            data: new BigNumber(ob.data),
             signature: Array.from(ob.signature.values())
           }))
         }
@@ -338,7 +338,7 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
         round: Number.parseInt(parsed.report.round),
         observations: parsed.report.observations.map((ob) => ({
           oracle: ob.oracle,
-          price: new BigNumber(ob.price),
+          data: new BigNumber(ob.data),
           signature: Uint8Array.from(ob.signature)
         }))
       }
@@ -355,7 +355,7 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
           round: finalMessage.attestedReport.round,
           observations: finalMessage.attestedReport.observations.map((ob) => ({
             oracle: ob.oracle,
-            price: ob.price.toString()
+            data: ob.data.toString()
           })),
           signatures: finalMessage.attestedReport.signatures
         }
@@ -374,7 +374,7 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
         round: Number.parseInt(parsed.attestedReport.round),
         observations: parsed.attestedReport.observations.map((ob) => ({
           oracle: ob.oracle,
-          price: new BigNumber(ob.price)
+          data: new BigNumber(ob.data)
         })),
         signatures: parsed.attestedReport.signatures
       }
@@ -391,7 +391,7 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
           round: finalEchoMessage.attestedReport.round,
           observations: finalEchoMessage.attestedReport.observations.map((ob) => ({
             oracle: ob.oracle,
-            price: ob.price.toString()
+            data: ob.data.toString()
           })),
           signatures: finalEchoMessage.attestedReport.signatures
         }
@@ -409,7 +409,7 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
         round: Number.parseInt(parsed.attestedReport.round),
         observations: parsed.attestedReport.observations.map((ob) => ({
           oracle: ob.oracle,
-          price: new BigNumber(ob.price)
+          data: new BigNumber(ob.data)
         })),
         signatures: parsed.attestedReport.signatures
       }

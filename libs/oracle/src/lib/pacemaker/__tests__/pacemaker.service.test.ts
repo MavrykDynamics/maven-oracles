@@ -23,7 +23,7 @@ import { PacemakerNetworkService } from '../pacemaker.network.service.js';
 import { EventHubService, IEventHubEvents } from '../../event-hub/index.js';
 import { ContractService } from '../../contract/index.js';
 import { ReportGenFactoryService } from '../../reportgen/index.js';
-import { IOracleInformations } from '@tezosdynamics/contracts';
+import { IOracleInformations } from '@mavrykdynamics/contracts';
 import { beforeEach, expect, jest } from '@jest/globals';
 import { TimerMock } from '../__mocks__/timer.mock.js';
 import { PeerId } from '@libp2p/interface-peer-id';

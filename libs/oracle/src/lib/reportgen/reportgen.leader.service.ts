@@ -510,7 +510,7 @@ export class ReportGenLeaderService {
       observations: [...this._observe.entries()]
         .map(([oracle, observation]) => ({
           oracle,
-          price: observation.observation,
+          data: observation.observation,
           signature: observation.signature
         }))
         .sort((a, b) => a.oracle.localeCompare(b.oracle))

@@ -1,5 +1,5 @@
 {
-  "name": "@tezosdynamics/coingecko-fetcher",
+  "name": "@mavrykdynamics/coingecko-fetcher",
   "version": "0.0.1",
   "license": "MIT",
   "scripts": {
@@ -18,8 +18,8 @@
     "rxjs": "^7.0.0",
     "ts-convict": "^1.1.0",
     "tslib": "^2.4.0",
-    "@tezosdynamics/config": "workspace:*",
-    "@tezosdynamics/price-fetcher": "workspace:*",
+    "@mavrykdynamics/config": "workspace:*",
+    "@mavrykdynamics/data-fetcher": "workspace:*",
     "winston": "^3.8.2"
   },
   "devDependencies": {

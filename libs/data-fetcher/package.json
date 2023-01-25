@@ -1,5 +1,5 @@
 {
-  "name": "@tezosdynamics/price-fetcher",
+  "name": "@mavrykdynamics/data-fetcher",
   "version": "0.0.1",
   "license": "MIT",
   "scripts": {
@@ -7,8 +7,8 @@
     "build:watch": "heft build",
     "test": "echo 0"
   },
-  "main": "dist/libs/price-fetcher/src/index.js",
-  "typings": "dist/libs/price-fetcher/src/index.d.ts",
+  "main": "dist/libs/data-fetcher/src/index.js",
+  "typings": "dist/libs/data-fetcher/src/index.d.ts",
   "type": "module",
   "dependencies": {
     "@nestjs/common": "9.1.1",

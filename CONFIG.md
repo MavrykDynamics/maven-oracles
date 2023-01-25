@@ -10,12 +10,12 @@
 | P2P_PEER_ID                               | Libp2p peer id                                                      | string                                      | None                             |
 | P2P_PEER_PUBLIC_KEY                       | Libp2p public key                                                   | string                                      | None                             |
 | P2P_PEER_PRIVATE_KEY                      | Libp2p private key                                                  | string                                      | None                             |
-| AGGREGATOR_FACTORY_SMART_CONTRACT_ADDRESS | Aggregator factory smart contract address                           | string                                      | None                             |
+| AGGREGATOR_SMART_CONTRACT_ADDRESS | Aggregator smart contract address                           | string                                      | None                             |
 | RPC_URL                                   | Tezos RPC url                                                       | string                                      | https://ithacanet.ecadinfra.com/ |
 | TEZOS_PUBLIC_KEY                          | Tezos public key                                                    | string                                      | None                             |
 | TEZOS_ADDRESS                             | Tezos address (public key hash)                                     | string                                      | None                             |
 | LOG_LEVEL                                 | Logger level.                                                       | 'error', 'warn', 'info', 'verbose', 'debug' | 'info'                           |
-| USE_FAKE_PRICES                           | Dev flag to generate fake prices instead of requesting data source. | boolean                                     | false                            |
+| USE_FAKE_DATA                           | Dev flag to generate fake prices instead of requesting data source. | boolean                                     | false                            |
 
 
 ## Transaction manager config

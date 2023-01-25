@@ -1,5 +1,4 @@
 import { jest } from '@jest/globals';
-import { IAggregatorInformations, IOracleInformations } from '@tezosdynamics/contracts';
 import BigNumber from 'bignumber.js';
 import { IAggregatorConfig } from '../contract.types.js';
 import { verifyData } from '../../reportgen/index.js';
@@ -23,9 +22,10 @@ export const mockedLastBlockchainReportTime = Date.now() + 1_000_000_000; // ver
 
 export const mockGetLastBlockchainReport = jest.fn<ContractService['getLastBlockchainReport']>().mockResolvedValue({
   epoch: mockedLastBlockchainReportEpoch,
-  price: mockedLastBlockchainReportPrice,
+  data: mockedLastBlockchainReportData,
   round: mockedLastBlockchainReportRound,
-  time: mockedLastBlockchainReportTime
+  percentOracleResponse: mockedLastBlockchainReportPercentOracleResponse,
+  lastUpdatedAt: mockedLastBlockchainReportTime
 });
 
 export const mockedOracleAddresses: IOracleInformations[] = [
@@ -94,7 +94,6 @@ export const mockSendReportBlockchain = jest.fn();
 export const ContractServiceMock = jest.fn().mockImplementation(() => {
   return {
     initialize: mockInitialize,
-    getAggregatorAddresses: mockGetAggregatorAddresses,
     getLastBlockchainReport: mockGetLastBlockchainReport,
     getOraclesAddresses: mockGetOraclesAddresses,
     getAggregatorConfig: mockGetAggregatorConfig,

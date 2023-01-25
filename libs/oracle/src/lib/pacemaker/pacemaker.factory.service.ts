@@ -21,24 +21,20 @@ export class PacemakerFactoryService implements OnModuleInit {
   ) {}
 
   public async onModuleInit(): Promise<void> {
-    // we get the factory address to get informations on aggregators
-    const { aggregatorFactoryAddress } = this._oracleConfig;
-    const aggregatorInformations = await this._contractService.getAggregatorAddresses(
-      aggregatorFactoryAddress
-    );
+    // we get the aggregator address from the config
+    const { aggregatorAddress }   = this._oracleConfig;
+    const pair: [string, string]  = [this._oracleConfig.aggregatorPair1, this._oracleConfig.aggregatorPair2];
 
     // for each aggregator, we start a new pacemaker service
-    for (const { pair, aggregatorAddress } of aggregatorInformations) {
-      const oracleAddresses = await this._contractService.getOraclesAddresses(aggregatorAddress);
+    const oracleAddresses = await this._contractService.getOraclesAddresses(aggregatorAddress);
 
-      await this._startPacemaker({
-        aggregatorAddress,
-        aggregatorPair: pair,
-        timerProgressDurationMiliseconds: 30 * 1000,
-        timerResendDurationMiliseconds: 15 * 1000,
-        oracleAddresses
-      });
-    }
+    await this._startPacemaker({
+      aggregatorAddress,
+      aggregatorPair: pair,
+      timerProgressDurationMiliseconds: 30 * 1000,
+      timerResendDurationMiliseconds: 15 * 1000,
+      oracleAddresses
+    });
   }
 
   private async _startPacemaker(config: IPacemakerConfig): Promise<PacemakerService> {

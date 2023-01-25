@@ -45,10 +45,24 @@ export class OracleConfig {
 
   @Property({
     default: '',
-    env: 'AGGREGATOR_FACTORY_SMART_CONTRACT_ADDRESS',
+    env: 'AGGREGATOR_SMART_CONTRACT_ADDRESS',
     format: String
   })
-  public aggregatorFactoryAddress: string;
+  public aggregatorAddress: string;
+
+  @Property({
+    default: '',
+    env: 'AGGREGATOR_PAIR_1',
+    format: String
+  })
+  public aggregatorPair1: string;
+
+  @Property({
+    default: '',
+    env: 'AGGREGATOR_PAIR_2',
+    format: String
+  })
+  public aggregatorPair2: string;
 
   @Property({
     default: 'https://ithacanet.ecadinfra.com/',
@@ -66,8 +80,8 @@ export class OracleConfig {
 
   @Property({
     default: false,
-    env: 'USE_FAKE_PRICES',
+    env: 'USE_FAKE_DATA',
     format: Boolean
   })
-  public useFakePrices: boolean;
+  public useFakeData: boolean;
 }

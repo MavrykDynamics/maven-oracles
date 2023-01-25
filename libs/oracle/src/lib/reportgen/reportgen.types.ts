@@ -55,7 +55,7 @@ export interface IObservation {
   oracle: string;
 
   // Observation
-  price: BigNumber;
+  data: BigNumber;
 }
 
 /**
@@ -69,7 +69,7 @@ export interface ISignedObservation {
   oracle: string;
 
   // Observation
-  price: BigNumber;
+  data: BigNumber;
 
   // Signed using peer private key
   signature: Uint8Array;

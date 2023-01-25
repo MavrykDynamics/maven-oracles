@@ -1,4 +1,4 @@
-import { IOracleInformations } from '@tezosdynamics/contracts';
+import { IOracleInformations } from '@mavrykdynamics/contracts';
 
 export interface IPacemakerConfig {
   aggregatorAddress: string;

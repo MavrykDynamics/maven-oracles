@@ -11,5 +11,5 @@ export const OracleConfigMock: OracleConfig = {
   aggregatorFactoryAddress: '',
   rpcUrl: '',
   tezosAddress: '',
-  useFakePrices: false
+  useFakeData: false
 };

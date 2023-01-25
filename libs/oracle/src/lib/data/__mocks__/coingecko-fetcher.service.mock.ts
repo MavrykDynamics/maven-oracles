@@ -1,13 +1,13 @@
 import { jest } from '@jest/globals';
 import BigNumber from 'bignumber.js';
-import { PriceService } from '../price.service';
+import { DataService } from '../data.service';
 
 export const mockedPrice = new BigNumber(15);
 
-export const mockGetPrice = jest
-.fn<PriceService['getPrice']>()
+export const mockGetData = jest
+.fn<DataService['getData']>()
 .mockResolvedValue(mockedPrice);export const CoingeckoFetcherServiceMock = jest.fn().mockImplementation(() => {
   return { 
-    getPrice: mockGetPrice 
+    getData: mockGetData 
   };
 });

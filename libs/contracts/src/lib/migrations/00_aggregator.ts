@@ -2,24 +2,21 @@
 import { INetworkConfig, NetworkName } from '../scripts/env';
 import { OriginationOperation, TezosToolkit } from '@taquito/taquito';
 import { InMemorySigner } from '@taquito/signer';
+import BigNumber from 'bignumber.js';
 import { saveContractAddress } from '../scripts/helpers.js';
 import { MichelsonMap } from '@taquito/michelson-encoder';
 import {
   AggregatorFactoryCode,
   AggregatorFactoryContractAbstraction,
-  IAggregatorFactoryStorage,
-  IPair
+  IAggregatorFactoryStorage
 } from '../aggregatorFactory.js';
-import { alphaPercentPerThousand, decimals, heartBeatSeconds, oracleAddresses } from '../accounts.js';
-
-export const AGGREGATOR_FACTORY_PAIRS: unique symbol = Symbol('AGGREGATOR_FACTORY_PAIRS');
+import { alphaPercentPerThousand, percentOracleThreshold, rewardAmountStakedMvk, rewardAmountXtz, decimals, heartBeatSeconds, oracleAddresses, accounts, zeroAddress } from '../accounts.js';
 
 export const AGGREGATOR_FACTORY_SMART_CONTRACT_ADDRESS: unique symbol = Symbol(
   'AGGREGATOR_FACTORY_SMART_CONTRACT_ADDRESS'
 );
 
 export interface IMigrationResult {
-  [AGGREGATOR_FACTORY_PAIRS]: string;
   [AGGREGATOR_FACTORY_SMART_CONTRACT_ADDRESS]: string;
 }
 
@@ -38,8 +35,44 @@ export default async function (
   });
 
   // AGGREGATOR FACTORY CONTRACT ORIGINATION
+  const config = {
+    aggregatorNameMaxLength        : new BigNumber(200),
+  }
+  const breakGlassConfig = {
+    createAggregatorIsPaused              : false,
+    trackAggregatorIsPaused               : false,
+    untrackAggregatorIsPaused             : false,
+    distributeRewardXtzIsPaused           : false,
+    distributeRewardStakedMvkIsPaused     : false,
+  }
+  const aggregatorFactoryMetadata = MichelsonMap.fromLiteral({
+    '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
+    data: Buffer.from(
+        JSON.stringify({
+        name: 'MAVRYK Aggregator Factory Contract',
+        version: 'v1.0.0',
+        authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+        }),
+        'ascii',
+    ).toString('hex'),
+  })
   const aggregatorFactoryStorage: IAggregatorFactoryStorage = {
-    trackedAggregators: MichelsonMap.fromLiteral({}) as MichelsonMap<{ 0: string; 1: string }, string>
+    admin                   : accounts.alice.pkh,
+    metadata                : aggregatorFactoryMetadata,
+    config                  : config,
+
+    mvkTokenAddress         : zeroAddress,
+    governanceAddress       : zeroAddress,
+
+    generalContracts        : MichelsonMap.fromLiteral({}),
+    whitelistContracts      : MichelsonMap.fromLiteral({}),
+
+    breakGlassConfig        : breakGlassConfig,
+        
+    trackedAggregators      : [],
+    
+    lambdaLedger            : MichelsonMap.fromLiteral({}),
+    aggregatorLambdaLedger  : MichelsonMap.fromLiteral({}),
   };
   console.log('Originating Aggregator factory');
   const opFactory: OriginationOperation = await toolkit.contract.originate({
@@ -65,39 +98,40 @@ export default async function (
   console.log(`Aggregator factory origination confirmed`);
 
   // AGGREGATORS CONTRACT ORIGINATION
+  const aggregatorFactory = await toolkit.contract.at<AggregatorFactoryContractAbstraction>(
+    opFactory.contractAddress
+  );
+  const aggregatorMetadata = MichelsonMap.fromLiteral({
+      '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
+      data: Buffer.from(
+          JSON.stringify({
+          name: 'MAVRYK Aggregator Contract',
+          version: 'v1.0.0',
+          authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+          }),
+          'ascii',
+      ).toString('hex'),
+  })
 
-  const pairs: IPair[] = [
-    { 0: 'USD', 1: 'BTC' },
-    { 0: 'USD', 1: 'XTZ' }
-  ];
+  const createAggregator1Op = await aggregatorFactory.methods
+    .createAggregator(
+      "USD/BTC",
+      false,
+      oracleAddresses,
+      decimals,
+      alphaPercentPerThousand,
+      percentOracleThreshold,
+      heartBeatSeconds,
+      rewardAmountStakedMvk,
+      rewardAmountXtz,
+      aggregatorMetadata
+    )
+    .send();
 
-  for (const pair of pairs) {
-    const aggregatorFactory = await toolkit.contract.at<AggregatorFactoryContractAbstraction>(
-      opFactory.contractAddress
-    );
+  await createAggregator1Op.confirmation();
+  console.log(`Aggregator creation done for pair: USD/BTC`);
 
-    const createAggregator1Op = await aggregatorFactory.methods
-      .createAggregator(
-        pair[0],
-        pair[1],
-        alphaPercentPerThousand,
-        decimals,
-        heartBeatSeconds,
-        oracleAddresses
-      )
-      .send();
-
-    await createAggregator1Op.confirmation();
-    console.log(`Aggregator creation done for pair: ${pair[0]}/${pair[1]}`);
-  }
-
-  const pairsAsString: string = pairs.map((pair) => `${pair[0]}/${pair[1]}`).join(' ');
-
-  if (saveToEnv) {
-    await saveContractAddress(AGGREGATOR_FACTORY_PAIRS.description as string, pairsAsString, networkName);
-  }
   return {
-    [AGGREGATOR_FACTORY_PAIRS]: pairsAsString,
     [AGGREGATOR_FACTORY_SMART_CONTRACT_ADDRESS]: opFactory.contractAddress
   };
 }

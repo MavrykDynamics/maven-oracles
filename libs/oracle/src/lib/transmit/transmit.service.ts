@@ -6,7 +6,7 @@ import { computeMedian, IAttestedReport } from '../reportgen/index.js';
 import { default as Heap } from 'heap';
 import BigNumber from 'bignumber.js';
 import { randomPermutation } from './helpers.js';
-import { IOracleInformations } from '@tezosdynamics/contracts';
+import { IOracleInformations } from '@mavrykdynamics/contracts';
 import { Timer } from '../pacemaker/timer.js';
 import { getLogger } from '../logger.js';
 import { Logger } from 'winston';

@@ -24,20 +24,44 @@ import BigNumber from 'bignumber.js';
 export const AggregatorFactoryCode: any = AggregatorRaw.michelson;
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
-export type IPair = { 0: string; 1: string };
-
 export type IAggregatorFactoryStorage = {
-  trackedAggregators: MichelsonMap<IPair, string>;
+  admin                     : string;
+  metadata                  : MichelsonMap<MichelsonMapKey, unknown>;
+  breakGlassConfig          : {
+      createAggregatorIsPaused              : boolean;
+      trackAggregatorIsPaused               : boolean;
+      untrackAggregatorIsPaused             : boolean;
+      distributeRewardXtzIsPaused           : boolean;
+      distributeRewardStakedMvkIsPaused     : boolean;
+  };
+  config                    : {
+      aggregatorNameMaxLength               : BigNumber;
+  }
+
+  generalContracts          : MichelsonMap<MichelsonMapKey, unknown>;
+  whitelistContracts        : MichelsonMap<MichelsonMapKey, unknown>;
+
+  mvkTokenAddress           : string;
+  governanceAddress         : string;
+  
+  trackedAggregators        : Array<string>;
+
+  lambdaLedger              : MichelsonMap<MichelsonMapKey, unknown>;
+  aggregatorLambdaLedger    : MichelsonMap<MichelsonMapKey, unknown>;
 };
 
 type AggregatorFactoryContractMethods<T extends ContractProvider | Wallet> = {
   createAggregator: (
-    pair1: string,
-    pair2: string,
-    alphaPercentPerThousand: BigNumber,
+    name: string,
+    addToGeneralContracts: boolean,
+    oracleAddresses: MichelsonMap<MichelsonMapKey, unknown>,
     decimals: BigNumber,
+    alphaPercentPerThousand: BigNumber,
+    percentOracleThreshold: BigNumber,
     heartBeatSeconds: BigNumber,
-    oracleAddresses: MichelsonMap<MichelsonMapKey, unknown>
+    rewardAmountStakedMvk: BigNumber,
+    rewardAmountXtz: BigNumber,
+    metadata: MichelsonMap<MichelsonMapKey, unknown>
   ) => ContractMethod<T>;
 };
 

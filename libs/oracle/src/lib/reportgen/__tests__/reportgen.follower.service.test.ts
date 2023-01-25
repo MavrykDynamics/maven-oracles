@@ -27,8 +27,8 @@ import {
   mockVerifyData
 } from '../__mocks__/helpers.mock.js';
 
-import { PriceService } from '../../price/index.js';
-import { mockedPrice, PriceServiceMock } from '../../price/__mocks__/price.service.mock.js';
+import { DataService } from '../../data/index.js';
+import { mockedPrice, DataServiceMock } from '../../data/__mocks__/data.service.mock.js';
 import { PeerId } from '@libp2p/interface-peer-id';
 import BigNumber from 'bignumber.js';
 
@@ -55,7 +55,7 @@ describe('ReportGenFollowerService', () => {
 
   const reportGenNetworkServiceMock = new ReportGenNetworkServiceMock();
   const eventHubServiceMock = new EventHubService();
-  const priceServiceMock = new PriceServiceMock();
+  const priceServiceMock = new DataServiceMock();
   const contractServiceMock: any = new ContractServiceMock();
 
   beforeEach(async () => {
@@ -64,7 +64,7 @@ describe('ReportGenFollowerService', () => {
       reportGenNetworkServiceMock as unknown as ReportGenNetworkService,
       eventHubServiceMock as unknown as EventHubService,
       contractServiceMock as unknown as ContractService,
-      priceServiceMock as unknown as PriceService,
+      priceServiceMock as unknown as DataService,
       ReportGenConfigMock
     );
 

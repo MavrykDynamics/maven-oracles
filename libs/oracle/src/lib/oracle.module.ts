@@ -6,16 +6,16 @@ import { PacemakerNetworkService } from './pacemaker/pacemaker.network.service.j
 import { ReportGenNetworkService } from './reportgen/reportgen.network.service.js';
 import { EventHubService } from './event-hub/event-hub.service.js';
 import { ContractService } from './contract/contract.service.js';
-import { PriceService } from './price/price.service.js';
-import { MessariFetcherModule } from '@tezosdynamics/messari-fetcher';
-import { CoingeckoFetcherModule } from '@tezosdynamics/coingecko-fetcher';
-import { AlphavantageFetcherModule } from '@tezosdynamics/alphavantage-fetcher';
+import { DataService } from './data/data.service.js';
+import { MessariFetcherModule } from '@mavrykdynamics/messari-fetcher';
+import { CoingeckoFetcherModule } from '@mavrykdynamics/coingecko-fetcher';
+import { AlphavantageFetcherModule } from '@mavrykdynamics/alphavantage-fetcher';
 import { PacemakerFactoryService } from './pacemaker/pacemaker.factory.service.js';
 import { ReportGenFactoryService } from './reportgen/reportgen.factory.service.js';
 import { StreamManagerService } from './stream-manager/stream-manager.service.js';
 import { TransmitService } from './transmit/transmit.service.js';
-import { TxManagerModule } from '@tezosdynamics/tx-manager';
-import { ConfigModule } from '@tezosdynamics/config';
+import { TxManagerModule } from '@mavrykdynamics/tx-manager';
+import { ConfigModule } from '@mavrykdynamics/config';
 
 @Module({
   imports: [
@@ -40,7 +40,7 @@ import { ConfigModule } from '@tezosdynamics/config';
     ContractService,
     PacemakerFactoryService,
     PacemakerNetworkService,
-    PriceService,
+    DataService,
     ReportGenFactoryService,
     ReportGenNetworkService,
     TransmitService,

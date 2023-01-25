@@ -1,25 +1,19 @@
 import { TezosToolkit } from '@taquito/taquito';
-import {
-  networkConfig,
-  AggregatorContractAbstraction,
-  AggregatorFactoryContractAbstraction,
-  IAggregatorFactoryStorage,
-  IAggregatorStorage
-} from '@tezosdynamics/contracts';
+import { networkConfig, AggregatorContractAbstraction, IAggregatorStorage } from '@mavrykdynamics/contracts';
 import { InMemorySigner } from '@taquito/signer';
 
 describe('Integration test 1', () => {
   let toolkit: TezosToolkit;
-  let factoryAddress: string;
+  let aggregatorAddress: string;
   const networkName: string = 'development';
 
   beforeAll(async () => {
-    const factoryAddressArg = process.argv.filter((x) => x.startsWith('-factoryAddress='))[0];
-    if (!factoryAddressArg) {
+    const aggregatorAddressArg = process.argv.filter((x) => x.startsWith('-aggregatorAddress='))[0];
+    if (!aggregatorAddressArg) {
       // problem to get factory address arg
       expect(true).toBeFalsy();
     }
-    factoryAddress = factoryAddressArg.split('=')[1];
+    aggregatorAddress = aggregatorAddressArg.split('=')[1];
 
     toolkit = new TezosToolkit(networkConfig.networks[networkName].rpc);
     toolkit.setProvider({
@@ -32,58 +26,34 @@ describe('Integration test 1', () => {
 
   it('step-1', async () => {
     // epoch should be greater than 0
-    const aggregatorFactory = await toolkit.contract.at<AggregatorFactoryContractAbstraction>(factoryAddress);
-    const storage: IAggregatorFactoryStorage = await aggregatorFactory.storage();
-
-    const addresses = [...storage.trackedAggregators.entries()].map(([pair, aggregatorAddress]) => {
-      return aggregatorAddress;
-    });
-    for (const address of addresses) {
-      const aggregator = await toolkit.contract.at<AggregatorContractAbstraction>(address);
-      const storage: IAggregatorStorage = await aggregator.storage();
-      expect(storage.lastCompletedPrice.epoch.toNumber()).toBeGreaterThan(0);
-    }
+    const aggregator = await toolkit.contract.at<AggregatorContractAbstraction>(aggregatorAddress);
+    const storage: IAggregatorStorage = await aggregator.storage();
+    expect(storage.lastCompletedData.epoch.toNumber()).toBeGreaterThan(0);
   });
 
   it('step-2', async () => {
     // dates difference should be greater than 1.5 minutes
-    const aggregatorFactory = await toolkit.contract.at<AggregatorFactoryContractAbstraction>(factoryAddress);
-    const storage: IAggregatorFactoryStorage = await aggregatorFactory.storage();
+    const aggregator = await toolkit.contract.at<AggregatorContractAbstraction>(aggregatorAddress);
+    const storage: IAggregatorStorage = await aggregator.storage();
+    const storageTime = Date.parse(storage.lastCompletedData.lastUpdatedAt) / 1000;
 
-    const addresses = [...storage.trackedAggregators.entries()].map(([pair, aggregatorAddress]) => {
-      return aggregatorAddress;
-    });
-    for (const address of addresses) {
-      const aggregator = await toolkit.contract.at<AggregatorContractAbstraction>(address);
-      const storage: IAggregatorStorage = await aggregator.storage();
-      const storageTime = Date.parse(storage.lastCompletedPrice.time) / 1000;
+    const currentDate = new Date();
+    const currentDateTime = currentDate.getTime() / 1000;
 
-      const currentDate = new Date();
-      const currentDateTime = currentDate.getTime() / 1000;
-
-      const timestampDiff = Math.abs(currentDateTime - storageTime);
-      expect(timestampDiff).toBeGreaterThan(90); // 1.5 min since lastCompletedPrice update on blockchain
-    }
+    const timestampDiff = Math.abs(currentDateTime - storageTime);
+    expect(timestampDiff).toBeGreaterThan(90); // 1.5 min since lastCompletedData update on blockchain
   });
 
   it('step-3', async () => {
     // dates difference should be less than 1 minute
-    const aggregatorFactory = await toolkit.contract.at<AggregatorFactoryContractAbstraction>(factoryAddress);
-    const storage: IAggregatorFactoryStorage = await aggregatorFactory.storage();
+    const aggregator = await toolkit.contract.at<AggregatorContractAbstraction>(aggregatorAddress);
+    const storage: IAggregatorStorage = await aggregator.storage();
+    const storageTime = Date.parse(storage.lastCompletedData.lastUpdatedAt) / 1000;
 
-    const addresses = [...storage.trackedAggregators.entries()].map(([pair, aggregatorAddress]) => {
-      return aggregatorAddress;
-    });
-    for (const address of addresses) {
-      const aggregator = await toolkit.contract.at<AggregatorContractAbstraction>(address);
-      const storage: IAggregatorStorage = await aggregator.storage();
-      const storageTime = Date.parse(storage.lastCompletedPrice.time) / 1000;
+    const currentDate = new Date();
+    const currentDateTime = currentDate.getTime() / 1000;
 
-      const currentDate = new Date();
-      const currentDateTime = currentDate.getTime() / 1000;
-
-      const timestampDiff = Math.abs(currentDateTime - storageTime);
-      expect(timestampDiff).toBeLessThanOrEqual(60);
-    }
+    const timestampDiff = Math.abs(currentDateTime - storageTime);
+    expect(timestampDiff).toBeLessThanOrEqual(60);
   });
 });

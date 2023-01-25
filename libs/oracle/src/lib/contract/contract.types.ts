@@ -1,7 +1,10 @@
 import BigNumber from 'bignumber.js';
 
 export interface IAggregatorConfig {
-  heartBeatSeconds: BigNumber;
   decimals: BigNumber;
   alphaPercentPerThousand: BigNumber;
+  percentOracleThreshold: BigNumber;
+  heartBeatSeconds: BigNumber;
+  rewardAmountXtz: BigNumber;
+  rewardAmountStakedMvk: BigNumber;
 }

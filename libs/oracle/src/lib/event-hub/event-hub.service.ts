@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { TypedEmitter } from 'tiny-typed-emitter';
 import { IAttestedReport } from '../reportgen';
 import { IEventHubEvents } from './event-hub.types.js';
-import { IOracleInformations } from '@tezosdynamics/contracts';
+import { IOracleInformations } from '@mavrykdynamics/contracts';
 import BigNumber from 'bignumber.js';
 import { getLogger } from '../logger.js';
 import { Logger } from 'winston';

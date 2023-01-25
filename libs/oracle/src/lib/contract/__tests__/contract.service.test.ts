@@ -3,7 +3,7 @@ import { beforeEach, expect, jest } from '@jest/globals';
 import type { ContractService as ContractServiceType } from '../contract.service.js';
 import {
   IOracleInformations,
-} from '@tezosdynamics/contracts';
+} from '@mavrykdynamics/contracts';
 
 import BigNumber from 'bignumber.js';
 import { TxManagerServiceMock } from '../__mocks__/tx-manager.service.mock.js';
@@ -56,11 +56,11 @@ describe('ContractService', () => {
       const observations: IObservation[] = [
            {
               "oracle":"12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1",
-              "price": new BigNumber(10142857143)
+              "data": new BigNumber(10142857143)
            },
            {
               "oracle":"12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2",
-              "price": new BigNumber(10144537815)
+              "data": new BigNumber(10144537815)
            }
         ];
         const epoch: number = 2;
@@ -96,11 +96,11 @@ describe('ContractService', () => {
       const observations: IObservation[] = [
            {
               "oracle":"12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2",
-              "price": new BigNumber(10142857143)
+              "data": new BigNumber(10142857143)
            },
            {
               "oracle":"12D3KooWDgabT39cFp5j5mvJgiGPEppMuVgDCsNtBCh1Q8ejBCA5",
-              "price": new BigNumber(10144537815)
+              "data": new BigNumber(10144537815)
            }
         ];
         const epoch: number = 2;
@@ -120,11 +120,11 @@ describe('ContractService', () => {
       const observations: IObservation[] = [
            {
               "oracle":"12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1",
-              "price": new BigNumber(10142857143)
+              "data": new BigNumber(10142857143)
            },
            {
               "oracle":"12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2",
-              "price": new BigNumber(10144537815)
+              "data": new BigNumber(10144537815)
            }
         ];
         const epoch: number = 2;
@@ -144,11 +144,11 @@ describe('ContractService', () => {
         "observations": [
           {
              "oracle":"12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2",
-             "price": new BigNumber(10142857143)
+             "data": new BigNumber(10142857143)
           },
           {
              "oracle":"12D3KooWDgabT39cFp5j5mvJgiGPEppMuVgDCsNtBCh1Q8ejBCA5",
-             "price": new BigNumber(10144537815)
+             "data": new BigNumber(10144537815)
           }
        ]
       }
@@ -169,11 +169,11 @@ describe('ContractService', () => {
       const observations: IObservation[] = [
            {
               "oracle":"12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1",
-              "price": new BigNumber(10142857143)
+              "data": new BigNumber(10142857143)
            },
            {
               "oracle":"12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2",
-              "price": new BigNumber(10144537815)
+              "data": new BigNumber(10144537815)
            }
         ];
         const epoch: number = 2;
@@ -212,11 +212,11 @@ describe('ContractService', () => {
     const observations: IObservation[] = [
       {
          "oracle":"12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1",
-         "price": new BigNumber(10142857143)
+         "data": new BigNumber(10142857143)
       },
       {
          "oracle":"12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2",
-         "price": new BigNumber(10144537815)
+         "data": new BigNumber(10144537815)
       }
     ];
     const epoch: number = 2;
@@ -335,11 +335,11 @@ describe('ContractService', () => {
         observations: [
           {
              "oracle": wrongAddress,
-             "price": new BigNumber(10142857143)
+             "data": new BigNumber(10142857143)
           },
           {
              "oracle":"12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2",
-             "price": new BigNumber(10144537815)
+             "data": new BigNumber(10144537815)
           }
         ],
         signatures: [

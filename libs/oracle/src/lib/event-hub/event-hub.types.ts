@@ -1,5 +1,5 @@
 import { IAttestedReport } from '../reportgen';
-import { IOracleInformations } from '@tezosdynamics/contracts';
+import { IOracleInformations } from '@mavrykdynamics/contracts';
 import BigNumber from 'bignumber.js';
 
 export interface IEventHubEvents {

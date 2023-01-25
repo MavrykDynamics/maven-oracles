@@ -2,9 +2,12 @@ import { accountPerNetwork } from '../accounts.js';
 
 export type NetworkName =
   | 'development'
+  | 'hangzhounet'
   | 'ithacanet'
   | 'ithacanet-kms'
-  | 'hangzhounet'
+  | 'jakartanet'
+  | 'kathmandunet'
+  | 'limanet'
   | 'ghostnet'
   | 'mainnet';
 
@@ -35,7 +38,7 @@ export const networkConfig: INetworkConfig = {
   buildDir: 'src/lib/contracts/json',
   migrationsDir: 'src/lib/migrations',
   contractsDir: 'src/lib/contracts/main',
-  ligoVersion: '0.46.1',
+  ligoVersion: '0.60.0',
   network: 'development',
   networks: {
     development: {
@@ -68,6 +71,27 @@ export const networkConfig: INetworkConfig = {
     },
     'ithacanet-kms': {
       rpc: 'https://ithacanet.ecadinfra.com',
+      port: 443,
+      network_id: '*',
+      secretKey: accountPerNetwork.ithacanet.alice.sk,
+      pkh: accountPerNetwork.ithacanet.alice.pkh
+    },
+    jakartanet: {
+      rpc: 'https://jakartanet.ecadinfra.com',
+      port: 443,
+      network_id: '*',
+      secretKey: accountPerNetwork.ithacanet.alice.sk,
+      pkh: accountPerNetwork.ithacanet.alice.pkh
+    },
+    kathmandunet: {
+      rpc: 'https://kathmandunet.ecadinfra.com',
+      port: 443,
+      network_id: '*',
+      secretKey: accountPerNetwork.ithacanet.alice.sk,
+      pkh: accountPerNetwork.ithacanet.alice.pkh
+    },
+    limanet: {
+      rpc: 'https://limanet.ecadinfra.com',
       port: 443,
       network_id: '*',
       secretKey: accountPerNetwork.ithacanet.alice.sk,

@@ -7,7 +7,7 @@ import { IPacemakerConfig } from './pacemaker.config.js';
 import { ReportGenFactoryService } from '../reportgen/index.js';
 import { INewEpochMessage, IPacemakerEvents, IPaceMakerState } from './index.js';
 import { computeFValueFrom } from './helpers.js';
-import { IOracleInformations } from '@tezosdynamics/contracts';
+import { IOracleInformations } from '@mavrykdynamics/contracts';
 import { Timer } from './timer.js';
 import { Mutex } from 'async-mutex';
 import { useMutex } from '../helpers/useMutex.js';

@@ -1,5 +1,5 @@
 {
-  "name": "@tezosdynamics/node",
+  "name": "@mavrykdynamics/node",
   "version": "1.0.0",
   "license": "MIT",
   "scripts": {
@@ -44,7 +44,7 @@
     "@taquito/michel-codec": "~13.0.0",
     "@noble/ed25519": "~1.6.0",
     "@libp2p/crypto": "^1.0.0",
-    "@tezosdynamics/oracle": "workspace:*",
+    "@mavrykdynamics/oracle": "workspace:*",
     "@taquito/remote-signer": "~13.0.0",
     "@taquito/utils": "~13.0.0",
     "axios": "~0.27.2"
@@ -62,8 +62,8 @@
     "@taquito/michelson-encoder": "^13.0.1",
     "@taquito/signer": "^13.0.1",
     "@taquito/taquito": "^13.0.1",
-    "@tezosdynamics/oracle": "workspace:*",
-    "@tezosdynamics/contracts": "workspace:*",
+    "@mavrykdynamics/oracle": "workspace:*",
+    "@mavrykdynamics/contracts": "workspace:*",
     "chai": "~4.3.6",
     "chai-as-promised": "~7.1.1",
     "eslint": "8.22.0",

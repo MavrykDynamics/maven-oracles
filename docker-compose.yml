@@ -190,7 +190,7 @@ services:
       - ALPHAVANTAGE_API_KEY=LOKAGZEB6UK7JJWS
       - MESSARI_API_KEY=7a4ace98-90a6-4792-81ad-5364afc6698d
       - RPC_URL=http://flextesa:20000
-      - USE_FAKE_PRICES=true
+      - USE_FAKE_DATA=true
     networks:
       p2p:
         ipv4_address: 172.24.2.1
@@ -219,7 +219,7 @@ services:
       - ALPHAVANTAGE_API_KEY=2XLQOTBRS8Y122VT
       - MESSARI_API_KEY=3dc85b02-55ee-4aaa-96ff-96d70a426407
       - RPC_URL=http://flextesa:20000
-      - USE_FAKE_PRICES=true
+      - USE_FAKE_DATA=true
       - LOG_LEVEL=warn
     networks:
       p2p:
@@ -249,7 +249,7 @@ services:
       - ALPHAVANTAGE_API_KEY=2NGJX9KAASPRJKDL
       - MESSARI_API_KEY=4d9734a2-99e7-4f54-81d9-71f5042a2e92
       - RPC_URL=http://flextesa:20000
-      - USE_FAKE_PRICES=true
+      - USE_FAKE_DATA=true
 
     networks:
       p2p:
@@ -279,7 +279,7 @@ services:
       - ALPHAVANTAGE_API_KEY=MZ42VQU1CNPC9X1U
       - MESSARI_API_KEY=bd9fcbaf-06d4-4f8d-80c3-0862ef6c53b1
       - RPC_URL=http://flextesa:20000
-      - USE_FAKE_PRICES=true
+      - USE_FAKE_DATA=true
 
     networks:
       p2p:
@@ -309,7 +309,7 @@ services:
       - ALPHAVANTAGE_API_KEY=17MO51H19VMUJAPU
       - MESSARI_API_KEY=ee29b84c-34fd-4d60-827f-35f4315ac4bd
       - RPC_URL=http://flextesa:20000
-      - USE_FAKE_PRICES=true
+      - USE_FAKE_DATA=true
     networks:
       p2p:
         ipv4_address: 172.24.2.5
@@ -338,7 +338,7 @@ services:
       - ALPHAVANTAGE_API_KEY=9BP42KVMZ0BNFVL8
       - MESSARI_API_KEY=
       - RPC_URL=http://flextesa:20000
-      - USE_FAKE_PRICES=true
+      - USE_FAKE_DATA=true
     networks:
       p2p:
         ipv4_address: 172.24.2.6
@@ -367,7 +367,7 @@ services:
       - ALPHAVANTAGE_API_KEY=HAD0Z5KJX7XPCXOO
       - MESSARI_API_KEY=0e630780-f69c-46e4-a796-3fee1252f358
       - RPC_URL=http://flextesa:20000
-      - USE_FAKE_PRICES=true
+      - USE_FAKE_DATA=true
     networks:
       p2p:
         ipv4_address: 172.24.2.7

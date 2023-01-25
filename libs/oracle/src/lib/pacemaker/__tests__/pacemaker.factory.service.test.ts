@@ -5,7 +5,6 @@ import {
   mockGetAggregatorAddresses
 } from '../../contract/__mocks__/contract.service.mock.js';
 import { OracleConfigMock } from '../../__mocks__/oracle.config.mock.js';
-import { IAggregatorInformations } from '@tezosdynamics/contracts';
 import { mockInitialize, PacemakerServiceMock } from '../__mocks__/pacemaker.service.mock.js';
 import { IPacemakerConfig } from '../pacemaker.config.js';
 import { PacemakerNetworkService } from '../pacemaker.network.service.js';

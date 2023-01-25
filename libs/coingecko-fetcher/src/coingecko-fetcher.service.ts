@@ -4,12 +4,12 @@ import { firstValueFrom } from 'rxjs';
 import { HttpService } from '@nestjs/axios';
 import BigNumber from 'bignumber.js';
 import { CoingeckoFetcherConfig } from './coingecko-fetcher.config.js';
-import { IPriceFetcher } from '@tezosdynamics/price-fetcher';
+import { IDataFetcher } from '@mavrykdynamics/data-fetcher';
 import { getLogger } from './logger.js';
 import { Logger } from 'winston';
 
 @Injectable()
-export class CoingeckoFetcherService implements IPriceFetcher, OnModuleInit {
+export class CoingeckoFetcherService implements IDataFetcher, OnModuleInit {
   private readonly _logger: Logger = getLogger({
     defaultMeta: {
       service: CoingeckoFetcherService.name
@@ -38,7 +38,7 @@ export class CoingeckoFetcherService implements IPriceFetcher, OnModuleInit {
     } catch (e) {
       this._logger.error(e.toString());
       // Do not re-throw to avoid crashing app
-      // The app should handle some price fetcher being down
+      // The app should handle some data fetcher being down
     }
   }
 
@@ -55,13 +55,13 @@ export class CoingeckoFetcherService implements IPriceFetcher, OnModuleInit {
       response = await firstValueFrom(response$);
     } catch (e) {
       throw new Error(
-        `Failed to fetch coins list data from Coingecko, the price fetcher won't work correctly: ${e.toString()}`
+        `Failed to fetch coins list data from Coingecko, the data fetcher won't work correctly: ${e.toString()}`
       );
     }
 
     if (response.status !== 200) {
       throw new Error(
-        "Failed to fetch coins list data from Coingecko, the price fetcher won't work correctly"
+        "Failed to fetch coins list data from Coingecko, the data fetcher won't work correctly"
       );
     }
 
@@ -86,13 +86,13 @@ export class CoingeckoFetcherService implements IPriceFetcher, OnModuleInit {
       response = await firstValueFrom(response$);
     } catch (e) {
       throw new Error(
-        `Failed to fetch supportedVsCurrencies data from Coingecko, the price fetcher won't work correctly: ${e.toString()}`
+        `Failed to fetch supportedVsCurrencies data from Coingecko, the data fetcher won't work correctly: ${e.toString()}`
       );
     }
 
     if (response.status !== 200) {
       throw new Error(
-        "Failed to fetch supportedVsCurrencies data from Coingecko, the price fetcher won't work correctly"
+        "Failed to fetch supportedVsCurrencies data from Coingecko, the data fetcher won't work correctly"
       );
     }
 
@@ -105,7 +105,7 @@ export class CoingeckoFetcherService implements IPriceFetcher, OnModuleInit {
     this._logger.verbose(`Fetched ${this._supportedVsCurrencies.size} supported vs currencies`);
   }
 
-  public async getPrice([pair1, pair2]: [string, string]): Promise<BigNumber> {
+  public async getData([pair1, pair2]: [string, string]): Promise<BigNumber> {
     const vsCurrency = pair1.toLowerCase();
     const coin = pair2.toLowerCase();
 
@@ -134,7 +134,7 @@ export class CoingeckoFetcherService implements IPriceFetcher, OnModuleInit {
       response = await firstValueFrom(response$);
     } catch (e) {
       throw new Error(
-        `Failed to fetch supportedVsCurrencies data from Coingecko, the price fetcher won't work correctly: ${e.toString()}`
+        `Failed to fetch supportedVsCurrencies data from Coingecko, the data fetcher won't work correctly: ${e.toString()}`
       );
     }
 
