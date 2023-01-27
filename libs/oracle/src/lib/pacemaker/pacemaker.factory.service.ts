@@ -42,7 +42,7 @@ export class PacemakerFactoryService implements OnModuleInit {
       await this._startPacemaker({
         aggregatorAddress,
         aggregatorPair: pair,
-        timerProgressDurationMiliseconds: 30 * 1000,
+        timerProgressDurationMiliseconds: 500 * 1000,
         timerResendDurationMiliseconds: 15 * 1000,
         oracleAddresses
       });
