@@ -56,6 +56,20 @@ export class ContractService implements OnModuleInit {
   }
 
   /**
+   * Fetch oracle addresses listed in an aggregator
+   *
+   * @param aggregatorAddress - Address of the aggregator smart contract to fetch from
+   */
+  public async getName(aggregatorAddress: string): Promise<string> {
+    const contractInstance = await (
+      await this._txManagerService.getTezosToolkit()
+    ).contract.at(aggregatorAddress);
+    const storage: IAggregatorStorage = await contractInstance.storage();
+
+    return storage.name;
+  }
+
+  /**
    * Serialize report into Tezos format
    * @param aggregatorAddress - Aggregator smart contract address
    * @param oracleAddresses - Information about the oracles (pk, pkh and peer id)

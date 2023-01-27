@@ -45,24 +45,10 @@ export class OracleConfig {
 
   @Property({
     default: '',
-    env: 'AGGREGATOR_SMART_CONTRACT_ADDRESS',
+    env: 'AGGREGATOR_SMART_CONTRACT_ADDRESSES',
     format: String
   })
-  public aggregatorAddress: string;
-
-  @Property({
-    default: '',
-    env: 'AGGREGATOR_PAIR_1',
-    format: String
-  })
-  public aggregatorPair1: string;
-
-  @Property({
-    default: '',
-    env: 'AGGREGATOR_PAIR_2',
-    format: String
-  })
-  public aggregatorPair2: string;
+  public aggregatorAddresses: string;
 
   @Property({
     default: 'https://ithacanet.ecadinfra.com/',

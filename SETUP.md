@@ -74,7 +74,7 @@ MESSARI_API_KEY=""
 TEZOS_POLLING_INTERVAL_MILLISECONDS=2000
 
 # Aggregator factory smart contract address. Change this based on which network you are operating on.
-AGGREGATOR_SMART_CONTRACT_ADDRESS=KT1Qq4RD4vWcFshShSMt5vGLXP7gZBdiykEU
+AGGREGATOR_SMART_CONTRACT_ADDRESSES=KT1Qq4RD4vWcFshShSMt5vGLXP7gZBdiykEU
 ```
 
 Setup signatory following [this configuration guide](https://github.com/ecadlabs/signatory/blob/main/docs/README.md)

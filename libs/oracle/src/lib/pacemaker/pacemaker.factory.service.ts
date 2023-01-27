@@ -21,20 +21,32 @@ export class PacemakerFactoryService implements OnModuleInit {
   ) {}
 
   public async onModuleInit(): Promise<void> {
-    // we get the aggregator address from the config
-    const { aggregatorAddress }   = this._oracleConfig;
-    const pair: [string, string]  = [this._oracleConfig.aggregatorPair1, this._oracleConfig.aggregatorPair2];
+    // we get the aggregator addresses and pairs from the config
+    const { aggregatorAddresses }   = this._oracleConfig;
+    const aggregatorAddressesArray  = aggregatorAddresses.split(',');
 
     // for each aggregator, we start a new pacemaker service
-    const oracleAddresses = await this._contractService.getOraclesAddresses(aggregatorAddress);
+    for (let index = 0; index < aggregatorAddressesArray.length; index++){
+      const aggregatorAddress       = aggregatorAddressesArray[index];
+      const oracleAddresses         = await this._contractService.getOraclesAddresses(aggregatorAddress);
+      const aggregatorName          = await this._contractService.getName(aggregatorAddress);
+      const pairArray               = aggregatorName.split('/');
 
-    await this._startPacemaker({
-      aggregatorAddress,
-      aggregatorPair: pair,
-      timerProgressDurationMiliseconds: 30 * 1000,
-      timerResendDurationMiliseconds: 15 * 1000,
-      oracleAddresses
-    });
+      // Check if the pair is correct
+      if (pairArray.length !== 2) {
+        throw new Error(`${aggregatorName} is not a pair`);
+      }
+
+      const pair: [string, string]  = [pairArray[0], pairArray[1]];
+
+      await this._startPacemaker({
+        aggregatorAddress,
+        aggregatorPair: pair,
+        timerProgressDurationMiliseconds: 30 * 1000,
+        timerResendDurationMiliseconds: 15 * 1000,
+        oracleAddresses
+      });
+    }
   }
 
   private async _startPacemaker(config: IPacemakerConfig): Promise<PacemakerService> {

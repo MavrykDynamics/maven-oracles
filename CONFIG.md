@@ -10,7 +10,7 @@
 | P2P_PEER_ID                               | Libp2p peer id                                                      | string                                      | None                             |
 | P2P_PEER_PUBLIC_KEY                       | Libp2p public key                                                   | string                                      | None                             |
 | P2P_PEER_PRIVATE_KEY                      | Libp2p private key                                                  | string                                      | None                             |
-| AGGREGATOR_SMART_CONTRACT_ADDRESS | Aggregator smart contract address                           | string                                      | None                             |
+| AGGREGATOR_SMART_CONTRACT_ADDRESSES | Aggregator smart contract addresses (split by comma)                           | string                                      | None                             |
 | RPC_URL                                   | Tezos RPC url                                                       | string                                      | https://ithacanet.ecadinfra.com/ |
 | TEZOS_PUBLIC_KEY                          | Tezos public key                                                    | string                                      | None                             |
 | TEZOS_ADDRESS                             | Tezos address (public key hash)                                     | string                                      | None                             |

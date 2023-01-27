@@ -8,7 +8,8 @@ export const OracleConfigMock: OracleConfig = {
   peerId: mockedOracleAddresses[3].oraclePeerId,
   peerPubKey: mockedOracleAddresses[3].oraclePublicKey,
   peerPrivateKey: '',
-  aggregatorFactoryAddress: '',
+  aggregatorAddresses: '',
+  aggregatorPairs: '',
   rpcUrl: '',
   tezosAddress: '',
   useFakeData: false
