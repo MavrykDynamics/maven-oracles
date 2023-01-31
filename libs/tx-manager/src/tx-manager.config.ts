@@ -22,12 +22,12 @@ export class TxManagerConfig {
   })
   public tezosPublicKeyHash: string;
 
-  // @Property({
-  //   default: '',
-  //   env: 'TEZOS_SECRET_KEY',
-  //   format: String
-  // })
-  // public tezosSecretKey: string;
+  @Property({
+    default: '',
+    env: 'TEZOS_SECRET_KEY',
+    format: String
+  })
+  public tezosSecretKey: string;
 
   @Property({
     default: 5000,

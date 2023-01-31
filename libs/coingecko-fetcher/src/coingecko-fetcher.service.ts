@@ -126,9 +126,6 @@ export class CoingeckoFetcherService implements IDataFetcher, OnModuleInit {
           ids: this._symbolToId.get(coin),
           vs_currencies: vsCurrency
         }
-        //headers: {
-        //  'x-messari-api-key': this.config.messariApiKey,
-        //},
       });
 
       response = await firstValueFrom(response$);

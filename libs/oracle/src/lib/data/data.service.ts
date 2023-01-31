@@ -21,14 +21,14 @@ export class DataService {
 
   public constructor(
     messariFetcherService: MessariFetcherService,
-    coingeckoFectcherService: CoingeckoFetcherService,
+    coingeckoFetcherService: CoingeckoFetcherService,
     alphavantageFetcherService: AlphavantageFetcherService,
     private readonly _oracleConfig: OracleConfig
   ) {
     if (this._oracleConfig.useFakeData) {
       this._logger.warn('YOU ARE USING FAKE DATA, DO NOT DO THIS IN PRODUCTION');
     }
-    this._dataFetchers = [messariFetcherService, coingeckoFectcherService, alphavantageFetcherService];
+    this._dataFetchers = [messariFetcherService, coingeckoFetcherService, alphavantageFetcherService];
   }
 
   public async getData(decimals: BigNumber, pair: [string, string]): Promise<BigNumber> {
