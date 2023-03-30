@@ -26,6 +26,7 @@ services:
       - TEZOS_PUBLIC_KEY=edpktqePwpgrWGS49FiAMDacb3bLiDLE8BrbLoi6zYdcZ9bttDLo1D
       - RPC_URL=https://uoi3x99n7c.ghostnet.tezosrpc.midl.dev
       - USE_FAKE_DATA=false
+      - LOG_LEVEL=debug
       - AGGREGATOR_SMART_CONTRACT_ADDRESSES=KT18qwZq87AwmL1orDyhrTBa7fwTnzcCoqKo,KT1AWhMLFpZsKJpM2u3WPZYLzBP9NpyPu6py,KT1H3UrThDhoDWx3x8BirqxtDFAQDa8MENrX,KT1Np2yJNXtAkAeNb3LEVJCD9vtQtRN2vHLE
     networks:
       p2p:
@@ -51,7 +52,7 @@ services:
       - TEZOS_PUBLIC_KEY=edpkv758sKsFGRwE3ZNDR1wdVEnxZui344fsxEtCKbpNMcTaQw2Yis
       - RPC_URL=https://uoi3x99n7c.ghostnet.tezosrpc.midl.dev
       - USE_FAKE_DATA=false
-      - LOG_LEVEL=warn
+      - LOG_LEVEL=debug
       - AGGREGATOR_SMART_CONTRACT_ADDRESSES=KT18qwZq87AwmL1orDyhrTBa7fwTnzcCoqKo,KT1AWhMLFpZsKJpM2u3WPZYLzBP9NpyPu6py,KT1H3UrThDhoDWx3x8BirqxtDFAQDa8MENrX,KT1Np2yJNXtAkAeNb3LEVJCD9vtQtRN2vHLE
     networks:
       p2p:
@@ -77,6 +78,7 @@ services:
       - TEZOS_PUBLIC_KEY=edpkv6mD1SBoUB45g6Ss3LYfYzqZGxRfA3dehYBxEvGidFzsCg6yXQ
       - RPC_URL=https://uoi3x99n7c.ghostnet.tezosrpc.midl.dev
       - USE_FAKE_DATA=false
+      - LOG_LEVEL=debug
       - AGGREGATOR_SMART_CONTRACT_ADDRESSES=KT18qwZq87AwmL1orDyhrTBa7fwTnzcCoqKo,KT1AWhMLFpZsKJpM2u3WPZYLzBP9NpyPu6py,KT1H3UrThDhoDWx3x8BirqxtDFAQDa8MENrX,KT1Np2yJNXtAkAeNb3LEVJCD9vtQtRN2vHLE
     networks:
       p2p:
@@ -102,6 +104,7 @@ services:
       - TEZOS_PUBLIC_KEY=edpku8CdxqUzHhL8X3fgpCX5CfmqxUU7JWBTmXwqUATt78dGijvqWd
       - RPC_URL=https://uoi3x99n7c.ghostnet.tezosrpc.midl.dev
       - USE_FAKE_DATA=false
+      - LOG_LEVEL=debug
       - AGGREGATOR_SMART_CONTRACT_ADDRESSES=KT18qwZq87AwmL1orDyhrTBa7fwTnzcCoqKo,KT1AWhMLFpZsKJpM2u3WPZYLzBP9NpyPu6py,KT1H3UrThDhoDWx3x8BirqxtDFAQDa8MENrX,KT1Np2yJNXtAkAeNb3LEVJCD9vtQtRN2vHLE
     networks:
       p2p:
@@ -127,6 +130,7 @@ services:
       - TEZOS_PUBLIC_KEY=edpkuTgScYTtrvAtTU6UMF44NvNd51ah1aqNeerNFC38bGZrKVXwFP
       - RPC_URL=https://uoi3x99n7c.ghostnet.tezosrpc.midl.dev
       - USE_FAKE_DATA=false
+      - LOG_LEVEL=debug
       - AGGREGATOR_SMART_CONTRACT_ADDRESSES=KT18qwZq87AwmL1orDyhrTBa7fwTnzcCoqKo,KT1AWhMLFpZsKJpM2u3WPZYLzBP9NpyPu6py,KT1H3UrThDhoDWx3x8BirqxtDFAQDa8MENrX,KT1Np2yJNXtAkAeNb3LEVJCD9vtQtRN2vHLE
     networks:
       p2p:
