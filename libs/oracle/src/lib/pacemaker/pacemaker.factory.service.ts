@@ -28,7 +28,7 @@ export class PacemakerFactoryService implements OnModuleInit {
     // for each aggregator, we start a new pacemaker service
     for (let index = 0; index < aggregatorAddressesArray.length; index++){
       const aggregatorAddress       = aggregatorAddressesArray[index];
-      const oracleAddresses         = await this._contractService.getOraclesAddresses(aggregatorAddress);
+      const oracleLedger         = await this._contractService.getOraclesAddresses(aggregatorAddress);
       const aggregatorName          = await this._contractService.getName(aggregatorAddress);
       const pairArray               = aggregatorName.split('/');
 
@@ -44,7 +44,7 @@ export class PacemakerFactoryService implements OnModuleInit {
         aggregatorPair: pair,
         timerProgressDurationMiliseconds: 300 * 1000,
         timerResendDurationMiliseconds: 15 * 1000,
-        oracleAddresses
+        oracleLedger
       });
     }
   }

@@ -5,7 +5,7 @@ import BigNumber from 'bignumber.js';
 export const ReportGenConfigMock: IReportGenConfig = {
   aggregatorAddress: 'aggregatorAddressMock',
   aggregatorPair: ['TEST', 'USD'],
-  oracleAddresses: mockedOracleAddresses,
+  oracleLedger: mockedOracleAddresses,
   alphaPerThousand: new BigNumber(200),
   heartbeatSeconds: new BigNumber(1000),
   epoch: 3,

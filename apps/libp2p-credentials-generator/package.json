@@ -1,0 +1,36 @@
+{
+  "name": "@mavrykdynamics/libp2p-credentials-generator",
+  "version": "1.0.0",
+  "license": "MIT",
+  "scripts": {
+    "start": "node --loader ts-node/esm src/main.ts"
+  },
+  "type": "module",
+  "author": "",
+  "dependencies": {
+    "@libp2p/crypto": "^1.0.14",
+    "@libp2p/peer-id-factory": "^2.0.3"
+  },
+  "devDependencies": {
+    "@nestjs/schematics": "^8.0.0",
+    "@nestjs/testing": "^9.0.8",
+    "@rushstack/heft": "^0.45.8",
+    "@types/cron": "^1.7.3",
+    "@types/jest": "27.0.2",
+    "@types/node": "^16.11.7",
+    "@types/yargs": "^17.0.9",
+    "@typescript-eslint/eslint-plugin": "~5.10.0",
+    "@typescript-eslint/parser": "~5.10.0",
+    "eslint": "8.22.0",
+    "eslint-config-prettier": "8.1.0",
+    "eslint-plugin-jest": "~26.2",
+    "jest": "27.2.3",
+    "prettier": "^2.5.1",
+    "rimraf": "^3.0.2",
+    "ts-jest": "27.0.5",
+    "typescript": "~4.5.2",
+    "webpack-merge": "^5.8.0",
+    "webpack-node-externals": "^3.0.0",
+    "@rushstack/eslint-config": "~2.6.1"
+  }
+}

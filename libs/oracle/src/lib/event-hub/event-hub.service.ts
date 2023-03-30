@@ -57,13 +57,13 @@ export class EventHubService extends TypedEmitter<IEventHubEvents> {
    */
   public transmit(
     aggregatorAddress: string,
-    oracleAddresses: IOracleInformations[],
+    oracleLedger: IOracleInformations[],
     reportToTransmit: IAttestedReport,
     alphaPerThousand: BigNumber
   ): void {
     this._logger.debug(
       `Dispatching transmit event for ${aggregatorAddress} with report ${reportToTransmit.epoch}/${reportToTransmit.round}`
     );
-    this.emit('transmit', aggregatorAddress, oracleAddresses, reportToTransmit, alphaPerThousand);
+    this.emit('transmit', aggregatorAddress, oracleLedger, reportToTransmit, alphaPerThousand);
   }
 }

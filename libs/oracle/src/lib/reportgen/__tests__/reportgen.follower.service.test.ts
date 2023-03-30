@@ -551,7 +551,7 @@ describe('ReportGenFollowerService', () => {
       expect(transmitMock).toHaveBeenCalledTimes(1);
       expect(transmitMock).toHaveBeenCalledWith(
         ReportGenConfigMock.aggregatorAddress,
-        ReportGenConfigMock.oracleAddresses,
+        ReportGenConfigMock.oracleLedger,
         {
           epoch: ReportGenConfigMock.epoch,
           round,

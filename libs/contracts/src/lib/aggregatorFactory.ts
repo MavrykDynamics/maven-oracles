@@ -54,7 +54,7 @@ type AggregatorFactoryContractMethods<T extends ContractProvider | Wallet> = {
   createAggregator: (
     name: string,
     addToGeneralContracts: boolean,
-    oracleAddresses: MichelsonMap<MichelsonMapKey, unknown>,
+    oracleLedger: MichelsonMap<MichelsonMapKey, unknown>,
     decimals: BigNumber,
     alphaPercentPerThousand: BigNumber,
     percentOracleThreshold: BigNumber,

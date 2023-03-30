@@ -100,7 +100,7 @@ describe('PacemakerService', () => {
     });
 
     // Take only the first 3 addresses so we can test that it cycle
-    const oracleAddresses: IOracleInformations[] = mockedOracleAddresses.slice(0, 3);
+    const oracleLedger: IOracleInformations[] = mockedOracleAddresses.slice(0, 3);
 
     test.each`
       epoch | leaderPeerId
@@ -117,7 +117,7 @@ describe('PacemakerService', () => {
         reportGenFactoryMock as unknown as ReportGenFactoryService,
         {
           ...PacemakerConfigMock,
-          oracleAddresses // Override oracle addresses
+          oracleLedger // Override oracle addresses
         }
       );
 
@@ -148,7 +148,7 @@ describe('PacemakerService', () => {
         alphaPerThousand: mockedBlockchainConfig.alphaPercentPerThousand,
         heartbeatSeconds: mockedBlockchainConfig.heartBeatSeconds,
         leader: mockedOracleAddresses[2].oraclePeerId, // Mocked epoch is 2
-        oracleAddresses: mockedOracleAddresses
+        oracleLedger: mockedOracleAddresses
       });
     });
 
@@ -398,7 +398,7 @@ describe('PacemakerService', () => {
           aggregatorPair: PacemakerConfigMock.aggregatorPair,
           alphaPerThousand: mockedBlockchainConfig.alphaPercentPerThousand,
           heartbeatSeconds: mockedBlockchainConfig.heartBeatSeconds,
-          oracleAddresses: PacemakerConfigMock.oracleAddresses
+          oracleLedger: PacemakerConfigMock.oracleLedger
         });
       } else {
         expect(mockStartReportGen).not.toHaveBeenCalled();

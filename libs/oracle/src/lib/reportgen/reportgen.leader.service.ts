@@ -86,7 +86,7 @@ export class ReportGenLeaderService {
 
   // Timer duration constants
   private readonly _timerGraceDurationMiliseconds: number = 2 * 1000;
-  private readonly _timerRoundDurationMiliseconds: number = 15 * 1000;
+  private readonly _timerRoundDurationMiliseconds: number = 150 * 1000;
 
   // Timers
   private _timerRound: Timer = new Timer(
@@ -169,7 +169,7 @@ export class ReportGenLeaderService {
     }
 
     if (
-      !this._reportGenConfig.oracleAddresses.map((oracle) => oracle.oraclePeerId).includes(from.toString())
+      !this._reportGenConfig.oracleLedger.map((oracle) => oracle.oraclePeerId).includes(from.toString())
     ) {
       this._logger.warn(`Received observe message from unknown oracle: ${from.toString()}`);
       return;
@@ -235,7 +235,7 @@ export class ReportGenLeaderService {
 
     const numberOfObservation = [...this._observe.values()].length;
 
-    const f = computeFValueFrom(this._reportGenConfig.oracleAddresses.length);
+    const f = computeFValueFrom(this._reportGenConfig.oracleLedger.length);
     if (numberOfObservation === 2 * f + 1) {
       this._logger.info(
         `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${this._round} - Enough observations have been collected, starting grace period`
@@ -278,7 +278,7 @@ export class ReportGenLeaderService {
     }
 
     if (
-      !this._reportGenConfig.oracleAddresses.map((oracle) => oracle.oraclePeerId).includes(from.toString())
+      !this._reportGenConfig.oracleLedger.map((oracle) => oracle.oraclePeerId).includes(from.toString())
     ) {
       this._logger.warn(`Received report message from unknown oracle: ${from.toString()}`);
       return;
@@ -348,7 +348,7 @@ export class ReportGenLeaderService {
 
     const numberOfReports = [...this._report.values()].length;
 
-    const f = computeFValueFrom(this._reportGenConfig.oracleAddresses.length);
+    const f = computeFValueFrom(this._reportGenConfig.oracleLedger.length);
 
     if (numberOfReports <= f) {
       this._logger.debug(
@@ -492,7 +492,7 @@ export class ReportGenLeaderService {
   private async _verifyReportSignature(report: ICompressedReport, signature: ISignature): Promise<boolean> {
     return await this._contractService.verifyReportSignature(
       this._reportGenConfig.aggregatorAddress,
-      this._reportGenConfig.oracleAddresses,
+      this._reportGenConfig.oracleLedger,
       report,
       signature
     );

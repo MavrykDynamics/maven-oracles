@@ -7,7 +7,7 @@ export interface IEventHubEvents {
   progress: (aggregatorAddress: string) => void;
   transmit: (
     aggregatorAddress: string,
-    oracleAddresses: IOracleInformations[],
+    oracleLedger: IOracleInformations[],
     reportToTransmit: IAttestedReport,
     alphaPerThousand: BigNumber // Necessary since transmit service need to check for deviation
   ) => void;

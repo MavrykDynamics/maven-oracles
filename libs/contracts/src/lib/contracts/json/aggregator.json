@@ -653,7 +653,7 @@
                 }
               ],
               "annots": [
-                "%oracleAddresses"
+                "%oracleLedger"
               ]
             },
             {
@@ -2086,7 +2086,7 @@
                                 }
                               ],
                               "annots": [
-                                "%oracleAddresses"
+                                "%oracleLedger"
                               ]
                             },
                             {
@@ -2343,7 +2343,7 @@
                                 }
                               ],
                               "annots": [
-                                "%oracleAddresses"
+                                "%oracleLedger"
                               ]
                             },
                             {

@@ -85,9 +85,9 @@ describe('PacemakerFactoryService', () => {
       const expectedConfig: IPacemakerConfig = {
         aggregatorAddress: 'USD-ONE/Address',
         aggregatorPair: ['USD', 'ONE'],
-        timerProgressDurationMiliseconds: 30 * 1000,
+        timerProgressDurationMiliseconds: 15 * 1000,
         timerResendDurationMiliseconds: 15 * 1000,
-        oracleAddresses: mockedOracleAddresses
+        oracleLedger: mockedOracleAddresses
       };
 
       expect(PacemakerServiceMock).toHaveBeenCalledWith(
@@ -108,17 +108,17 @@ describe('PacemakerFactoryService', () => {
       const expectedConfigOne: IPacemakerConfig = {
         aggregatorAddress: 'USD-ONE/Address',
         aggregatorPair: ['USD', 'ONE'],
-        timerProgressDurationMiliseconds: 30 * 1000,
+        timerProgressDurationMiliseconds: 15 * 1000,
         timerResendDurationMiliseconds: 15 * 1000,
-        oracleAddresses: mockedOracleAddresses
+        oracleLedger: mockedOracleAddresses
       };
 
       const expectedConfigTwo: IPacemakerConfig = {
         aggregatorAddress: 'USD-TWO/Address',
         aggregatorPair: ['USD', 'TWO'],
-        timerProgressDurationMiliseconds: 30 * 1000,
+        timerProgressDurationMiliseconds: 15 * 1000,
         timerResendDurationMiliseconds: 15 * 1000,
-        oracleAddresses: mockedOracleAddresses
+        oracleLedger: mockedOracleAddresses
       };
 
       expect(PacemakerServiceMock).toHaveBeenNthCalledWith(

@@ -106,8 +106,8 @@ export class CoingeckoFetcherService implements IDataFetcher, OnModuleInit {
   }
 
   public async getData([pair1, pair2]: [string, string]): Promise<BigNumber> {
-    const vsCurrency = pair1.toLowerCase();
-    const coin = pair2.toLowerCase();
+    const coin = pair1.toLowerCase();
+    const vsCurrency = pair2.toLowerCase();
 
     if (!this._supportedVsCurrencies.has(vsCurrency)) {
       throw new Error(`Not supported ${vsCurrency} as VS currency`);

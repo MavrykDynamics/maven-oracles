@@ -54,7 +54,7 @@
           (address %governanceAddress)
           (map %whitelistContracts string address)
           (map %generalContracts string address)
-          (map %oracleAddresses address (pair (key %oraclePublicKey) (string %oraclePeerId)))
+          (map %oracleLedger address (pair (key %oraclePublicKey) (string %oraclePeerId)))
           (pair %lastCompletedData
              (nat %round)
              (nat %epoch)
@@ -168,7 +168,7 @@
                         (address %governanceAddress)
                         (map %whitelistContracts string address)
                         (map %generalContracts string address)
-                        (map %oracleAddresses address (pair (key %oraclePublicKey) (string %oraclePeerId)))
+                        (map %oracleLedger address (pair (key %oraclePublicKey) (string %oraclePeerId)))
                         (pair %lastCompletedData
                            (nat %round)
                            (nat %epoch)
@@ -197,7 +197,7 @@
                         (address %governanceAddress)
                         (map %whitelistContracts string address)
                         (map %generalContracts string address)
-                        (map %oracleAddresses address (pair (key %oraclePublicKey) (string %oraclePeerId)))
+                        (map %oracleLedger address (pair (key %oraclePublicKey) (string %oraclePeerId)))
                         (pair %lastCompletedData
                            (nat %round)
                            (nat %epoch)

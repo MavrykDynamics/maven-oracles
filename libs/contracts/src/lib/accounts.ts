@@ -2,7 +2,7 @@ import { NetworkName } from './scripts/env.js';
 import BigNumber from 'bignumber.js';
 import { MichelsonMap, MichelsonMapKey } from '@taquito/michelson-encoder';
 
-export const oracleAddresses: MichelsonMap<MichelsonMapKey, unknown> = MichelsonMap.fromLiteral({
+export const oracleLedger: MichelsonMap<MichelsonMapKey, unknown> = MichelsonMap.fromLiteral({
   tz1MnmtP4uAcgMpeZN6JtyziXeFqqwQG6yn6: {
     // oracle1
     oraclePublicKey: 'edpku9qEgcyfNNDK6EpMvu5SqXDqWRLuxdMxdyH12ivTUuB1KXfGP4',

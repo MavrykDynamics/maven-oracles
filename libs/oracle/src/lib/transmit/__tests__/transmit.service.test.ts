@@ -215,7 +215,7 @@ describe('TransmitService', () => {
           signatures: []
         },
         aggregatorAddress: mockedAggregatorAddresses[0].aggregatorAddress,
-        oracleAddresses: mockedOracleAddresses
+        oracleLedger: mockedOracleAddresses
       });
       reports.push({
         time: Date.now(),
@@ -226,7 +226,7 @@ describe('TransmitService', () => {
           signatures: []
         },
         aggregatorAddress: mockedAggregatorAddresses[0].aggregatorAddress,
-        oracleAddresses: mockedOracleAddresses
+        oracleLedger: mockedOracleAddresses
       });
       await timerTransmit.fakeTimeout();
       expect((contractServiceMock as any).getLastBlockchainReport).toHaveBeenNthCalledWith(

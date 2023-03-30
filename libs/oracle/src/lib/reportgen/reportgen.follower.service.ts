@@ -263,7 +263,7 @@ export class ReportGenFollowerService {
 
     const distinctOracleObservations = [...new Set(report.observations.map((ob) => ob.oracle))];
 
-    const f = computeFValueFrom(this._reportGenConfig.oracleAddresses.length);
+    const f = computeFValueFrom(this._reportGenConfig.oracleLedger.length);
     if (distinctOracleObservations.length < f * 2 + 1) {
       this._logger.warn(
         `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${
@@ -421,7 +421,7 @@ export class ReportGenFollowerService {
     }
 
     if (
-      !this._reportGenConfig.oracleAddresses.map((oracle) => oracle.oraclePeerId).includes(from.toString())
+      !this._reportGenConfig.oracleLedger.map((oracle) => oracle.oraclePeerId).includes(from.toString())
     ) {
       this._logger.warn(`Received finalEcho message from unknown oracle: ${from.toString()}`);
       return;
@@ -499,7 +499,7 @@ export class ReportGenFollowerService {
 
     const numberOfFinalEchoReceived = [...this._receivedEcho.values()].filter((received) => received).length;
 
-    const f = computeFValueFrom(this._reportGenConfig.oracleAddresses.length);
+    const f = computeFValueFrom(this._reportGenConfig.oracleLedger.length);
 
     if (numberOfFinalEchoReceived > f) {
       this._logger.info(
@@ -507,7 +507,7 @@ export class ReportGenFollowerService {
       );
       await this._eventHubService.transmit(
         this._reportGenConfig.aggregatorAddress,
-        this._reportGenConfig.oracleAddresses,
+        this._reportGenConfig.oracleLedger,
         attestedReport,
         this._reportGenConfig.alphaPerThousand
       );
@@ -551,7 +551,7 @@ export class ReportGenFollowerService {
   private async _signCompressedReport(report: ICompressedReport): Promise<ISignature> {
     const signature = await this._contractService.signCompressedReport(
       this._reportGenConfig.aggregatorAddress,
-      this._reportGenConfig.oracleAddresses,
+      this._reportGenConfig.oracleLedger,
       report.observations,
 
       report.epoch,
@@ -633,12 +633,12 @@ export class ReportGenFollowerService {
    * @private
    */
   private async _verifyAttestedReport(attestedReport: IAttestedReport): Promise<boolean> {
-    const f = computeFValueFrom(this._reportGenConfig.oracleAddresses.length);
+    const f = computeFValueFrom(this._reportGenConfig.oracleLedger.length);
 
     return await this._contractService.verifyAttestedReport(
       this._reportGenConfig.aggregatorAddress,
       attestedReport,
-      this._reportGenConfig.oracleAddresses,
+      this._reportGenConfig.oracleLedger,
       f
     );
   }

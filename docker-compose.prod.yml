@@ -1,0 +1,142 @@
+version: '3.7'
+
+volumes:
+  esdata:
+  bcdshare:
+  db:
+    driver: local
+
+services:
+  oracle-1:
+    container_name: oracle-1
+    build:
+      dockerfile: images/node.dev.Dockerfile
+      context: .
+    volumes:
+      - './apps:/home/node/apps'
+      - './libs:/home/node/libs'
+    environment:
+      - TEZOS_POLLING_INTERVAL_MILLISECONDS=2000
+      - P2P_BOOTSTRAP_PEERS=/ip4/172.24.2.2/tcp/23456/p2p/12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2 /ip4/172.24.2.3/tcp/23456/p2p/12D3KooWLL2Y1JmrAXkY7r8xbuSRtasfJLAarXmAaZPYxPnzgAJ3
+      - P2P_PEER_ID=12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1
+      - P2P_PEER_PUBLIC_KEY=CAESIH+cTTTZ4gyqjEsn4L17gs9BTYU1ZeAnrBbUqQQQ9uW2
+      - P2P_PEER_PRIVATE_KEY=CAESQENvWXyvlXtuw58TMrMF45ffJUza23h8zHSvssitueRgf5xNNNniDKqMSyfgvXuCz0FNhTVl4CesFtSpBBD25bY=
+      - TEZOS_ADDRESS=tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD
+      - TEZOS_SECRET_KEY=edskSA1MhTp6Eq3T79MEP822eXAmxXBk89eFYGgwBsJjfyUHDGsYfudasQocwcb5DUEMvA1B3EsvxCZ8G6Wek6syxAA49DEKzq
+      - TEZOS_PUBLIC_KEY=edpktqePwpgrWGS49FiAMDacb3bLiDLE8BrbLoi6zYdcZ9bttDLo1D
+      - RPC_URL=https://uoi3x99n7c.ghostnet.tezosrpc.midl.dev
+      - USE_FAKE_DATA=false
+      - AGGREGATOR_SMART_CONTRACT_ADDRESSES=KT18qwZq87AwmL1orDyhrTBa7fwTnzcCoqKo,KT1AWhMLFpZsKJpM2u3WPZYLzBP9NpyPu6py,KT1H3UrThDhoDWx3x8BirqxtDFAQDa8MENrX,KT1Np2yJNXtAkAeNb3LEVJCD9vtQtRN2vHLE
+    networks:
+      p2p:
+        ipv4_address: 172.24.2.1
+    env_file:
+      - oracle-1.env
+  oracle-2:
+    container_name: oracle-2
+    build:
+      dockerfile: images/node.dev.Dockerfile
+      context: .
+    volumes:
+      - './apps:/home/node/apps'
+      - './libs:/home/node/libs'
+    environment:
+      - TEZOS_POLLING_INTERVAL_MILLISECONDS=2000
+      - P2P_BOOTSTRAP_PEERS=/ip4/172.24.2.1/tcp/23456/p2p/12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1 /ip4/172.24.2.3/tcp/23456/p2p/12D3KooWLL2Y1JmrAXkY7r8xbuSRtasfJLAarXmAaZPYxPnzgAJ3
+      - P2P_PEER_ID=12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2
+      - P2P_PEER_PUBLIC_KEY=CAESIB3LuOsvQXa/QtLkCtHqfEdDnXDiDtGIKB42deJZQSZb
+      - P2P_PEER_PRIVATE_KEY=CAESQJhgTKhCqif5bg/4RS4mPfjIp/TNA6c7licLcTFumPchHcu46y9Bdr9C0uQK0ep8R0OdcOIO0YgoHjZ14llBJls=
+      - TEZOS_ADDRESS=tz1bfkfgQ8EsH9wrFXueAvm8rKRxzab1vQH1
+      - TEZOS_SECRET_KEY=edskRvgMBH37Dci9isEHcdsHQ4ioPdUq3AfXDiAj3ZXiuy3YMs4LEUiZVMaSG9KjTFo78LidgZkdVbkXUamMK2or8UAxB743SH
+      - TEZOS_PUBLIC_KEY=edpkv758sKsFGRwE3ZNDR1wdVEnxZui344fsxEtCKbpNMcTaQw2Yis
+      - RPC_URL=https://uoi3x99n7c.ghostnet.tezosrpc.midl.dev
+      - USE_FAKE_DATA=false
+      - LOG_LEVEL=warn
+      - AGGREGATOR_SMART_CONTRACT_ADDRESSES=KT18qwZq87AwmL1orDyhrTBa7fwTnzcCoqKo,KT1AWhMLFpZsKJpM2u3WPZYLzBP9NpyPu6py,KT1H3UrThDhoDWx3x8BirqxtDFAQDa8MENrX,KT1Np2yJNXtAkAeNb3LEVJCD9vtQtRN2vHLE
+    networks:
+      p2p:
+        ipv4_address: 172.24.2.2
+    env_file:
+      - oracle-2.env
+  oracle-3:
+    container_name: oracle-3
+    build:
+      dockerfile: images/node.dev.Dockerfile
+      context: .
+    volumes:
+      - './apps:/home/node/apps'
+      - './libs:/home/node/libs'
+    environment:
+      - TEZOS_POLLING_INTERVAL_MILLISECONDS=2000
+      - P2P_BOOTSTRAP_PEERS=/ip4/172.24.2.1/tcp/23456/p2p/12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1 /ip4/172.24.2.2/tcp/23456/p2p/12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2
+      - P2P_PEER_ID=12D3KooWLL2Y1JmrAXkY7r8xbuSRtasfJLAarXmAaZPYxPnzgAJ3
+      - P2P_PEER_PUBLIC_KEY=CAESIJwuGA2Ua44At3SqYSvFPk/S4ZK8JIChdtEIHowkTCno
+      - P2P_PEER_PRIVATE_KEY=CAESQP9bMHtXPkMTF4/sitPzQuuSsR7rBsyCZIlwT8bLo0gvnC4YDZRrjgC3dKphK8U+T9LhkrwkgKF20QgejCRMKeg=
+      - TEZOS_ADDRESS=tz1TJTq4Rcx4hqCxkGnmwJRpqeDNzoEpjk6n
+      - TEZOS_SECRET_KEY=edsk3bVbowf9hFpdk8mAjZ8qSKzRTcFTgfqdoY4txdQrUhGHJGruXB
+      - TEZOS_PUBLIC_KEY=edpkv6mD1SBoUB45g6Ss3LYfYzqZGxRfA3dehYBxEvGidFzsCg6yXQ
+      - RPC_URL=https://uoi3x99n7c.ghostnet.tezosrpc.midl.dev
+      - USE_FAKE_DATA=false
+      - AGGREGATOR_SMART_CONTRACT_ADDRESSES=KT18qwZq87AwmL1orDyhrTBa7fwTnzcCoqKo,KT1AWhMLFpZsKJpM2u3WPZYLzBP9NpyPu6py,KT1H3UrThDhoDWx3x8BirqxtDFAQDa8MENrX,KT1Np2yJNXtAkAeNb3LEVJCD9vtQtRN2vHLE
+    networks:
+      p2p:
+        ipv4_address: 172.24.2.3
+    env_file:
+      - oracle-3.env
+  oracle-4:
+    container_name: oracle-4
+    build:
+      dockerfile: images/node.dev.Dockerfile
+      context: .
+    volumes:
+      - './apps:/home/node/apps'
+      - './libs:/home/node/libs'
+    environment:
+      - TEZOS_POLLING_INTERVAL_MILLISECONDS=2000
+      - P2P_BOOTSTRAP_PEERS=/ip4/172.24.2.1/tcp/23456/p2p/12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1 /ip4/172.24.2.2/tcp/23456/p2p/12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2
+      - P2P_PEER_ID=12D3KooWK87KmBGJZZMP3keux62VF515mFRbNRFwbYxib7wWQR34
+      - P2P_PEER_PUBLIC_KEY=CAESIIpE2iakPl9DwCEBQe8byn/AbxyFyp/6wswDEjAzTPV/
+      - P2P_PEER_PRIVATE_KEY=CAESQFT7tBloxfCzLLLww4EZzm2l0qZiVBuEuAbD3jzLPbWZikTaJqQ+X0PAIQFB7xvKf8BvHIXKn/rCzAMSMDNM9X8=
+      - TEZOS_ADDRESS=tz1Rf4qAP6ZK19hR6Xwcwqz5778PnwNLPDBM
+      - TEZOS_SECRET_KEY=edskS5Xd6CDBLbuJwkaa7mT2K6mom4odhbBiS3bxDtAB1crXWj4gwKF5oQsN9aijR3CNpr7cZXxcoUU32vqm67W3MRGSTVzMmz
+      - TEZOS_PUBLIC_KEY=edpku8CdxqUzHhL8X3fgpCX5CfmqxUU7JWBTmXwqUATt78dGijvqWd
+      - RPC_URL=https://uoi3x99n7c.ghostnet.tezosrpc.midl.dev
+      - USE_FAKE_DATA=false
+      - AGGREGATOR_SMART_CONTRACT_ADDRESSES=KT18qwZq87AwmL1orDyhrTBa7fwTnzcCoqKo,KT1AWhMLFpZsKJpM2u3WPZYLzBP9NpyPu6py,KT1H3UrThDhoDWx3x8BirqxtDFAQDa8MENrX,KT1Np2yJNXtAkAeNb3LEVJCD9vtQtRN2vHLE
+    networks:
+      p2p:
+        ipv4_address: 172.24.2.4
+    env_file:
+      - oracle-4.env
+  oracle-5:
+    container_name: oracle-5
+    build:
+      dockerfile: images/node.dev.Dockerfile
+      context: .
+    volumes:
+      - './apps:/home/node/apps'
+      - './libs:/home/node/libs'
+    environment:
+      - TEZOS_POLLING_INTERVAL_MILLISECONDS=2000
+      - P2P_BOOTSTRAP_PEERS=/ip4/172.24.2.1/tcp/23456/p2p/12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1 /ip4/172.24.2.2/tcp/23456/p2p/12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2
+      - P2P_PEER_ID=12D3KooWDgabT39cFp5j5mvJgiGPEppMuVgDCsNtBCh1Q8ejBCA5
+      - P2P_PEER_PUBLIC_KEY=CAESIDlwJrvH3HgJbcpLpzROMCyxhAGuaodYse7n0tDQmtYq
+      - P2P_PEER_PRIVATE_KEY=CAESQJSzbjMCYU/EeohKGea7wk+CXTbkBI7QXYJRLyXMosRTOXAmu8fceAltykunNE4wLLGEAa5qh1ix7ufS0NCa1io=
+      - TEZOS_ADDRESS=tz1Zgg2vLeyYLwQCtChXKjYDAXCRowQTzEGw
+      - TEZOS_SECRET_KEY=edsk32TqRuUFWHE6jwrPgbk5M9A3Sbs4shY4dh1WJCMR1fJjoV6iNs
+      - TEZOS_PUBLIC_KEY=edpkuTgScYTtrvAtTU6UMF44NvNd51ah1aqNeerNFC38bGZrKVXwFP
+      - RPC_URL=https://uoi3x99n7c.ghostnet.tezosrpc.midl.dev
+      - USE_FAKE_DATA=false
+      - AGGREGATOR_SMART_CONTRACT_ADDRESSES=KT18qwZq87AwmL1orDyhrTBa7fwTnzcCoqKo,KT1AWhMLFpZsKJpM2u3WPZYLzBP9NpyPu6py,KT1H3UrThDhoDWx3x8BirqxtDFAQDa8MENrX,KT1Np2yJNXtAkAeNb3LEVJCD9vtQtRN2vHLE
+    networks:
+      p2p:
+        ipv4_address: 172.24.2.5
+    env_file:
+      - oracle-5.env
+
+networks:
+  p2p:
+    ipam:
+      driver: default
+      config:
+        - subnet: '172.24.2.0/16'

@@ -35,6 +35,7 @@ export class NodeService {
       peerId: id,
       peerPubKey: pubKey,
       peerPrivateKey: privKey,
+      peerListenProtocol,
       peerListenAddress,
       peerListenPort
     } = this._config;
@@ -46,8 +47,8 @@ export class NodeService {
     });
 
     // const peersIdList: string[] = [];
-    // const oracleAddresses = await this._contractService.getOraclesAddresses(this._config.aggregatorAddress);
-    // for (const [, value] of oracleAddresses.entries()) {
+    // const oracleLedger = await this._contractService.getOraclesAddresses(this._config.aggregatorAddress);
+    // for (const [, value] of oracleLedger.entries()) {
     //   peersIdList.push(value.oraclePeerId);
     // }
 
@@ -68,7 +69,7 @@ export class NodeService {
     this._node = await createLibp2p({
       peerId,
       addresses: {
-        listen: [`/ip4/${peerListenAddress}/tcp/${peerListenPort}`]
+        listen: [`/${peerListenProtocol}/${peerListenAddress}/tcp/${peerListenPort}`]
       },
       transports: [new TCP() as unknown as Transport],
       streamMuxers: [new Mplex()],
@@ -108,13 +109,13 @@ export class NodeService {
 
     // Log a message when a remote peer connects to us
     this._node.connectionManager.addEventListener('peer:connect', (evt) => {
-      const connection = evt.detail;
-      this._logger.debug('Connected to: ', connection.remotePeer.toString());
+      // const connection = evt.detail;
+      this._logger.debug('Connected to: ', JSON.stringify(evt));
     });
     // Log a message when a remote peer disconnects from us
     this._node.connectionManager.addEventListener('peer:disconnect', (evt) => {
-      const connection = evt.detail;
-      this._logger.debug('Disconnected from: ', connection.remotePeer.toString());
+      // const connection = evt.detail;
+      this._logger.debug('Disconnected from: ', JSON.stringify(evt));
     });
 
     // Start listening

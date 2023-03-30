@@ -43,7 +43,7 @@ export class TransmitService implements OnModuleInit {
     time: number;
     report: IAttestedReport;
     aggregatorAddress: string;
-    oracleAddresses: IOracleInformations[];
+    oracleLedger: IOracleInformations[];
   }> = new Heap((a, b) => a.time - b.time); // Order by report time
 
   // Cached last report transmitted for each aggregator:
@@ -79,8 +79,8 @@ export class TransmitService implements OnModuleInit {
   public async initialize(): Promise<void> {
     this._eventHubService.addListener(
       'transmit',
-      (aggregatorAddress, oracleAddresses, reportToTransmit, alphaPerThousand) =>
-        this.onTransmit(aggregatorAddress, oracleAddresses, reportToTransmit, alphaPerThousand)
+      (aggregatorAddress, oracleLedger, reportToTransmit, alphaPerThousand) =>
+        this.onTransmit(aggregatorAddress, oracleLedger, reportToTransmit, alphaPerThousand)
     );
   }
 
@@ -92,13 +92,13 @@ export class TransmitService implements OnModuleInit {
    * Then, restart the timer, so it wakes up when the most imminent report is due.
    *
    * @param aggregatorAddress - Aggregator smart contract address
-   * @param oracleAddresses - Information about the oracles (pk, pkh and peer id)
+   * @param oracleLedger - Information about the oracles (pk, pkh and peer id)
    * @param report - Report to transmit
    * @param alphaPerThousand - Threshold value
    */
   public async onTransmit(
     aggregatorAddress: string,
-    oracleAddresses: IOracleInformations[],
+    oracleLedger: IOracleInformations[],
     report: IAttestedReport,
     alphaPerThousand: BigNumber
   ): Promise<void> {
@@ -149,7 +149,7 @@ export class TransmitService implements OnModuleInit {
       this._logger.info(
         `${aggregatorAddress}/${report.epoch}/${report.round} - This is the first report accepted for transmission, doing transmit`
       );
-      await this.doTransmit(report.epoch, report.round, aggregatorAddress, oracleAddresses, report);
+      await this.doTransmit(report.epoch, report.round, aggregatorAddress, oracleLedger, report);
       return;
     }
 
@@ -170,7 +170,7 @@ export class TransmitService implements OnModuleInit {
       this._logger.info(
         `${aggregatorAddress}/${report.epoch}/${report.round} - Deviation is over threshold, doing transmit`
       );
-      await this.doTransmit(report.epoch, report.round, aggregatorAddress, oracleAddresses, report);
+      await this.doTransmit(report.epoch, report.round, aggregatorAddress, oracleLedger, report);
       return;
     }
 
@@ -188,7 +188,7 @@ export class TransmitService implements OnModuleInit {
       this._logger.info(
         `${aggregatorAddress}/${report.epoch}/${report.round} - Deviation is not over threshold, but new epoch/round, doing transmit`
       );
-      await this.doTransmit(report.epoch, report.round, aggregatorAddress, oracleAddresses, report);
+      await this.doTransmit(report.epoch, report.round, aggregatorAddress, oracleLedger, report);
       return;
     }
   }
@@ -239,14 +239,14 @@ export class TransmitService implements OnModuleInit {
    * @param epoch - Report epoch
    * @param round - Report round
    * @param aggregatorAddress - Aggregator smart contract address
-   * @param oracleAddresses - Information about the oracles (pk, pkh and peer id)
+   * @param oracleLedger - Information about the oracles (pk, pkh and peer id)
    * @param report - Report
    */
   public async doTransmit(
     epoch: number,
     round: number,
     aggregatorAddress: string,
-    oracleAddresses: IOracleInformations[],
+    oracleLedger: IOracleInformations[],
     report: IAttestedReport
   ): Promise<void> {
     this._lastTransmittedReport.set(aggregatorAddress, {
@@ -256,13 +256,13 @@ export class TransmitService implements OnModuleInit {
     });
 
     // Compute oracle delay for this report
-    const delay = await this._getTransmitDelayMs(aggregatorAddress, oracleAddresses, epoch, round);
+    const delay = await this._getTransmitDelayMs(aggregatorAddress, oracleLedger, epoch, round);
 
     this._reports.push({
       time: Date.now() + delay,
       report,
       aggregatorAddress,
-      oracleAddresses
+      oracleLedger
     });
 
     const peekedReport = this._reports.peek()!; // Should never be null since we just pushed a report
@@ -288,21 +288,21 @@ export class TransmitService implements OnModuleInit {
    * See Algorithm 5, "transmit-delay" from {@link https://research.chain.link/ocr.pdf}
    *
    * @param aggregatorAddress
-   * @param oracleAddresses
+   * @param oracleLedger
    * @param epoch
    * @param round
    * @private
    */
   private async _getTransmitDelayMs(
     aggregatorAddress: string,
-    oracleAddresses: IOracleInformations[],
+    oracleLedger: IOracleInformations[],
     epoch: number,
     round: number
   ): Promise<number> {
     const seed = `${aggregatorAddress}-${epoch}-${round}`;
 
     const permuted = randomPermutation(
-      oracleAddresses.map((addrs) => addrs.oracleAddress),
+      oracleLedger.map((addrs) => addrs.oracleAddress),
       seed
     );
 
@@ -325,7 +325,7 @@ export class TransmitService implements OnModuleInit {
     if (timeAndReport === undefined) {
       return;
     }
-    const { report, aggregatorAddress, oracleAddresses } = timeAndReport;
+    const { report, aggregatorAddress, oracleLedger } = timeAndReport;
     const lastBlockchainReport = await this._contractService.getLastBlockchainReport(aggregatorAddress);
 
     // if we have epoch/round is higher than the one in the blockchain OR if this is the first time we commit (report on blockchain is null)
@@ -339,7 +339,7 @@ export class TransmitService implements OnModuleInit {
       )
     ) {
       this._logger.info(`${aggregatorAddress}/${report.epoch}/${report.round} - Sending tx to blockchain`);
-      await this._contractService.sendReportBlockchain(aggregatorAddress, oracleAddresses, report);
+      await this._contractService.sendReportBlockchain(aggregatorAddress, oracleLedger, report);
     } else {
       this._logger.verbose(
         `${aggregatorAddress}/${report.epoch}/${report.round} - Report on blockchain is more recent than current epoch/round: ${lastBlockchainReport?.epoch}/${lastBlockchainReport?.round})

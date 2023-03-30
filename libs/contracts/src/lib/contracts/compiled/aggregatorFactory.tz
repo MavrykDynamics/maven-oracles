@@ -2,7 +2,7 @@
     (or (or (or (or (or (pair %createAggregator
                            (string %name)
                            (bool %addToGeneralContracts)
-                           (map %oracleAddresses address (pair (key %oraclePublicKey) (string %oraclePeerId)))
+                           (map %oracleLedger address (pair (key %oraclePublicKey) (string %oraclePeerId)))
                            (pair %aggregatorConfig
                               (nat %decimals)
                               (nat %alphaPercentPerThousand)
@@ -113,7 +113,7 @@
                   (pair (or (or (or (or (pair %lambdaCreateAggregator
                                            (string %name)
                                            (bool %addToGeneralContracts)
-                                           (map %oracleAddresses address (pair (key %oraclePublicKey) (string %oraclePeerId)))
+                                           (map %oracleLedger address (pair (key %oraclePublicKey) (string %oraclePeerId)))
                                            (pair %aggregatorConfig
                                               (nat %decimals)
                                               (nat %alphaPercentPerThousand)

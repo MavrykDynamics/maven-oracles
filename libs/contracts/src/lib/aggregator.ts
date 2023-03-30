@@ -93,7 +93,7 @@ export type IAggregatorStorage = {
   whitelistContracts        : MichelsonMap<string, unknown>;
   generalContracts          : MichelsonMap<string, unknown>;
 
-  oracleAddresses           : MichelsonMap<string, IOracleInformation>;
+  oracleLedger           : MichelsonMap<string, IOracleInformation>;
   
   lastCompletedData         : OracleLastResultType;
 

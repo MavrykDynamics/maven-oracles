@@ -37,7 +37,7 @@ describe('ContractService', () => {
   });
 
   const aggregatorAddress: string = "KT1JWK133K5MssC645G7X7kQ3CXTimdTXApB";
-  const oracleAddresses: IOracleInformations[] = [
+  const oracleLedger: IOracleInformations[] = [
     {
       oracleAddress: "tz1MnmtP4uAcgMpeZN6JtyziXeFqqwQG6yn6",
       oraclePublicKey: "edpku9qEgcyfNNDK6EpMvu5SqXDqWRLuxdMxdyH12ivTUuB1KXfGP4",
@@ -67,7 +67,7 @@ describe('ContractService', () => {
         const round: number = 1;
       const signature: string = await contractService.signCompressedReport(
         aggregatorAddress,
-        oracleAddresses,
+        oracleLedger,
         observations,
         epoch,
         round
@@ -82,7 +82,7 @@ describe('ContractService', () => {
 
       const verification: boolean = await contractService.verifyReportSignature(
         aggregatorAddress,
-        oracleAddresses,
+        oracleLedger,
         report,
         {
           oracle: "tz1MBNfBnNn8fZCJVrrXV95FSgyuUxbmt3Mm",
@@ -107,7 +107,7 @@ describe('ContractService', () => {
         const round: number = 1;
       const signature: string = await contractService.signCompressedReport(
         aggregatorAddress,
-        oracleAddresses,
+        oracleLedger,
         observations,
         epoch,
         round
@@ -131,7 +131,7 @@ describe('ContractService', () => {
         const round: number = 1;
       const signature: string = await contractService.signCompressedReport(
         aggregatorAddress,
-        oracleAddresses,
+        oracleLedger,
         observations,
         epoch,
         round
@@ -155,7 +155,7 @@ describe('ContractService', () => {
 
       const verification: boolean = await contractService.verifyReportSignature(
         aggregatorAddress,
-        oracleAddresses,
+        oracleLedger,
         report,
         {
           oracle: "tz1MBNfBnNn8fZCJVrrXV95FSgyuUxbmt3Mm",
@@ -180,7 +180,7 @@ describe('ContractService', () => {
         const round: number = 1;
       const signature: string = await contractService.signCompressedReport(
         aggregatorAddress,
-        oracleAddresses,
+        oracleLedger,
         observations,
         epoch,
         round
@@ -195,7 +195,7 @@ describe('ContractService', () => {
 
       const verification: boolean = await contractService.verifyReportSignature(
         aggregatorAddress,
-        oracleAddresses,
+        oracleLedger,
         report,
         {
           oracle: "tz1TQ4fpSFNZ6D9vrcwBz9yzM2SNjDj5YoU7",
@@ -225,14 +225,14 @@ describe('ContractService', () => {
 
       const signature1: string = await contractServiceOther.signCompressedReport(
         aggregatorAddress,
-        oracleAddresses,
+        oracleLedger,
         observations,
         epoch,
         round
       );
       const signature2: string = await contractService.signCompressedReport(
         aggregatorAddress,
-        oracleAddresses,
+        oracleLedger,
         observations,
         epoch,
         round
@@ -259,7 +259,7 @@ describe('ContractService', () => {
       const verifiaction: boolean = await contractService.verifyAttestedReport(
         aggregatorAddress,
         attestedReport,
-        oracleAddresses,
+        oracleLedger,
         1
       );
       expect(verifiaction).toBeTruthy();
@@ -269,14 +269,14 @@ describe('ContractService', () => {
 
       const signature1: string = await contractService.signCompressedReport(
         aggregatorAddress,
-        oracleAddresses,
+        oracleLedger,
         observations,
         epoch,
         round
       );
       const signature2: string = await contractService.signCompressedReport(
         aggregatorAddress,
-        oracleAddresses,
+        oracleLedger,
         observations,
         epoch,
         round
@@ -303,7 +303,7 @@ describe('ContractService', () => {
       const verifiaction: boolean = await contractService.verifyAttestedReport(
         aggregatorAddress,
         attestedReport,
-        oracleAddresses,
+        oracleLedger,
         1
       );
       expect(verifiaction).toBeFalsy();
@@ -313,14 +313,14 @@ describe('ContractService', () => {
 
       const signature1: string = await contractService.signCompressedReport(
         aggregatorAddress,
-        oracleAddresses,
+        oracleLedger,
         observations,
         epoch,
         round
       );
       const signature2: string = await contractService.signCompressedReport(
         aggregatorAddress,
-        oracleAddresses,
+        oracleLedger,
         observations,
         epoch,
         round
@@ -357,7 +357,7 @@ describe('ContractService', () => {
       await expect(contractService.verifyAttestedReport(
         aggregatorAddress,
         attestedReport,
-        oracleAddresses,
+        oracleLedger,
         1
       )).rejects.toThrow(`Cannot pack report, missing oracle address for oracle ${wrongAddress}`);
     });
@@ -366,14 +366,14 @@ describe('ContractService', () => {
 
       const signature1: string = await contractService.signCompressedReport(
         aggregatorAddress,
-        oracleAddresses,
+        oracleLedger,
         observations,
         epoch,
         round
       );
       const signature2: string = await contractService.signCompressedReport(
         aggregatorAddress,
-        oracleAddresses,
+        oracleLedger,
         observations,
         epoch,
         round
@@ -400,7 +400,7 @@ describe('ContractService', () => {
       const verifiaction: boolean = await contractService.verifyAttestedReport(
         aggregatorAddress,
         attestedReport,
-        oracleAddresses,
+        oracleLedger,
         2
       );
       expect(verifiaction).toBeFalsy();

@@ -5,7 +5,7 @@ import {
   AggregatorFactoryContractAbstraction,
   IAggregatorFactoryStorage
 } from '../lib/aggregatorFactory';
-import { alphaPercentPerThousand, decimals, heartBeatSeconds, oracleAddresses } from '../lib/accounts';
+import { alphaPercentPerThousand, decimals, heartBeatSeconds, oracleLedger } from '../lib/accounts';
 import { networkConfig } from '../lib/scripts/env';
 import { InMemorySigner } from '@taquito/signer';
 import { expect } from 'chai';
@@ -50,14 +50,7 @@ describe('Create Aggregator Factory', () => {
       );
 
       const createAggregator1Op = await aggregatorFactory.methods
-        .createAggregator(
-          pair[0],
-          pair[1],
-          alphaPercentPerThousand,
-          decimals,
-          heartBeatSeconds,
-          oracleAddresses
-        )
+        .createAggregator(pair[0], pair[1], alphaPercentPerThousand, decimals, heartBeatSeconds, oracleLedger)
         .send();
 
       await createAggregator1Op.confirmation();

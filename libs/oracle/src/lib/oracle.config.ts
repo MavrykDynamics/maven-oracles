@@ -9,6 +9,13 @@ export class OracleConfig {
   public bootstrapPeers: string;
 
   @Property({
+    default: 'ip4',
+    env: 'P2P_LISTEN_PROTOCOL',
+    format: String
+  })
+  public peerListenProtocol: string;
+
+  @Property({
     default: '0.0.0.0',
     env: 'P2P_LISTEN_ADDRESS',
     format: String

@@ -10,7 +10,7 @@ import {
   AggregatorFactoryContractAbstraction,
   IAggregatorFactoryStorage
 } from '../aggregatorFactory.js';
-import { alphaPercentPerThousand, percentOracleThreshold, rewardAmountStakedMvk, rewardAmountXtz, decimals, heartBeatSeconds, oracleAddresses, accounts, zeroAddress } from '../accounts.js';
+import { alphaPercentPerThousand, percentOracleThreshold, rewardAmountStakedMvk, rewardAmountXtz, decimals, heartBeatSeconds, oracleLedger, accounts, zeroAddress } from '../accounts.js';
 
 export const AGGREGATOR_FACTORY_SMART_CONTRACT_ADDRESS: unique symbol = Symbol(
   'AGGREGATOR_FACTORY_SMART_CONTRACT_ADDRESS'
@@ -117,7 +117,7 @@ export default async function (
     .createAggregator(
       "USD/BTC",
       false,
-      oracleAddresses,
+      oracleLedger,
       decimals,
       alphaPercentPerThousand,
       percentOracleThreshold,

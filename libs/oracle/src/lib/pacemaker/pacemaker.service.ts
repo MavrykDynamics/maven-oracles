@@ -125,7 +125,7 @@ export class PacemakerService {
 
     this._epochAndLeader = {
       epoch,
-      leader: this._leaderForEpoch(this._pacemakerConfig.oracleAddresses, epoch)
+      leader: this._leaderForEpoch(this._pacemakerConfig.oracleLedger, epoch)
     };
     this._newEpoch = epoch;
 
@@ -140,7 +140,7 @@ export class PacemakerService {
       aggregatorPair: this._pacemakerConfig.aggregatorPair,
       alphaPerThousand: blockchainConfig.alphaPercentPerThousand,
       heartbeatSeconds: blockchainConfig.heartBeatSeconds,
-      oracleAddresses: this._pacemakerConfig.oracleAddresses
+      oracleLedger: this._pacemakerConfig.oracleLedger
     });
 
     this._timerProgress.restart();
@@ -230,7 +230,7 @@ export class PacemakerService {
     }
 
     if (
-      !this._pacemakerConfig.oracleAddresses.map((oracle) => oracle.oraclePeerId).includes(from.toString())
+      !this._pacemakerConfig.oracleLedger.map((oracle) => oracle.oraclePeerId).includes(from.toString())
     ) {
       this._logger.warn(`Received newEpoch message from unknown oracle: ${from.toString()}`);
       return;
@@ -268,7 +268,7 @@ export class PacemakerService {
       .sort()
       .reverse();
 
-    const f = computeFValueFrom(this._pacemakerConfig.oracleAddresses.length);
+    const f = computeFValueFrom(this._pacemakerConfig.oracleLedger.length);
 
     // Tmp value to check against if amplification check fails
     let epoch = -1;
@@ -321,7 +321,7 @@ export class PacemakerService {
       .sort()
       .reverse();
 
-    const f = computeFValueFrom(this._pacemakerConfig.oracleAddresses.length);
+    const f = computeFValueFrom(this._pacemakerConfig.oracleLedger.length);
 
     // Tmp value to check against if agreement check fails
     let epochAccumulator = -1;
@@ -351,7 +351,7 @@ export class PacemakerService {
     // Set the current epoch and compute the new leader
     this._epochAndLeader = {
       epoch: epochAccumulator,
-      leader: this._leaderForEpoch(this._pacemakerConfig.oracleAddresses, epochAccumulator)
+      leader: this._leaderForEpoch(this._pacemakerConfig.oracleLedger, epochAccumulator)
     };
 
     let aggregatorConfig: IAggregatorConfig;
@@ -380,7 +380,7 @@ export class PacemakerService {
       aggregatorPair: this._pacemakerConfig.aggregatorPair,
       alphaPerThousand: aggregatorConfig.alphaPercentPerThousand,
       heartbeatSeconds: aggregatorConfig.heartBeatSeconds,
-      oracleAddresses: this._pacemakerConfig.oracleAddresses
+      oracleLedger: this._pacemakerConfig.oracleLedger
     });
 
     this._timerProgress.restart();
@@ -398,7 +398,7 @@ export class PacemakerService {
   /**
    * Compute the leader for a given epoch
    *
-   * @param oracleAddresses - Information about the oracles (pk, pkh and peer id)
+   * @param oracleLedger - Information about the oracles (pk, pkh and peer id)
    * @param epoch - Current epoch
    *
    * @private
@@ -409,8 +409,8 @@ export class PacemakerService {
    *
    * See "The leader function", section 5.2 in {@link https://research.chain.link/ocr.pdf}
    */
-  private _leaderForEpoch(oracleAddresses: IOracleInformations[], epoch: number): string {
-    const oraclePeersIdList: string[] = [...oracleAddresses.values()].map((infos) => infos.oraclePeerId);
+  private _leaderForEpoch(oracleLedger: IOracleInformations[], epoch: number): string {
+    const oraclePeersIdList: string[] = [...oracleLedger.values()].map((infos) => infos.oraclePeerId);
     const oracleLeaderIndex = epoch % oraclePeersIdList.length;
 
     return oraclePeersIdList[oracleLeaderIndex];

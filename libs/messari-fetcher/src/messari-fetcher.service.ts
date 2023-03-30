@@ -29,8 +29,8 @@ export class MessariFetcherService implements IDataFetcher {
   }
 
   public async getData([pair1, pair2]: [string, string]): Promise<BigNumber> {
-    const vsCurrency = pair1.toLowerCase();
-    const coin = pair2.toLowerCase();
+    const coin = pair1.toLowerCase();
+    const vsCurrency = pair2.toLowerCase();
 
     let response: AxiosResponse;
     try {

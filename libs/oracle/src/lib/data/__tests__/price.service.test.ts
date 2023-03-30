@@ -209,7 +209,7 @@ describe('DataService', () => {
   //         signatures: [],
   //       },
   //       aggregatorAddress: mockedAggregatorAddresses[0].aggregatorAddress,
-  //       oracleAddresses: mockedOracleAddresses
+  //       oracleLedger: mockedOracleAddresses
   //     });
   //     reports.push({
   //       time: Date.now(),
@@ -220,7 +220,7 @@ describe('DataService', () => {
   //         signatures: [],
   //       },
   //       aggregatorAddress: mockedAggregatorAddresses[0].aggregatorAddress,
-  //       oracleAddresses: mockedOracleAddresses
+  //       oracleLedger: mockedOracleAddresses
   //     });
   //     await timerTransmit.fakeTimeout();
   //     expect((contractServiceMock as any).getLastBlockchainReport).toHaveBeenNthCalledWith(2, mockedAggregatorAddresses[0].aggregatorAddress);
