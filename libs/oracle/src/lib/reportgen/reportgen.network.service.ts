@@ -55,21 +55,37 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
     });
     await this._nodeService.node.handle(this._observeProtocol, async ({ stream, connection }) => {
       this._logger.debug(`Creating inbound stream for ${this._observeProtocol}`);
-      await this._streamManagerService.createInboundStream(
-        this._observeProtocol,
-        connection.remotePeer,
-        stream,
-        (data, peerId) => this.onObserve(data, peerId)
-      );
+
+      try {
+        this._logger.debug(`Creating inbound stream for ${this._observeProtocol}`);
+
+        await this._streamManagerService.createInboundStream(
+          this._observeProtocol,
+          connection.remotePeer,
+          stream,
+          (data, peerId) => this.onObserve(data, peerId)
+        );
+      } catch (e) {
+        this._logger.error(
+          `Failed to create inbound stream for protocol ${this._observeProtocol}: ${JSON.stringify(e)}`
+        );
+      }
     });
     await this._nodeService.node.handle(this._reportProtocol, async ({ stream, connection }) => {
-      this._logger.debug(`Creating inbound stream for ${this._reportProtocol}`);
-      await this._streamManagerService.createInboundStream(
-        this._reportProtocol,
-        connection.remotePeer,
-        stream,
-        (data, peerId) => this.onReport(data, peerId)
-      );
+      try {
+        this._logger.debug(`Creating inbound stream for ${this._reportProtocol}`);
+
+        await this._streamManagerService.createInboundStream(
+          this._reportProtocol,
+          connection.remotePeer,
+          stream,
+          (data, peerId) => this.onReport(data, peerId)
+        );
+      } catch (e) {
+        this._logger.error(
+          `Failed to create inbound stream for protocol ${this._reportProtocol}: ${JSON.stringify(e)}`
+        );
+      }
     });
 
     // if (this._nodeService.node.peerId.toString() !== '12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1') {
@@ -164,19 +180,31 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
 
     const serialized = ReportGenNetworkService.serializeObserveReqMessage(observeReqMessage);
 
-    await this._nodeService.node.pubsub.publish(this._observeReqTopic, serialized);
+    try {
+      await this._nodeService.node.pubsub.publish(this._observeReqTopic, serialized);
+    } catch (e) {
+      this._logger.error(`Failed to send observeReq: ${JSON.stringify(observeReqMessage)}`);
+    }
   }
 
   public async broadcastFinalEcho(finalEchoMessage: IFinalEchoMessage): Promise<void> {
     const serialized = ReportGenNetworkService.serializeFinalEchoMessage(finalEchoMessage);
 
-    await this._nodeService.node.pubsub.publish(this._finalEchoTopic, serialized);
+    try {
+      await this._nodeService.node.pubsub.publish(this._finalEchoTopic, serialized);
+    } catch (e) {
+      this._logger.error(`Failed to send finalEcho: ${JSON.stringify(finalEchoMessage)}`);
+    }
   }
 
   public async broadcastFinal(finalMessage: IFinalMessage): Promise<void> {
     const serialized = ReportGenNetworkService.serializeFinalMessage(finalMessage);
 
-    await this._nodeService.node.pubsub.publish(this._finalTopic, serialized);
+    try {
+      await this._nodeService.node.pubsub.publish(this._finalTopic, serialized);
+    } catch (e) {
+      this._logger.error(`Failed to send final: ${JSON.stringify(finalMessage)}`);
+    }
   }
 
   public async sendObserve(to: PeerId, observeMessage: IObserveMessage): Promise<void> {
@@ -233,7 +261,12 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
 
   public async broadcastReportReq(reportReqMessage: IReportReqMessage): Promise<void> {
     const serialized = ReportGenNetworkService.serializeReportReqMessage(reportReqMessage);
-    await this._nodeService.node.pubsub.publish(this._reportReqTopic, serialized);
+
+    try {
+      await this._nodeService.node.pubsub.publish(this._reportReqTopic, serialized);
+    } catch (e) {
+      this._logger.error(`Failed to send reportReq: ${JSON.stringify(reportReqMessage)}`);
+    }
   }
 
   public static serializeObserveMessage(observeMessage: IObserveMessage): Uint8Array {

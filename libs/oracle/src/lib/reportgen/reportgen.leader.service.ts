@@ -168,9 +168,7 @@ export class ReportGenLeaderService {
       return;
     }
 
-    if (
-      !this._reportGenConfig.oracleLedger.map((oracle) => oracle.oraclePeerId).includes(from.toString())
-    ) {
+    if (!this._reportGenConfig.oracleLedger.map((oracle) => oracle.oraclePeerId).includes(from.toString())) {
       this._logger.warn(`Received observe message from unknown oracle: ${from.toString()}`);
       return;
     }
@@ -277,9 +275,7 @@ export class ReportGenLeaderService {
       return;
     }
 
-    if (
-      !this._reportGenConfig.oracleLedger.map((oracle) => oracle.oraclePeerId).includes(from.toString())
-    ) {
+    if (!this._reportGenConfig.oracleLedger.map((oracle) => oracle.oraclePeerId).includes(from.toString())) {
       this._logger.warn(`Received report message from unknown oracle: ${from.toString()}`);
       return;
     }
@@ -415,6 +411,10 @@ export class ReportGenLeaderService {
     this._observe = new Map();
     this._report = new Map();
     this._phase = Phase.Observe;
+
+    this._logger.debug(
+      `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${this._round} Start round`
+    );
     await this._reportGenNetworkService.broadcastObserveReq({
       aggregatorAddress: this._reportGenConfig.aggregatorAddress,
       round: this._round

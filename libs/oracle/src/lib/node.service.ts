@@ -1,18 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import { createLibp2p, Libp2p } from 'libp2p';
-import { Mplex } from '@libp2p/mplex';
-import { Noise } from '@chainsafe/libp2p-noise';
-import { GossipSub } from '@chainsafe/libp2p-gossipsub';
-import { Bootstrap } from '@libp2p/bootstrap';
-import { KadDHT } from '@libp2p/kad-dht';
+import { mplex } from '@libp2p/mplex';
+import { noise } from '@chainsafe/libp2p-noise';
+import { gossipsub, GossipSub } from '@chainsafe/libp2p-gossipsub';
+import { bootstrap } from '@libp2p/bootstrap';
+import { kadDHT } from '@libp2p/kad-dht';
 import { OracleConfig } from './oracle.config.js';
 import { createFromJSON } from '@libp2p/peer-id-factory';
 import { ContractService } from './contract/index.js';
-import { TCP } from '@libp2p/tcp';
-import { Transport } from '@libp2p/interface-transport';
-import { Libp2pNode } from 'libp2p/dist/src/libp2p.js';
+import { tcp } from '@libp2p/tcp';
 import { getLogger } from './logger.js';
 import { Logger } from 'winston';
+import { pubsubPeerDiscovery } from '@libp2p/pubsub-peer-discovery';
+import { PeerDiscovery } from '@libp2p/interface-peer-discovery';
+import { Components } from 'libp2p/src/components';
+import { Libp2pNode } from 'libp2p/libp2p';
 
 @Injectable()
 export class NodeService {
@@ -71,22 +73,22 @@ export class NodeService {
       addresses: {
         listen: [`/${peerListenProtocol}/${peerListenAddress}/tcp/${peerListenPort}`]
       },
-      transports: [new TCP() as unknown as Transport],
-      streamMuxers: [new Mplex()],
-      connectionEncryption: [new Noise()],
-      pubsub: new GossipSub({
-        emitSelf: true
+      transports: [tcp()],
+      streamMuxers: [mplex()],
+      connectionEncryption: [noise()],
+      pubsub: gossipsub({
+        emitSelf: true,
+        allowPublishToZeroPeers: true
       }),
       peerDiscovery: [
-        new Bootstrap({
-          interval: 10000,
+        bootstrap({
+          timeout: 10e3,
           list: bootstrapPeers
-        })
+        }),
+        pubsubPeerDiscovery() as unknown as (components: Components) => PeerDiscovery
       ],
-      dht: new KadDHT(),
-      connectionManager: {
-        autoDial: true
-      },
+      dht: kadDHT(),
+      connectionManager: {},
 
       // TODO: re-add a white list mechanism
       //  connectionGater: {
@@ -102,22 +104,23 @@ export class NodeService {
       }
     });
 
-    (this._node as Libp2pNode).components.getAddressManager().addEventListener('change:addresses', (a) => {
-      const addresses = this._node.getMultiaddrs();
-      this._logger.verbose(`My multiaddresses: ${JSON.stringify(addresses)}`);
-    });
-
     // Log a message when a remote peer connects to us
-    this._node.connectionManager.addEventListener('peer:connect', (evt) => {
+    this._node.addEventListener('peer:connect', (evt) => {
       // const connection = evt.detail;
-      this._logger.debug('Connected to: ', JSON.stringify(evt));
+      this._logger.debug(`Connected to: ${JSON.stringify(evt)}`);
     });
     // Log a message when a remote peer disconnects from us
-    this._node.connectionManager.addEventListener('peer:disconnect', (evt) => {
+    this._node.addEventListener('peer:disconnect', (evt) => {
       // const connection = evt.detail;
-      this._logger.debug('Disconnected from: ', JSON.stringify(evt));
+      this._logger.debug(`Disconnected from: ${JSON.stringify(evt)}`);
     });
 
+    this._node.addEventListener('peer:discovery', (evt) => {
+      // This spams a lot
+      this._logger.silly(`Discovered (json): ${JSON.stringify(evt)}`);
+    });
+
+    this._logger.info('Starting');
     // Start listening
     await this._node.start();
 

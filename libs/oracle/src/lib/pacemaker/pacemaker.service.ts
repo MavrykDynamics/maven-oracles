@@ -229,9 +229,7 @@ export class PacemakerService {
       return;
     }
 
-    if (
-      !this._pacemakerConfig.oracleLedger.map((oracle) => oracle.oraclePeerId).includes(from.toString())
-    ) {
+    if (!this._pacemakerConfig.oracleLedger.map((oracle) => oracle.oraclePeerId).includes(from.toString())) {
       this._logger.warn(`Received newEpoch message from unknown oracle: ${from.toString()}`);
       return;
     }

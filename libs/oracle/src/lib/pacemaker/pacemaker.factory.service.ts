@@ -22,22 +22,22 @@ export class PacemakerFactoryService implements OnModuleInit {
 
   public async onModuleInit(): Promise<void> {
     // we get the aggregator addresses and pairs from the config
-    const { aggregatorAddresses }   = this._oracleConfig;
-    const aggregatorAddressesArray  = aggregatorAddresses.split(',');
+    const { aggregatorAddresses } = this._oracleConfig;
+    const aggregatorAddressesArray = aggregatorAddresses.split(',');
 
     // for each aggregator, we start a new pacemaker service
-    for (let index = 0; index < aggregatorAddressesArray.length; index++){
-      const aggregatorAddress       = aggregatorAddressesArray[index];
-      const oracleLedger         = await this._contractService.getOraclesAddresses(aggregatorAddress);
-      const aggregatorName          = await this._contractService.getName(aggregatorAddress);
-      const pairArray               = aggregatorName.split('/');
+    for (let index = 0; index < aggregatorAddressesArray.length; index++) {
+      const aggregatorAddress = aggregatorAddressesArray[index];
+      const oracleLedger = await this._contractService.getOraclesAddresses(aggregatorAddress);
+      const aggregatorName = await this._contractService.getName(aggregatorAddress);
+      const pairArray = aggregatorName.split('/');
 
       // Check if the pair is correct
       if (pairArray.length !== 2) {
         throw new Error(`${aggregatorName} is not a pair`);
       }
 
-      const pair: [string, string]  = [pairArray[0], pairArray[1]];
+      const pair: [string, string] = [pairArray[0], pairArray[1]];
 
       await this._startPacemaker({
         aggregatorAddress,

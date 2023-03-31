@@ -108,7 +108,7 @@ export class StreamManagerService implements OnModuleDestroy {
       }
 
       try {
-        this._logger.debug(`Creating outbound steam for ${protocol}/${id}}`);
+        this._logger.debug(`Creating outbound steam with peerId ${peerId} for ${protocol}/${id}}`);
         const stream = new OutboundStream(
           await this._nodeService.node.dialProtocol(peerId, protocol),
           (err) => this._logger.error(`Error on ${protocol}/${id}/${stream.id()}: ${JSON.stringify(err)}`)
