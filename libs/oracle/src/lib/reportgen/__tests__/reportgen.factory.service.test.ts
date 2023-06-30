@@ -34,7 +34,7 @@ describe('ReportGenFactoryService', () => {
   const reportgenNetworkServiceMock = new ReportGenNetworkServiceMock();
   const eventHubServiceMock = new EventHubService();
   const contractServiceMock = new ContractServiceMock();
-  const priceServiceMock = new DataServiceMock();
+  const dataServiceMock = new DataServiceMock();
 
   beforeEach(async () => {
     reportGenFactoryService = new ReportGenFactoryService(
@@ -42,7 +42,7 @@ describe('ReportGenFactoryService', () => {
       reportgenNetworkServiceMock as unknown as ReportGenNetworkService,
       eventHubServiceMock as unknown as EventHubService,
       contractServiceMock as unknown as ContractService,
-      priceServiceMock as unknown as DataService
+      dataServiceMock as unknown as DataService
     );
   });
 
@@ -56,7 +56,7 @@ describe('ReportGenFactoryService', () => {
         reportgenNetworkServiceMock,
         eventHubServiceMock,
         contractServiceMock,
-        priceServiceMock,
+        dataServiceMock,
         ReportGenConfigMock
       );
     });

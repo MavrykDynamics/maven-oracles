@@ -11,6 +11,12 @@ import { confirmOperation } from './confirmation.js';
 import { networkConfig, NetworkName } from './env.js';
 import * as path from 'path';
 import { URL } from 'url';
+import { AggregatorFactoryContractAbstraction } from '../aggregatorFactory.js';
+import {
+    AggregatorFactoryLambdas,
+    AggregatorLambdas
+} from '../aggregatorFactory.js'
+import { MavrykLiteContractAbstraction } from '../mavrykLite.js';
 export const getLigo = (
   isDockerizedLigo: boolean,
   ligoVersion: string = networkConfig.ligoVersion,
@@ -107,7 +113,7 @@ export const compile = async (
         fs.writeFileSync(`${outputDir}/${contract}.tz`, michelson);
       }
     } catch (e) {
-      console.error(e);
+      console.dir(e, {depth: 5});
     }
   });
 };
@@ -141,7 +147,7 @@ export const compileLambdas = async (
     fs.writeFileSync(`${networkConfig.buildDir}/lambdas/governanceLambdas.json`, JSON.stringify(res));
   } catch (e) {
     console.log('error in compiling lambdas');
-    console.error(e);
+    console.dir(e, {depth: 5});
   }
 };
 
@@ -177,7 +183,7 @@ export const compileParameters = async (
     );
   } catch (e) {
     console.log('error in compiling lambda parameters');
-    console.error(e);
+    console.dir(e, {depth: 5});
   }
 };
 
@@ -203,7 +209,7 @@ export const migrate = async (
       storage: storage
     });
     //      .catch((e) => {
-    //        console.error(e)
+    //        console.dir(e, {depth: 5})
     //
     //        return null
     //      })
@@ -225,7 +231,7 @@ export const migrate = async (
 
     return operation.contractAddress;
   } catch (e) {
-    console.error(e);
+    console.dir(e, {depth: 5});
     return undefined;
   }
 };
@@ -238,7 +244,7 @@ export const getDeployedAddress = (contract: string): any => {
 
     return artifacts.networks[networkConfig.network][contract];
   } catch (e) {
-    console.error(e);
+    console.dir(e, {depth: 5});
   }
 };
 
@@ -257,7 +263,7 @@ export const runMigrations = async (
       await execMigration.default(networkConfig, network);
     }
   } catch (e) {
-    console.error(e);
+    console.dir(e, {depth: 5});
   }
 };
 
@@ -282,4 +288,74 @@ export const saveContractAddress = async (
   }
 
   fs.writeFileSync(envFile, data, 'utf8');
+};
+
+export const setAggregatorFactoryLambdas = async (
+    tezosToolkit: TezosToolkit,
+    aggregatorFactory: AggregatorFactoryContractAbstraction,
+): Promise<void> => {
+    const lambdasPerBatch   = 10;
+    const lambdas           = AggregatorFactoryLambdas;
+    const lambdasCount      = Object.keys(lambdas).length;
+    const batchesCount      = Math.ceil(lambdasCount / lambdasPerBatch);
+
+    for(let i = 0; i < batchesCount; i++) {
+        
+        const batch = tezosToolkit.wallet.batch();
+        let index   = 0;
+
+        for (const lambdaName in lambdas) {
+            if (lambdaName){
+                const bytes   = lambdas[lambdaName]
+                if(index < (lambdasPerBatch * (i + 1)) && (index >= lambdasPerBatch * i)){
+                    batch.withContractCall(aggregatorFactory.methods.setLambda(lambdaName, bytes))
+                }
+                index++;
+            }
+        }
+
+        const setupLambdasOperation = await batch.send()
+        await confirmOperation(tezosToolkit, setupLambdasOperation.opHash);
+    }
+};
+
+export const setAggregatorFactoryProductLambdas = async (
+    tezosToolkit: TezosToolkit,
+    aggregatorFactory: AggregatorFactoryContractAbstraction,
+): Promise<void> => {
+    const lambdasPerBatch   = 10;
+    const lambdas           = AggregatorLambdas;
+    const lambdasCount      = Object.keys(lambdas).length;
+    const batchesCount      = Math.ceil(lambdasCount / lambdasPerBatch);
+
+    for(let i = 0; i < batchesCount; i++) {
+        
+        const batch = tezosToolkit.wallet.batch();
+        let index   = 0;
+
+        for (const lambdaName in lambdas) {
+            if (lambdaName){
+                const bytes   = lambdas[lambdaName]
+                if(index < (lambdasPerBatch * (i + 1)) && (index >= lambdasPerBatch * i)){
+                    batch.withContractCall(aggregatorFactory.methods.setProductLambda(lambdaName, bytes))
+                }
+                index++;
+            }
+        }
+
+        const setupProductLambdasOperation = await batch.send()
+        await confirmOperation(tezosToolkit, setupProductLambdasOperation.opHash);
+    }
+};
+
+export const setMavrykLiteGeneralContracts = async (
+    tezosToolkit: TezosToolkit,
+    mavrykLite: MavrykLiteContractAbstraction,
+): Promise<void> => {
+    const generalContractsBatch = tezosToolkit.wallet.batch()
+    .withContractCall(mavrykLite.methods.updateGeneralContracts("aggregatorTreasury", mavrykLite.address, "update"))
+    .withContractCall(mavrykLite.methods.updateGeneralContracts("delegation", mavrykLite.address, "update"))
+    .withContractCall(mavrykLite.methods.updateGeneralContracts("governanceSatellite", mavrykLite.address, "update"))
+    const generalContractsOperation = await generalContractsBatch.send()
+    await confirmOperation(tezosToolkit, generalContractsOperation.opHash);
 };

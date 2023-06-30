@@ -10,7 +10,7 @@ import {
   mockComputeMedian,
   mockSignData,
   mockVerifyData
-} from '../../reportgen/__mocks__/helpers.mock';
+} from '../../reportgen/__mocks__/reportgen.helpers.mock.js';
 import BigNumber from 'bignumber.js';
 import { TimerMock } from '../../pacemaker/__mocks__/timer.mock.js';
 import { MessariFetcherService } from '@mavrykdynamics/messari-fetcher';
@@ -34,15 +34,15 @@ jest.unstable_mockModule('../../reportgen/helpers.js', async () => ({
 const { DataService } = await import('../data.service.js');
 
 describe('DataService', () => {
-  let priceService: DataServiceType;
-  let priceFetchers: any;
+  let dataService: DataServiceType;
+  let dataFetchers: any;
   const messariFetcherServiceMock = new MessariFetcherServiceMock();
   const coingeckoFetcherServiceMock = new CoingeckoFetcherServiceMock();
   const alphavantageFetcherServiceMock = new AlphavantageFetcherServiceMock();
 
   beforeEach(async () => {
 
-    priceService = new DataService(
+    dataService = new DataService(
       messariFetcherServiceMock as MessariFetcherService,
       coingeckoFetcherServiceMock as CoingeckoFetcherService,
       alphavantageFetcherServiceMock as AlphavantageFetcherService,
@@ -50,7 +50,7 @@ describe('DataService', () => {
     );
 
     // @ts-expect-error
-    priceFetchers = priceService._priceFetchers;
+    dataFetchers = dataService._dataFetchers;
     
   });
 
@@ -60,57 +60,57 @@ describe('DataService', () => {
 
   describe('getData', () => {
 
-    test('init - _priceFetchers should be not empty', async () => {
-      expect(priceFetchers.length).toEqual(3);
+    test('init - _dataFetchers should be not empty', async () => {
+      expect(dataFetchers.length).toEqual(3);
     });
     
     const decimals: BigNumber = new BigNumber(3);
     const pair: [string, string] = ['usd','btc'];
-    test('getData without fakePrice', async () => {
-      const price = await priceService.getData(decimals, pair);
+    test('getData without fakeData', async () => {
+      const data = await dataService.getData(decimals, pair);
       expect((messariFetcherServiceMock as any).getData).toHaveBeenCalled();
       expect((coingeckoFetcherServiceMock as any).getData).toHaveBeenCalled();
       expect((alphavantageFetcherServiceMock as any).getData).toHaveBeenCalled();
-      expect(price.toNumber()).toEqual(15000); // 15 * 1000 (3 decimals)
+      expect(data.toNumber()).toEqual(15000); // 15 * 1000 (3 decimals)
     });
 
-    test('getData without fakePrice and on fetcher fail', async () => {
-      priceFetchers[2] = AlphavantageFetcherServiceMock;
-      const price = await priceService.getData(decimals, pair);
+    test('getData without fakeData and on fetcher fail', async () => {
+      dataFetchers[2] = AlphavantageFetcherServiceMock;
+      const data = await dataService.getData(decimals, pair);
       expect((messariFetcherServiceMock as any).getData).toHaveBeenCalled();
       expect((coingeckoFetcherServiceMock as any).getData).toHaveBeenCalled();
       expect((alphavantageFetcherServiceMock as any).getData).not.toHaveBeenCalled();
-      expect(price.toNumber()).toEqual(20000); // (15 + 25) / 2 * 1000 (3 decimals)
+      expect(data.toNumber()).toEqual(20000); // (15 + 25) / 2 * 1000 (3 decimals)
     });
 
-    test('getData without fakePrice should fail because 0/3 fetcher answer', async () => {
-      priceFetchers[0] = MessariFetcherServiceMock;
-      priceFetchers[1] = CoingeckoFetcherServiceMock;
-      priceFetchers[2] = AlphavantageFetcherServiceMock;
+    test('getData without fakeData should fail because 0/3 fetcher answer', async () => {
+      dataFetchers[0] = MessariFetcherServiceMock;
+      dataFetchers[1] = CoingeckoFetcherServiceMock;
+      dataFetchers[2] = AlphavantageFetcherServiceMock;
 
-      await expect(priceService.getData(decimals, pair)).rejects.toThrow(`All price fetcher failed to fetch value for pair ${pair[0]}/${pair[1]}`);
+      await expect(dataService.getData(decimals, pair)).rejects.toThrow(`All data fetcher failed to fetch value for pair ${pair[0]}/${pair[1]}`);
       expect((messariFetcherServiceMock as any).getData).not.toHaveBeenCalled();
       expect((coingeckoFetcherServiceMock as any).getData).not.toHaveBeenCalled();
       expect((alphavantageFetcherServiceMock as any).getData).not.toHaveBeenCalled();
     });
 
-    test('getData with fakePrice', async () => {
+    test('getData with fakeData', async () => {
       OracleConfigMock.useFakeData = true;
-      priceService = new DataService(
+      dataService = new DataService(
         messariFetcherServiceMock as MessariFetcherService,
         coingeckoFetcherServiceMock as CoingeckoFetcherService,
         alphavantageFetcherServiceMock as AlphavantageFetcherService,
         OracleConfigMock
       );
 
-      const price = await priceService.getData(decimals, pair);
+      const data = await dataService.getData(decimals, pair);
       expect((messariFetcherServiceMock as any).getData).not.toHaveBeenCalled();
       expect((coingeckoFetcherServiceMock as any).getData).not.toHaveBeenCalled();
       expect((alphavantageFetcherServiceMock as any).getData).not.toHaveBeenCalled();
 
       // between 100 * 1000 and 102 * 1000
-      expect(price.toNumber()).toBeGreaterThanOrEqual(100000); 
-      expect(price.toNumber()).toBeLessThanOrEqual(102000); 
+      expect(data.toNumber()).toBeGreaterThanOrEqual(100000); 
+      expect(data.toNumber()).toBeLessThanOrEqual(102000); 
     });
 
   });

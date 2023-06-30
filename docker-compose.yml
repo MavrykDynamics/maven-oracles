@@ -1,43 +1,5 @@
-version: '3.7'
-
-volumes:
-  esdata:
-  bcdshare:
-  db:
-    driver: local
-
+version: '3.6'
 services:
-  #  builder:
-  #    container_name: builder
-  #    working_dir: /
-  #    build:
-  #      dockerfile: images/node.dev.Dockerfile
-  #      context: .
-  #    command:
-  #      - "sleep"
-  #      - "3600"
-  #      # - "/home/node/common/scripts/install-run-rush.js"
-  #      # - "build:watch"
-  #    volumes:
-  #      - './apps:/home/node/apps'
-  #      - './libs:/home/node/libs'
-
-  elastic:
-    image: ghcr.io/baking-bad/bcdhub-elastic:master
-    restart: always
-    volumes:
-      - esdata:/usr/share/elasticsearch/data
-    environment:
-      - bootstrap.memory_lock=true
-      - discovery.type=single-node
-      - 'ES_JAVA_OPTS=-Xms256m -Xmx256m'
-    logging: &bcd-logging
-      options:
-        max-size: 10m
-        max-file: '5'
-    networks:
-      p2p:
-
   db:
     image: postgres:14
     shm_size: 1g
@@ -58,7 +20,7 @@ services:
 
   api:
     restart: always
-    image: ghcr.io/baking-bad/bcdhub-api:master
+    image: ghcr.io/baking-bad/bcdhub-api:4.4.0
     environment:
       - BCD_ENV=sandbox
       - GIN_MODE=debug
@@ -67,10 +29,9 @@ services:
       - SANDBOX_NODE_URI=http://sandbox:20000
       - SANDBOX_IPFS_GATEWAY=https://cloudflare-ipfs.com
     depends_on:
-      - elastic
       - db
     ports:
-      - 14000:14000
+      - 127.0.0.1:14000:14000
     volumes:
       - bcdshare:/etc/bcd
     links:
@@ -81,7 +42,7 @@ services:
 
   indexer:
     restart: always
-    image: ghcr.io/baking-bad/bcdhub-indexer:master
+    image: ghcr.io/baking-bad/bcdhub-indexer:4.4.0
     environment:
       - BCD_ENV=sandbox
       - POSTGRES_USER=root
@@ -89,27 +50,6 @@ services:
       - SANDBOX_NODE_URI=http://sandbox:20000
       - SANDBOX_IPFS_GATEWAY=https://cloudflare-ipfs.com
     depends_on:
-      - db
-      - metrics
-    links:
-      - 'flextesa:sandbox'
-    volumes:
-      - bcdshare:/etc/bcd
-    logging: *bcd-logging
-    networks:
-      p2p:
-
-  metrics:
-    restart: always
-    image: ghcr.io/baking-bad/bcdhub-metrics:master
-    environment:
-      - BCD_ENV=sandbox
-      - POSTGRES_USER=root
-      - POSTGRES_PASSWORD=root
-      - SANDBOX_NODE_URI=http://sandbox:20000
-      - SANDBOX_IPFS_GATEWAY=https://cloudflare-ipfs.com
-    depends_on:
-      - elastic
       - db
     links:
       - 'flextesa:sandbox'
@@ -120,26 +60,30 @@ services:
       p2p:
 
   flextesa:
-    container_name: flextesa
+    container_name: mavryk-sandbox
     restart: always
-    image: oxheadalpha/flextesa:20230203
+    image: oxheadalpha/flextesa:20230313
     command: limabox start
-      --add-bootstrap-account "eve,edpkv758sKsFGRwE3ZNDR1wdVEnxZui344fsxEtCKbpNMcTaQw2Yis,tz1bfkfgQ8EsH9wrFXueAvm8rKRxzab1vQH1,unencrypted:edskRvgMBH37Dci9isEHcdsHQ4ioPdUq3AfXDiAj3ZXiuy3YMs4LEUiZVMaSG9KjTFo78LidgZkdVbkXUamMK2or8UAxB743SH@2_000_000_000_000"
+      --add-bootstrap-account "eve,edpku9qEgcyfNNDK6EpMvu5SqXDqWRLuxdMxdyH12ivTUuB1KXfGP4,tz1MnmtP4uAcgMpeZN6JtyziXeFqqwQG6yn6,unencrypted:edsk3Sb16jcx9KrgMDsbZDmKnuN11v4AbTtPBgBSBTqYftd8Cq3i1e@2_000_000_000_000"
       --no-daemons-for=eve
-      --add-bootstrap-account "mallory,edpkv6mD1SBoUB45g6Ss3LYfYzqZGxRfA3dehYBxEvGidFzsCg6yXQ,tz1TJTq4Rcx4hqCxkGnmwJRpqeDNzoEpjk6n,unencrypted:edsk3bVbowf9hFpdk8mAjZ8qSKzRTcFTgfqdoY4txdQrUhGHJGruXB@2_000_000_000_000"
+      --add-bootstrap-account "mallory,edpkuVjyKad7yCnNrCbGea7hi5Zh1zp5Cb1TvxUmnxC33fwKhq7daN,tz1PSmvRd3ySbh5aviFEMYGD6542LL5QnrMk,unencrypted:edskRzrnZoreVanzsedvSDgWV1DkNycfjMXyri9LQLVYdXTXJrxNHzdtpouGJTQ1CrQiWK6ECvHCpoYfQ2LM7j8GjJdkjqrsLE@2_000_000_000_000"
       --no-daemons-for=mallory
-      --add-bootstrap-account "bob,edpktqePwpgrWGS49FiAMDacb3bLiDLE8BrbLoi6zYdcZ9bttDLo1D,tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD,unencrypted:edskSA1MhTp6Eq3T79MEP822eXAmxXBk89eFYGgwBsJjfyUHDGsYfudasQocwcb5DUEMvA1B3EsvxCZ8G6Wek6syxAA49DEKzq@2_000_000_000_000"
-      --no-daemons-for=bob
-      --add-bootstrap-account "alice,edpku8CdxqUzHhL8X3fgpCX5CfmqxUU7JWBTmXwqUATt78dGijvqWd,tz1Rf4qAP6ZK19hR6Xwcwqz5778PnwNLPDBM,unencrypted:edskS5Xd6CDBLbuJwkaa7mT2K6mom4odhbBiS3bxDtAB1crXWj4gwKF5oQsN9aijR3CNpr7cZXxcoUU32vqm67W3MRGSTVzMmz@2_000_000_000_000"
-      --no-daemons-for=alice
-      --add-bootstrap-account "oscar,edpkuTgScYTtrvAtTU6UMF44NvNd51ah1aqNeerNFC38bGZrKVXwFP,tz1Zgg2vLeyYLwQCtChXKjYDAXCRowQTzEGw,unencrypted:edsk32TqRuUFWHE6jwrPgbk5M9A3Sbs4shY4dh1WJCMR1fJjoV6iNs@2_000_000_000_000"
+      --add-bootstrap-account "oscar,edpku7vkvS6XaWzFjmPDYULNyYrS7Rf1vHuoQ9FD8zVcaFNJ51bJ82,tz1KrELvNVY4xKnujkXwrVLWuzWJEg9FvA8v,unencrypted:edskRjjhoUjvSZ2eGgGpvcMk6SrtpajjkzGUXDpr2EAa25VTfdtNSoD1JLhEoEnotYR6ZtRC2bCk56kwf79eqgygrMeR145ENq@2_000_000_000_000"
       --no-daemons-for=oscar
+      --add-bootstrap-account "trudy,edpkuqoXhgeXYZxn6yVWuy9UrWKazyahPaAbwnuZYknRefeLVVK3ar,tz1YKquTvvSE2B5kvGyf1AYeXD6b6cMDSzDe,unencrypted:edskRts3yovQnSAaK6WbyiaZdBnLk1cSeq8UEWo24xNyo1T6gZZ9yQpQ48YmvCwjjW1FpSgJ1LPZ9T3jazmh3HXLLKHDaJZVx2@2_000_000_000_000"
+      --no-daemons-for=trudy
+      --add-bootstrap-account "isaac,edpkv6xHMqShSMr4CK3Vzg7mD1hina7eBkokrMoKpuYj55BVd18rjN,tz1TQ4fpSFNZ6D9vrcwBz9yzM2SNjDj5YoU7,unencrypted:edsk2vtJ2rVoHoA3GbgDjyT5zbeVMDXZ6R4YjDskKaapgsRtiEWpaP@2_000_000_000_000"
+      --no-daemons-for=isaac
+      --add-bootstrap-account "david,edpku8MxEyEKHPsPeUBSBz5a5QbemdPbiQVsobdC3SnC9UDf4yMHTL,tz1bPLbmiseCCWtW7RZ9t2RkNyboB9XT4exJ,unencrypted:edsk4AzUdwSFu383eMf8eve56Q2pJxy1eWt4BnzKkLKMdKurHgTeaf@2_000_000_000_000"
+      --no-daemons-for=david
+      --add-bootstrap-account "trudy,edpkv3sej4FWX2cUg8DR9F9QmsEb3YdodhDbVg1o1ooeWUDkuRGTsg,tz1NdjbFHLxbKEUXhXgjyLfQSCbq6oy5b7Px,unencrypted:edsk3ZBmJ3e34AhZViEanGN87QvayUQupJ28Q89xUpFFSv18xF2Lqf@2_000_000_000_000"
+      --no-daemons-for=trudy
     environment:
       - block_time=4
       - flextesa_node_cors_origin=*
     ports:
-      - 8732:20000
-      - 20000:20000
+      - 127.0.0.1:20000:20000
+      - 127.0.0.1:8732:20000
     expose:
       - 20000/tcp
       - 8732/tcp
@@ -150,52 +94,37 @@ services:
   gui:
     container_name: sandbox-gui
     restart: always
-    image: ghcr.io/baking-bad/bcdhub-gui:master
+    image: ghcr.io/baking-bad/bcdhub-gui:4.4.0
     depends_on:
       - api
     ports:
-      - 8000:80
+      - 127.0.0.1:8000:80
     logging: *bcd-logging
     networks:
       p2p:
-
-  # bootstrap:
-  #   container_name: bootstrap
-  #   build:
-  #     dockerfile: images/bootstrap-node.dev.Dockerfile
-  #     context: .
-  #   volumes:
-  #     - './apps:/home/node/apps'
-  #     - './libs:/home/node/libs'
-  #   networks:
-  #     p2p:
-  #       ipv4_address: 172.24.2.100
 
   oracle-1:
     container_name: oracle-1
     build:
       dockerfile: images/node.dev.Dockerfile
       context: .
-    depends_on:
-      - flextesa
     volumes:
       - './apps:/home/node/apps'
       - './libs:/home/node/libs'
     environment:
       - TEZOS_POLLING_INTERVAL_MILLISECONDS=2000
-      - SIGNER_URL=http://signatory:6732
-      - P2P_BOOTSTRAP_PEERS=/ip4/172.24.2.2/tcp/23456/p2p/12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2 /ip4/172.24.2.3/tcp/23456/p2p/12D3KooWLL2Y1JmrAXkY7r8xbuSRtasfJLAarXmAaZPYxPnzgAJ3
+      - P2P_BOOTSTRAP_PEERS=/ip4/172.24.2.2/tcp/23456/p2p/12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2 /ip4/172.24.2.3/tcp/23456/p2p/12D3KooWLL2Y1JmrAXkY7r8xbuSRtasfJLAarXmAaZPYxPnzgAJ3 /ip4/172.24.2.4/tcp/23456/p2p/12D3KooWK87KmBGJZZMP3keux62VF515mFRbNRFwbYxib7wWQR34 /ip4/172.24.2.5/tcp/23456/p2p/12D3KooWDgabT39cFp5j5mvJgiGPEppMuVgDCsNtBCh1Q8ejBCA5 /ip4/172.24.2.6/tcp/23456/p2p/12D3KooWEKXXjviRoWwoB37UzBT4qjUBbQH8bypWy3YWmyfvR736 /ip4/172.24.2.7/tcp/23456/p2p/12D3KooWRGcN9uh633ucfUJ3XQ69n31mB2jPHKtrw7mfCSJdLz97
       - P2P_PEER_ID=12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1
       - P2P_PEER_PUBLIC_KEY=CAESIH+cTTTZ4gyqjEsn4L17gs9BTYU1ZeAnrBbUqQQQ9uW2
       - P2P_PEER_PRIVATE_KEY=CAESQENvWXyvlXtuw58TMrMF45ffJUza23h8zHSvssitueRgf5xNNNniDKqMSyfgvXuCz0FNhTVl4CesFtSpBBD25bY=
-      - TEZOS_ADDRESS=tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD
-      - TEZOS_SECRET_KEY=edskSA1MhTp6Eq3T79MEP822eXAmxXBk89eFYGgwBsJjfyUHDGsYfudasQocwcb5DUEMvA1B3EsvxCZ8G6Wek6syxAA49DEKzq
-      - TEZOS_PUBLIC_KEY=edpktqePwpgrWGS49FiAMDacb3bLiDLE8BrbLoi6zYdcZ9bttDLo1D
+      - TEZOS_ADDRESS=tz1MnmtP4uAcgMpeZN6JtyziXeFqqwQG6yn6
+      - TEZOS_SECRET_KEY=edsk3Sb16jcx9KrgMDsbZDmKnuN11v4AbTtPBgBSBTqYftd8Cq3i1e
+      - TEZOS_PUBLIC_KEY=edpku9qEgcyfNNDK6EpMvu5SqXDqWRLuxdMxdyH12ivTUuB1KXfGP4
       - ALPHAVANTAGE_API_KEY=LOKAGZEB6UK7JJWS
       - MESSARI_API_KEY=7a4ace98-90a6-4792-81ad-5364afc6698d
       - RPC_URL=http://flextesa:20000
       - USE_FAKE_DATA=true
-      - AGGREGATOR_SMART_CONTRACT_ADDRESSES=KT1CmgazHG5qJm8zDqpP2Fb2LmXjvmmJDHYq,KT1NRJFhcbQk8X9kCvBw2bvvNjmzkSvdo8HP,KT1S4CLrRtPgMQdr2jFHkvEnhvxKS2PEmQKe,KT1St4dBSVLnXPNiXN4mrqvkkwFf438pnJZx
+      - LOG_LEVEL=debug
     networks:
       p2p:
         ipv4_address: 172.24.2.1
@@ -206,27 +135,23 @@ services:
     build:
       dockerfile: images/node.dev.Dockerfile
       context: .
-    depends_on:
-      - flextesa
     volumes:
       - './apps:/home/node/apps'
       - './libs:/home/node/libs'
     environment:
       - TEZOS_POLLING_INTERVAL_MILLISECONDS=2000
-      - SIGNER_URL=http://signatory:6732
-      - P2P_BOOTSTRAP_PEERS=/ip4/172.24.2.1/tcp/23456/p2p/12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1 /ip4/172.24.2.3/tcp/23456/p2p/12D3KooWLL2Y1JmrAXkY7r8xbuSRtasfJLAarXmAaZPYxPnzgAJ3
+      - P2P_BOOTSTRAP_PEERS=/ip4/172.24.2.1/tcp/23456/p2p/12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1 /ip4/172.24.2.3/tcp/23456/p2p/12D3KooWLL2Y1JmrAXkY7r8xbuSRtasfJLAarXmAaZPYxPnzgAJ3 /ip4/172.24.2.4/tcp/23456/p2p/12D3KooWK87KmBGJZZMP3keux62VF515mFRbNRFwbYxib7wWQR34 /ip4/172.24.2.5/tcp/23456/p2p/12D3KooWDgabT39cFp5j5mvJgiGPEppMuVgDCsNtBCh1Q8ejBCA5 /ip4/172.24.2.6/tcp/23456/p2p/12D3KooWEKXXjviRoWwoB37UzBT4qjUBbQH8bypWy3YWmyfvR736 /ip4/172.24.2.7/tcp/23456/p2p/12D3KooWRGcN9uh633ucfUJ3XQ69n31mB2jPHKtrw7mfCSJdLz97
       - P2P_PEER_ID=12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2
       - P2P_PEER_PUBLIC_KEY=CAESIB3LuOsvQXa/QtLkCtHqfEdDnXDiDtGIKB42deJZQSZb
       - P2P_PEER_PRIVATE_KEY=CAESQJhgTKhCqif5bg/4RS4mPfjIp/TNA6c7licLcTFumPchHcu46y9Bdr9C0uQK0ep8R0OdcOIO0YgoHjZ14llBJls=
-      - TEZOS_ADDRESS=tz1bfkfgQ8EsH9wrFXueAvm8rKRxzab1vQH1
-      - TEZOS_SECRET_KEY=edskRvgMBH37Dci9isEHcdsHQ4ioPdUq3AfXDiAj3ZXiuy3YMs4LEUiZVMaSG9KjTFo78LidgZkdVbkXUamMK2or8UAxB743SH
-      - TEZOS_PUBLIC_KEY=edpkv758sKsFGRwE3ZNDR1wdVEnxZui344fsxEtCKbpNMcTaQw2Yis
+      - TEZOS_ADDRESS=tz1MBNfBnNn8fZCJVrrXV95FSgyuUxbmt3Mm
+      - TEZOS_SECRET_KEY=edskRpPWgoNUfJgZRiycPg9539KMX6Ksw5yNVDw2ukds8VEgqXLLuBDrB6dr6m7fgsAZrLMDpPkxN7kRpcNyRzwkPYhoWsBJsZ
+      - TEZOS_PUBLIC_KEY=edpkunKYLbEfRLKLtn9yi9avyjQbAAbQxuPVN759ajQEDKpp4RE6GV
       - ALPHAVANTAGE_API_KEY=2XLQOTBRS8Y122VT
       - MESSARI_API_KEY=3dc85b02-55ee-4aaa-96ff-96d70a426407
       - RPC_URL=http://flextesa:20000
       - USE_FAKE_DATA=true
-      - LOG_LEVEL=warn
-      - AGGREGATOR_SMART_CONTRACT_ADDRESSES=KT1CmgazHG5qJm8zDqpP2Fb2LmXjvmmJDHYq,KT1NRJFhcbQk8X9kCvBw2bvvNjmzkSvdo8HP,KT1S4CLrRtPgMQdr2jFHkvEnhvxKS2PEmQKe,KT1St4dBSVLnXPNiXN4mrqvkkwFf438pnJZx
+      - LOG_LEVEL=debug
     networks:
       p2p:
         ipv4_address: 172.24.2.2
@@ -237,26 +162,23 @@ services:
     build:
       dockerfile: images/node.dev.Dockerfile
       context: .
-    depends_on:
-      - flextesa
     volumes:
       - './apps:/home/node/apps'
       - './libs:/home/node/libs'
     environment:
       - TEZOS_POLLING_INTERVAL_MILLISECONDS=2000
-      - SIGNER_URL=http://signatory:6732
-      - P2P_BOOTSTRAP_PEERS=/ip4/172.24.2.1/tcp/23456/p2p/12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1 /ip4/172.24.2.2/tcp/23456/p2p/12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2
+      - P2P_BOOTSTRAP_PEERS=/ip4/172.24.2.1/tcp/23456/p2p/12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1 /ip4/172.24.2.2/tcp/23456/p2p/12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2 /ip4/172.24.2.4/tcp/23456/p2p/12D3KooWK87KmBGJZZMP3keux62VF515mFRbNRFwbYxib7wWQR34 /ip4/172.24.2.5/tcp/23456/p2p/12D3KooWDgabT39cFp5j5mvJgiGPEppMuVgDCsNtBCh1Q8ejBCA5 /ip4/172.24.2.6/tcp/23456/p2p/12D3KooWEKXXjviRoWwoB37UzBT4qjUBbQH8bypWy3YWmyfvR736 /ip4/172.24.2.7/tcp/23456/p2p/12D3KooWRGcN9uh633ucfUJ3XQ69n31mB2jPHKtrw7mfCSJdLz97
       - P2P_PEER_ID=12D3KooWLL2Y1JmrAXkY7r8xbuSRtasfJLAarXmAaZPYxPnzgAJ3
       - P2P_PEER_PUBLIC_KEY=CAESIJwuGA2Ua44At3SqYSvFPk/S4ZK8JIChdtEIHowkTCno
       - P2P_PEER_PRIVATE_KEY=CAESQP9bMHtXPkMTF4/sitPzQuuSsR7rBsyCZIlwT8bLo0gvnC4YDZRrjgC3dKphK8U+T9LhkrwkgKF20QgejCRMKeg=
-      - TEZOS_ADDRESS=tz1TJTq4Rcx4hqCxkGnmwJRpqeDNzoEpjk6n
-      - TEZOS_SECRET_KEY=edsk3bVbowf9hFpdk8mAjZ8qSKzRTcFTgfqdoY4txdQrUhGHJGruXB
-      - TEZOS_PUBLIC_KEY=edpkv6mD1SBoUB45g6Ss3LYfYzqZGxRfA3dehYBxEvGidFzsCg6yXQ
+      - TEZOS_ADDRESS=tz1PSmvRd3ySbh5aviFEMYGD6542LL5QnrMk
+      - TEZOS_SECRET_KEY=edskRzrnZoreVanzsedvSDgWV1DkNycfjMXyri9LQLVYdXTXJrxNHzdtpouGJTQ1CrQiWK6ECvHCpoYfQ2LM7j8GjJdkjqrsLE
+      - TEZOS_PUBLIC_KEY=edpkuVjyKad7yCnNrCbGea7hi5Zh1zp5Cb1TvxUmnxC33fwKhq7daN
       - ALPHAVANTAGE_API_KEY=2NGJX9KAASPRJKDL
       - MESSARI_API_KEY=4d9734a2-99e7-4f54-81d9-71f5042a2e92
       - RPC_URL=http://flextesa:20000
       - USE_FAKE_DATA=true
-      - AGGREGATOR_SMART_CONTRACT_ADDRESSES=KT1CmgazHG5qJm8zDqpP2Fb2LmXjvmmJDHYq,KT1NRJFhcbQk8X9kCvBw2bvvNjmzkSvdo8HP,KT1S4CLrRtPgMQdr2jFHkvEnhvxKS2PEmQKe,KT1St4dBSVLnXPNiXN4mrqvkkwFf438pnJZx
+      - LOG_LEVEL=debug
     networks:
       p2p:
         ipv4_address: 172.24.2.3
@@ -267,26 +189,23 @@ services:
     build:
       dockerfile: images/node.dev.Dockerfile
       context: .
-    depends_on:
-      - flextesa
     volumes:
       - './apps:/home/node/apps'
       - './libs:/home/node/libs'
     environment:
       - TEZOS_POLLING_INTERVAL_MILLISECONDS=2000
-      - SIGNER_URL=http://signatory:6732
-      - P2P_BOOTSTRAP_PEERS=/ip4/172.24.2.1/tcp/23456/p2p/12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1 /ip4/172.24.2.2/tcp/23456/p2p/12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2
+      - P2P_BOOTSTRAP_PEERS=/ip4/172.24.2.1/tcp/23456/p2p/12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1 /ip4/172.24.2.2/tcp/23456/p2p/12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2 /ip4/172.24.2.3/tcp/23456/p2p/12D3KooWLL2Y1JmrAXkY7r8xbuSRtasfJLAarXmAaZPYxPnzgAJ3 /ip4/172.24.2.5/tcp/23456/p2p/12D3KooWDgabT39cFp5j5mvJgiGPEppMuVgDCsNtBCh1Q8ejBCA5 /ip4/172.24.2.6/tcp/23456/p2p/12D3KooWEKXXjviRoWwoB37UzBT4qjUBbQH8bypWy3YWmyfvR736 /ip4/172.24.2.7/tcp/23456/p2p/12D3KooWRGcN9uh633ucfUJ3XQ69n31mB2jPHKtrw7mfCSJdLz97
       - P2P_PEER_ID=12D3KooWK87KmBGJZZMP3keux62VF515mFRbNRFwbYxib7wWQR34
       - P2P_PEER_PUBLIC_KEY=CAESIIpE2iakPl9DwCEBQe8byn/AbxyFyp/6wswDEjAzTPV/
       - P2P_PEER_PRIVATE_KEY=CAESQFT7tBloxfCzLLLww4EZzm2l0qZiVBuEuAbD3jzLPbWZikTaJqQ+X0PAIQFB7xvKf8BvHIXKn/rCzAMSMDNM9X8=
-      - TEZOS_ADDRESS=tz1Rf4qAP6ZK19hR6Xwcwqz5778PnwNLPDBM
-      - TEZOS_SECRET_KEY=edskS5Xd6CDBLbuJwkaa7mT2K6mom4odhbBiS3bxDtAB1crXWj4gwKF5oQsN9aijR3CNpr7cZXxcoUU32vqm67W3MRGSTVzMmz
-      - TEZOS_PUBLIC_KEY=edpku8CdxqUzHhL8X3fgpCX5CfmqxUU7JWBTmXwqUATt78dGijvqWd
+      - TEZOS_ADDRESS=tz1KrELvNVY4xKnujkXwrVLWuzWJEg9FvA8v
+      - TEZOS_SECRET_KEY=edskRjjhoUjvSZ2eGgGpvcMk6SrtpajjkzGUXDpr2EAa25VTfdtNSoD1JLhEoEnotYR6ZtRC2bCk56kwf79eqgygrMeR145ENq
+      - TEZOS_PUBLIC_KEY=edpku7vkvS6XaWzFjmPDYULNyYrS7Rf1vHuoQ9FD8zVcaFNJ51bJ82
       - ALPHAVANTAGE_API_KEY=MZ42VQU1CNPC9X1U
       - MESSARI_API_KEY=bd9fcbaf-06d4-4f8d-80c3-0862ef6c53b1
       - RPC_URL=http://flextesa:20000
       - USE_FAKE_DATA=true
-      - AGGREGATOR_SMART_CONTRACT_ADDRESSES=KT1CmgazHG5qJm8zDqpP2Fb2LmXjvmmJDHYq,KT1NRJFhcbQk8X9kCvBw2bvvNjmzkSvdo8HP,KT1S4CLrRtPgMQdr2jFHkvEnhvxKS2PEmQKe,KT1St4dBSVLnXPNiXN4mrqvkkwFf438pnJZx
+      - LOG_LEVEL=debug
     networks:
       p2p:
         ipv4_address: 172.24.2.4
@@ -297,101 +216,85 @@ services:
     build:
       dockerfile: images/node.dev.Dockerfile
       context: .
-    depends_on:
-      - flextesa
     volumes:
       - './apps:/home/node/apps'
       - './libs:/home/node/libs'
     environment:
       - TEZOS_POLLING_INTERVAL_MILLISECONDS=2000
-      - SIGNER_URL=http://signatory:6732
-      - P2P_BOOTSTRAP_PEERS=/ip4/172.24.2.1/tcp/23456/p2p/12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1 /ip4/172.24.2.2/tcp/23456/p2p/12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2
+      - P2P_BOOTSTRAP_PEERS=/ip4/172.24.2.1/tcp/23456/p2p/12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1 /ip4/172.24.2.2/tcp/23456/p2p/12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2 /ip4/172.24.2.3/tcp/23456/p2p/12D3KooWLL2Y1JmrAXkY7r8xbuSRtasfJLAarXmAaZPYxPnzgAJ3 /ip4/172.24.2.4/tcp/23456/p2p/12D3KooWK87KmBGJZZMP3keux62VF515mFRbNRFwbYxib7wWQR34 /ip4/172.24.2.6/tcp/23456/p2p/12D3KooWEKXXjviRoWwoB37UzBT4qjUBbQH8bypWy3YWmyfvR736 /ip4/172.24.2.7/tcp/23456/p2p/12D3KooWRGcN9uh633ucfUJ3XQ69n31mB2jPHKtrw7mfCSJdLz97
       - P2P_PEER_ID=12D3KooWDgabT39cFp5j5mvJgiGPEppMuVgDCsNtBCh1Q8ejBCA5
       - P2P_PEER_PUBLIC_KEY=CAESIDlwJrvH3HgJbcpLpzROMCyxhAGuaodYse7n0tDQmtYq
       - P2P_PEER_PRIVATE_KEY=CAESQJSzbjMCYU/EeohKGea7wk+CXTbkBI7QXYJRLyXMosRTOXAmu8fceAltykunNE4wLLGEAa5qh1ix7ufS0NCa1io=
-      - TEZOS_ADDRESS=tz1Zgg2vLeyYLwQCtChXKjYDAXCRowQTzEGw
-      - TEZOS_SECRET_KEY=edsk32TqRuUFWHE6jwrPgbk5M9A3Sbs4shY4dh1WJCMR1fJjoV6iNs
-      - TEZOS_PUBLIC_KEY=edpkuTgScYTtrvAtTU6UMF44NvNd51ah1aqNeerNFC38bGZrKVXwFP
+      - TEZOS_ADDRESS=tz1YKquTvvSE2B5kvGyf1AYeXD6b6cMDSzDe
+      - TEZOS_SECRET_KEY=edskRts3yovQnSAaK6WbyiaZdBnLk1cSeq8UEWo24xNyo1T6gZZ9yQpQ48YmvCwjjW1FpSgJ1LPZ9T3jazmh3HXLLKHDaJZVx2
+      - TEZOS_PUBLIC_KEY=edpkuqoXhgeXYZxn6yVWuy9UrWKazyahPaAbwnuZYknRefeLVVK3ar
       - ALPHAVANTAGE_API_KEY=17MO51H19VMUJAPU
       - MESSARI_API_KEY=ee29b84c-34fd-4d60-827f-35f4315ac4bd
       - RPC_URL=http://flextesa:20000
       - USE_FAKE_DATA=true
-      - AGGREGATOR_SMART_CONTRACT_ADDRESSES=KT1CmgazHG5qJm8zDqpP2Fb2LmXjvmmJDHYq,KT1NRJFhcbQk8X9kCvBw2bvvNjmzkSvdo8HP,KT1S4CLrRtPgMQdr2jFHkvEnhvxKS2PEmQKe,KT1St4dBSVLnXPNiXN4mrqvkkwFf438pnJZx
+      - LOG_LEVEL=debug
     networks:
       p2p:
         ipv4_address: 172.24.2.5
     env_file:
       - .env
-  # oracle-6:
-  #   container_name: oracle-6
-  #   build:
-  #     dockerfile: images/node.dev.Dockerfile
-  #     context: .
-  #   depends_on:
-  #     - flextesa
-  #   volumes:
-  #     - './apps:/home/node/apps'
-  #     - './libs:/home/node/libs'
-  #   environment:
-  #     - TEZOS_POLLING_INTERVAL_MILLISECONDS=2000
-  #     - SIGNER_URL=http://signatory:6732
-  #     - P2P_BOOTSTRAP_PEERS=/ip4/172.24.2.100/tcp/23456/p2p/QmcrQZ6RJdpYuGvZqD5QEHAv6qX4BrQLJLQPQUrTrzdcgm /ip4/172.24.2.1/tcp/23456/p2p/12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1 /ip4/172.24.2.2/tcp/23456/p2p/12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2 /ip4/172.24.2.3/tcp/23456/p2p/12D3KooWLL2Y1JmrAXkY7r8xbuSRtasfJLAarXmAaZPYxPnzgAJ3 /ip4/172.24.2.4/tcp/23456/p2p/12D3KooWK87KmBGJZZMP3keux62VF515mFRbNRFwbYxib7wWQR34 /ip4/172.24.2.5/tcp/23456/p2p/12D3KooWDgabT39cFp5j5mvJgiGPEppMuVgDCsNtBCh1Q8ejBCA5 /ip4/172.24.2.7/tcp/23456/p2p/12D3KooWRGcN9uh633ucfUJ3XQ69n31mB2jPHKtrw7mfCSJdLz97
-  #     - P2P_PEER_ID=12D3KooWEKXXjviRoWwoB37UzBT4qjUBbQH8bypWy3YWmyfvR736
-  #     - P2P_PEER_PUBLIC_KEY=CAESIELnLURmP5HStRjp47jIZPuoySSCSKWSiEvE7eaD1XQh
-  #     - P2P_PEER_PRIVATE_KEY=CAESQDLrycxtQYRWmXFn5H1Z2s+FGpxHRGcpxy8qzGBS4uyFQuctRGY/kdK1GOnjuMhk+6jJJIJIpZKIS8Tt5oPVdCE=
-  #     - TEZOS_ADDRESS=tz1TQ4fpSFNZ6D9vrcwBz9yzM2SNjDj5YoU7
-  #     - TEZOS_SECRET_KEY=edsk2vtJ2rVoHoA3GbgDjyT5zbeVMDXZ6R4YjDskKaapgsRtiEWpaP
-  #     - TEZOS_PUBLIC_KEY=edpkv6xHMqShSMr4CK3Vzg7mD1hina7eBkokrMoKpuYj55BVd18rjN
-  #     - ALPHAVANTAGE_API_KEY=9BP42KVMZ0BNFVL8
-  #     - MESSARI_API_KEY=
-  #     - RPC_URL=http://flextesa:20000
-  #     - USE_FAKE_DATA=true
-  #     - AGGREGATOR_SMART_CONTRACT_ADDRESSES=
-  #   networks:
-  #     p2p:
-  #       ipv4_address: 172.24.2.6
-  #   env_file:
-  #     - .env
-  # oracle-7:
-  #   container_name: oracle-7
-  #   build:
-  #     dockerfile: images/node.dev.Dockerfile
-  #     context: .
-  #   depends_on:
-  #     - flextesa
-  #   volumes:
-  #     - './apps:/home/node/apps'
-  #     - './libs:/home/node/libs'
-  #   environment:
-  #     - TEZOS_POLLING_INTERVAL_MILLISECONDS=2000
-  #     - SIGNER_URL=http://signatory:6732
-  #     - P2P_BOOTSTRAP_PEERS=/ip4/172.24.2.100/tcp/23456/p2p/QmcrQZ6RJdpYuGvZqD5QEHAv6qX4BrQLJLQPQUrTrzdcgm /ip4/172.24.2.1/tcp/23456/p2p/12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1 /ip4/172.24.2.2/tcp/23456/p2p/12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2 /ip4/172.24.2.3/tcp/23456/p2p/12D3KooWLL2Y1JmrAXkY7r8xbuSRtasfJLAarXmAaZPYxPnzgAJ3 /ip4/172.24.2.4/tcp/23456/p2p/12D3KooWK87KmBGJZZMP3keux62VF515mFRbNRFwbYxib7wWQR34 /ip4/172.24.2.5/tcp/23456/p2p/12D3KooWDgabT39cFp5j5mvJgiGPEppMuVgDCsNtBCh1Q8ejBCA5 /ip4/172.24.2.6/tcp/23456/p2p/12D3KooWEKXXjviRoWwoB37UzBT4qjUBbQH8bypWy3YWmyfvR736
-  #     - P2P_PEER_ID=12D3KooWRGcN9uh633ucfUJ3XQ69n31mB2jPHKtrw7mfCSJdLz97
-  #     - P2P_PEER_PUBLIC_KEY=CAESIOWYdQw3IH7qCQg5+LVgLEsesRldcVJdDwpy/TNSxAty
-  #     - P2P_PEER_PRIVATE_KEY=CAESQHqJ13l1im8Zw4UM57IclZxhxqsxYwjrNXXhNQEx7UGQ5Zh1DDcgfuoJCDn4tWAsSx6xGV1xUl0PCnL9M1LEC3I=
-  #     - TEZOS_ADDRESS=tz1bPLbmiseCCWtW7RZ9t2RkNyboB9XT4exJ
-  #     - TEZOS_SECRET_KEY=edsk4AzUdwSFu383eMf8eve56Q2pJxy1eWt4BnzKkLKMdKurHgTeaf
-  #     - TEZOS_PUBLIC_KEY=edpku8MxEyEKHPsPeUBSBz5a5QbemdPbiQVsobdC3SnC9UDf4yMHTL
-  #     - ALPHAVANTAGE_API_KEY=HAD0Z5KJX7XPCXOO
-  #     - MESSARI_API_KEY=0e630780-f69c-46e4-a796-3fee1252f358
-  #     - RPC_URL=http://flextesa:20000
-  #     - USE_FAKE_DATA=true
-  #     - AGGREGATOR_SMART_CONTRACT_ADDRESSES=
-  #   networks:
-  #     p2p:
-  #       ipv4_address: 172.24.2.7
-  #   env_file:
-  #     - .env
-
-  signatory:
-    image: ecadlabs/signatory:v0.3.3-beta-rc1-amd64
-    ports:
-      - '6732:6732'
+  oracle-6:
+    container_name: oracle-6
+    build:
+      dockerfile: images/node.dev.Dockerfile
+      context: .
     volumes:
-      - ./signatory.dev.yaml:/etc/signatory.yaml
-      - ./secret.json:/etc/secret.json
+      - './apps:/home/node/apps'
+      - './libs:/home/node/libs'
+    environment:
+      - TEZOS_POLLING_INTERVAL_MILLISECONDS=2000
+      - P2P_BOOTSTRAP_PEERS=/ip4/172.24.2.1/tcp/23456/p2p/12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1 /ip4/172.24.2.2/tcp/23456/p2p/12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2 /ip4/172.24.2.3/tcp/23456/p2p/12D3KooWLL2Y1JmrAXkY7r8xbuSRtasfJLAarXmAaZPYxPnzgAJ3 /ip4/172.24.2.4/tcp/23456/p2p/12D3KooWK87KmBGJZZMP3keux62VF515mFRbNRFwbYxib7wWQR34 /ip4/172.24.2.5/tcp/23456/p2p/12D3KooWDgabT39cFp5j5mvJgiGPEppMuVgDCsNtBCh1Q8ejBCA5 /ip4/172.24.2.7/tcp/23456/p2p/12D3KooWRGcN9uh633ucfUJ3XQ69n31mB2jPHKtrw7mfCSJdLz97
+      - P2P_PEER_ID=12D3KooWEKXXjviRoWwoB37UzBT4qjUBbQH8bypWy3YWmyfvR736
+      - P2P_PEER_PUBLIC_KEY=CAESIELnLURmP5HStRjp47jIZPuoySSCSKWSiEvE7eaD1XQh
+      - P2P_PEER_PRIVATE_KEY=CAESQDLrycxtQYRWmXFn5H1Z2s+FGpxHRGcpxy8qzGBS4uyFQuctRGY/kdK1GOnjuMhk+6jJJIJIpZKIS8Tt5oPVdCE=
+      - TEZOS_ADDRESS=tz1TQ4fpSFNZ6D9vrcwBz9yzM2SNjDj5YoU7
+      - TEZOS_SECRET_KEY=edsk2vtJ2rVoHoA3GbgDjyT5zbeVMDXZ6R4YjDskKaapgsRtiEWpaP
+      - TEZOS_PUBLIC_KEY=edpkv6xHMqShSMr4CK3Vzg7mD1hina7eBkokrMoKpuYj55BVd18rjN
+      - ALPHAVANTAGE_API_KEY=9BP42KVMZ0BNFVL8
+      - MESSARI_API_KEY=
+      - RPC_URL=http://flextesa:20000
+      - USE_FAKE_DATA=true
+      - LOG_LEVEL=debug
     networks:
       p2p:
+        ipv4_address: 172.24.2.6
+    env_file:
+      - .env
+  oracle-7:
+    container_name: oracle-7
+    build:
+      dockerfile: images/node.dev.Dockerfile
+      context: .
+    volumes:
+      - './apps:/home/node/apps'
+      - './libs:/home/node/libs'
+    environment:
+      - TEZOS_POLLING_INTERVAL_MILLISECONDS=2000
+      - P2P_BOOTSTRAP_PEERS=/ip4/172.24.2.1/tcp/23456/p2p/12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1 /ip4/172.24.2.2/tcp/23456/p2p/12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2 /ip4/172.24.2.3/tcp/23456/p2p/12D3KooWLL2Y1JmrAXkY7r8xbuSRtasfJLAarXmAaZPYxPnzgAJ3 /ip4/172.24.2.4/tcp/23456/p2p/12D3KooWK87KmBGJZZMP3keux62VF515mFRbNRFwbYxib7wWQR34 /ip4/172.24.2.5/tcp/23456/p2p/12D3KooWDgabT39cFp5j5mvJgiGPEppMuVgDCsNtBCh1Q8ejBCA5 /ip4/172.24.2.6/tcp/23456/p2p/12D3KooWEKXXjviRoWwoB37UzBT4qjUBbQH8bypWy3YWmyfvR736
+      - P2P_PEER_ID=12D3KooWRGcN9uh633ucfUJ3XQ69n31mB2jPHKtrw7mfCSJdLz97
+      - P2P_PEER_PUBLIC_KEY=CAESIOWYdQw3IH7qCQg5+LVgLEsesRldcVJdDwpy/TNSxAty
+      - P2P_PEER_PRIVATE_KEY=CAESQHqJ13l1im8Zw4UM57IclZxhxqsxYwjrNXXhNQEx7UGQ5Zh1DDcgfuoJCDn4tWAsSx6xGV1xUl0PCnL9M1LEC3I=
+      - TEZOS_ADDRESS=tz1bPLbmiseCCWtW7RZ9t2RkNyboB9XT4exJ
+      - TEZOS_SECRET_KEY=edsk4AzUdwSFu383eMf8eve56Q2pJxy1eWt4BnzKkLKMdKurHgTeaf
+      - TEZOS_PUBLIC_KEY=edpku8MxEyEKHPsPeUBSBz5a5QbemdPbiQVsobdC3SnC9UDf4yMHTL
+      - RPC_URL=http://flextesa:20000
+      - USE_FAKE_DATA=true
+      - LOG_LEVEL=debug
+    networks:
+      p2p:
+        ipv4_address: 172.24.2.7
+    env_file:
+      - .env
+
+volumes:
+  bcdshare:
+  db:
+    driver: local
 
 networks:
   p2p:

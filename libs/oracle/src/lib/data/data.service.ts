@@ -28,6 +28,7 @@ export class DataService {
     if (this._oracleConfig.useFakeData) {
       this._logger.warn('YOU ARE USING FAKE DATA, DO NOT DO THIS IN PRODUCTION');
     }
+    //TODO: get le type de donnée de l'aggrégateur + faire un mapping vers une liste de fetcher
     this._dataFetchers = [messariFetcherService, coingeckoFetcherService, alphavantageFetcherService];
   }
 

@@ -43,11 +43,11 @@ describe('ReportGenNetworkService', () => {
         observations: [
           {
             oracle: 'oracle1',
-            price: new BigNumber(1_000_000_000_000_000_001)
+            data: new BigNumber(1_000_000_000_000_000_001)
           },
           {
             oracle: 'oracle2',
-            price: new BigNumber(1_000_000_000_000_000_002)
+            data: new BigNumber(1_000_000_000_000_000_002)
           }
         ]
       }
@@ -78,12 +78,12 @@ describe('ReportGenNetworkService', () => {
         observations: [
           {
             oracle: 'oracle1',
-            price: new BigNumber(1_000_000_000_000_000_001),
+            data: new BigNumber(1_000_000_000_000_000_001),
             signature: new Uint8Array([1, 2, 3])
           },
           {
             oracle: 'oracle2',
-            price: new BigNumber(1_000_000_000_000_000_002),
+            data: new BigNumber(1_000_000_000_000_000_002),
             signature: new Uint8Array([4, 5, 6])
           }
         ]
@@ -104,11 +104,11 @@ describe('ReportGenNetworkService', () => {
         observations: [
           {
             oracle: 'oracle1',
-            price: new BigNumber(1_000_000_000_000_000_001)
+            data: new BigNumber(1_000_000_000_000_000_001)
           },
           {
             oracle: 'oracle2',
-            price: new BigNumber(1_000_000_000_000_000_002)
+            data: new BigNumber(1_000_000_000_000_000_002)
           }
         ],
         signatures: [
@@ -138,11 +138,11 @@ describe('ReportGenNetworkService', () => {
         observations: [
           {
             oracle: 'oracle1',
-            price: new BigNumber(1_000_000_000_000_000_001)
+            data: new BigNumber(1_000_000_000_000_000_001)
           },
           {
             oracle: 'oracle2',
-            price: new BigNumber(1_000_000_000_000_000_002)
+            data: new BigNumber(1_000_000_000_000_000_002)
           }
         ],
         signatures: [

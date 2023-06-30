@@ -8,7 +8,7 @@ const require = createRequire(import.meta.url);
 // eslint-disable-next-line @rushstack/typedef-var
 const AggregatorRaw = require('./contracts/json/aggregator.json');
 
-import { MichelsonMap } from '@taquito/michelson-encoder';
+import { MichelsonMap, MichelsonMapKey } from '@taquito/michelson-encoder';
 import BigNumber from 'bignumber.js';
 import {
   ContractAbstraction,
@@ -22,20 +22,24 @@ import { OnChainView } from '@taquito/taquito/dist/types/contract/contract-metho
 
 export const AggregatorCode: any = AggregatorRaw.michelson;
 export type AggregatorConfigType = {
-  decimals: BigNumber;
-  alphaPercentPerThousand: BigNumber;
-  percentOracleThreshold: BigNumber;
-  heartBeatSeconds: BigNumber;
-  rewardAmountXtz: BigNumber;
-  rewardAmountStakedMvk: BigNumber;
+
+    decimals                            : BigNumber;
+    alphaPercentPerThousand             : BigNumber;
+
+    percentOracleThreshold              : BigNumber;
+    heartBeatSeconds                    : BigNumber;
+    
+    rewardAmountXtz                     : BigNumber;
+    rewardAmountStakedMvk               : BigNumber;
+
 };
 
 export type OracleLastResultType = {
-  round: BigNumber;
-  epoch: BigNumber;
-  data: BigNumber;
-  percentOracleResponse: BigNumber;
-  lastUpdatedAt: string;
+    round                 : BigNumber;
+    epoch                 : BigNumber;
+    data                  : BigNumber;
+    percentOracleResponse : BigNumber;
+    lastUpdatedAt         : string;
 };
 
 export interface IOracleInformation {
@@ -65,42 +69,32 @@ export interface IOracleInformations {
 }
 
 export type IAggregatorStorage = {
-
-  admin                     : string;
-  metadata                  : MichelsonMap<string, unknown>;
-  name                      : string;
-  config                    : {
-
-      decimals                            : BigNumber;
-      alphaPercentPerThousand             : BigNumber;
-
-      percentOracleThreshold              : BigNumber;
-      heartBeatSeconds                    : BigNumber;
-      
-      rewardAmountXtz                     : BigNumber;
-      rewardAmountStakedMvk               : BigNumber;
-  };
-
-  breakGlassConfig          : {
-      updateDataIsPaused                 : boolean;
-      withdrawRewardXtzIsPaused           : boolean;
-      withdrawRewardStakedMvkIsPaused     : boolean;
-  };
-
-  mvkTokenAddress           : string;
-  governanceAddress         : string;
-
-  whitelistContracts        : MichelsonMap<string, unknown>;
-  generalContracts          : MichelsonMap<string, unknown>;
-
-  oracleLedger           : MichelsonMap<string, IOracleInformation>;
   
-  lastCompletedData         : OracleLastResultType;
+    admin                       : string;
+    metadata                    : MichelsonMap<MichelsonMapKey, unknown>;
+    name                        : string;
+    config                      : AggregatorConfigType;
 
-  oracleRewardStakedMvk     : MichelsonMap<string, unknown>;
-  oracleRewardXtz           : MichelsonMap<string, unknown>;
+    breakGlassConfig            : {
+        updateDataIsPaused                  : boolean;
+        withdrawRewardXtzIsPaused           : boolean;
+        withdrawRewardStakedMvkIsPaused     : boolean;
+    };
 
-  lambdaLedger              : MichelsonMap<string, unknown>;
+    mvkTokenAddress             : string;
+    governanceAddress           : string;
+
+    whitelistContracts          : MichelsonMap<MichelsonMapKey, unknown>;
+    generalContracts            : MichelsonMap<MichelsonMapKey, unknown>;
+
+    oracleLedger                : MichelsonMap<MichelsonMapKey, unknown>;
+    
+    lastCompletedData           : OracleLastResultType;
+
+    oracleRewardStakedMvk       : MichelsonMap<MichelsonMapKey, unknown>;
+    oracleRewardXtz             : MichelsonMap<MichelsonMapKey, unknown>;
+
+    lambdaLedger                : MichelsonMap<MichelsonMapKey, unknown>;
 };
 
 type AggregatorContractMethods<T extends ContractProvider | Wallet> = {
@@ -109,8 +103,8 @@ type AggregatorContractMethods<T extends ContractProvider | Wallet> = {
   setName: (name: string) => ContractMethod<T>;
   updateMetadata: (key: string, bytes: string) => ContractMethod<T>;
   updateConfig: (value: number, config: string) => ContractMethod<T>;
-  updateWhitelistContracts: (contract: number, address: string) => ContractMethod<T>;
-  updateGeneralContracts: (contract: number, address: string) => ContractMethod<T>;
+  updateWhitelistContracts: (whitelistContractAddress: string, updateType: string) => ContractMethod<T>;
+  updateGeneralContracts: (generalContractName: string, generalContractAddress: string, updateType: string) => ContractMethod<T>;
   mistakenTransfer: (transfers: Array<any>) => ContractMethod<T>;
   addOracle: (oracleAddress: string) => ContractMethod<T>;
   updateOracle: () => ContractMethod<T>;
@@ -132,7 +126,21 @@ type AggregatorContractMethodObject<T extends ContractProvider | Wallet> = Recor
 type AggregatorViews = Record<string, (...args: unknown[]) => ContractView>;
 
 type AggregatorOnChainViews = {
-  decimals: () => OnChainView;
+    getAdmin: () => OnChainView;
+    getName: () => OnChainView;
+    getConfig: () => OnChainView;
+    getBreakGlassConfig: () => OnChainView;
+    getGovernanceAddress: () => OnChainView;
+    getWhitelistContractOpt: () => OnChainView;
+    getGeneralContractOpt: () => OnChainView;
+    getOracleLedger: () => OnChainView;
+    getOracleOpt: () => OnChainView;
+    getOracleRewardStakedMvkOpt: () => OnChainView;
+    getOracleRewardXtzOpt: () => OnChainView;
+    getLastCompletedData: () => OnChainView;
+    getDecimals: () => OnChainView;
+    getContractName: () => OnChainView;
+    getLambdaOpt: () => OnChainView;
 };
 
 export type AggregatorContractAbstraction<T extends ContractProvider | Wallet = any> = ContractAbstraction<

@@ -2,9 +2,10 @@ import {
   ContractServiceMock,
   mockedBlockchainConfig,
   mockedLastBlockchainReportEpoch,
-  mockedLastBlockchainReportPrice,
+  mockedLastBlockchainReportData,
   mockedLastBlockchainReportRound,
   mockedLastBlockchainReportTime,
+  mockedLastBlockchainReportPercentOracleResponse,
   mockedOracleAddresses,
   mockGetLastBlockchainReport
 } from '../../contract/__mocks__/contract.service.mock.js';
@@ -52,9 +53,10 @@ describe('PacemakerService', () => {
   beforeEach(async () => {
     mockGetLastBlockchainReport.mockResolvedValue({
       epoch: mockedLastBlockchainReportEpoch,
-      price: mockedLastBlockchainReportPrice,
+      data: mockedLastBlockchainReportData,
       round: mockedLastBlockchainReportRound,
-      time: mockedLastBlockchainReportTime
+      percentOracleResponse: mockedLastBlockchainReportPercentOracleResponse,
+      lastUpdatedAt: mockedLastBlockchainReportTime
     });
     pacemakerService = new PacemakerService(
       OracleConfigMock,
@@ -123,9 +125,10 @@ describe('PacemakerService', () => {
 
       mockGetLastBlockchainReport.mockResolvedValue({
         epoch,
-        price: mockedLastBlockchainReportPrice,
+        data: mockedLastBlockchainReportData,
         round: mockedLastBlockchainReportRound,
-        time: mockedLastBlockchainReportTime
+        percentOracleResponse: mockedLastBlockchainReportPercentOracleResponse,
+        lastUpdatedAt: mockedLastBlockchainReportTime
       });
 
       await pacemakerService.initialize();

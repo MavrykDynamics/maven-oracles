@@ -3,9 +3,9 @@ import BigNumber from 'bignumber.js';
 
 export const mockInitialize = jest.fn();
 
-export const mockedPrice = new BigNumber(12);
+export const mockedData = new BigNumber(12);
 
-export const mockGetData = jest.fn().mockReturnValue(mockedPrice);
+export const mockGetData = jest.fn().mockReturnValue(mockedData);
 export const DataServiceMock = jest.fn().mockImplementation(() => {
   return { initialize: mockInitialize, getData: mockGetData };
 });

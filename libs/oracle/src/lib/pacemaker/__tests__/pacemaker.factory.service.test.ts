@@ -5,6 +5,7 @@ import {
   mockGetAggregatorAddresses
 } from '../../contract/__mocks__/contract.service.mock.js';
 import { OracleConfigMock } from '../../__mocks__/oracle.config.mock.js';
+import { IAggregatorStorage } from '@mavrykdynamics/contracts';
 import { mockInitialize, PacemakerServiceMock } from '../__mocks__/pacemaker.service.mock.js';
 import { IPacemakerConfig } from '../pacemaker.config.js';
 import { PacemakerNetworkService } from '../pacemaker.network.service.js';
@@ -46,23 +47,9 @@ describe('PacemakerFactoryService', () => {
       expect(mockGetAggregatorAddresses).toHaveBeenCalledTimes(1);
     });
 
-    const zeroAggregator: IAggregatorInformations[] = [];
-    const oneAggregator: IAggregatorInformations[] = [
-      {
-        pair: ['USD', 'ONE'],
-        aggregatorAddress: 'USD-ONE/Address'
-      }
-    ];
-    const twoAggregator: IAggregatorInformations[] = [
-      {
-        pair: ['USD', 'ONE'],
-        aggregatorAddress: 'USD-ONE/Address'
-      },
-      {
-        pair: ['USD', 'TWO'],
-        aggregatorAddress: 'USD-TWO/Address'
-      }
-    ];
+    const zeroAggregator: string[] = []
+    const oneAggregator: string[] = ['USD-ONE/Address']
+    const twoAggregator: string[] = ['USD-ONE/Address','USD-TWO/Address'];
 
     test.each`
       storage           | n
@@ -84,8 +71,8 @@ describe('PacemakerFactoryService', () => {
 
       const expectedConfig: IPacemakerConfig = {
         aggregatorAddress: 'USD-ONE/Address',
-        aggregatorPair: ['USD', 'ONE'],
-        timerProgressDurationMiliseconds: 15 * 1000,
+        aggregatorPair: ['PAIR1', 'PAIR2'],
+        timerProgressDurationMiliseconds: 30 * 1000,
         timerResendDurationMiliseconds: 15 * 1000,
         oracleLedger: mockedOracleAddresses
       };
@@ -107,16 +94,16 @@ describe('PacemakerFactoryService', () => {
 
       const expectedConfigOne: IPacemakerConfig = {
         aggregatorAddress: 'USD-ONE/Address',
-        aggregatorPair: ['USD', 'ONE'],
-        timerProgressDurationMiliseconds: 15 * 1000,
+        aggregatorPair: ['PAIR1', 'PAIR2'],
+        timerProgressDurationMiliseconds: 30 * 1000,
         timerResendDurationMiliseconds: 15 * 1000,
         oracleLedger: mockedOracleAddresses
       };
 
       const expectedConfigTwo: IPacemakerConfig = {
         aggregatorAddress: 'USD-TWO/Address',
-        aggregatorPair: ['USD', 'TWO'],
-        timerProgressDurationMiliseconds: 15 * 1000,
+        aggregatorPair: ['PAIR1', 'PAIR2'],
+        timerProgressDurationMiliseconds: 30 * 1000,
         timerResendDurationMiliseconds: 15 * 1000,
         oracleLedger: mockedOracleAddresses
       };

@@ -49,14 +49,26 @@ export class ContractService implements OnModuleInit {
     ).contract.at(aggregatorAddress);
     const storage: IAggregatorStorage = await contractInstance.storage();
 
-    return [...storage.oracleLedger.entries()].map(([oracleAddress, val]) => ({
-      ...val,
-      oracleAddress
-    }));
+    return [...storage.oracleLedger.entries()].map(([oracleAddress, val]) => (
+      Object.assign({
+          val,
+          oracleAddress
+        })
+    ));
   }
 
   /**
-   * Fetch oracle addresses listed in an aggregator
+   * Fetch oracle addresses from a string
+   *
+   * @param aggregatorAddresses - Addresses of the aggregator smart contract to fetch from split by comma
+   */
+  public getAggregatorAddresses(aggregatorAddresses: string): string[] {
+    
+    return aggregatorAddresses.length === 0 ? [] : aggregatorAddresses.split(',');
+  }
+
+  /**
+   * Fetch aggregator name
    *
    * @param aggregatorAddress - Address of the aggregator smart contract to fetch from
    */

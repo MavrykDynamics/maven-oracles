@@ -6,6 +6,7 @@ import { ContractService } from '../contract/index.js';
 import { PacemakerService } from './pacemaker.service.js';
 import { IPacemakerConfig } from './pacemaker.config.js';
 import { ReportGenFactoryService } from '../reportgen/index.js';
+import { cp } from 'fs';
 
 @Injectable()
 export class PacemakerFactoryService implements OnModuleInit {
@@ -23,11 +24,10 @@ export class PacemakerFactoryService implements OnModuleInit {
   public async onModuleInit(): Promise<void> {
     // we get the aggregator addresses and pairs from the config
     const { aggregatorAddresses } = this._oracleConfig;
-    const aggregatorAddressesArray = aggregatorAddresses.split(',');
+    const aggregatorAddressesArray = this._contractService.getAggregatorAddresses(aggregatorAddresses);
 
     // for each aggregator, we start a new pacemaker service
-    for (let index = 0; index < aggregatorAddressesArray.length; index++) {
-      const aggregatorAddress = aggregatorAddressesArray[index];
+    for (const aggregatorAddress of aggregatorAddressesArray) {
       const oracleLedger = await this._contractService.getOraclesAddresses(aggregatorAddress);
       const aggregatorName = await this._contractService.getName(aggregatorAddress);
       const pairArray = aggregatorName.split('/');

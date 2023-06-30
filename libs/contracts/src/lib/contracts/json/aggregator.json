@@ -400,6 +400,26 @@
                                   "annots": [
                                     "%generalContractAddress"
                                   ]
+                                },
+                                {
+                                  "prim": "or",
+                                  "args": [
+                                    {
+                                      "prim": "unit",
+                                      "annots": [
+                                        "%remove"
+                                      ]
+                                    },
+                                    {
+                                      "prim": "unit",
+                                      "annots": [
+                                        "%update"
+                                      ]
+                                    }
+                                  ],
+                                  "annots": [
+                                    "%updateType"
+                                  ]
                                 }
                               ],
                               "annots": [
@@ -441,15 +461,29 @@
                               "prim": "pair",
                               "args": [
                                 {
-                                  "prim": "string",
-                                  "annots": [
-                                    "%whitelistContractName"
-                                  ]
-                                },
-                                {
                                   "prim": "address",
                                   "annots": [
                                     "%whitelistContractAddress"
+                                  ]
+                                },
+                                {
+                                  "prim": "or",
+                                  "args": [
+                                    {
+                                      "prim": "unit",
+                                      "annots": [
+                                        "%remove"
+                                      ]
+                                    },
+                                    {
+                                      "prim": "unit",
+                                      "annots": [
+                                        "%update"
+                                      ]
+                                    }
+                                  ],
+                                  "annots": [
+                                    "%updateType"
                                   ]
                                 }
                               ],
@@ -601,13 +635,13 @@
               ]
             },
             {
-              "prim": "map",
+              "prim": "big_map",
               "args": [
                 {
-                  "prim": "string"
+                  "prim": "address"
                 },
                 {
-                  "prim": "address"
+                  "prim": "unit"
                 }
               ],
               "annots": [
@@ -615,7 +649,7 @@
               ]
             },
             {
-              "prim": "map",
+              "prim": "big_map",
               "args": [
                 {
                   "prim": "string"
@@ -695,7 +729,7 @@
               ]
             },
             {
-              "prim": "map",
+              "prim": "big_map",
               "args": [
                 {
                   "prim": "address"
@@ -709,7 +743,7 @@
               ]
             },
             {
-              "prim": "map",
+              "prim": "big_map",
               "args": [
                 {
                   "prim": "address"
@@ -723,7 +757,7 @@
               ]
             },
             {
-              "prim": "map",
+              "prim": "big_map",
               "args": [
                 {
                   "prim": "string"
@@ -745,6 +779,9 @@
       "args": [
         [
           {
+            "prim": "UNIT"
+          },
+          {
             "prim": "LAMBDA",
             "args": [
               {
@@ -754,7 +791,7 @@
                     "prim": "string"
                   },
                   {
-                    "prim": "map",
+                    "prim": "big_map",
                     "args": [
                       {
                         "prim": "string"
@@ -1059,6 +1096,17 @@
                                               },
                                               {
                                                 "prim": "address"
+                                              },
+                                              {
+                                                "prim": "or",
+                                                "args": [
+                                                  {
+                                                    "prim": "unit"
+                                                  },
+                                                  {
+                                                    "prim": "unit"
+                                                  }
+                                                ]
                                               }
                                             ]
                                           }
@@ -1095,10 +1143,18 @@
                                             "prim": "pair",
                                             "args": [
                                               {
-                                                "prim": "string"
+                                                "prim": "address"
                                               },
                                               {
-                                                "prim": "address"
+                                                "prim": "or",
+                                                "args": [
+                                                  {
+                                                    "prim": "unit"
+                                                  },
+                                                  {
+                                                    "prim": "unit"
+                                                  }
+                                                ]
                                               }
                                             ]
                                           },
@@ -1181,18 +1237,18 @@
                     "prim": "address"
                   },
                   {
-                    "prim": "map",
+                    "prim": "big_map",
                     "args": [
                       {
-                        "prim": "string"
+                        "prim": "address"
                       },
                       {
-                        "prim": "address"
+                        "prim": "unit"
                       }
                     ]
                   },
                   {
-                    "prim": "map",
+                    "prim": "big_map",
                     "args": [
                       {
                         "prim": "string"
@@ -1242,7 +1298,7 @@
                     ]
                   },
                   {
-                    "prim": "map",
+                    "prim": "big_map",
                     "args": [
                       {
                         "prim": "address"
@@ -1253,7 +1309,7 @@
                     ]
                   },
                   {
-                    "prim": "map",
+                    "prim": "big_map",
                     "args": [
                       {
                         "prim": "address"
@@ -1264,7 +1320,7 @@
                     ]
                   },
                   {
-                    "prim": "map",
+                    "prim": "big_map",
                     "args": [
                       {
                         "prim": "string"
@@ -1348,18 +1404,18 @@
                     "prim": "address"
                   },
                   {
-                    "prim": "map",
+                    "prim": "big_map",
                     "args": [
                       {
-                        "prim": "string"
+                        "prim": "address"
                       },
                       {
-                        "prim": "address"
+                        "prim": "unit"
                       }
                     ]
                   },
                   {
-                    "prim": "map",
+                    "prim": "big_map",
                     "args": [
                       {
                         "prim": "string"
@@ -1409,7 +1465,7 @@
                     ]
                   },
                   {
-                    "prim": "map",
+                    "prim": "big_map",
                     "args": [
                       {
                         "prim": "address"
@@ -1420,7 +1476,7 @@
                     ]
                   },
                   {
-                    "prim": "map",
+                    "prim": "big_map",
                     "args": [
                       {
                         "prim": "address"
@@ -1431,7 +1487,7 @@
                     ]
                   },
                   {
-                    "prim": "map",
+                    "prim": "big_map",
                     "args": [
                       {
                         "prim": "string"
@@ -1449,17 +1505,6 @@
                 },
                 {
                   "prim": "UNPAIR"
-                },
-                {
-                  "prim": "DIG",
-                  "args": [
-                    {
-                      "int": "2"
-                    }
-                  ]
-                },
-                {
-                  "prim": "SWAP"
                 },
                 {
                   "prim": "UNPACK",
@@ -1836,6 +1881,26 @@
                                                       "annots": [
                                                         "%generalContractAddress"
                                                       ]
+                                                    },
+                                                    {
+                                                      "prim": "or",
+                                                      "args": [
+                                                        {
+                                                          "prim": "unit",
+                                                          "annots": [
+                                                            "%remove"
+                                                          ]
+                                                        },
+                                                        {
+                                                          "prim": "unit",
+                                                          "annots": [
+                                                            "%update"
+                                                          ]
+                                                        }
+                                                      ],
+                                                      "annots": [
+                                                        "%updateType"
+                                                      ]
                                                     }
                                                   ],
                                                   "annots": [
@@ -1887,15 +1952,29 @@
                                                   "prim": "pair",
                                                   "args": [
                                                     {
-                                                      "prim": "string",
-                                                      "annots": [
-                                                        "%whitelistContractName"
-                                                      ]
-                                                    },
-                                                    {
                                                       "prim": "address",
                                                       "annots": [
                                                         "%whitelistContractAddress"
+                                                      ]
+                                                    },
+                                                    {
+                                                      "prim": "or",
+                                                      "args": [
+                                                        {
+                                                          "prim": "unit",
+                                                          "annots": [
+                                                            "%remove"
+                                                          ]
+                                                        },
+                                                        {
+                                                          "prim": "unit",
+                                                          "annots": [
+                                                            "%update"
+                                                          ]
+                                                        }
+                                                      ],
+                                                      "annots": [
+                                                        "%updateType"
                                                       ]
                                                     }
                                                   ],
@@ -2034,13 +2113,13 @@
                               ]
                             },
                             {
-                              "prim": "map",
+                              "prim": "big_map",
                               "args": [
                                 {
-                                  "prim": "string"
+                                  "prim": "address"
                                 },
                                 {
-                                  "prim": "address"
+                                  "prim": "unit"
                                 }
                               ],
                               "annots": [
@@ -2048,7 +2127,7 @@
                               ]
                             },
                             {
-                              "prim": "map",
+                              "prim": "big_map",
                               "args": [
                                 {
                                   "prim": "string"
@@ -2128,7 +2207,7 @@
                               ]
                             },
                             {
-                              "prim": "map",
+                              "prim": "big_map",
                               "args": [
                                 {
                                   "prim": "address"
@@ -2142,7 +2221,7 @@
                               ]
                             },
                             {
-                              "prim": "map",
+                              "prim": "big_map",
                               "args": [
                                 {
                                   "prim": "address"
@@ -2156,7 +2235,7 @@
                               ]
                             },
                             {
-                              "prim": "map",
+                              "prim": "big_map",
                               "args": [
                                 {
                                   "prim": "string"
@@ -2291,13 +2370,13 @@
                               ]
                             },
                             {
-                              "prim": "map",
+                              "prim": "big_map",
                               "args": [
                                 {
-                                  "prim": "string"
+                                  "prim": "address"
                                 },
                                 {
-                                  "prim": "address"
+                                  "prim": "unit"
                                 }
                               ],
                               "annots": [
@@ -2305,7 +2384,7 @@
                               ]
                             },
                             {
-                              "prim": "map",
+                              "prim": "big_map",
                               "args": [
                                 {
                                   "prim": "string"
@@ -2385,7 +2464,7 @@
                               ]
                             },
                             {
-                              "prim": "map",
+                              "prim": "big_map",
                               "args": [
                                 {
                                   "prim": "address"
@@ -2399,7 +2478,7 @@
                               ]
                             },
                             {
-                              "prim": "map",
+                              "prim": "big_map",
                               "args": [
                                 {
                                   "prim": "address"
@@ -2413,7 +2492,7 @@
                               ]
                             },
                             {
-                              "prim": "map",
+                              "prim": "big_map",
                               "args": [
                                 {
                                   "prim": "string"
@@ -2461,10 +2540,7 @@
                     ],
                     [
                       {
-                        "prim": "SWAP"
-                      },
-                      {
-                        "prim": "DIG",
+                        "prim": "DUG",
                         "args": [
                           {
                             "int": "2"
@@ -2487,7 +2563,7 @@
             "prim": "DIG",
             "args": [
               {
-                "int": "2"
+                "int": "3"
               }
             ]
           },
@@ -2553,6 +2629,17 @@
                               "args": [
                                 [
                                   {
+                                    "prim": "DIG",
+                                    "args": [
+                                      {
+                                        "int": "4"
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "prim": "DROP"
+                                  },
+                                  {
                                     "prim": "IF_LEFT",
                                     "args": [
                                       [
@@ -2601,12 +2688,7 @@
                                           "prim": "EXEC"
                                         },
                                         {
-                                          "prim": "DUG",
-                                          "args": [
-                                            {
-                                              "int": "2"
-                                            }
-                                          ]
+                                          "prim": "SWAP"
                                         },
                                         {
                                           "prim": "LEFT",
@@ -2848,6 +2930,17 @@
                                                             },
                                                             {
                                                               "prim": "address"
+                                                            },
+                                                            {
+                                                              "prim": "or",
+                                                              "args": [
+                                                                {
+                                                                  "prim": "unit"
+                                                                },
+                                                                {
+                                                                  "prim": "unit"
+                                                                }
+                                                              ]
                                                             }
                                                           ]
                                                         }
@@ -2884,10 +2977,18 @@
                                                           "prim": "pair",
                                                           "args": [
                                                             {
-                                                              "prim": "string"
+                                                              "prim": "address"
                                                             },
                                                             {
-                                                              "prim": "address"
+                                                              "prim": "or",
+                                                              "args": [
+                                                                {
+                                                                  "prim": "unit"
+                                                                },
+                                                                {
+                                                                  "prim": "unit"
+                                                                }
+                                                              ]
                                                             }
                                                           ]
                                                         },
@@ -2919,6 +3020,17 @@
                                           ]
                                         },
                                         {
+                                          "prim": "SWAP"
+                                        },
+                                        {
+                                          "prim": "DIG",
+                                          "args": [
+                                            {
+                                              "int": "2"
+                                            }
+                                          ]
+                                        },
+                                        {
                                           "prim": "PAIR"
                                         },
                                         {
@@ -2930,10 +3042,12 @@
                                       ],
                                       [
                                         {
-                                          "prim": "SWAP"
-                                        },
-                                        {
-                                          "prim": "DUP"
+                                          "prim": "DUP",
+                                          "args": [
+                                            {
+                                              "int": "2"
+                                            }
+                                          ]
                                         },
                                         {
                                           "prim": "GET",
@@ -2973,14 +3087,6 @@
                                         },
                                         {
                                           "prim": "SWAP"
-                                        },
-                                        {
-                                          "prim": "DIG",
-                                          "args": [
-                                            {
-                                              "int": "2"
-                                            }
-                                          ]
                                         },
                                         {
                                           "prim": "RIGHT",
@@ -3182,6 +3288,17 @@
                                                             },
                                                             {
                                                               "prim": "address"
+                                                            },
+                                                            {
+                                                              "prim": "or",
+                                                              "args": [
+                                                                {
+                                                                  "prim": "unit"
+                                                                },
+                                                                {
+                                                                  "prim": "unit"
+                                                                }
+                                                              ]
                                                             }
                                                           ]
                                                         }
@@ -3218,10 +3335,18 @@
                                                           "prim": "pair",
                                                           "args": [
                                                             {
-                                                              "prim": "string"
+                                                              "prim": "address"
                                                             },
                                                             {
-                                                              "prim": "address"
+                                                              "prim": "or",
+                                                              "args": [
+                                                                {
+                                                                  "prim": "unit"
+                                                                },
+                                                                {
+                                                                  "prim": "unit"
+                                                                }
+                                                              ]
                                                             }
                                                           ]
                                                         },
@@ -3243,6 +3368,17 @@
                                               "prim": "address"
                                             }
                                           ]
+                                        },
+                                        {
+                                          "prim": "DIG",
+                                          "args": [
+                                            {
+                                              "int": "2"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "prim": "SWAP"
                                         },
                                         {
                                           "prim": "DIG",
@@ -3313,10 +3449,12 @@
                                           "prim": "EXEC"
                                         },
                                         {
-                                          "prim": "SWAP"
-                                        },
-                                        {
-                                          "prim": "UNIT"
+                                          "prim": "DIG",
+                                          "args": [
+                                            {
+                                              "int": "3"
+                                            }
+                                          ]
                                         },
                                         {
                                           "prim": "LEFT",
@@ -3558,6 +3696,17 @@
                                                             },
                                                             {
                                                               "prim": "address"
+                                                            },
+                                                            {
+                                                              "prim": "or",
+                                                              "args": [
+                                                                {
+                                                                  "prim": "unit"
+                                                                },
+                                                                {
+                                                                  "prim": "unit"
+                                                                }
+                                                              ]
                                                             }
                                                           ]
                                                         }
@@ -3594,10 +3743,18 @@
                                                           "prim": "pair",
                                                           "args": [
                                                             {
-                                                              "prim": "string"
+                                                              "prim": "address"
                                                             },
                                                             {
-                                                              "prim": "address"
+                                                              "prim": "or",
+                                                              "args": [
+                                                                {
+                                                                  "prim": "unit"
+                                                                },
+                                                                {
+                                                                  "prim": "unit"
+                                                                }
+                                                              ]
                                                             }
                                                           ]
                                                         },
@@ -3629,6 +3786,17 @@
                                           ]
                                         },
                                         {
+                                          "prim": "SWAP"
+                                        },
+                                        {
+                                          "prim": "DIG",
+                                          "args": [
+                                            {
+                                              "int": "2"
+                                            }
+                                          ]
+                                        },
+                                        {
                                           "prim": "PAIR"
                                         },
                                         {
@@ -3639,6 +3807,17 @@
                                         }
                                       ],
                                       [
+                                        {
+                                          "prim": "DIG",
+                                          "args": [
+                                            {
+                                              "int": "4"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "prim": "DROP"
+                                        },
                                         {
                                           "prim": "DUP",
                                           "args": [
@@ -3684,12 +3863,7 @@
                                           "prim": "EXEC"
                                         },
                                         {
-                                          "prim": "DUG",
-                                          "args": [
-                                            {
-                                              "int": "2"
-                                            }
-                                          ]
+                                          "prim": "SWAP"
                                         },
                                         {
                                           "prim": "RIGHT",
@@ -3931,6 +4105,17 @@
                                                             },
                                                             {
                                                               "prim": "address"
+                                                            },
+                                                            {
+                                                              "prim": "or",
+                                                              "args": [
+                                                                {
+                                                                  "prim": "unit"
+                                                                },
+                                                                {
+                                                                  "prim": "unit"
+                                                                }
+                                                              ]
                                                             }
                                                           ]
                                                         }
@@ -3967,10 +4152,18 @@
                                                           "prim": "pair",
                                                           "args": [
                                                             {
-                                                              "prim": "string"
+                                                              "prim": "address"
                                                             },
                                                             {
-                                                              "prim": "address"
+                                                              "prim": "or",
+                                                              "args": [
+                                                                {
+                                                                  "prim": "unit"
+                                                                },
+                                                                {
+                                                                  "prim": "unit"
+                                                                }
+                                                              ]
                                                             }
                                                           ]
                                                         },
@@ -4002,6 +4195,17 @@
                                           ]
                                         },
                                         {
+                                          "prim": "SWAP"
+                                        },
+                                        {
+                                          "prim": "DIG",
+                                          "args": [
+                                            {
+                                              "int": "2"
+                                            }
+                                          ]
+                                        },
+                                        {
                                           "prim": "PAIR"
                                         },
                                         {
@@ -4018,6 +4222,17 @@
                             }
                           ],
                           [
+                            {
+                              "prim": "DIG",
+                              "args": [
+                                {
+                                  "int": "4"
+                                }
+                              ]
+                            },
+                            {
+                              "prim": "DROP"
+                            },
                             {
                               "prim": "IF_LEFT",
                               "args": [
@@ -4071,12 +4286,7 @@
                                           "prim": "EXEC"
                                         },
                                         {
-                                          "prim": "DUG",
-                                          "args": [
-                                            {
-                                              "int": "2"
-                                            }
-                                          ]
+                                          "prim": "SWAP"
                                         },
                                         {
                                           "prim": "LEFT",
@@ -4318,6 +4528,17 @@
                                                             },
                                                             {
                                                               "prim": "address"
+                                                            },
+                                                            {
+                                                              "prim": "or",
+                                                              "args": [
+                                                                {
+                                                                  "prim": "unit"
+                                                                },
+                                                                {
+                                                                  "prim": "unit"
+                                                                }
+                                                              ]
                                                             }
                                                           ]
                                                         }
@@ -4354,10 +4575,18 @@
                                                           "prim": "pair",
                                                           "args": [
                                                             {
-                                                              "prim": "string"
+                                                              "prim": "address"
                                                             },
                                                             {
-                                                              "prim": "address"
+                                                              "prim": "or",
+                                                              "args": [
+                                                                {
+                                                                  "prim": "unit"
+                                                                },
+                                                                {
+                                                                  "prim": "unit"
+                                                                }
+                                                              ]
                                                             }
                                                           ]
                                                         },
@@ -4389,6 +4618,17 @@
                                           ]
                                         },
                                         {
+                                          "prim": "SWAP"
+                                        },
+                                        {
+                                          "prim": "DIG",
+                                          "args": [
+                                            {
+                                              "int": "2"
+                                            }
+                                          ]
+                                        },
+                                        {
                                           "prim": "PAIR"
                                         },
                                         {
@@ -4400,10 +4640,12 @@
                                       ],
                                       [
                                         {
-                                          "prim": "SWAP"
-                                        },
-                                        {
-                                          "prim": "DUP"
+                                          "prim": "DUP",
+                                          "args": [
+                                            {
+                                              "int": "2"
+                                            }
+                                          ]
                                         },
                                         {
                                           "prim": "GET",
@@ -4445,14 +4687,6 @@
                                           "prim": "SWAP"
                                         },
                                         {
-                                          "prim": "DIG",
-                                          "args": [
-                                            {
-                                              "int": "2"
-                                            }
-                                          ]
-                                        },
-                                        {
                                           "prim": "RIGHT",
                                           "args": [
                                             {
@@ -4692,6 +4926,17 @@
                                                             },
                                                             {
                                                               "prim": "address"
+                                                            },
+                                                            {
+                                                              "prim": "or",
+                                                              "args": [
+                                                                {
+                                                                  "prim": "unit"
+                                                                },
+                                                                {
+                                                                  "prim": "unit"
+                                                                }
+                                                              ]
                                                             }
                                                           ]
                                                         }
@@ -4728,10 +4973,18 @@
                                                           "prim": "pair",
                                                           "args": [
                                                             {
-                                                              "prim": "string"
+                                                              "prim": "address"
                                                             },
                                                             {
-                                                              "prim": "address"
+                                                              "prim": "or",
+                                                              "args": [
+                                                                {
+                                                                  "prim": "unit"
+                                                                },
+                                                                {
+                                                                  "prim": "unit"
+                                                                }
+                                                              ]
                                                             }
                                                           ]
                                                         },
@@ -4753,6 +5006,17 @@
                                               "prim": "address"
                                             }
                                           ]
+                                        },
+                                        {
+                                          "prim": "DIG",
+                                          "args": [
+                                            {
+                                              "int": "2"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "prim": "SWAP"
                                         },
                                         {
                                           "prim": "DIG",
@@ -4914,10 +5178,12 @@
                                       ],
                                       [
                                         {
-                                          "prim": "SWAP"
-                                        },
-                                        {
-                                          "prim": "DUP"
+                                          "prim": "DUP",
+                                          "args": [
+                                            {
+                                              "int": "2"
+                                            }
+                                          ]
                                         },
                                         {
                                           "prim": "GET",
@@ -4957,14 +5223,6 @@
                                         },
                                         {
                                           "prim": "SWAP"
-                                        },
-                                        {
-                                          "prim": "DIG",
-                                          "args": [
-                                            {
-                                              "int": "2"
-                                            }
-                                          ]
                                         },
                                         {
                                           "prim": "LEFT",
@@ -5206,6 +5464,17 @@
                                                             },
                                                             {
                                                               "prim": "address"
+                                                            },
+                                                            {
+                                                              "prim": "or",
+                                                              "args": [
+                                                                {
+                                                                  "prim": "unit"
+                                                                },
+                                                                {
+                                                                  "prim": "unit"
+                                                                }
+                                                              ]
                                                             }
                                                           ]
                                                         }
@@ -5242,10 +5511,18 @@
                                                           "prim": "pair",
                                                           "args": [
                                                             {
-                                                              "prim": "string"
+                                                              "prim": "address"
                                                             },
                                                             {
-                                                              "prim": "address"
+                                                              "prim": "or",
+                                                              "args": [
+                                                                {
+                                                                  "prim": "unit"
+                                                                },
+                                                                {
+                                                                  "prim": "unit"
+                                                                }
+                                                              ]
                                                             }
                                                           ]
                                                         },
@@ -5267,6 +5544,17 @@
                                               "prim": "address"
                                             }
                                           ]
+                                        },
+                                        {
+                                          "prim": "DIG",
+                                          "args": [
+                                            {
+                                              "int": "2"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "prim": "SWAP"
                                         },
                                         {
                                           "prim": "DIG",
@@ -5308,6 +5596,17 @@
                                     "prim": "IF_LEFT",
                                     "args": [
                                       [
+                                        {
+                                          "prim": "DIG",
+                                          "args": [
+                                            {
+                                              "int": "4"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "prim": "DROP"
+                                        },
                                         {
                                           "prim": "DUP",
                                           "args": [
@@ -5353,12 +5652,7 @@
                                           "prim": "EXEC"
                                         },
                                         {
-                                          "prim": "DUG",
-                                          "args": [
-                                            {
-                                              "int": "2"
-                                            }
-                                          ]
+                                          "prim": "SWAP"
                                         },
                                         {
                                           "prim": "RIGHT",
@@ -5576,6 +5870,17 @@
                                                             },
                                                             {
                                                               "prim": "address"
+                                                            },
+                                                            {
+                                                              "prim": "or",
+                                                              "args": [
+                                                                {
+                                                                  "prim": "unit"
+                                                                },
+                                                                {
+                                                                  "prim": "unit"
+                                                                }
+                                                              ]
                                                             }
                                                           ]
                                                         }
@@ -5612,10 +5917,18 @@
                                                           "prim": "pair",
                                                           "args": [
                                                             {
-                                                              "prim": "string"
+                                                              "prim": "address"
                                                             },
                                                             {
-                                                              "prim": "address"
+                                                              "prim": "or",
+                                                              "args": [
+                                                                {
+                                                                  "prim": "unit"
+                                                                },
+                                                                {
+                                                                  "prim": "unit"
+                                                                }
+                                                              ]
                                                             }
                                                           ]
                                                         },
@@ -5637,6 +5950,17 @@
                                               "prim": "address"
                                             }
                                           ]
+                                        },
+                                        {
+                                          "prim": "DIG",
+                                          "args": [
+                                            {
+                                              "int": "2"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "prim": "SWAP"
                                         },
                                         {
                                           "prim": "DIG",
@@ -5700,10 +6024,12 @@
                                           "prim": "EXEC"
                                         },
                                         {
-                                          "prim": "SWAP"
-                                        },
-                                        {
-                                          "prim": "UNIT"
+                                          "prim": "DIG",
+                                          "args": [
+                                            {
+                                              "int": "3"
+                                            }
+                                          ]
                                         },
                                         {
                                           "prim": "LEFT",
@@ -5816,6 +6142,17 @@
                                                     },
                                                     {
                                                       "prim": "address"
+                                                    },
+                                                    {
+                                                      "prim": "or",
+                                                      "args": [
+                                                        {
+                                                          "prim": "unit"
+                                                        },
+                                                        {
+                                                          "prim": "unit"
+                                                        }
+                                                      ]
                                                     }
                                                   ]
                                                 }
@@ -5855,10 +6192,18 @@
                                                       "prim": "pair",
                                                       "args": [
                                                         {
-                                                          "prim": "string"
+                                                          "prim": "address"
                                                         },
                                                         {
-                                                          "prim": "address"
+                                                          "prim": "or",
+                                                          "args": [
+                                                            {
+                                                              "prim": "unit"
+                                                            },
+                                                            {
+                                                              "prim": "unit"
+                                                            }
+                                                          ]
                                                         }
                                                       ]
                                                     },
@@ -6016,6 +6361,17 @@
                                           ]
                                         },
                                         {
+                                          "prim": "SWAP"
+                                        },
+                                        {
+                                          "prim": "DIG",
+                                          "args": [
+                                            {
+                                              "int": "2"
+                                            }
+                                          ]
+                                        },
+                                        {
                                           "prim": "PAIR"
                                         },
                                         {
@@ -6029,6 +6385,17 @@
                                   }
                                 ],
                                 [
+                                  {
+                                    "prim": "DIG",
+                                    "args": [
+                                      {
+                                        "int": "4"
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "prim": "DROP"
+                                  },
                                   {
                                     "prim": "IF_LEFT",
                                     "args": [
@@ -6078,12 +6445,7 @@
                                           "prim": "EXEC"
                                         },
                                         {
-                                          "prim": "DUG",
-                                          "args": [
-                                            {
-                                              "int": "2"
-                                            }
-                                          ]
+                                          "prim": "SWAP"
                                         },
                                         {
                                           "prim": "RIGHT",
@@ -6148,6 +6510,17 @@
                                                     },
                                                     {
                                                       "prim": "address"
+                                                    },
+                                                    {
+                                                      "prim": "or",
+                                                      "args": [
+                                                        {
+                                                          "prim": "unit"
+                                                        },
+                                                        {
+                                                          "prim": "unit"
+                                                        }
+                                                      ]
                                                     }
                                                   ]
                                                 }
@@ -6187,10 +6560,18 @@
                                                       "prim": "pair",
                                                       "args": [
                                                         {
-                                                          "prim": "string"
+                                                          "prim": "address"
                                                         },
                                                         {
-                                                          "prim": "address"
+                                                          "prim": "or",
+                                                          "args": [
+                                                            {
+                                                              "prim": "unit"
+                                                            },
+                                                            {
+                                                              "prim": "unit"
+                                                            }
+                                                          ]
                                                         }
                                                       ]
                                                     },
@@ -6338,6 +6719,17 @@
                                               "prim": "address"
                                             }
                                           ]
+                                        },
+                                        {
+                                          "prim": "DIG",
+                                          "args": [
+                                            {
+                                              "int": "2"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "prim": "SWAP"
                                         },
                                         {
                                           "prim": "DIG",
@@ -6403,12 +6795,7 @@
                                           "prim": "EXEC"
                                         },
                                         {
-                                          "prim": "DUG",
-                                          "args": [
-                                            {
-                                              "int": "2"
-                                            }
-                                          ]
+                                          "prim": "SWAP"
                                         },
                                         {
                                           "prim": "LEFT",
@@ -6421,6 +6808,17 @@
                                                 },
                                                 {
                                                   "prim": "address"
+                                                },
+                                                {
+                                                  "prim": "or",
+                                                  "args": [
+                                                    {
+                                                      "prim": "unit"
+                                                    },
+                                                    {
+                                                      "prim": "unit"
+                                                    }
+                                                  ]
                                                 }
                                               ]
                                             }
@@ -6522,10 +6920,18 @@
                                                       "prim": "pair",
                                                       "args": [
                                                         {
-                                                          "prim": "string"
+                                                          "prim": "address"
                                                         },
                                                         {
-                                                          "prim": "address"
+                                                          "prim": "or",
+                                                          "args": [
+                                                            {
+                                                              "prim": "unit"
+                                                            },
+                                                            {
+                                                              "prim": "unit"
+                                                            }
+                                                          ]
                                                         }
                                                       ]
                                                     },
@@ -6683,6 +7089,17 @@
                                           ]
                                         },
                                         {
+                                          "prim": "SWAP"
+                                        },
+                                        {
+                                          "prim": "DIG",
+                                          "args": [
+                                            {
+                                              "int": "2"
+                                            }
+                                          ]
+                                        },
+                                        {
                                           "prim": "PAIR"
                                         },
                                         {
@@ -6704,14 +7121,27 @@
                               "args": [
                                 [
                                   {
+                                    "prim": "DIG",
+                                    "args": [
+                                      {
+                                        "int": "4"
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "prim": "DROP"
+                                  },
+                                  {
                                     "prim": "IF_LEFT",
                                     "args": [
                                       [
                                         {
-                                          "prim": "SWAP"
-                                        },
-                                        {
-                                          "prim": "DUP"
+                                          "prim": "DUP",
+                                          "args": [
+                                            {
+                                              "int": "2"
+                                            }
+                                          ]
                                         },
                                         {
                                           "prim": "GET",
@@ -6751,14 +7181,6 @@
                                         },
                                         {
                                           "prim": "SWAP"
-                                        },
-                                        {
-                                          "prim": "DIG",
-                                          "args": [
-                                            {
-                                              "int": "2"
-                                            }
-                                          ]
                                         },
                                         {
                                           "prim": "RIGHT",
@@ -6902,10 +7324,18 @@
                                                       "prim": "pair",
                                                       "args": [
                                                         {
-                                                          "prim": "string"
+                                                          "prim": "address"
                                                         },
                                                         {
-                                                          "prim": "address"
+                                                          "prim": "or",
+                                                          "args": [
+                                                            {
+                                                              "prim": "unit"
+                                                            },
+                                                            {
+                                                              "prim": "unit"
+                                                            }
+                                                          ]
                                                         }
                                                       ]
                                                     },
@@ -7063,6 +7493,17 @@
                                           ]
                                         },
                                         {
+                                          "prim": "SWAP"
+                                        },
+                                        {
+                                          "prim": "DIG",
+                                          "args": [
+                                            {
+                                              "int": "2"
+                                            }
+                                          ]
+                                        },
+                                        {
                                           "prim": "PAIR"
                                         },
                                         {
@@ -7118,12 +7559,7 @@
                                           "prim": "EXEC"
                                         },
                                         {
-                                          "prim": "DUG",
-                                          "args": [
-                                            {
-                                              "int": "2"
-                                            }
-                                          ]
+                                          "prim": "SWAP"
                                         },
                                         {
                                           "prim": "LEFT",
@@ -7143,10 +7579,18 @@
                                                   "prim": "pair",
                                                   "args": [
                                                     {
-                                                      "prim": "string"
+                                                      "prim": "address"
                                                     },
                                                     {
-                                                      "prim": "address"
+                                                      "prim": "or",
+                                                      "args": [
+                                                        {
+                                                          "prim": "unit"
+                                                        },
+                                                        {
+                                                          "prim": "unit"
+                                                        }
+                                                      ]
                                                     }
                                                   ]
                                                 },
@@ -7274,6 +7718,17 @@
                                                         },
                                                         {
                                                           "prim": "address"
+                                                        },
+                                                        {
+                                                          "prim": "or",
+                                                          "args": [
+                                                            {
+                                                              "prim": "unit"
+                                                            },
+                                                            {
+                                                              "prim": "unit"
+                                                            }
+                                                          ]
                                                         }
                                                       ]
                                                     }
@@ -7418,6 +7873,17 @@
                                               "prim": "address"
                                             }
                                           ]
+                                        },
+                                        {
+                                          "prim": "DIG",
+                                          "args": [
+                                            {
+                                              "int": "2"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "prim": "SWAP"
                                         },
                                         {
                                           "prim": "DIG",
@@ -7488,10 +7954,12 @@
                                           "prim": "EXEC"
                                         },
                                         {
-                                          "prim": "SWAP"
-                                        },
-                                        {
-                                          "prim": "UNIT"
+                                          "prim": "DIG",
+                                          "args": [
+                                            {
+                                              "int": "3"
+                                            }
+                                          ]
                                         },
                                         {
                                           "prim": "RIGHT",
@@ -7519,10 +7987,18 @@
                                                   "prim": "pair",
                                                   "args": [
                                                     {
-                                                      "prim": "string"
+                                                      "prim": "address"
                                                     },
                                                     {
-                                                      "prim": "address"
+                                                      "prim": "or",
+                                                      "args": [
+                                                        {
+                                                          "prim": "unit"
+                                                        },
+                                                        {
+                                                          "prim": "unit"
+                                                        }
+                                                      ]
                                                     }
                                                   ]
                                                 },
@@ -7650,6 +8126,17 @@
                                                         },
                                                         {
                                                           "prim": "address"
+                                                        },
+                                                        {
+                                                          "prim": "or",
+                                                          "args": [
+                                                            {
+                                                              "prim": "unit"
+                                                            },
+                                                            {
+                                                              "prim": "unit"
+                                                            }
+                                                          ]
                                                         }
                                                       ]
                                                     }
@@ -7804,6 +8291,17 @@
                                           ]
                                         },
                                         {
+                                          "prim": "SWAP"
+                                        },
+                                        {
+                                          "prim": "DIG",
+                                          "args": [
+                                            {
+                                              "int": "2"
+                                            }
+                                          ]
+                                        },
+                                        {
                                           "prim": "PAIR"
                                         },
                                         {
@@ -7815,10 +8313,23 @@
                                       ],
                                       [
                                         {
-                                          "prim": "SWAP"
+                                          "prim": "DIG",
+                                          "args": [
+                                            {
+                                              "int": "4"
+                                            }
+                                          ]
                                         },
                                         {
-                                          "prim": "DUP"
+                                          "prim": "DROP"
+                                        },
+                                        {
+                                          "prim": "DUP",
+                                          "args": [
+                                            {
+                                              "int": "2"
+                                            }
+                                          ]
                                         },
                                         {
                                           "prim": "GET",
@@ -7858,14 +8369,6 @@
                                         },
                                         {
                                           "prim": "SWAP"
-                                        },
-                                        {
-                                          "prim": "DIG",
-                                          "args": [
-                                            {
-                                              "int": "2"
-                                            }
-                                          ]
                                         },
                                         {
                                           "prim": "LEFT",
@@ -8016,6 +8519,17 @@
                                                         },
                                                         {
                                                           "prim": "address"
+                                                        },
+                                                        {
+                                                          "prim": "or",
+                                                          "args": [
+                                                            {
+                                                              "prim": "unit"
+                                                            },
+                                                            {
+                                                              "prim": "unit"
+                                                            }
+                                                          ]
                                                         }
                                                       ]
                                                     }
@@ -8170,6 +8684,17 @@
                                           ]
                                         },
                                         {
+                                          "prim": "SWAP"
+                                        },
+                                        {
+                                          "prim": "DIG",
+                                          "args": [
+                                            {
+                                              "int": "2"
+                                            }
+                                          ]
+                                        },
+                                        {
                                           "prim": "PAIR"
                                         },
                                         {
@@ -8192,6 +8717,17 @@
                 }
               ],
               [
+                {
+                  "prim": "DIG",
+                  "args": [
+                    {
+                      "int": "4"
+                    }
+                  ]
+                },
+                {
+                  "prim": "DROP"
+                },
                 {
                   "prim": "IF_LEFT",
                   "args": [
@@ -8241,12 +8777,7 @@
                         "prim": "EXEC"
                       },
                       {
-                        "prim": "DUG",
-                        "args": [
-                          {
-                            "int": "2"
-                          }
-                        ]
+                        "prim": "SWAP"
                       },
                       {
                         "prim": "RIGHT",
@@ -8255,10 +8786,18 @@
                             "prim": "pair",
                             "args": [
                               {
-                                "prim": "string"
+                                "prim": "address"
                               },
                               {
-                                "prim": "address"
+                                "prim": "or",
+                                "args": [
+                                  {
+                                    "prim": "unit"
+                                  },
+                                  {
+                                    "prim": "unit"
+                                  }
+                                ]
                               }
                             ]
                           }
@@ -8405,6 +8944,17 @@
                                       },
                                       {
                                         "prim": "address"
+                                      },
+                                      {
+                                        "prim": "or",
+                                        "args": [
+                                          {
+                                            "prim": "unit"
+                                          },
+                                          {
+                                            "prim": "unit"
+                                          }
+                                        ]
                                       }
                                     ]
                                   }
@@ -8559,6 +9109,17 @@
                         ]
                       },
                       {
+                        "prim": "SWAP"
+                      },
+                      {
+                        "prim": "DIG",
+                        "args": [
+                          {
+                            "int": "2"
+                          }
+                        ]
+                      },
+                      {
                         "prim": "PAIR"
                       },
                       {
@@ -8614,12 +9175,7 @@
                         "prim": "EXEC"
                       },
                       {
-                        "prim": "DUG",
-                        "args": [
-                          {
-                            "int": "2"
-                          }
-                        ]
+                        "prim": "SWAP"
                       },
                       {
                         "prim": "RIGHT",
@@ -8867,6 +9423,17 @@
                                               },
                                               {
                                                 "prim": "address"
+                                              },
+                                              {
+                                                "prim": "or",
+                                                "args": [
+                                                  {
+                                                    "prim": "unit"
+                                                  },
+                                                  {
+                                                    "prim": "unit"
+                                                  }
+                                                ]
                                               }
                                             ]
                                           }
@@ -8903,10 +9470,18 @@
                                             "prim": "pair",
                                             "args": [
                                               {
-                                                "prim": "string"
+                                                "prim": "address"
                                               },
                                               {
-                                                "prim": "address"
+                                                "prim": "or",
+                                                "args": [
+                                                  {
+                                                    "prim": "unit"
+                                                  },
+                                                  {
+                                                    "prim": "unit"
+                                                  }
+                                                ]
                                               }
                                             ]
                                           },
@@ -8922,6 +9497,17 @@
                             ]
                           }
                         ]
+                      },
+                      {
+                        "prim": "DIG",
+                        "args": [
+                          {
+                            "int": "2"
+                          }
+                        ]
+                      },
+                      {
+                        "prim": "SWAP"
                       },
                       {
                         "prim": "DIG",
@@ -9141,25 +9727,25 @@
       "prim": "view",
       "args": [
         {
-          "string": "getWhitelistContracts"
+          "string": "getWhitelistContractOpt"
         },
         {
-          "prim": "unit"
+          "prim": "address"
         },
         {
-          "prim": "map",
+          "prim": "option",
           "args": [
             {
-              "prim": "string"
-            },
-            {
-              "prim": "address"
+              "prim": "unit"
             }
           ]
         },
         [
           {
-            "prim": "CDR"
+            "prim": "UNPAIR"
+          },
+          {
+            "prim": "SWAP"
           },
           {
             "prim": "GET",
@@ -9168,6 +9754,12 @@
                 "int": "15"
               }
             ]
+          },
+          {
+            "prim": "SWAP"
+          },
+          {
+            "prim": "GET"
           }
         ]
       ]
@@ -9176,17 +9768,14 @@
       "prim": "view",
       "args": [
         {
-          "string": "getGeneralContracts"
+          "string": "getGeneralContractOpt"
         },
         {
-          "prim": "unit"
+          "prim": "string"
         },
         {
-          "prim": "map",
+          "prim": "option",
           "args": [
-            {
-              "prim": "string"
-            },
             {
               "prim": "address"
             }
@@ -9194,7 +9783,10 @@
         },
         [
           {
-            "prim": "CDR"
+            "prim": "UNPAIR"
+          },
+          {
+            "prim": "SWAP"
           },
           {
             "prim": "GET",
@@ -9203,6 +9795,12 @@
                 "int": "17"
               }
             ]
+          },
+          {
+            "prim": "SWAP"
+          },
+          {
+            "prim": "GET"
           }
         ]
       ]
@@ -9211,7 +9809,7 @@
       "prim": "view",
       "args": [
         {
-          "string": "getOracleAddresses"
+          "string": "getOracleLedger"
         },
         {
           "prim": "unit"
@@ -9260,33 +9858,53 @@
       "prim": "view",
       "args": [
         {
-          "string": "getOracleRewardStakedMvk"
+          "string": "getOracleOpt"
         },
         {
-          "prim": "unit"
+          "prim": "address"
         },
         {
-          "prim": "map",
+          "prim": "option",
           "args": [
             {
-              "prim": "address"
-            },
-            {
-              "prim": "nat"
+              "prim": "pair",
+              "args": [
+                {
+                  "prim": "key",
+                  "annots": [
+                    "%oraclePublicKey"
+                  ]
+                },
+                {
+                  "prim": "string",
+                  "annots": [
+                    "%oraclePeerId"
+                  ]
+                }
+              ]
             }
           ]
         },
         [
           {
-            "prim": "CDR"
+            "prim": "UNPAIR"
+          },
+          {
+            "prim": "SWAP"
           },
           {
             "prim": "GET",
             "args": [
               {
-                "int": "23"
+                "int": "19"
               }
             ]
+          },
+          {
+            "prim": "SWAP"
+          },
+          {
+            "prim": "GET"
           }
         ]
       ]
@@ -9295,17 +9913,14 @@
       "prim": "view",
       "args": [
         {
-          "string": "getOracleRewardXtz"
+          "string": "getOracleRewardStakedMvkOpt"
         },
         {
-          "prim": "unit"
+          "prim": "address"
         },
         {
-          "prim": "map",
+          "prim": "option",
           "args": [
-            {
-              "prim": "address"
-            },
             {
               "prim": "nat"
             }
@@ -9313,7 +9928,51 @@
         },
         [
           {
-            "prim": "CDR"
+            "prim": "UNPAIR"
+          },
+          {
+            "prim": "SWAP"
+          },
+          {
+            "prim": "GET",
+            "args": [
+              {
+                "int": "23"
+              }
+            ]
+          },
+          {
+            "prim": "SWAP"
+          },
+          {
+            "prim": "GET"
+          }
+        ]
+      ]
+    },
+    {
+      "prim": "view",
+      "args": [
+        {
+          "string": "getOracleRewardXtzOpt"
+        },
+        {
+          "prim": "address"
+        },
+        {
+          "prim": "option",
+          "args": [
+            {
+              "prim": "nat"
+            }
+          ]
+        },
+        [
+          {
+            "prim": "UNPAIR"
+          },
+          {
+            "prim": "SWAP"
           },
           {
             "prim": "GET",
@@ -9322,6 +9981,12 @@
                 "int": "25"
               }
             ]
+          },
+          {
+            "prim": "SWAP"
+          },
+          {
+            "prim": "GET"
           }
         ]
       ]
@@ -9617,47 +10282,12 @@
           }
         ]
       ]
-    },
-    {
-      "prim": "view",
-      "args": [
-        {
-          "string": "getLambdaLedger"
-        },
-        {
-          "prim": "unit"
-        },
-        {
-          "prim": "map",
-          "args": [
-            {
-              "prim": "string"
-            },
-            {
-              "prim": "bytes"
-            }
-          ]
-        },
-        [
-          {
-            "prim": "CDR"
-          },
-          {
-            "prim": "GET",
-            "args": [
-              {
-                "int": "26"
-              }
-            ]
-          }
-        ]
-      ]
     }
   ],
   "networks": {},
   "compiler": {
     "name": "ligo",
-    "version": "0.53.0"
+    "version": "0.60.0"
   },
   "networkType": "Tezos"
 }

@@ -25,10 +25,10 @@ import {
   mockedSignature,
   mockSignData,
   mockVerifyData
-} from '../__mocks__/helpers.mock.js';
+} from '../__mocks__/reportgen.helpers.mock.js';
 
 import { DataService } from '../../data/index.js';
-import { mockedPrice, DataServiceMock } from '../../data/__mocks__/data.service.mock.js';
+import { mockedData, DataServiceMock } from '../../data/__mocks__/data.service.mock.js';
 import { PeerId } from '@libp2p/interface-peer-id';
 import BigNumber from 'bignumber.js';
 
@@ -55,7 +55,7 @@ describe('ReportGenFollowerService', () => {
 
   const reportGenNetworkServiceMock = new ReportGenNetworkServiceMock();
   const eventHubServiceMock = new EventHubService();
-  const priceServiceMock = new DataServiceMock();
+  const dataServiceMock = new DataServiceMock();
   const contractServiceMock: any = new ContractServiceMock();
 
   beforeEach(async () => {
@@ -64,7 +64,7 @@ describe('ReportGenFollowerService', () => {
       reportGenNetworkServiceMock as unknown as ReportGenNetworkService,
       eventHubServiceMock as unknown as EventHubService,
       contractServiceMock as unknown as ContractService,
-      priceServiceMock as unknown as DataService,
+      dataServiceMock as unknown as DataService,
       ReportGenConfigMock
     );
 
@@ -112,7 +112,7 @@ describe('ReportGenFollowerService', () => {
         aggregatorAddress: ReportGenConfigMock.aggregatorAddress,
         round: round,
         epoch: ReportGenConfigMock.epoch,
-        observation: mockedPrice,
+        observation: mockedData,
         signature: mockedSignature
       });
     });
@@ -168,32 +168,32 @@ describe('ReportGenFollowerService', () => {
       {
         oracle: mockedOracleAddresses[0].oraclePeerId,
         signature: new Uint8Array([0]),
-        price: new BigNumber(0)
+        data: new BigNumber(0)
       },
       {
         oracle: mockedOracleAddresses[1].oraclePeerId,
         signature: new Uint8Array([1]),
-        price: new BigNumber(1)
+        data: new BigNumber(1)
       },
       {
         oracle: mockedOracleAddresses[2].oraclePeerId,
         signature: new Uint8Array([2]),
-        price: new BigNumber(2)
+        data: new BigNumber(2)
       },
       {
         oracle: mockedOracleAddresses[3].oraclePeerId,
         signature: new Uint8Array([3]),
-        price: new BigNumber(3)
+        data: new BigNumber(3)
       },
       {
         oracle: mockedOracleAddresses[4].oraclePeerId,
         signature: new Uint8Array([4]),
-        price: new BigNumber(4)
+        data: new BigNumber(4)
       },
       {
         oracle: mockedOracleAddresses[5].oraclePeerId,
         signature: new Uint8Array([5]),
-        price: new BigNumber(5)
+        data: new BigNumber(5)
       }
     ];
     beforeEach(async () => {
@@ -349,32 +349,32 @@ describe('ReportGenFollowerService', () => {
       {
         oracle: mockedOracleAddresses[0].oraclePeerId,
         signature: new Uint8Array([0]),
-        price: new BigNumber(0)
+        data: new BigNumber(0)
       },
       {
         oracle: mockedOracleAddresses[1].oraclePeerId,
         signature: new Uint8Array([1]),
-        price: new BigNumber(1)
+        data: new BigNumber(1)
       },
       {
         oracle: mockedOracleAddresses[2].oraclePeerId,
         signature: new Uint8Array([2]),
-        price: new BigNumber(2)
+        data: new BigNumber(2)
       },
       {
         oracle: mockedOracleAddresses[3].oraclePeerId,
         signature: new Uint8Array([3]),
-        price: new BigNumber(3)
+        data: new BigNumber(3)
       },
       {
         oracle: mockedOracleAddresses[4].oraclePeerId,
         signature: new Uint8Array([4]),
-        price: new BigNumber(4)
+        data: new BigNumber(4)
       },
       {
         oracle: mockedOracleAddresses[5].oraclePeerId,
         signature: new Uint8Array([5]),
-        price: new BigNumber(5)
+        data: new BigNumber(5)
       }
     ];
 
@@ -482,32 +482,32 @@ describe('ReportGenFollowerService', () => {
       {
         oracle: mockedOracleAddresses[0].oraclePeerId,
         signature: new Uint8Array([0]),
-        price: new BigNumber(0)
+        data: new BigNumber(0)
       },
       {
         oracle: mockedOracleAddresses[1].oraclePeerId,
         signature: new Uint8Array([1]),
-        price: new BigNumber(1)
+        data: new BigNumber(1)
       },
       {
         oracle: mockedOracleAddresses[2].oraclePeerId,
         signature: new Uint8Array([2]),
-        price: new BigNumber(2)
+        data: new BigNumber(2)
       },
       {
         oracle: mockedOracleAddresses[3].oraclePeerId,
         signature: new Uint8Array([3]),
-        price: new BigNumber(3)
+        data: new BigNumber(3)
       },
       {
         oracle: mockedOracleAddresses[4].oraclePeerId,
         signature: new Uint8Array([4]),
-        price: new BigNumber(4)
+        data: new BigNumber(4)
       },
       {
         oracle: mockedOracleAddresses[5].oraclePeerId,
         signature: new Uint8Array([5]),
-        price: new BigNumber(5)
+        data: new BigNumber(5)
       }
     ];
     const signatures = [];
