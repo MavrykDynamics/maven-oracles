@@ -11,171 +11,182 @@
               "prim": "or",
               "args": [
                 {
-                  "prim": "pair",
+                  "prim": "or",
                   "args": [
                     {
-                      "prim": "set",
+                      "prim": "pair",
                       "args": [
                         {
-                          "prim": "address"
+                          "prim": "set",
+                          "args": [
+                            {
+                              "prim": "address"
+                            }
+                          ],
+                          "annots": [
+                            "%eligibleSatellites"
+                          ]
+                        },
+                        {
+                          "prim": "nat",
+                          "annots": [
+                            "%totalStakedMvkReward"
+                          ]
                         }
                       ],
                       "annots": [
-                        "%eligibleSatellites"
+                        "%distributeReward"
                       ]
                     },
-                    {
-                      "prim": "nat",
-                      "annots": [
-                        "%totalStakedMvkReward"
-                      ]
-                    }
-                  ],
-                  "annots": [
-                    "%distributeReward"
-                  ]
-                },
-                {
-                  "prim": "pair",
-                  "args": [
-                    {
-                      "prim": "address",
-                      "annots": [
-                        "%aggregatorAddress"
-                      ]
-                    },
-                    {
-                      "prim": "string",
-                      "annots": [
-                        "%oldName"
-                      ]
-                    },
-                    {
-                      "prim": "string",
-                      "annots": [
-                        "%newName"
-                      ]
-                    }
-                  ],
-                  "annots": [
-                    "%setAggregatorReference"
-                  ]
-                }
-              ]
-            },
-            {
-              "prim": "or",
-              "args": [
-                {
-                  "prim": "list",
-                  "args": [
                     {
                       "prim": "pair",
                       "args": [
                         {
                           "prim": "address",
                           "annots": [
-                            "%to_"
+                            "%aggregatorAddress"
                           ]
                         },
                         {
-                          "prim": "nat",
+                          "prim": "string",
                           "annots": [
-                            "%amount"
+                            "%oldName"
                           ]
                         },
                         {
-                          "prim": "or",
+                          "prim": "string",
+                          "annots": [
+                            "%newName"
+                          ]
+                        }
+                      ],
+                      "annots": [
+                        "%setAggregatorReference"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "prim": "or",
+                  "args": [
+                    {
+                      "prim": "list",
+                      "args": [
+                        {
+                          "prim": "pair",
                           "args": [
+                            {
+                              "prim": "address",
+                              "annots": [
+                                "%to_"
+                              ]
+                            },
+                            {
+                              "prim": "nat",
+                              "annots": [
+                                "%amount"
+                              ]
+                            },
                             {
                               "prim": "or",
                               "args": [
                                 {
-                                  "prim": "address",
-                                  "annots": [
-                                    "%fa12"
-                                  ]
-                                },
-                                {
-                                  "prim": "pair",
+                                  "prim": "or",
                                   "args": [
                                     {
                                       "prim": "address",
                                       "annots": [
-                                        "%tokenContractAddress"
+                                        "%fa12"
                                       ]
                                     },
                                     {
-                                      "prim": "nat",
+                                      "prim": "pair",
+                                      "args": [
+                                        {
+                                          "prim": "address",
+                                          "annots": [
+                                            "%tokenContractAddress"
+                                          ]
+                                        },
+                                        {
+                                          "prim": "nat",
+                                          "annots": [
+                                            "%tokenId"
+                                          ]
+                                        }
+                                      ],
                                       "annots": [
-                                        "%tokenId"
+                                        "%fa2"
                                       ]
                                     }
-                                  ],
+                                  ]
+                                },
+                                {
+                                  "prim": "unit",
                                   "annots": [
-                                    "%fa2"
+                                    "%tez"
                                   ]
                                 }
-                              ]
-                            },
-                            {
-                              "prim": "unit",
+                              ],
                               "annots": [
-                                "%tez"
+                                "%token"
                               ]
                             }
-                          ],
-                          "annots": [
-                            "%token"
                           ]
                         }
-                      ]
-                    }
-                  ],
-                  "annots": [
-                    "%transfer"
-                  ]
-                },
-                {
-                  "prim": "pair",
-                  "args": [
-                    {
-                      "prim": "string",
+                      ],
                       "annots": [
-                        "%generalContractName"
+                        "%transfer"
                       ]
                     },
                     {
                       "prim": "address",
                       "annots": [
-                        "%generalContractAddress"
+                        "%unregisterAsSatellite"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "prim": "pair",
+              "args": [
+                {
+                  "prim": "string",
+                  "annots": [
+                    "%generalContractName"
+                  ]
+                },
+                {
+                  "prim": "address",
+                  "annots": [
+                    "%generalContractAddress"
+                  ]
+                },
+                {
+                  "prim": "or",
+                  "args": [
+                    {
+                      "prim": "unit",
+                      "annots": [
+                        "%remove"
                       ]
                     },
                     {
-                      "prim": "or",
-                      "args": [
-                        {
-                          "prim": "unit",
-                          "annots": [
-                            "%remove"
-                          ]
-                        },
-                        {
-                          "prim": "unit",
-                          "annots": [
-                            "%update"
-                          ]
-                        }
-                      ],
+                      "prim": "unit",
                       "annots": [
-                        "%updateType"
+                        "%update"
                       ]
                     }
                   ],
                   "annots": [
-                    "%updateGeneralContracts"
+                    "%updateType"
                   ]
                 }
+              ],
+              "annots": [
+                "%updateGeneralContracts"
               ]
             }
           ]
@@ -370,85 +381,42 @@
                   "args": [
                     [
                       {
-                        "prim": "DROP"
+                        "prim": "IF_LEFT",
+                        "args": [
+                          [
+                            {
+                              "prim": "DROP"
+                            }
+                          ],
+                          [
+                            {
+                              "prim": "DROP"
+                            }
+                          ]
+                        ]
                       }
                     ],
                     [
-                      {
-                        "prim": "DROP"
-                      }
-                    ]
-                  ]
-                }
-              ],
-              [
-                {
-                  "prim": "IF_LEFT",
-                  "args": [
-                    [
-                      {
-                        "prim": "DROP"
-                      }
-                    ],
-                    [
-                      {
-                        "prim": "SWAP"
-                      },
-                      {
-                        "prim": "DUP",
-                        "args": [
-                          {
-                            "int": "2"
-                          }
-                        ]
-                      },
-                      {
-                        "prim": "CAR"
-                      },
-                      {
-                        "prim": "DUP",
-                        "args": [
-                          {
-                            "int": "2"
-                          }
-                        ]
-                      },
-                      {
-                        "prim": "DUP"
-                      },
-                      {
-                        "prim": "CDR"
-                      },
-                      {
-                        "prim": "DUP",
-                        "args": [
-                          {
-                            "int": "5"
-                          }
-                        ]
-                      },
-                      {
-                        "prim": "GET",
-                        "args": [
-                          {
-                            "int": "4"
-                          }
-                        ]
-                      },
                       {
                         "prim": "IF_LEFT",
                         "args": [
                           [
                             {
-                              "prim": "DIG",
-                              "args": [
-                                {
-                                  "int": "5"
-                                }
-                              ]
+                              "prim": "DROP"
+                            }
+                          ],
+                          [
+                            {
+                              "prim": "SWAP"
                             },
                             {
-                              "prim": "DROP",
+                              "prim": "DUP"
+                            },
+                            {
+                              "prim": "CDR"
+                            },
+                            {
+                              "prim": "DIG",
                               "args": [
                                 {
                                   "int": "2"
@@ -456,92 +424,129 @@
                               ]
                             },
                             {
-                              "prim": "DIG",
-                              "args": [
-                                {
-                                  "int": "3"
-                                }
-                              ]
-                            },
-                            {
-                              "prim": "CAR"
-                            },
-                            {
-                              "prim": "CDR"
-                            },
-                            {
                               "prim": "NONE",
                               "args": [
                                 {
-                                  "prim": "address"
+                                  "prim": "pair",
+                                  "args": [
+                                    {
+                                      "prim": "string"
+                                    },
+                                    {
+                                      "prim": "nat"
+                                    },
+                                    {
+                                      "prim": "nat"
+                                    },
+                                    {
+                                      "prim": "nat"
+                                    },
+                                    {
+                                      "prim": "string"
+                                    },
+                                    {
+                                      "prim": "string"
+                                    },
+                                    {
+                                      "prim": "string"
+                                    },
+                                    {
+                                      "prim": "string"
+                                    },
+                                    {
+                                      "prim": "timestamp"
+                                    },
+                                    {
+                                      "prim": "key"
+                                    },
+                                    {
+                                      "prim": "string"
+                                    }
+                                  ]
                                 }
                               ]
                             },
                             {
-                              "prim": "DIG",
-                              "args": [
-                                {
-                                  "int": "4"
-                                }
-                              ]
+                              "prim": "SWAP"
                             },
                             {
                               "prim": "UPDATE"
-                            }
-                          ],
-                          [
-                            {
-                              "prim": "DROP"
                             },
                             {
-                              "prim": "DIG",
-                              "args": [
-                                {
-                                  "int": "3"
-                                }
-                              ]
+                              "prim": "SWAP"
                             },
                             {
                               "prim": "CAR"
                             },
                             {
-                              "prim": "CDR"
-                            },
-                            {
-                              "prim": "DIG",
-                              "args": [
-                                {
-                                  "int": "4"
-                                }
-                              ]
-                            },
-                            {
-                              "prim": "GET",
-                              "args": [
-                                {
-                                  "int": "3"
-                                }
-                              ]
-                            },
-                            {
-                              "prim": "SOME"
-                            },
-                            {
-                              "prim": "DIG",
-                              "args": [
-                                {
-                                  "int": "4"
-                                }
-                              ]
-                            },
-                            {
-                              "prim": "UPDATE"
+                              "prim": "PAIR"
                             }
                           ]
                         ]
-                      },
+                      }
+                    ]
+                  ]
+                }
+              ],
+              [
+                {
+                  "prim": "SWAP"
+                },
+                {
+                  "prim": "DUP",
+                  "args": [
+                    {
+                      "int": "2"
+                    }
+                  ]
+                },
+                {
+                  "prim": "CAR"
+                },
+                {
+                  "prim": "DUP",
+                  "args": [
+                    {
+                      "int": "2"
+                    }
+                  ]
+                },
+                {
+                  "prim": "DUP"
+                },
+                {
+                  "prim": "CDR"
+                },
+                {
+                  "prim": "DUP",
+                  "args": [
+                    {
+                      "int": "5"
+                    }
+                  ]
+                },
+                {
+                  "prim": "GET",
+                  "args": [
+                    {
+                      "int": "4"
+                    }
+                  ]
+                },
+                {
+                  "prim": "IF_LEFT",
+                  "args": [
+                    [
                       {
                         "prim": "DIG",
+                        "args": [
+                          {
+                            "int": "5"
+                          }
+                        ]
+                      },
+                      {
+                        "prim": "DROP",
                         "args": [
                           {
                             "int": "2"
@@ -549,19 +554,109 @@
                         ]
                       },
                       {
-                        "prim": "CAR"
+                        "prim": "DIG",
+                        "args": [
+                          {
+                            "int": "3"
+                          }
+                        ]
                       },
                       {
                         "prim": "CAR"
                       },
                       {
-                        "prim": "PAIR"
+                        "prim": "CDR"
                       },
                       {
-                        "prim": "PAIR"
+                        "prim": "NONE",
+                        "args": [
+                          {
+                            "prim": "address"
+                          }
+                        ]
+                      },
+                      {
+                        "prim": "DIG",
+                        "args": [
+                          {
+                            "int": "4"
+                          }
+                        ]
+                      },
+                      {
+                        "prim": "UPDATE"
+                      }
+                    ],
+                    [
+                      {
+                        "prim": "DROP"
+                      },
+                      {
+                        "prim": "DIG",
+                        "args": [
+                          {
+                            "int": "3"
+                          }
+                        ]
+                      },
+                      {
+                        "prim": "CAR"
+                      },
+                      {
+                        "prim": "CDR"
+                      },
+                      {
+                        "prim": "DIG",
+                        "args": [
+                          {
+                            "int": "4"
+                          }
+                        ]
+                      },
+                      {
+                        "prim": "GET",
+                        "args": [
+                          {
+                            "int": "3"
+                          }
+                        ]
+                      },
+                      {
+                        "prim": "SOME"
+                      },
+                      {
+                        "prim": "DIG",
+                        "args": [
+                          {
+                            "int": "4"
+                          }
+                        ]
+                      },
+                      {
+                        "prim": "UPDATE"
                       }
                     ]
                   ]
+                },
+                {
+                  "prim": "DIG",
+                  "args": [
+                    {
+                      "int": "2"
+                    }
+                  ]
+                },
+                {
+                  "prim": "CAR"
+                },
+                {
+                  "prim": "CAR"
+                },
+                {
+                  "prim": "PAIR"
+                },
+                {
+                  "prim": "PAIR"
                 }
               ]
             ]

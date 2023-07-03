@@ -67,7 +67,7 @@ TEZOS_PUBLIC_KEY=
 # Put your Alphavantage API key here
 ALPHAVANTAGE_API_KEY=""
 
-# Put your Messar API key here
+# Put your Messari API key here
 MESSARI_API_KEY=""
 
 # Tezos polling interval for taquito. Must be lower than block time

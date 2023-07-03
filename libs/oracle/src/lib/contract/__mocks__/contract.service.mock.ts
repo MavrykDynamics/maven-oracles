@@ -3,7 +3,7 @@ import BigNumber from 'bignumber.js';
 import { IAggregatorConfig } from '../contract.types.js';
 import { verifyData } from '../../reportgen/index.js';
 import { ContractService } from '../contract.service.js';
-import { IOracleLastResultType } from '@mavrykdynamics/contracts';
+import { IOracleInformations, IOracleLastResultType } from '@mavrykdynamics/contracts';
 
 export const mockInitialize = jest.fn();
 

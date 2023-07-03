@@ -50,10 +50,11 @@ export class ContractService implements OnModuleInit {
     const storage: IAggregatorStorage = await contractInstance.storage();
 
     return [...storage.oracleLedger.entries()].map(([oracleAddress, val]) => (
-      Object.assign({
-          val,
-          oracleAddress
-        })
+      {
+        oraclePublicKey: val.oraclePublicKey,
+        oraclePeerId: val.oraclePeerId,
+        oracleAddress: oracleAddress
+      }
     ));
   }
 

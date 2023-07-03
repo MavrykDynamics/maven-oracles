@@ -1,11 +1,9 @@
 import { expect, jest } from '@jest/globals';
 import {
   ContractServiceMock,
-  mockedOracleAddresses,
   mockGetAggregatorAddresses
 } from '../../contract/__mocks__/contract.service.mock.js';
 import { OracleConfigMock } from '../../__mocks__/oracle.config.mock.js';
-import { IAggregatorStorage } from '@mavrykdynamics/contracts';
 import { mockInitialize, PacemakerServiceMock } from '../__mocks__/pacemaker.service.mock.js';
 import { IPacemakerConfig } from '../pacemaker.config.js';
 import { PacemakerNetworkService } from '../pacemaker.network.service.js';
@@ -74,7 +72,6 @@ describe('PacemakerFactoryService', () => {
         aggregatorPair: ['PAIR1', 'PAIR2'],
         timerProgressDurationMiliseconds: 30 * 1000,
         timerResendDurationMiliseconds: 15 * 1000,
-        oracleLedger: mockedOracleAddresses
       };
 
       expect(PacemakerServiceMock).toHaveBeenCalledWith(
@@ -97,7 +94,6 @@ describe('PacemakerFactoryService', () => {
         aggregatorPair: ['PAIR1', 'PAIR2'],
         timerProgressDurationMiliseconds: 30 * 1000,
         timerResendDurationMiliseconds: 15 * 1000,
-        oracleLedger: mockedOracleAddresses
       };
 
       const expectedConfigTwo: IPacemakerConfig = {
@@ -105,7 +101,6 @@ describe('PacemakerFactoryService', () => {
         aggregatorPair: ['PAIR1', 'PAIR2'],
         timerProgressDurationMiliseconds: 30 * 1000,
         timerResendDurationMiliseconds: 15 * 1000,
-        oracleLedger: mockedOracleAddresses
       };
 
       expect(PacemakerServiceMock).toHaveBeenNthCalledWith(

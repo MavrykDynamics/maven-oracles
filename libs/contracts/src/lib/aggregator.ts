@@ -42,7 +42,7 @@ export type OracleLastResultType = {
     lastUpdatedAt         : string;
 };
 
-export interface IOracleInformation {
+export interface IOracleInformationType {
   oraclePublicKey: string;
   oraclePeerId: string;
 }
@@ -87,7 +87,7 @@ export type IAggregatorStorage = {
     whitelistContracts          : MichelsonMap<MichelsonMapKey, unknown>;
     generalContracts            : MichelsonMap<MichelsonMapKey, unknown>;
 
-    oracleLedger                : MichelsonMap<MichelsonMapKey, unknown>;
+    oracleLedger                : MichelsonMap<string, IOracleInformationType>;
     
     lastCompletedData           : OracleLastResultType;
 

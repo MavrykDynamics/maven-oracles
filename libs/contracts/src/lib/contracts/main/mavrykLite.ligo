@@ -94,6 +94,7 @@ type aggregatorAction is
     |   SetAggregatorReference          of setAggregatorReferenceType
     |   UpdateGeneralContracts          of updateGeneralContractsType
     |   Transfer                        of transferActionType
+    |   UnregisterAsSatellite           of (address)
 
 const noOperations : list (operation) = nil;
 type return is list (operation) * mavrykLiteStorageType
@@ -113,6 +114,10 @@ block{
     ]
 } with(noOperations, s)
 function transfer(const _transferTokenParams : transferActionType; const s : mavrykLiteStorageType) : return is (noOperations, s)
+function unregisterAsSatellite(const satelliteAddress : address; var s : mavrykLiteStorageType) : return is 
+block {
+    s.satelliteLedger   := Big_map.remove(satelliteAddress, s.satelliteLedger);
+} with(noOperations, s)
 
 (* main entrypoint *)
 function main (const action : aggregatorAction; const s : mavrykLiteStorageType) : return is
@@ -122,5 +127,6 @@ case action of [
     |   SetAggregatorReference(parameters)          -> setAggregatorReference(parameters, s)
     |   UpdateGeneralContracts (parameters)         -> updateGeneralContracts(parameters, s)
     |   Transfer(parameters)                        -> transfer(parameters, s)
+    |   UnregisterAsSatellite(parameters)           -> unregisterAsSatellite(parameters, s)
 
 ]

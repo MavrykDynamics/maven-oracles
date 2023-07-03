@@ -101,15 +101,16 @@ describe('PacemakerService', () => {
       });
     });
 
-    // Take only the first 3 addresses so we can test that it cycle
-    const oracleLedger: IOracleInformations[] = mockedOracleAddresses.slice(0, 3);
-
     test.each`
       epoch | leaderPeerId
       ${0}  | ${'oracle1/peerId'}
       ${1}  | ${'oracle2/peerId'}
       ${2}  | ${'oracle3/peerId'}
-      ${3}  | ${'oracle1/peerId'}
+      ${3}  | ${'oracle4/peerId'}
+      ${4}  | ${'oracle5/peerId'}
+      ${5}  | ${'oracle6/peerId'}
+      ${6}  | ${'oracle7/peerId'}
+      ${7}  | ${'oracle1/peerId'}
     `('should initialize the leader correctly for epoch $epoch', async ({ epoch, leaderPeerId }) => {
       pacemakerService = new PacemakerService(
         OracleConfigMock,
@@ -118,8 +119,7 @@ describe('PacemakerService', () => {
         contractServiceMock as unknown as ContractService,
         reportGenFactoryMock as unknown as ReportGenFactoryService,
         {
-          ...PacemakerConfigMock,
-          oracleLedger // Override oracle addresses
+          ...PacemakerConfigMock
         }
       );
 
@@ -401,7 +401,7 @@ describe('PacemakerService', () => {
           aggregatorPair: PacemakerConfigMock.aggregatorPair,
           alphaPerThousand: mockedBlockchainConfig.alphaPercentPerThousand,
           heartbeatSeconds: mockedBlockchainConfig.heartBeatSeconds,
-          oracleLedger: PacemakerConfigMock.oracleLedger
+          oracleLedger: mockedOracleAddresses
         });
       } else {
         expect(mockStartReportGen).not.toHaveBeenCalled();

@@ -5,5 +5,4 @@ export interface IPacemakerConfig {
   aggregatorPair: [string, string];
   timerProgressDurationMiliseconds: number;
   timerResendDurationMiliseconds: number;
-  oracleLedger: IOracleInformations[];
 }
