@@ -16,6 +16,7 @@ fi
 
 # Start sandbox
 bash ./scripts/start-sandbox.sh
+sleep 10 # Wait for it to be up
 
 # Deploy smart contracts
 (cd $PRJT_ROOT/libs/contracts && rushx migrate)

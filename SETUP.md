@@ -28,7 +28,7 @@ version: '3.7'
 services:
   oracle:
     restart: always
-    image: tezosdynamics/mavryk-oracle:latest
+    image: mavrykdynamics/mavryk-oracle:latest
     env_file:
       - .env
     environment:
@@ -73,7 +73,7 @@ MESSARI_API_KEY=""
 # Tezos polling interval for taquito. Must be lower than block time
 TEZOS_POLLING_INTERVAL_MILLISECONDS=2000
 
-# Aggregator factory smart contract address. Change this based on which network you are operating on.
+# Aggregator smart contract addresses, separated by a comma. Change this based on which network you are operating on. Only list the aggregator you want to push data too and where you are registered on.
 AGGREGATOR_SMART_CONTRACT_ADDRESSES=KT1Qq4RD4vWcFshShSMt5vGLXP7gZBdiykEU
 ```
 
