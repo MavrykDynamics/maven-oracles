@@ -12,12 +12,8 @@ then
     cp "$envExample" "$env"
 fi
 
-docker-compose up -d flextesa
-sleep 10
-
+bash $PRJT_ROOT/scripts/start-sandbox.sh
 (cd $PRJT_ROOT/libs/contracts && rushx migrate)
-docker-compose up -d elastic db api indexer metrics gui signatory
-sleep 20
 
 # load envs
 if [ ! -f .env ] || export $(grep -v '^/' .env | xargs)
@@ -26,7 +22,7 @@ then
 fi
 
 echo "STEP 1"
-docker-compose up -d --build bootstrap oracle-1 oracle-2 oracle-3 oracle-4 oracle-5
+docker-compose up -d --build oracle-1 oracle-2 oracle-3 oracle-4 oracle-5
 echo "waiting 3 min for oracles setup"
 sleep 180
 
