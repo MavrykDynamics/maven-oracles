@@ -9995,7 +9995,7 @@
       "prim": "view",
       "args": [
         {
-          "string": "getlastCompletedData"
+          "string": "getLastCompletedData"
         },
         {
           "prim": "unit"
