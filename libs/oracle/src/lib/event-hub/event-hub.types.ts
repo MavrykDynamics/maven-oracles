@@ -1,5 +1,5 @@
 import { IAttestedReport } from '../reportgen';
-import { IOracleInformations } from '@tezosdynamics/contracts';
+import { IOracleInformations } from '@mavrykdynamics/contracts';
 import BigNumber from 'bignumber.js';
 
 export interface IEventHubEvents {
@@ -7,7 +7,7 @@ export interface IEventHubEvents {
   progress: (aggregatorAddress: string) => void;
   transmit: (
     aggregatorAddress: string,
-    oracleAddresses: IOracleInformations[],
+    oracleLedger: IOracleInformations[],
     reportToTransmit: IAttestedReport,
     alphaPerThousand: BigNumber // Necessary since transmit service need to check for deviation
   ) => void;

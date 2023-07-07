@@ -7,38 +7,83 @@ import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 
 // eslint-disable-next-line @rushstack/typedef-var
-const AggregatorRaw = require('./contracts/json/aggregatorFactory.json');
+const AggregatorRaw                     = require('./contracts/json/aggregatorFactory.json');
+const AggregatorFactoryLambdasRaw: any  = require('./contracts/json/lambdas/aggregatorFactoryLambdas.json');
+const AggregatorLambdasRaw: any         = require('./contracts/json/lambdas/aggregatorLambdas.json');
 
 import { MichelsonMap, MichelsonMapKey } from '@taquito/michelson-encoder';
 import { OnChainView } from '@taquito/taquito/dist/types/contract/contract-methods/contract-on-chain-view';
 import {
-  ContractAbstraction,
-  ContractMethod,
-  ContractMethodObject,
-  ContractProvider,
-  ContractView,
-  Wallet
+    ContractAbstraction,
+    ContractMethod,
+    ContractMethodObject,
+    ContractProvider,
+    ContractView,
+    Wallet
 } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 
-export const AggregatorFactoryCode: any = AggregatorRaw.michelson;
+export const AggregatorFactoryCode: any     = AggregatorRaw.michelson;
+export const AggregatorFactoryLambdas: any  = AggregatorFactoryLambdasRaw;
+export const AggregatorLambdas: any         = AggregatorLambdasRaw;
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
-export type IPair = { 0: string; 1: string };
-
 export type IAggregatorFactoryStorage = {
-  trackedAggregators: MichelsonMap<IPair, string>;
+    admin                     : string;
+    metadata                  : MichelsonMap<MichelsonMapKey, unknown>;
+    breakGlassConfig          : {
+        createAggregatorIsPaused              : boolean;
+        trackAggregatorIsPaused               : boolean;
+        untrackAggregatorIsPaused             : boolean;
+        distributeRewardXtzIsPaused           : boolean;
+        distributeRewardStakedMvkIsPaused     : boolean;
+    };
+    config                    : {
+        aggregatorNameMaxLength               : BigNumber;
+    }
+
+    generalContracts          : MichelsonMap<MichelsonMapKey, unknown>;
+    whitelistContracts        : MichelsonMap<MichelsonMapKey, unknown>;
+
+    mvkTokenAddress           : string;
+    governanceAddress         : string;
+    
+    trackedAggregators        : Array<string>;
+
+    lambdaLedger              : MichelsonMap<MichelsonMapKey, unknown>;
+    aggregatorLambdaLedger    : MichelsonMap<MichelsonMapKey, unknown>;
 };
 
 type AggregatorFactoryContractMethods<T extends ContractProvider | Wallet> = {
-  createAggregator: (
-    pair1: string,
-    pair2: string,
-    alphaPercentPerThousand: BigNumber,
-    decimals: BigNumber,
-    heartBeatSeconds: BigNumber,
-    oracleAddresses: MichelsonMap<MichelsonMapKey, unknown>
-  ) => ContractMethod<T>;
+    setAdmin: (admin: string) => ContractMethod<T>;
+    setGovernance: (governance: string) => ContractMethod<T>;
+    setName: (name: string) => ContractMethod<T>;
+    updateMetadata: (key: string, bytes: string) => ContractMethod<T>;
+    updateConfig: (value: number, config: string) => ContractMethod<T>;
+    updateWhitelistContracts: (whitelistContractAddress: string, updateType: string) => ContractMethod<T>;
+    updateGeneralContracts: (generalContractName: string, generalContractAddress: string, updateType: string) => ContractMethod<T>;
+    mistakenTransfer: (transfers: Array<any>) => ContractMethod<T>;
+    pauseAll: () => ContractMethod<T>;
+    unpauseAll: () => ContractMethod<T>;
+    togglePauseEntrypoint: (entrypoint: string, pause: boolean) => ContractMethod<T>;
+    createAggregator: (
+        name: string,
+        addToGeneralContracts: boolean,
+        oracleLedger: MichelsonMap<MichelsonMapKey, unknown>,
+        decimals: BigNumber,
+        alphaPercentPerThousand: BigNumber,
+        percentOracleThreshold: BigNumber,
+        heartBeatSeconds: BigNumber,
+        rewardAmountStakedMvk: BigNumber,
+        rewardAmountXtz: BigNumber,
+        metadata: string
+    ) => ContractMethod<T>;
+    trackAggregator: (aggregatorAddress: string) => ContractMethod<T>;
+    untrackAggregator: (aggregatorAddress: string) => ContractMethod<T>;
+    distributeRewardXtz: (recipient: string, reward: number) => ContractMethod<T>;
+    distributeRewardStakedMvk: (eligibleSatellites: Array<string>, totalStakedMvkReward: number) => ContractMethod<T>;
+    setLambda: (name: string, func_bytes: string) => ContractMethod<T>;
+    setProductLambda: (name: string, func_bytes: string) => ContractMethod<T>;
 };
 
 type AggregatorFactoryContractMethodObject<T extends ContractProvider | Wallet> = Record<
@@ -49,7 +94,14 @@ type AggregatorFactoryContractMethodObject<T extends ContractProvider | Wallet> 
 type AggregatorFactoryViews = Record<string, (...args: unknown[]) => ContractView>;
 
 type AggregatorFactoryOnChainViews = {
-  decimals: () => OnChainView;
+    getAdmin: () => OnChainView;
+    getConfig: () => OnChainView;
+    getGovernanceAddress: () => OnChainView;
+    getWhitelistContractOpt: () => OnChainView;
+    getGeneralContractOpt: () => OnChainView;
+    getTrackedAggregators: () => OnChainView;
+    getLambdaOpt: () => OnChainView;
+    getAggregatorLambdaOpt: () => OnChainView;
 };
 
 export type AggregatorFactoryContractAbstraction<T extends ContractProvider | Wallet = any> =

@@ -3,13 +3,14 @@ import { mockedOracleAddresses } from '../contract/__mocks__/contract.service.mo
 
 export const OracleConfigMock: OracleConfig = {
   bootstrapPeers: '',
+  peerListenProtocol: '',
   peerListenAddress: '',
   peerListenPort: '',
   peerId: mockedOracleAddresses[3].oraclePeerId,
   peerPubKey: mockedOracleAddresses[3].oraclePublicKey,
   peerPrivateKey: '',
-  aggregatorFactoryAddress: '',
+  aggregatorAddresses: '',
   rpcUrl: '',
   tezosAddress: '',
-  useFakePrices: false
+  useFakeData: false
 };

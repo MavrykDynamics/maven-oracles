@@ -17,7 +17,7 @@ import { EventHubService } from '../event-hub/index.js';
 import { computeMedian } from './helpers.js';
 import { signData, verifyData } from './helpers.js';
 import { ContractService } from '../contract/index.js';
-import { PriceService } from '../price/index.js';
+import { DataService } from '../data/index.js';
 import { IReportGenConfig } from './reportgen.config.js';
 import { computeFValueFrom } from '../pacemaker/helpers.js';
 import { useMutex } from '../helpers/useMutex.js';
@@ -33,7 +33,7 @@ import { Logger } from 'winston';
  *
  * The role of the report generation service is to handle an epoch:
  *  - It keeps track of the current round, which increment
- *  - It request observation from price fetchers
+ *  - It request observation from data fetchers
  *  - It communicate with other oracles to establish a report containing observations from everyone
  *  - It gives the report to the TransmitService once it's ready
  *
@@ -105,7 +105,7 @@ export class ReportGenFollowerService {
     private readonly _reportGenNetworkService: ReportGenNetworkService,
     private readonly _eventHubService: EventHubService,
     private readonly _contractService: ContractService,
-    private readonly _priceService: PriceService,
+    private readonly _dataService: DataService,
     private readonly _reportGenConfig: IReportGenConfig
   ) {
     this._epoch = this._reportGenConfig.epoch;
@@ -135,7 +135,7 @@ export class ReportGenFollowerService {
 
   /**
    * Handler for "observeReq" message.
-   * Leader is asking us for our price observation.
+   * Leader is asking us for our data observation.
    *
    * @param from - Sender of the message
    * @param observeReqMessage - received "observeReq" message
@@ -147,7 +147,7 @@ export class ReportGenFollowerService {
    *   - Is round number correct greater than the previous one ?
    *   - Is round number correct lower than max round ?
    *
-   * If all these checks pass, fetch price using PriceFetcherService, sign it and send it back
+   * If all these checks pass, fetch data using DataFetcherService, sign it and send it back
    */
   @useMutex()
   private async _onObserveReqReceived(from: PeerId, observeReqMessage: IObserveReqMessage): Promise<void> {
@@ -195,7 +195,7 @@ export class ReportGenFollowerService {
       this._reportGenConfig.aggregatorAddress
     );
 
-    const observation = await this._priceService.getPrice(decimals, this._reportGenConfig.aggregatorPair);
+    const observation = await this._dataService.getData(decimals, this._reportGenConfig.aggregatorPair);
 
     const signature = await this._signObservation(observation);
 
@@ -263,7 +263,7 @@ export class ReportGenFollowerService {
 
     const distinctOracleObservations = [...new Set(report.observations.map((ob) => ob.oracle))];
 
-    const f = computeFValueFrom(this._reportGenConfig.oracleAddresses.length);
+    const f = computeFValueFrom(this._reportGenConfig.oracleLedger.length);
     if (distinctOracleObservations.length < f * 2 + 1) {
       this._logger.warn(
         `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${
@@ -278,7 +278,7 @@ export class ReportGenFollowerService {
     const signaturesChecks = await Promise.all(
       report.observations.map(async (ob) => {
         const pubKey = await this._reportGenNetworkService.getPublicKeyOfPeerId(ob.oracle);
-        return this._verifyObservationSignature(ob.price, ob.signature, pubKey);
+        return this._verifyObservationSignature(ob.data, ob.signature, pubKey);
       })
     );
 
@@ -421,7 +421,7 @@ export class ReportGenFollowerService {
     }
 
     if (
-      !this._reportGenConfig.oracleAddresses.map((oracle) => oracle.oraclePeerId).includes(from.toString())
+      !this._reportGenConfig.oracleLedger.map((oracle) => oracle.oraclePeerId).includes(from.toString())
     ) {
       this._logger.warn(`Received finalEcho message from unknown oracle: ${from.toString()}`);
       return;
@@ -499,7 +499,7 @@ export class ReportGenFollowerService {
 
     const numberOfFinalEchoReceived = [...this._receivedEcho.values()].filter((received) => received).length;
 
-    const f = computeFValueFrom(this._reportGenConfig.oracleAddresses.length);
+    const f = computeFValueFrom(this._reportGenConfig.oracleLedger.length);
 
     if (numberOfFinalEchoReceived > f) {
       this._logger.info(
@@ -507,7 +507,7 @@ export class ReportGenFollowerService {
       );
       await this._eventHubService.transmit(
         this._reportGenConfig.aggregatorAddress,
-        this._reportGenConfig.oracleAddresses,
+        this._reportGenConfig.oracleLedger,
         attestedReport,
         this._reportGenConfig.alphaPerThousand
       );
@@ -551,7 +551,7 @@ export class ReportGenFollowerService {
   private async _signCompressedReport(report: ICompressedReport): Promise<ISignature> {
     const signature = await this._contractService.signCompressedReport(
       this._reportGenConfig.aggregatorAddress,
-      this._reportGenConfig.oracleAddresses,
+      this._reportGenConfig.oracleLedger,
       report.observations,
 
       report.epoch,
@@ -587,7 +587,7 @@ export class ReportGenFollowerService {
 
     const secondsMultiplicator = 1000;
     if (
-      Date.now() - lastReport.time >
+      Date.now() - lastReport.lastUpdatedAt >
       this._reportGenConfig.heartbeatSeconds.toNumber() * secondsMultiplicator
     ) {
       return true;
@@ -595,14 +595,14 @@ export class ReportGenFollowerService {
 
     const reportMedian = computeMedian(report);
     const perThousandMultiplicator = 1000;
-    const deviationPerThousand = lastReport.price
+    const deviationPerThousand = lastReport.data
       .minus(reportMedian)
-      .div(lastReport.price)
+      .div(lastReport.data)
       .abs()
       .times(perThousandMultiplicator);
 
     this._logger.debug(
-      `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${this._round} - Median: ${reportMedian}, previousMedian: ${lastReport.price}. Deviation(‰): ${deviationPerThousand}`
+      `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${this._round} - Median: ${reportMedian}, previousMedian: ${lastReport.data}. Deviation(‰): ${deviationPerThousand}`
     );
 
     if (deviationPerThousand.gt(this._reportGenConfig.alphaPerThousand)) {
@@ -633,12 +633,12 @@ export class ReportGenFollowerService {
    * @private
    */
   private async _verifyAttestedReport(attestedReport: IAttestedReport): Promise<boolean> {
-    const f = computeFValueFrom(this._reportGenConfig.oracleAddresses.length);
+    const f = computeFValueFrom(this._reportGenConfig.oracleLedger.length);
 
     return await this._contractService.verifyAttestedReport(
       this._reportGenConfig.aggregatorAddress,
       attestedReport,
-      this._reportGenConfig.oracleAddresses,
+      this._reportGenConfig.oracleLedger,
       f
     );
   }

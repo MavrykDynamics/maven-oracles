@@ -55,21 +55,37 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
     });
     await this._nodeService.node.handle(this._observeProtocol, async ({ stream, connection }) => {
       this._logger.debug(`Creating inbound stream for ${this._observeProtocol}`);
-      await this._streamManagerService.createInboundStream(
-        this._observeProtocol,
-        connection.remotePeer,
-        stream,
-        (data, peerId) => this.onObserve(data, peerId)
-      );
+
+      try {
+        this._logger.debug(`Creating inbound stream for ${this._observeProtocol}`);
+
+        await this._streamManagerService.createInboundStream(
+          this._observeProtocol,
+          connection.remotePeer,
+          stream,
+          (data, peerId) => this.onObserve(data, peerId)
+        );
+      } catch (e) {
+        this._logger.error(
+          `Failed to create inbound stream for protocol ${this._observeProtocol}: ${JSON.stringify(e)}`
+        );
+      }
     });
     await this._nodeService.node.handle(this._reportProtocol, async ({ stream, connection }) => {
-      this._logger.debug(`Creating inbound stream for ${this._reportProtocol}`);
-      await this._streamManagerService.createInboundStream(
-        this._reportProtocol,
-        connection.remotePeer,
-        stream,
-        (data, peerId) => this.onReport(data, peerId)
-      );
+      try {
+        this._logger.debug(`Creating inbound stream for ${this._reportProtocol}`);
+
+        await this._streamManagerService.createInboundStream(
+          this._reportProtocol,
+          connection.remotePeer,
+          stream,
+          (data, peerId) => this.onReport(data, peerId)
+        );
+      } catch (e) {
+        this._logger.error(
+          `Failed to create inbound stream for protocol ${this._reportProtocol}: ${JSON.stringify(e)}`
+        );
+      }
     });
 
     // if (this._nodeService.node.peerId.toString() !== '12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1') {
@@ -164,19 +180,31 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
 
     const serialized = ReportGenNetworkService.serializeObserveReqMessage(observeReqMessage);
 
-    await this._nodeService.node.pubsub.publish(this._observeReqTopic, serialized);
+    try {
+      await this._nodeService.node.pubsub.publish(this._observeReqTopic, serialized);
+    } catch (e) {
+      this._logger.error(`Failed to send observeReq: ${JSON.stringify(observeReqMessage)}`);
+    }
   }
 
   public async broadcastFinalEcho(finalEchoMessage: IFinalEchoMessage): Promise<void> {
     const serialized = ReportGenNetworkService.serializeFinalEchoMessage(finalEchoMessage);
 
-    await this._nodeService.node.pubsub.publish(this._finalEchoTopic, serialized);
+    try {
+      await this._nodeService.node.pubsub.publish(this._finalEchoTopic, serialized);
+    } catch (e) {
+      this._logger.error(`Failed to send finalEcho: ${JSON.stringify(finalEchoMessage)}`);
+    }
   }
 
   public async broadcastFinal(finalMessage: IFinalMessage): Promise<void> {
     const serialized = ReportGenNetworkService.serializeFinalMessage(finalMessage);
 
-    await this._nodeService.node.pubsub.publish(this._finalTopic, serialized);
+    try {
+      await this._nodeService.node.pubsub.publish(this._finalTopic, serialized);
+    } catch (e) {
+      this._logger.error(`Failed to send final: ${JSON.stringify(finalMessage)}`);
+    }
   }
 
   public async sendObserve(to: PeerId, observeMessage: IObserveMessage): Promise<void> {
@@ -233,7 +261,12 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
 
   public async broadcastReportReq(reportReqMessage: IReportReqMessage): Promise<void> {
     const serialized = ReportGenNetworkService.serializeReportReqMessage(reportReqMessage);
-    await this._nodeService.node.pubsub.publish(this._reportReqTopic, serialized);
+
+    try {
+      await this._nodeService.node.pubsub.publish(this._reportReqTopic, serialized);
+    } catch (e) {
+      this._logger.error(`Failed to send reportReq: ${JSON.stringify(reportReqMessage)}`);
+    }
   }
 
   public static serializeObserveMessage(observeMessage: IObserveMessage): Uint8Array {
@@ -283,7 +316,7 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
         ...parsed.compressedReport,
         observations: parsed.compressedReport.observations.map((ob) => ({
           ...ob,
-          price: new BigNumber(ob.price)
+          data: new BigNumber(ob.data)
         }))
       }
     };
@@ -319,7 +352,7 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
           round: reportReqMessage.report.round,
           observations: reportReqMessage.report.observations.map((ob) => ({
             oracle: ob.oracle,
-            price: new BigNumber(ob.price),
+            data: new BigNumber(ob.data),
             signature: Array.from(ob.signature.values())
           }))
         }
@@ -338,7 +371,7 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
         round: Number.parseInt(parsed.report.round),
         observations: parsed.report.observations.map((ob) => ({
           oracle: ob.oracle,
-          price: new BigNumber(ob.price),
+          data: new BigNumber(ob.data),
           signature: Uint8Array.from(ob.signature)
         }))
       }
@@ -355,7 +388,7 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
           round: finalMessage.attestedReport.round,
           observations: finalMessage.attestedReport.observations.map((ob) => ({
             oracle: ob.oracle,
-            price: ob.price.toString()
+            data: ob.data.toString()
           })),
           signatures: finalMessage.attestedReport.signatures
         }
@@ -374,7 +407,7 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
         round: Number.parseInt(parsed.attestedReport.round),
         observations: parsed.attestedReport.observations.map((ob) => ({
           oracle: ob.oracle,
-          price: new BigNumber(ob.price)
+          data: new BigNumber(ob.data)
         })),
         signatures: parsed.attestedReport.signatures
       }
@@ -391,7 +424,7 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
           round: finalEchoMessage.attestedReport.round,
           observations: finalEchoMessage.attestedReport.observations.map((ob) => ({
             oracle: ob.oracle,
-            price: ob.price.toString()
+            data: ob.data.toString()
           })),
           signatures: finalEchoMessage.attestedReport.signatures
         }
@@ -409,7 +442,7 @@ export class ReportGenNetworkService extends TypedEmitter<IReportGenEvents> impl
         round: Number.parseInt(parsed.attestedReport.round),
         observations: parsed.attestedReport.observations.map((ob) => ({
           oracle: ob.oracle,
-          price: new BigNumber(ob.price)
+          data: new BigNumber(ob.data)
         })),
         signatures: parsed.attestedReport.signatures
       }

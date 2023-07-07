@@ -1,5 +1,5 @@
 {
-  "name": "@tezosdynamics/tx-manager",
+  "name": "@mavrykdynamics/tx-manager",
   "version": "0.0.1",
   "license": "MIT",
   "scripts": {
@@ -21,7 +21,7 @@
     "rxjs": "^7.5.6",
     "ts-convict": "^1.1.0",
     "tslib": "^2.4.0",
-    "@tezosdynamics/config": "workspace:*",
+    "@mavrykdynamics/config": "workspace:*",
     "winston": "^3.8.2"
   },
   "devDependencies": {

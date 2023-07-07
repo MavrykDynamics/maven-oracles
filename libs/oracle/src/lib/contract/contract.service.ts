@@ -8,14 +8,12 @@ import BigNumber from 'bignumber.js';
 import { Schema } from '@taquito/michelson-encoder';
 import { IAttestedReport, ICompressedReport, IObservation, ISignature } from '../reportgen';
 import { toTimestamp } from './helpers.js';
-import { TxManagerService } from '@tezosdynamics/tx-manager';
+import { TxManagerService } from '@mavrykdynamics/tx-manager';
 import {
-  AggregatorFactoryContractAbstraction,
-  IAggregatorInformations,
   IAggregatorStorage,
   IOracleInformations,
   IOracleObservationType
-} from '@tezosdynamics/contracts';
+} from '@mavrykdynamics/contracts';
 import { IAggregatorConfig } from './contract.types.js';
 import { getLogger } from '../logger.js';
 import { Logger } from 'winston';
@@ -41,24 +39,6 @@ export class ContractService implements OnModuleInit {
   public async onModuleInit(): Promise<void> {}
 
   /**
-   * Fetch aggregators registered in the aggregator factory
-   *
-   * @param aggregatorFactoryAddress - Address of the aggregator factory smart contract to fetch from
-   */
-  public async getAggregatorAddresses(aggregatorFactoryAddress: string): Promise<IAggregatorInformations[]> {
-    const contractInstance = await (
-      await this._txManagerService.getTezosToolkit()
-    ).contract.at<AggregatorFactoryContractAbstraction>(aggregatorFactoryAddress);
-    const storage = await contractInstance.storage();
-    return [...storage.trackedAggregators.entries()].map(([pair, aggregatorAddress]) => {
-      return {
-        aggregatorAddress,
-        pair: [pair['0'], pair['1']]
-      } as IAggregatorInformations;
-    });
-  }
-
-  /**
    * Fetch oracle addresses listed in an aggregator
    *
    * @param aggregatorAddress - Address of the aggregator smart contract to fetch from
@@ -69,16 +49,43 @@ export class ContractService implements OnModuleInit {
     ).contract.at(aggregatorAddress);
     const storage: IAggregatorStorage = await contractInstance.storage();
 
-    return [...storage.oracleAddresses.entries()].map(([oracleAddress, val]) => ({
-      ...val,
-      oracleAddress
-    }));
+    return [...storage.oracleLedger.entries()].map(([oracleAddress, val]) => (
+      {
+        oraclePublicKey: val.oraclePublicKey,
+        oraclePeerId: val.oraclePeerId,
+        oracleAddress: oracleAddress
+      }
+    ));
+  }
+
+  /**
+   * Fetch oracle addresses from a string
+   *
+   * @param aggregatorAddresses - Addresses of the aggregator smart contract to fetch from split by comma
+   */
+  public getAggregatorAddresses(aggregatorAddresses: string): string[] {
+    
+    return aggregatorAddresses.length === 0 ? [] : aggregatorAddresses.split(',');
+  }
+
+  /**
+   * Fetch aggregator name
+   *
+   * @param aggregatorAddress - Address of the aggregator smart contract to fetch from
+   */
+  public async getName(aggregatorAddress: string): Promise<string> {
+    const contractInstance = await (
+      await this._txManagerService.getTezosToolkit()
+    ).contract.at(aggregatorAddress);
+    const storage: IAggregatorStorage = await contractInstance.storage();
+
+    return storage.name;
   }
 
   /**
    * Serialize report into Tezos format
    * @param aggregatorAddress - Aggregator smart contract address
-   * @param oracleAddresses - Information about the oracles (pk, pkh and peer id)
+   * @param oracleLedger - Information about the oracles (pk, pkh and peer id)
    * @param report - Report to pack
    *
    * @returns - Packed report
@@ -87,36 +94,36 @@ export class ContractService implements OnModuleInit {
    */
   private async _packReport(
     aggregatorAddress: string,
-    oracleAddresses: IOracleInformations[],
+    oracleLedger: IOracleInformations[],
     report: IAttestedReport
   ): Promise<string> {
-    const oraclePriceResponsesForPack = new MichelsonMap<string, IOracleObservationType>();
+    const oracleDataResponsesForPack = new MichelsonMap<string, IOracleObservationType>();
 
-    for (const { oracle, price } of report.observations) {
-      const infos = oracleAddresses.find((addrs) => addrs.oraclePeerId === oracle);
+    for (const { oracle, data } of report.observations) {
+      const infos = oracleLedger.find((addrs) => addrs.oraclePeerId === oracle);
       if (!infos) {
         throw new Error(`Cannot pack report, missing oracle address for oracle ${oracle}`);
       }
-      oraclePriceResponsesForPack.set(infos.oracleAddress, {
-        price,
+      oracleDataResponsesForPack.set(infos.oracleAddress, {
+        data,
         epoch: report.epoch,
         round: report.round,
         aggregatorAddress
       });
     }
-    return await this._packObservations(oraclePriceResponsesForPack);
+    return await this._packObservations(oracleDataResponsesForPack);
   }
 
   /**
    * Serialize observations into Tezos format
-   * @param oraclePriceResponsesForPack - Observations to pack
+   * @param oracleDataResponsesForPack - Observations to pack
    *
    * @returns - Packed observation
    *
    * @private
    */
   private async _packObservations(
-    oraclePriceResponsesForPack: MichelsonMap<string, IOracleObservationType>
+    oracleDataResponsesForPack: MichelsonMap<string, IOracleObservationType>
   ): Promise<string> {
     const typeMap: MichelsonType = {
       prim: 'map',
@@ -125,7 +132,7 @@ export class ContractService implements OnModuleInit {
         {
           prim: 'pair',
           args: [
-            { prim: 'nat', annots: ['%price'] },
+            { prim: 'nat', annots: ['%data'] },
             {
               prim: 'pair',
               args: [
@@ -142,29 +149,29 @@ export class ContractService implements OnModuleInit {
           ]
         }
       ],
-      annots: ['%oraclePriceResponsesForPack']
+      annots: ['%oracleDataResponsesForPack']
     };
 
-    const params = oraclePriceResponsesForPack;
+    const params = oracleDataResponsesForPack;
     const schema = new Schema(typeMap);
     const toPack = schema.Encode(params);
-    const priceCodec = packDataBytes(toPack, typeMap);
-    return priceCodec.bytes;
+    const dataCodec = packDataBytes(toPack, typeMap);
+    return dataCodec.bytes;
   }
 
   /**
-   * Sign oracle prices using Tezos signer key
+   * Sign oracle data using Tezos signer key
    *
-   * @param oraclePriceResponsesForPack - Observation map
+   * @param oracleDataResponsesForPack - Observation map
    *
    * @returns - Signature
    */
-  public async signOraclePriceResponses(
-    oraclePriceResponsesForPack: MichelsonMap<string, IOracleObservationType>
+  public async signOracleDataResponses(
+    oracleDataResponsesForPack: MichelsonMap<string, IOracleObservationType>
   ): Promise<string> {
     const toolkit = await this._txManagerService.getTezosToolkit();
     const signature_observations = await toolkit.signer.sign(
-      `0x${await this._packObservations(oraclePriceResponsesForPack)}`
+      `0x${await this._packObservations(oracleDataResponsesForPack)}`
     );
     return signature_observations.sig;
   }
@@ -173,7 +180,7 @@ export class ContractService implements OnModuleInit {
    * Sign compressed report using Tezos signer key
    *
    * @param aggregatorAddress - Aggregator smart contract address
-   * @param oracleAddresses - Information about the oracles (pk, pkh and peer id)
+   * @param oracleLedger - Information about the oracles (pk, pkh and peer id)
    * @param observations - Oracles observations
    * @param epoch - Report epoch
    * @param round - Report round
@@ -182,33 +189,33 @@ export class ContractService implements OnModuleInit {
    */
   public async signCompressedReport(
     aggregatorAddress: string,
-    oracleAddresses: IOracleInformations[],
+    oracleLedger: IOracleInformations[],
     observations: IObservation[],
     epoch: number,
     round: number
   ): Promise<string> {
-    const oraclePriceResponsesForPack = new MichelsonMap<string, IOracleObservationType>();
+    const oracleDataResponsesForPack = new MichelsonMap<string, IOracleObservationType>();
 
-    for (const { oracle, price } of observations) {
-      const infos = oracleAddresses.find((addrs) => addrs.oraclePeerId === oracle);
+    for (const { oracle, data } of observations) {
+      const infos = oracleLedger.find((addrs) => addrs.oraclePeerId === oracle);
       if (!infos) {
         return '';
       }
-      oraclePriceResponsesForPack.set(infos.oracleAddress, {
-        price,
+      oracleDataResponsesForPack.set(infos.oracleAddress, {
+        data,
         epoch,
         round,
         aggregatorAddress
       });
     }
-    return await this.signOraclePriceResponses(oraclePriceResponsesForPack);
+    return await this.signOracleDataResponses(oracleDataResponsesForPack);
   }
 
   /**
    * Check if report is correctly signed
    *
    * @param aggregatorAddress - Aggregator smart contract address
-   * @param oracleAddresses - Information about the oracles (pk, pkh and peer id)
+   * @param oracleLedger - Information about the oracles (pk, pkh and peer id)
    * @param report - Report
    * @param signature - Signature to check
    *
@@ -216,26 +223,26 @@ export class ContractService implements OnModuleInit {
    */
   public async verifyReportSignature(
     aggregatorAddress: string,
-    oracleAddresses: IOracleInformations[],
+    oracleLedger: IOracleInformations[],
     report: ICompressedReport,
     signature: ISignature
   ): Promise<boolean> {
-    const oraclePriceResponsesForPack = new MichelsonMap<string, IOracleObservationType>();
+    const oracleDataResponsesForPack = new MichelsonMap<string, IOracleObservationType>();
 
-    for (const { oracle, price } of report.observations) {
-      const infos = oracleAddresses.find((addrs) => addrs.oraclePeerId === oracle);
+    for (const { oracle, data } of report.observations) {
+      const infos = oracleLedger.find((addrs) => addrs.oraclePeerId === oracle);
       if (!infos) {
         return false;
       }
-      oraclePriceResponsesForPack.set(infos.oracleAddress, {
-        price,
+      oracleDataResponsesForPack.set(infos.oracleAddress, {
+        data,
         epoch: report.epoch,
         round: report.round,
         aggregatorAddress
       });
     }
-    const packedReport = await this._packObservations(oraclePriceResponsesForPack);
-    const infos = oracleAddresses.find((addrs) => addrs.oracleAddress === signature.oracle);
+    const packedReport = await this._packObservations(oracleDataResponsesForPack);
+    const infos = oracleLedger.find((addrs) => addrs.oracleAddress === signature.oracle);
     if (!infos) {
       return false;
     }
@@ -247,21 +254,21 @@ export class ContractService implements OnModuleInit {
    *
    * @param aggregatorAddress - Aggregator smart contract address
    * @param attestedReport - Report with signatures
-   * @param oracleAddresses - Information about the oracles (pk, pkh and peer id)
+   * @param oracleLedger - Information about the oracles (pk, pkh and peer id)
    * @param f - Minimum number of trusted oracles
    * @returns if the report has enough signatures
    */
   public async verifyAttestedReport(
     aggregatorAddress: string,
     attestedReport: IAttestedReport,
-    oracleAddresses: IOracleInformations[],
+    oracleLedger: IOracleInformations[],
     f: number
   ): Promise<boolean> {
-    const packedReport = await this._packReport(aggregatorAddress, oracleAddresses, attestedReport);
+    const packedReport = await this._packReport(aggregatorAddress, oracleLedger, attestedReport);
 
     const signaturesOk = await Promise.all(
       attestedReport.signatures.map(async ({ oracle: pkh, signature }) => {
-        const address = oracleAddresses.find((addr) => addr.oracleAddress === pkh);
+        const address = oracleLedger.find((addr) => addr.oracleAddress === pkh);
 
         if (!address) {
           this._logger.warn(`Cannot retrieve oraclePublicKey for ${pkh}`);
@@ -279,12 +286,12 @@ export class ContractService implements OnModuleInit {
    * Send a report to the aggregator smart contract
    *
    * @param aggregatorAddress - Aggregator smart contract address
-   * @param oracleAddresses - Information about the oracles (pk, pkh and peer id)
+   * @param oracleLedger - Information about the oracles (pk, pkh and peer id)
    * @param report - Report to send
    */
   public async sendReportBlockchain(
     aggregatorAddress: string,
-    oracleAddresses: IOracleInformations[],
+    oracleLedger: IOracleInformations[],
     report: IAttestedReport
   ): Promise<void> {
     const contractInstance = await (
@@ -298,11 +305,11 @@ export class ContractService implements OnModuleInit {
 
     const oracleObservations = new MichelsonMap<string, IOracleObservationType>();
 
-    for (const { oracle, price } of report.observations) {
-      const infos = oracleAddresses.find((addrs) => addrs.oraclePeerId === oracle);
+    for (const { oracle, data } of report.observations) {
+      const infos = oracleLedger.find((addrs) => addrs.oraclePeerId === oracle);
       if (infos) {
         oracleObservations.set(infos.oracleAddress, {
-          price,
+          data,
           epoch: report.epoch,
           round: report.round,
           aggregatorAddress
@@ -357,8 +364,9 @@ export class ContractService implements OnModuleInit {
   public async getLastBlockchainReport(aggregatorAddress: string): Promise<{
     epoch: number;
     round: number;
-    price: BigNumber;
-    time: number;
+    data: BigNumber;
+    percentOracleResponse: number;
+    lastUpdatedAt: number;
   } | null> {
     const contractInstance = await (
       await this._txManagerService.getTezosToolkit()
@@ -366,10 +374,11 @@ export class ContractService implements OnModuleInit {
     const storage: IAggregatorStorage = await contractInstance.storage();
 
     return {
-      epoch: storage.lastCompletedPrice.epoch.toNumber(),
-      round: storage.lastCompletedPrice.round.toNumber(),
-      price: storage.lastCompletedPrice.price,
-      time: toTimestamp(storage.lastCompletedPrice.time)
+      epoch: storage.lastCompletedData.epoch.toNumber(),
+      round: storage.lastCompletedData.round.toNumber(),
+      data: storage.lastCompletedData.data,
+      percentOracleResponse: storage.lastCompletedData.percentOracleResponse.toNumber(),
+      lastUpdatedAt: toTimestamp(storage.lastCompletedData.lastUpdatedAt)
     };
   }
 
@@ -384,9 +393,12 @@ export class ContractService implements OnModuleInit {
     ).contract.at(aggregatorAddress);
     const storage: IAggregatorStorage = await contractInstance.storage();
     return {
-      heartBeatSeconds: storage.config.heartBeatSeconds,
-      decimals: storage.config.decimals,
-      alphaPercentPerThousand: storage.config.alphaPercentPerThousand.div(1000)
+      decimals                            : storage.config.decimals,
+      alphaPercentPerThousand             : storage.config.alphaPercentPerThousand,
+      percentOracleThreshold              : storage.config.percentOracleThreshold,
+      heartBeatSeconds                    : storage.config.heartBeatSeconds,
+      rewardAmountXtz                     : storage.config.rewardAmountXtz,
+      rewardAmountStakedMvk               : storage.config.rewardAmountStakedMvk
     };
   }
 }

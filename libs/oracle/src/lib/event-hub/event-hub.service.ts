@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { TypedEmitter } from 'tiny-typed-emitter';
 import { IAttestedReport } from '../reportgen';
 import { IEventHubEvents } from './event-hub.types.js';
-import { IOracleInformations } from '@tezosdynamics/contracts';
+import { IOracleInformations } from '@mavrykdynamics/contracts';
 import BigNumber from 'bignumber.js';
 import { getLogger } from '../logger.js';
 import { Logger } from 'winston';
@@ -57,13 +57,13 @@ export class EventHubService extends TypedEmitter<IEventHubEvents> {
    */
   public transmit(
     aggregatorAddress: string,
-    oracleAddresses: IOracleInformations[],
+    oracleLedger: IOracleInformations[],
     reportToTransmit: IAttestedReport,
     alphaPerThousand: BigNumber
   ): void {
     this._logger.debug(
       `Dispatching transmit event for ${aggregatorAddress} with report ${reportToTransmit.epoch}/${reportToTransmit.round}`
     );
-    this.emit('transmit', aggregatorAddress, oracleAddresses, reportToTransmit, alphaPerThousand);
+    this.emit('transmit', aggregatorAddress, oracleLedger, reportToTransmit, alphaPerThousand);
   }
 }

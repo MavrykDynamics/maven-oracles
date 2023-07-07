@@ -1,7 +1,7 @@
 import { jest } from '@jest/globals';
 import { InMemorySigner } from '@taquito/signer';
 import { TezosToolkit } from '@taquito/taquito';
-import { TxManagerService } from '@tezosdynamics/tx-manager';
+import { TxManagerService } from '@mavrykdynamics/tx-manager';
 
 export const mockaddBatch = jest.fn();
 

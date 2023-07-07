@@ -9,9 +9,9 @@ import { ContractService } from '../../contract/index.js';
 import { beforeEach, expect, jest } from '@jest/globals';
 import type { TransmitService as TransmitServiceType } from '../transmit.service.js';
 import { mockedEmptyAttestedRepport } from '../__mocks__/transmit.service.mock.js';
-import { mockComputeMedian, mockSignData, mockVerifyData } from '../../reportgen/__mocks__/helpers.mock';
+import { mockComputeMedian, mockSignData, mockVerifyData } from '../../reportgen/__mocks__/reportgen.helpers.mock.js';
 import BigNumber from 'bignumber.js';
-import { mockRandomPermutation } from '../__mocks__/helpers.mock.js';
+import { mockRandomPermutation } from '../__mocks__/transmit.helpers.mock.js';
 import { TimerMock } from '../../pacemaker/__mocks__/timer.mock.js';
 import { ReportGenConfigMock } from '../../reportgen/__mocks__/reportgen.config.mock.js';
 
@@ -215,7 +215,7 @@ describe('TransmitService', () => {
           signatures: []
         },
         aggregatorAddress: mockedAggregatorAddresses[0].aggregatorAddress,
-        oracleAddresses: mockedOracleAddresses
+        oracleLedger: mockedOracleAddresses
       });
       reports.push({
         time: Date.now(),
@@ -226,7 +226,7 @@ describe('TransmitService', () => {
           signatures: []
         },
         aggregatorAddress: mockedAggregatorAddresses[0].aggregatorAddress,
-        oracleAddresses: mockedOracleAddresses
+        oracleLedger: mockedOracleAddresses
       });
       await timerTransmit.fakeTimeout();
       expect((contractServiceMock as any).getLastBlockchainReport).toHaveBeenNthCalledWith(

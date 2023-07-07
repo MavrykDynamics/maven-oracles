@@ -58,7 +58,11 @@ export class PacemakerNetworkService
   public async broadcastNewEpoch(newEpochMessage: INewEpochMessage): Promise<void> {
     this._logger.debug(`Sending newEpoch: ${JSON.stringify(newEpochMessage)}`);
     const serialized = PacemakerNetworkService.serializeNewEpochMessage(newEpochMessage);
-    await this._nodeService.node.pubsub.publish(this._topic, serialized);
+    try {
+      await this._nodeService.node.pubsub.publish(this._topic, serialized);
+    } catch (e) {
+      this._logger.error(`Failed to send newEpoch ${JSON.stringify(newEpochMessage)}`);
+    }
   }
 
   public static serializeNewEpochMessage(newEpochMessage: INewEpochMessage): Uint8Array {

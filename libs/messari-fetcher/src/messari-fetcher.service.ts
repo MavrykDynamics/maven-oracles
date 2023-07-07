@@ -4,12 +4,12 @@ import { firstValueFrom } from 'rxjs';
 import { AxiosResponse } from 'axios';
 import BigNumber from 'bignumber.js';
 import { MessariFetcherConfig } from './messari-fetcher.config.js';
-import { IPriceFetcher } from '@tezosdynamics/price-fetcher';
+import { IDataFetcher } from '@mavrykdynamics/data-fetcher';
 import { getLogger } from './logger.js';
 import { Logger } from 'winston';
 
 @Injectable()
-export class MessariFetcherService implements IPriceFetcher {
+export class MessariFetcherService implements IDataFetcher {
   private readonly _logger: Logger = getLogger({
     defaultMeta: {
       service: MessariFetcherService.name
@@ -28,9 +28,9 @@ export class MessariFetcherService implements IPriceFetcher {
     }
   }
 
-  public async getPrice([pair1, pair2]: [string, string]): Promise<BigNumber> {
-    const vsCurrency = pair1.toLowerCase();
-    const coin = pair2.toLowerCase();
+  public async getData([pair1, pair2]: [string, string]): Promise<BigNumber> {
+    const coin = pair1.toLowerCase();
+    const vsCurrency = pair2.toLowerCase();
 
     let response: AxiosResponse;
     try {
@@ -45,14 +45,14 @@ export class MessariFetcherService implements IPriceFetcher {
       throw new Error(`Failed to fetch market data of coin ${coin} from Messari API: ${e.toString()}`);
     }
 
-    const price: number = response.data?.data?.market_data?.[`price_${vsCurrency}`];
+    const data: number = response.data?.data?.market_data?.[`price_${vsCurrency}`];
 
-    if (price === undefined || price === null) {
-      this._logger.verbose(`Could not parse price from response: ${JSON.stringify(response)}`);
-      this._logger.error('Could not parse price from response');
-      throw new Error('Could not parse price from response');
+    if (data === undefined || data === null) {
+      this._logger.verbose(`Could not parse data from response: ${JSON.stringify(response)}`);
+      this._logger.error('Could not parse data from response');
+      throw new Error('Could not parse data from response');
     }
 
-    return new BigNumber(price);
+    return new BigNumber(data);
   }
 }

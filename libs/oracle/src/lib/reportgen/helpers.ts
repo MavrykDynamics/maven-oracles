@@ -18,12 +18,12 @@ export async function signData(privateKey: string, msg: Uint8Array): Promise<Uin
 
 export function computeMedian(report: IAttestedReport | IReport): BigNumber {
   const sortedObservation = [...report.observations].sort((a, b) => {
-    return a.price.minus(b.price).toNumber();
+    return a.data.minus(b.data).toNumber();
   });
 
   const half = Math.floor(sortedObservation.length / 2);
 
   return (sortedObservation.length % 2) ? 
-      sortedObservation[half].price : // if the length is even
-      sortedObservation[half - 1].price.plus(sortedObservation[half].price).dividedBy(2.0); // if the length is odd
+      sortedObservation[half].data : // if the length is even
+      sortedObservation[half - 1].data.plus(sortedObservation[half].data).dividedBy(2.0); // if the length is odd
 }

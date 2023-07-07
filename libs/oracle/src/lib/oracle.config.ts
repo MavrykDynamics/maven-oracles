@@ -9,6 +9,13 @@ export class OracleConfig {
   public bootstrapPeers: string;
 
   @Property({
+    default: 'ip4',
+    env: 'P2P_LISTEN_PROTOCOL',
+    format: String
+  })
+  public peerListenProtocol: string;
+
+  @Property({
     default: '0.0.0.0',
     env: 'P2P_LISTEN_ADDRESS',
     format: String
@@ -45,10 +52,10 @@ export class OracleConfig {
 
   @Property({
     default: '',
-    env: 'AGGREGATOR_FACTORY_SMART_CONTRACT_ADDRESS',
+    env: 'AGGREGATOR_SMART_CONTRACT_ADDRESSES',
     format: String
   })
-  public aggregatorFactoryAddress: string;
+  public aggregatorAddresses: string;
 
   @Property({
     default: 'https://ithacanet.ecadinfra.com/',
@@ -66,8 +73,8 @@ export class OracleConfig {
 
   @Property({
     default: false,
-    env: 'USE_FAKE_PRICES',
+    env: 'USE_FAKE_DATA',
     format: Boolean
   })
-  public useFakePrices: boolean;
+  public useFakeData: boolean;
 }

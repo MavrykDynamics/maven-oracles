@@ -26,7 +26,7 @@ RUN node common/scripts/install-run-rush.js install
 COPY --chown=node:node . ./
 
 RUN node common/scripts/install-run-rush.js build
-RUN node common/scripts/install-run-rush.js deploy --project @tezosdynamics/node
+RUN node common/scripts/install-run-rush.js deploy --project @mavrykdynamics/node
 
 FROM node:16.14.0-alpine3.14 AS prod-deps
 
@@ -35,4 +35,4 @@ WORKDIR /home/node
 
 COPY --from=build --chown=node:node /home/node/common/deploy .
 
-  CMD [ "node", "/home/node/apps/node/dist/main.js" ]
+CMD [ "node", "/home/node/apps/node/dist/main.js" ]

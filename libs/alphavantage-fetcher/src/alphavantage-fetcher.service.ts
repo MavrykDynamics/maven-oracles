@@ -4,12 +4,12 @@ import { firstValueFrom } from 'rxjs';
 import { AxiosResponse } from 'axios';
 import BigNumber from 'bignumber.js';
 import { AlphavantageFetcherConfig } from './alphavantage-fetcher.config.js';
-import { IPriceFetcher } from '@tezosdynamics/price-fetcher';
+import { IDataFetcher } from '@mavrykdynamics/data-fetcher';
 import { getLogger } from './logger.js';
 import { Logger } from 'winston';
 
 @Injectable()
-export class AlphavantageFetcherService implements IPriceFetcher {
+export class AlphavantageFetcherService implements IDataFetcher {
   private readonly _logger: Logger = getLogger({
     defaultMeta: {
       service: AlphavantageFetcherService.name
@@ -28,9 +28,9 @@ export class AlphavantageFetcherService implements IPriceFetcher {
     }
   }
 
-  public async getPrice([pair1, pair2]: [string, string]): Promise<BigNumber> {
-    const vsCurrency = pair1.toLowerCase();
-    const coin = pair2.toLowerCase();
+  public async getData([pair1, pair2]: [string, string]): Promise<BigNumber> {
+    const coin = pair1.toLowerCase();
+    const vsCurrency = pair2.toLowerCase();
     let response: AxiosResponse;
     try {
       const response$ = this._httpService.get(
@@ -42,18 +42,18 @@ export class AlphavantageFetcherService implements IPriceFetcher {
       throw new Error(`Failed to fetch market data of coin ${coin} from Alphavantage API: ${e.toString()}`);
     }
 
-    const priceList = response.data?.[`Time Series Crypto (${this._config.alphavantageInterval}min)`];
-    const priceObject = priceList[Object.keys(priceList)[0]];
+    const dataList = response.data?.[`Time Series Crypto (${this._config.alphavantageInterval}min)`];
+    const dataObject = dataList[Object.keys(dataList)[0]];
 
-    const priceHigh = new BigNumber(priceObject['2. high']);
-    const priceLow = new BigNumber(priceObject['3. low']);
-    const price = priceHigh.plus(priceLow).dividedBy(2);
+    const dataHigh = new BigNumber(dataObject['2. high']);
+    const dataLow = new BigNumber(dataObject['3. low']);
+    const data = dataHigh.plus(dataLow).dividedBy(2);
 
-    if (price === undefined || price === null || isNaN(price.toNumber())) {
-      this._logger.verbose(`Could not parse price from response: ${JSON.stringify(response)}`);
-      this._logger.error('Could not parse price from response');
-      throw new Error('Could not parse price from response');
+    if (data === undefined || data === null || isNaN(data.toNumber())) {
+      this._logger.verbose(`Could not parse data from response: ${JSON.stringify(response)}`);
+      this._logger.error('Could not parse data from response');
+      throw new Error('Could not parse data from response');
     }
-    return price;
+    return data;
   }
 }

@@ -5,17 +5,17 @@ import {
 } from '../../contract/__mocks__/contract.service.mock.js';
 import { OracleConfigMock } from '../../__mocks__/oracle.config.mock.js';
 import { beforeEach, expect, jest } from '@jest/globals';
-import type { PriceService as PriceServiceType } from '../price.service.js';
+import type { DataService as DataServiceType } from '../data.service.js';
 import {
   mockComputeMedian,
   mockSignData,
   mockVerifyData
-} from '../../reportgen/__mocks__/helpers.mock';
+} from '../../reportgen/__mocks__/reportgen.helpers.mock.js';
 import BigNumber from 'bignumber.js';
 import { TimerMock } from '../../pacemaker/__mocks__/timer.mock.js';
-import { MessariFetcherService } from '@tezosdynamics/messari-fetcher';
-import { CoingeckoFetcherService } from '@tezosdynamics/coingecko-fetcher';
-import { AlphavantageFetcherService } from '@tezosdynamics/alphavantage-fetcher';
+import { MessariFetcherService } from '@mavrykdynamics/messari-fetcher';
+import { CoingeckoFetcherService } from '@mavrykdynamics/coingecko-fetcher';
+import { AlphavantageFetcherService } from '@mavrykdynamics/alphavantage-fetcher';
 import { MessariFetcherServiceMock } from '../__mocks__/messari-fetcher.service.mock.js';
 import { AlphavantageFetcherServiceMock } from '../__mocks__/alphavantage-fetcher.service.mock.js';
 import { CoingeckoFetcherServiceMock } from '../__mocks__/coingecko-fetcher.service.mock.js';
@@ -31,18 +31,18 @@ jest.unstable_mockModule('../../reportgen/helpers.js', async () => ({
 }));
 
 // Use async import to make sure we get the mocked one
-const { PriceService } = await import('../price.service.js');
+const { DataService } = await import('../data.service.js');
 
-describe('PriceService', () => {
-  let priceService: PriceServiceType;
-  let priceFetchers: any;
+describe('DataService', () => {
+  let dataService: DataServiceType;
+  let dataFetchers: any;
   const messariFetcherServiceMock = new MessariFetcherServiceMock();
   const coingeckoFetcherServiceMock = new CoingeckoFetcherServiceMock();
   const alphavantageFetcherServiceMock = new AlphavantageFetcherServiceMock();
 
   beforeEach(async () => {
 
-    priceService = new PriceService(
+    dataService = new DataService(
       messariFetcherServiceMock as MessariFetcherService,
       coingeckoFetcherServiceMock as CoingeckoFetcherService,
       alphavantageFetcherServiceMock as AlphavantageFetcherService,
@@ -50,7 +50,7 @@ describe('PriceService', () => {
     );
 
     // @ts-expect-error
-    priceFetchers = priceService._priceFetchers;
+    dataFetchers = dataService._dataFetchers;
     
   });
 
@@ -58,59 +58,59 @@ describe('PriceService', () => {
     jest.clearAllMocks();
   });
 
-  describe('getPrice', () => {
+  describe('getData', () => {
 
-    test('init - _priceFetchers should be not empty', async () => {
-      expect(priceFetchers.length).toEqual(3);
+    test('init - _dataFetchers should be not empty', async () => {
+      expect(dataFetchers.length).toEqual(3);
     });
     
     const decimals: BigNumber = new BigNumber(3);
     const pair: [string, string] = ['usd','btc'];
-    test('getPrice without fakePrice', async () => {
-      const price = await priceService.getPrice(decimals, pair);
-      expect((messariFetcherServiceMock as any).getPrice).toHaveBeenCalled();
-      expect((coingeckoFetcherServiceMock as any).getPrice).toHaveBeenCalled();
-      expect((alphavantageFetcherServiceMock as any).getPrice).toHaveBeenCalled();
-      expect(price.toNumber()).toEqual(15000); // 15 * 1000 (3 decimals)
+    test('getData without fakeData', async () => {
+      const data = await dataService.getData(decimals, pair);
+      expect((messariFetcherServiceMock as any).getData).toHaveBeenCalled();
+      expect((coingeckoFetcherServiceMock as any).getData).toHaveBeenCalled();
+      expect((alphavantageFetcherServiceMock as any).getData).toHaveBeenCalled();
+      expect(data.toNumber()).toEqual(15000); // 15 * 1000 (3 decimals)
     });
 
-    test('getPrice without fakePrice and on fetcher fail', async () => {
-      priceFetchers[2] = AlphavantageFetcherServiceMock;
-      const price = await priceService.getPrice(decimals, pair);
-      expect((messariFetcherServiceMock as any).getPrice).toHaveBeenCalled();
-      expect((coingeckoFetcherServiceMock as any).getPrice).toHaveBeenCalled();
-      expect((alphavantageFetcherServiceMock as any).getPrice).not.toHaveBeenCalled();
-      expect(price.toNumber()).toEqual(20000); // (15 + 25) / 2 * 1000 (3 decimals)
+    test('getData without fakeData and on fetcher fail', async () => {
+      dataFetchers[2] = AlphavantageFetcherServiceMock;
+      const data = await dataService.getData(decimals, pair);
+      expect((messariFetcherServiceMock as any).getData).toHaveBeenCalled();
+      expect((coingeckoFetcherServiceMock as any).getData).toHaveBeenCalled();
+      expect((alphavantageFetcherServiceMock as any).getData).not.toHaveBeenCalled();
+      expect(data.toNumber()).toEqual(20000); // (15 + 25) / 2 * 1000 (3 decimals)
     });
 
-    test('getPrice without fakePrice should fail because 0/3 fetcher answer', async () => {
-      priceFetchers[0] = MessariFetcherServiceMock;
-      priceFetchers[1] = CoingeckoFetcherServiceMock;
-      priceFetchers[2] = AlphavantageFetcherServiceMock;
+    test('getData without fakeData should fail because 0/3 fetcher answer', async () => {
+      dataFetchers[0] = MessariFetcherServiceMock;
+      dataFetchers[1] = CoingeckoFetcherServiceMock;
+      dataFetchers[2] = AlphavantageFetcherServiceMock;
 
-      await expect(priceService.getPrice(decimals, pair)).rejects.toThrow(`All price fetcher failed to fetch value for pair ${pair[0]}/${pair[1]}`);
-      expect((messariFetcherServiceMock as any).getPrice).not.toHaveBeenCalled();
-      expect((coingeckoFetcherServiceMock as any).getPrice).not.toHaveBeenCalled();
-      expect((alphavantageFetcherServiceMock as any).getPrice).not.toHaveBeenCalled();
+      await expect(dataService.getData(decimals, pair)).rejects.toThrow(`All data fetcher failed to fetch value for pair ${pair[0]}/${pair[1]}`);
+      expect((messariFetcherServiceMock as any).getData).not.toHaveBeenCalled();
+      expect((coingeckoFetcherServiceMock as any).getData).not.toHaveBeenCalled();
+      expect((alphavantageFetcherServiceMock as any).getData).not.toHaveBeenCalled();
     });
 
-    test('getPrice with fakePrice', async () => {
-      OracleConfigMock.useFakePrices = true;
-      priceService = new PriceService(
+    test('getData with fakeData', async () => {
+      OracleConfigMock.useFakeData = true;
+      dataService = new DataService(
         messariFetcherServiceMock as MessariFetcherService,
         coingeckoFetcherServiceMock as CoingeckoFetcherService,
         alphavantageFetcherServiceMock as AlphavantageFetcherService,
         OracleConfigMock
       );
 
-      const price = await priceService.getPrice(decimals, pair);
-      expect((messariFetcherServiceMock as any).getPrice).not.toHaveBeenCalled();
-      expect((coingeckoFetcherServiceMock as any).getPrice).not.toHaveBeenCalled();
-      expect((alphavantageFetcherServiceMock as any).getPrice).not.toHaveBeenCalled();
+      const data = await dataService.getData(decimals, pair);
+      expect((messariFetcherServiceMock as any).getData).not.toHaveBeenCalled();
+      expect((coingeckoFetcherServiceMock as any).getData).not.toHaveBeenCalled();
+      expect((alphavantageFetcherServiceMock as any).getData).not.toHaveBeenCalled();
 
       // between 100 * 1000 and 102 * 1000
-      expect(price.toNumber()).toBeGreaterThanOrEqual(100000); 
-      expect(price.toNumber()).toBeLessThanOrEqual(102000); 
+      expect(data.toNumber()).toBeGreaterThanOrEqual(100000); 
+      expect(data.toNumber()).toBeLessThanOrEqual(102000); 
     });
 
   });
@@ -209,7 +209,7 @@ describe('PriceService', () => {
   //         signatures: [],
   //       },
   //       aggregatorAddress: mockedAggregatorAddresses[0].aggregatorAddress,
-  //       oracleAddresses: mockedOracleAddresses
+  //       oracleLedger: mockedOracleAddresses
   //     });
   //     reports.push({
   //       time: Date.now(),
@@ -220,7 +220,7 @@ describe('PriceService', () => {
   //         signatures: [],
   //       },
   //       aggregatorAddress: mockedAggregatorAddresses[0].aggregatorAddress,
-  //       oracleAddresses: mockedOracleAddresses
+  //       oracleLedger: mockedOracleAddresses
   //     });
   //     await timerTransmit.fakeTimeout();
   //     expect((contractServiceMock as any).getLastBlockchainReport).toHaveBeenNthCalledWith(2, mockedAggregatorAddresses[0].aggregatorAddress);

@@ -1,6 +1,6 @@
 import { DynamicModule, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ModuleMetadata } from '@nestjs/common/interfaces/modules/module-metadata.interface';
-import { OracleModule } from '@tezosdynamics/oracle';
+import { OracleModule } from '@mavrykdynamics/oracle';
 
 @Module({
   imports: [],

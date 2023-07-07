@@ -124,7 +124,7 @@
    * LTS schedule: https://nodejs.org/en/about/releases/
    * LTS versions: https://nodejs.org/en/download/releases/
    */
-  "nodeSupportedVersionRange": ">=12.13.0 <13.0.0 || >=14.15.0 <15.0.0 || >=16.13.0 <17.0.0",
+  "nodeSupportedVersionRange": ">=12.13.0 <13.0.0 || >=14.15.0 <15.0.0 || >=16.13.0 <17.0.0 || >=18.13.0 <20.0.0",
 
   /**
    * Odd-numbered major versions of Node.js are experimental.  Even-numbered releases
@@ -324,7 +324,7 @@
     /**
      * The list of shell commands to run after the Rush build command finishes
      */
-    "postRushBuild": []
+    "postRushBuild": ["cp -R libs/contracts/src/lib/contracts libs/contracts/dist/libs/contracts/src/lib/."]
   },
 
   /**
@@ -456,43 +456,43 @@
     //     },
 
     {
-      "packageName": "@tezosdynamics/node",
+      "packageName": "@mavrykdynamics/node",
       "projectFolder": "apps/node"
     },
     {
-      "packageName": "@tezosdynamics/bootstrap-node",
+      "packageName": "@mavrykdynamics/bootstrap-node",
       "projectFolder": "apps/bootstrap-node"
     },
     {
-      "packageName": "@tezosdynamics/oracle",
+      "packageName": "@mavrykdynamics/oracle",
       "projectFolder": "libs/oracle"
     },
     {
-      "packageName": "@tezosdynamics/contracts",
+      "packageName": "@mavrykdynamics/contracts",
       "projectFolder": "libs/contracts"
     },
     {
-      "packageName": "@tezosdynamics/tx-manager",
+      "packageName": "@mavrykdynamics/tx-manager",
       "projectFolder": "libs/tx-manager"
     },
     {
-      "packageName": "@tezosdynamics/price-fetcher",
-      "projectFolder": "libs/price-fetcher"
+      "packageName": "@mavrykdynamics/data-fetcher",
+      "projectFolder": "libs/data-fetcher"
     },
     {
-      "packageName": "@tezosdynamics/alphavantage-fetcher",
+      "packageName": "@mavrykdynamics/alphavantage-fetcher",
       "projectFolder": "libs/alphavantage-fetcher"
     },
     {
-      "packageName": "@tezosdynamics/coingecko-fetcher",
+      "packageName": "@mavrykdynamics/coingecko-fetcher",
       "projectFolder": "libs/coingecko-fetcher"
     },
     {
-      "packageName": "@tezosdynamics/messari-fetcher",
+      "packageName": "@mavrykdynamics/messari-fetcher",
       "projectFolder": "libs/messari-fetcher"
     },
     {
-      "packageName": "@tezosdynamics/config",
+      "packageName": "@mavrykdynamics/config",
       "projectFolder": "libs/config"
     }
   ]

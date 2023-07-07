@@ -5,8 +5,8 @@ import { EventHubService } from '../../event-hub/index.js';
 import { ContractService } from '../../contract/index.js';
 import { ReportGenNetworkService } from '../../reportgen/index.js';
 import { ReportGenNetworkServiceMock } from '../__mocks__/reportgen.network.service.mock.js';
-import { PriceService } from '../../price/index.js';
-import { PriceServiceMock } from '../../price/__mocks__/price.service.mock.js';
+import { DataService } from '../../data/index.js';
+import { DataServiceMock } from '../../data/__mocks__/data.service.mock.js';
 import {
   mockStop as mockStopLeader,
   ReportGenLeaderServiceMock
@@ -34,7 +34,7 @@ describe('ReportGenFactoryService', () => {
   const reportgenNetworkServiceMock = new ReportGenNetworkServiceMock();
   const eventHubServiceMock = new EventHubService();
   const contractServiceMock = new ContractServiceMock();
-  const priceServiceMock = new PriceServiceMock();
+  const dataServiceMock = new DataServiceMock();
 
   beforeEach(async () => {
     reportGenFactoryService = new ReportGenFactoryService(
@@ -42,7 +42,7 @@ describe('ReportGenFactoryService', () => {
       reportgenNetworkServiceMock as unknown as ReportGenNetworkService,
       eventHubServiceMock as unknown as EventHubService,
       contractServiceMock as unknown as ContractService,
-      priceServiceMock as unknown as PriceService
+      dataServiceMock as unknown as DataService
     );
   });
 
@@ -56,7 +56,7 @@ describe('ReportGenFactoryService', () => {
         reportgenNetworkServiceMock,
         eventHubServiceMock,
         contractServiceMock,
-        priceServiceMock,
+        dataServiceMock,
         ReportGenConfigMock
       );
     });

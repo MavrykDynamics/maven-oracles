@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { BootstrapService } from './bootstrap.service.js';
 import { BootstrapConfig } from './bootstrap.config.js';
-import { ConfigModule } from '@tezosdynamics/config';
+import { ConfigModule } from '@mavrykdynamics/config';
 
 @Module({
   imports: [ConfigModule.forConfig(BootstrapConfig)],

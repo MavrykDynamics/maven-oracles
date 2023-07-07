@@ -3,14 +3,12 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { createFromJSON } from '@libp2p/peer-id-factory';
 import { createLibp2p } from 'libp2p';
-import { TCP } from '@libp2p/tcp';
-import { Mplex } from '@libp2p/mplex';
-import { Noise } from '@chainsafe/libp2p-noise';
-import { GossipSub } from '@chainsafe/libp2p-gossipsub';
-import { KadDHT } from '@libp2p/kad-dht';
+import { tcp } from '@libp2p/tcp';
+import { mplex } from '@libp2p/mplex';
+import { noise } from '@chainsafe/libp2p-noise';
+import { gossipsub } from '@chainsafe/libp2p-gossipsub';
+import { kadDHT } from '@libp2p/kad-dht';
 import { BootstrapConfig } from './bootstrap.config.js';
-import { PubSubPeerDiscovery } from '@libp2p/pubsub-peer-discovery';
-import { Transport } from '@libp2p/interface-transport';
 
 @Injectable()
 export class BootstrapService implements OnModuleInit {
@@ -37,10 +35,10 @@ export class BootstrapService implements OnModuleInit {
       addresses: {
         listen: [multiaddr]
       },
-      transports: [new TCP() as unknown as Transport],
-      streamMuxers: [new Mplex()],
-      connectionEncryption: [new Noise()],
-      pubsub: new GossipSub({
+      transports: [tcp()],
+      streamMuxers: [mplex()],
+      connectionEncryption: [noise()],
+      pubsub: gossipsub({
         doPX: true
       }),
       peerDiscovery: [
@@ -48,26 +46,26 @@ export class BootstrapService implements OnModuleInit {
         //     interval: 60e3,
         //     list: bootstrapers,
         // }),
-        new PubSubPeerDiscovery({
-          interval: 1000
-        })
+        // new PubSubPeerDiscovery({
+        //   interval: 1000
+        // })
       ],
-      dht: new KadDHT(),
-      relay: {
-        enabled: true, // Allows you to dial and accept relayed connections. Does not make you a relay.
-        hop: {
-          enabled: true // Allows you to be a relay for other peers
-        }
-      },
+      dht: kadDHT(),
+      // relay: {
+      //   enabled: true, // Allows you to dial and accept relayed connections. Does not make you a relay.
+      //   hop: {
+      //     enabled: true // Allows you to be a relay for other peers
+      //   }
+      // },
       connectionManager: {
-        autoDial: true
+        // autoDial: true
       }
     });
 
     // Log a message when a remote peer connects to us
-    node.connectionManager.addEventListener('peer:connect', (evt) => {
+    node.addEventListener('peer:connect', (evt) => {
       const connection = evt.detail;
-      this._logger.debug('Connected to: ', connection.remotePeer.toString());
+      this._logger.debug('Connected to: ', JSON.stringify(connection));
     });
 
     node.addEventListener('peer:discovery', (peerInfo) => {

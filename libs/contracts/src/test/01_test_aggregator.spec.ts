@@ -3,10 +3,9 @@ import { MichelsonMap } from '@taquito/michelson-encoder';
 import {
   AggregatorFactoryCode,
   AggregatorFactoryContractAbstraction,
-  IAggregatorFactoryStorage,
-  IPair
+  IAggregatorFactoryStorage
 } from '../lib/aggregatorFactory';
-import { alphaPercentPerThousand, decimals, heartBeatSeconds, oracleAddresses } from '../lib/accounts';
+import { alphaPercentPerThousand, decimals, heartBeatSeconds, oracleLedger } from '../lib/accounts';
 import { networkConfig } from '../lib/scripts/env';
 import { InMemorySigner } from '@taquito/signer';
 import { expect } from 'chai';
@@ -14,7 +13,7 @@ import { expect } from 'chai';
 describe('Create Aggregator Factory', () => {
   let toolkit: TezosToolkit;
   let opFactory: OriginationOperation;
-  let factoryAddress: string;
+  let aggregatorAddress: string;
   before('setup', async () => {
     const networkName = 'development';
     toolkit = new TezosToolkit(networkConfig.networks[networkName].rpc);
@@ -37,9 +36,9 @@ describe('Create Aggregator Factory', () => {
     });
 
     expect(opFactory.contractAddress).to.not.be.undefined;
-    factoryAddress = opFactory.contractAddress as string;
+    aggregatorAddress = opFactory.contractAddress as string;
     await opFactory.confirmation();
-    console.log('factory address: ', factoryAddress);
+    console.log('factory address: ', aggregatorAddress);
   });
 
   it('should create an aggregator', async () => {
@@ -51,14 +50,7 @@ describe('Create Aggregator Factory', () => {
       );
 
       const createAggregator1Op = await aggregatorFactory.methods
-        .createAggregator(
-          pair[0],
-          pair[1],
-          alphaPercentPerThousand,
-          decimals,
-          heartBeatSeconds,
-          oracleAddresses
-        )
+        .createAggregator(pair[0], pair[1], alphaPercentPerThousand, decimals, heartBeatSeconds, oracleLedger)
         .send();
 
       await createAggregator1Op.confirmation();

@@ -6,7 +6,7 @@ import { OracleConfig } from '../oracle.config.js';
 import { EventHubService } from '../event-hub/index.js';
 import { ContractService } from '../contract/index.js';
 import { IReportGenConfig } from './reportgen.config.js';
-import { PriceService } from '../price/index.js';
+import { DataService } from '../data/index.js';
 
 @Injectable()
 export class ReportGenFactoryService {
@@ -18,7 +18,7 @@ export class ReportGenFactoryService {
     private readonly _reportgenNetworkService: ReportGenNetworkService,
     private readonly _eventHubService: EventHubService,
     private readonly _contractService: ContractService,
-    private readonly _priceService: PriceService
+    private readonly _dataService: DataService
   ) {}
 
   public startReportGen(config: IReportGenConfig): void {
@@ -30,7 +30,7 @@ export class ReportGenFactoryService {
       this._reportgenNetworkService,
       this._eventHubService,
       this._contractService,
-      this._priceService,
+      this._dataService,
       config
     );
     this.reportgenFollowers.set(config.aggregatorAddress, reportGenFollower);

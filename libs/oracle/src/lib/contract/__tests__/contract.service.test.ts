@@ -3,7 +3,7 @@ import { beforeEach, expect, jest } from '@jest/globals';
 import type { ContractService as ContractServiceType } from '../contract.service.js';
 import {
   IOracleInformations,
-} from '@tezosdynamics/contracts';
+} from '@mavrykdynamics/contracts';
 
 import BigNumber from 'bignumber.js';
 import { TxManagerServiceMock } from '../__mocks__/tx-manager.service.mock.js';
@@ -17,7 +17,7 @@ describe('ContractService', () => {
   let contractService: ContractServiceType;
   let contractServiceOther: ContractServiceType;
 
-  const txManagerServiceMock = new TxManagerServiceMock("edskRpPWgoNUfJgZRiycPg9539KMX6Ksw5yNVDw2ukds8VEgqXLLuBDrB6dr6m7fgsAZrLMDpPkxN7kRpcNyRzwkPYhoWsBJsZ");
+  const txManagerServiceMock = new TxManagerServiceMock("edsk3ZBmJ3e34AhZViEanGN87QvayUQupJ28Q89xUpFFSv18xF2Lqf");
   const txManagerServiceMockOther = new TxManagerServiceMock("edsk3Sb16jcx9KrgMDsbZDmKnuN11v4AbTtPBgBSBTqYftd8Cq3i1e");
 
   beforeEach(async () => {
@@ -37,15 +37,15 @@ describe('ContractService', () => {
   });
 
   const aggregatorAddress: string = "KT1JWK133K5MssC645G7X7kQ3CXTimdTXApB";
-  const oracleAddresses: IOracleInformations[] = [
+  const oracleLedger: IOracleInformations[] = [
     {
       oracleAddress: "tz1MnmtP4uAcgMpeZN6JtyziXeFqqwQG6yn6",
       oraclePublicKey: "edpku9qEgcyfNNDK6EpMvu5SqXDqWRLuxdMxdyH12ivTUuB1KXfGP4",
       oraclePeerId: "12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1"
     },
     {
-      oracleAddress: "tz1MBNfBnNn8fZCJVrrXV95FSgyuUxbmt3Mm",
-      oraclePublicKey: "edpkunKYLbEfRLKLtn9yi9avyjQbAAbQxuPVN759ajQEDKpp4RE6GV",
+      oracleAddress: "tz1NdjbFHLxbKEUXhXgjyLfQSCbq6oy5b7Px",
+      oraclePublicKey: "edpkv3sej4FWX2cUg8DR9F9QmsEb3YdodhDbVg1o1ooeWUDkuRGTsg",
       oraclePeerId: "12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2"
     }
   ];
@@ -56,18 +56,18 @@ describe('ContractService', () => {
       const observations: IObservation[] = [
            {
               "oracle":"12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1",
-              "price": new BigNumber(10142857143)
+              "data": new BigNumber(10142857143)
            },
            {
               "oracle":"12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2",
-              "price": new BigNumber(10144537815)
+              "data": new BigNumber(10144537815)
            }
         ];
         const epoch: number = 2;
         const round: number = 1;
       const signature: string = await contractService.signCompressedReport(
         aggregatorAddress,
-        oracleAddresses,
+        oracleLedger,
         observations,
         epoch,
         round
@@ -82,10 +82,10 @@ describe('ContractService', () => {
 
       const verification: boolean = await contractService.verifyReportSignature(
         aggregatorAddress,
-        oracleAddresses,
+        oracleLedger,
         report,
         {
-          oracle: "tz1MBNfBnNn8fZCJVrrXV95FSgyuUxbmt3Mm",
+          oracle: "tz1NdjbFHLxbKEUXhXgjyLfQSCbq6oy5b7Px",
           signature
         }
       );
@@ -96,18 +96,18 @@ describe('ContractService', () => {
       const observations: IObservation[] = [
            {
               "oracle":"12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2",
-              "price": new BigNumber(10142857143)
+              "data": new BigNumber(10142857143)
            },
            {
               "oracle":"12D3KooWDgabT39cFp5j5mvJgiGPEppMuVgDCsNtBCh1Q8ejBCA5",
-              "price": new BigNumber(10144537815)
+              "data": new BigNumber(10144537815)
            }
         ];
         const epoch: number = 2;
         const round: number = 1;
       const signature: string = await contractService.signCompressedReport(
         aggregatorAddress,
-        oracleAddresses,
+        oracleLedger,
         observations,
         epoch,
         round
@@ -120,18 +120,18 @@ describe('ContractService', () => {
       const observations: IObservation[] = [
            {
               "oracle":"12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1",
-              "price": new BigNumber(10142857143)
+              "data": new BigNumber(10142857143)
            },
            {
               "oracle":"12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2",
-              "price": new BigNumber(10144537815)
+              "data": new BigNumber(10144537815)
            }
         ];
         const epoch: number = 2;
         const round: number = 1;
       const signature: string = await contractService.signCompressedReport(
         aggregatorAddress,
-        oracleAddresses,
+        oracleLedger,
         observations,
         epoch,
         round
@@ -144,21 +144,21 @@ describe('ContractService', () => {
         "observations": [
           {
              "oracle":"12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2",
-             "price": new BigNumber(10142857143)
+             "data": new BigNumber(10142857143)
           },
           {
              "oracle":"12D3KooWDgabT39cFp5j5mvJgiGPEppMuVgDCsNtBCh1Q8ejBCA5",
-             "price": new BigNumber(10144537815)
+             "data": new BigNumber(10144537815)
           }
        ]
       }
 
       const verification: boolean = await contractService.verifyReportSignature(
         aggregatorAddress,
-        oracleAddresses,
+        oracleLedger,
         report,
         {
-          oracle: "tz1MBNfBnNn8fZCJVrrXV95FSgyuUxbmt3Mm",
+          oracle: "tz1NdjbFHLxbKEUXhXgjyLfQSCbq6oy5b7Px",
           signature
         }
       );
@@ -169,18 +169,18 @@ describe('ContractService', () => {
       const observations: IObservation[] = [
            {
               "oracle":"12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1",
-              "price": new BigNumber(10142857143)
+              "data": new BigNumber(10142857143)
            },
            {
               "oracle":"12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2",
-              "price": new BigNumber(10144537815)
+              "data": new BigNumber(10144537815)
            }
         ];
         const epoch: number = 2;
         const round: number = 1;
       const signature: string = await contractService.signCompressedReport(
         aggregatorAddress,
-        oracleAddresses,
+        oracleLedger,
         observations,
         epoch,
         round
@@ -195,7 +195,7 @@ describe('ContractService', () => {
 
       const verification: boolean = await contractService.verifyReportSignature(
         aggregatorAddress,
-        oracleAddresses,
+        oracleLedger,
         report,
         {
           oracle: "tz1TQ4fpSFNZ6D9vrcwBz9yzM2SNjDj5YoU7",
@@ -212,11 +212,11 @@ describe('ContractService', () => {
     const observations: IObservation[] = [
       {
          "oracle":"12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1",
-         "price": new BigNumber(10142857143)
+         "data": new BigNumber(10142857143)
       },
       {
          "oracle":"12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2",
-         "price": new BigNumber(10144537815)
+         "data": new BigNumber(10144537815)
       }
     ];
     const epoch: number = 2;
@@ -225,14 +225,14 @@ describe('ContractService', () => {
 
       const signature1: string = await contractServiceOther.signCompressedReport(
         aggregatorAddress,
-        oracleAddresses,
+        oracleLedger,
         observations,
         epoch,
         round
       );
       const signature2: string = await contractService.signCompressedReport(
         aggregatorAddress,
-        oracleAddresses,
+        oracleLedger,
         observations,
         epoch,
         round
@@ -250,7 +250,7 @@ describe('ContractService', () => {
             signature: signature1
           },
           {
-            oracle: "tz1MBNfBnNn8fZCJVrrXV95FSgyuUxbmt3Mm",
+            oracle: "tz1NdjbFHLxbKEUXhXgjyLfQSCbq6oy5b7Px",
             signature: signature2
           }
         ]
@@ -259,7 +259,7 @@ describe('ContractService', () => {
       const verifiaction: boolean = await contractService.verifyAttestedReport(
         aggregatorAddress,
         attestedReport,
-        oracleAddresses,
+        oracleLedger,
         1
       );
       expect(verifiaction).toBeTruthy();
@@ -269,14 +269,14 @@ describe('ContractService', () => {
 
       const signature1: string = await contractService.signCompressedReport(
         aggregatorAddress,
-        oracleAddresses,
+        oracleLedger,
         observations,
         epoch,
         round
       );
       const signature2: string = await contractService.signCompressedReport(
         aggregatorAddress,
-        oracleAddresses,
+        oracleLedger,
         observations,
         epoch,
         round
@@ -294,7 +294,7 @@ describe('ContractService', () => {
             signature: signature1
           },
           {
-            oracle: "tz1MBNfBnNn8fZCJVrrXV95FSgyuUxbmt3Mm",
+            oracle: "tz1NdjbFHLxbKEUXhXgjyLfQSCbq6oy5b7Px",
             signature: signature2
           }
         ]
@@ -303,7 +303,7 @@ describe('ContractService', () => {
       const verifiaction: boolean = await contractService.verifyAttestedReport(
         aggregatorAddress,
         attestedReport,
-        oracleAddresses,
+        oracleLedger,
         1
       );
       expect(verifiaction).toBeFalsy();
@@ -313,14 +313,14 @@ describe('ContractService', () => {
 
       const signature1: string = await contractService.signCompressedReport(
         aggregatorAddress,
-        oracleAddresses,
+        oracleLedger,
         observations,
         epoch,
         round
       );
       const signature2: string = await contractService.signCompressedReport(
         aggregatorAddress,
-        oracleAddresses,
+        oracleLedger,
         observations,
         epoch,
         round
@@ -335,11 +335,11 @@ describe('ContractService', () => {
         observations: [
           {
              "oracle": wrongAddress,
-             "price": new BigNumber(10142857143)
+             "data": new BigNumber(10142857143)
           },
           {
              "oracle":"12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2",
-             "price": new BigNumber(10144537815)
+             "data": new BigNumber(10144537815)
           }
         ],
         signatures: [
@@ -348,7 +348,7 @@ describe('ContractService', () => {
             signature: signature1
           },
           {
-            oracle: "tz1MBNfBnNn8fZCJVrrXV95FSgyuUxbmt3Mm",
+            oracle: "tz1NdjbFHLxbKEUXhXgjyLfQSCbq6oy5b7Px",
             signature: signature2
           }
         ]
@@ -357,7 +357,7 @@ describe('ContractService', () => {
       await expect(contractService.verifyAttestedReport(
         aggregatorAddress,
         attestedReport,
-        oracleAddresses,
+        oracleLedger,
         1
       )).rejects.toThrow(`Cannot pack report, missing oracle address for oracle ${wrongAddress}`);
     });
@@ -366,14 +366,14 @@ describe('ContractService', () => {
 
       const signature1: string = await contractService.signCompressedReport(
         aggregatorAddress,
-        oracleAddresses,
+        oracleLedger,
         observations,
         epoch,
         round
       );
       const signature2: string = await contractService.signCompressedReport(
         aggregatorAddress,
-        oracleAddresses,
+        oracleLedger,
         observations,
         epoch,
         round
@@ -391,7 +391,7 @@ describe('ContractService', () => {
             signature: signature1
           },
           {
-            oracle: "tz1MBNfBnNn8fZCJVrrXV95FSgyuUxbmt3Mm",
+            oracle: "tz1NdjbFHLxbKEUXhXgjyLfQSCbq6oy5b7Px",
             signature: signature2
           }
         ]
@@ -400,7 +400,7 @@ describe('ContractService', () => {
       const verifiaction: boolean = await contractService.verifyAttestedReport(
         aggregatorAddress,
         attestedReport,
-        oracleAddresses,
+        oracleLedger,
         2
       );
       expect(verifiaction).toBeFalsy();

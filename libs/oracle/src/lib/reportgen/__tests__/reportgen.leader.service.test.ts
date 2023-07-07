@@ -19,7 +19,7 @@ import { expect, jest } from '@jest/globals';
 import { IReportGenEvents, IReportMessage, Phase } from '../reportgen.types.js';
 import { PeerId } from '@libp2p/interface-peer-id';
 import BigNumber from 'bignumber.js';
-import { mockVerifyData } from '../__mocks__/helpers.mock.js';
+import { mockVerifyData } from '../__mocks__/reportgen.helpers.mock.js';
 
 jest.unstable_mockModule('../../pacemaker/timer.js', async () => ({
   Timer: TimerMock
@@ -501,7 +501,7 @@ describe('ReportGenLeaderService', () => {
           epoch: ReportGenConfigMock.epoch,
           observations: [
             {
-              price: new BigNumber(12),
+              data: new BigNumber(12),
               oracle: mockedOracleAddresses[0].oraclePeerId
             }
           ],
@@ -568,27 +568,27 @@ describe('ReportGenLeaderService', () => {
           observations: [
             {
               oracle: 'oracle1/peerId',
-              price: new BigNumber(values[0]),
+              data: new BigNumber(values[0]),
               signature: new Uint8Array([0])
             },
             {
               oracle: 'oracle2/peerId',
-              price: new BigNumber(values[1]),
+              data: new BigNumber(values[1]),
               signature: new Uint8Array([1])
             },
             {
               oracle: 'oracle3/peerId',
-              price: new BigNumber(values[3]),
+              data: new BigNumber(values[3]),
               signature: new Uint8Array([2])
             },
             {
               oracle: 'oracle4/peerId',
-              price: new BigNumber(values[3]),
+              data: new BigNumber(values[3]),
               signature: new Uint8Array([3])
             },
             {
               oracle: 'oracle5/peerId',
-              price: new BigNumber(values[4]),
+              data: new BigNumber(values[4]),
               signature: new Uint8Array([4])
             }
           ]

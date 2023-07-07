@@ -7,7 +7,7 @@ import { IPacemakerConfig } from './pacemaker.config.js';
 import { ReportGenFactoryService } from '../reportgen/index.js';
 import { INewEpochMessage, IPacemakerEvents, IPaceMakerState } from './index.js';
 import { computeFValueFrom } from './helpers.js';
-import { IOracleInformations } from '@tezosdynamics/contracts';
+import { IOracleInformations } from '@mavrykdynamics/contracts';
 import { Timer } from './timer.js';
 import { Mutex } from 'async-mutex';
 import { useMutex } from '../helpers/useMutex.js';
@@ -79,6 +79,9 @@ export class PacemakerService {
   private _changeLeaderListener: IEventHubEvents['changeLeader'] = this._onChangeLeader.bind(this);
   private _newEpochListener: IPacemakerEvents['newEpoch'] = this._onNewEpochReceived.bind(this);
 
+  // List containing the information of all oracles
+  private _oracleLedger: IOracleInformations[];
+
   public constructor(
     private readonly _config: OracleConfig,
     private readonly _pacemakerNetworkService: PacemakerNetworkService,
@@ -108,6 +111,9 @@ export class PacemakerService {
     this._eventHubService.addListener('changeLeader', this._changeLeaderListener);
     this._pacemakerNetworkService.addListener('newEpoch', this._newEpochListener);
 
+    // Update the oracle list 
+    await this._updateOracleLedger();
+
     // Read epoch from aggregator smart contract
     const lastBlockchainReport = await this._contractService.getLastBlockchainReport(
       this._pacemakerConfig.aggregatorAddress
@@ -125,7 +131,7 @@ export class PacemakerService {
 
     this._epochAndLeader = {
       epoch,
-      leader: this._leaderForEpoch(this._pacemakerConfig.oracleAddresses, epoch)
+      leader: this._leaderForEpoch(this._oracleLedger, epoch)
     };
     this._newEpoch = epoch;
 
@@ -140,7 +146,7 @@ export class PacemakerService {
       aggregatorPair: this._pacemakerConfig.aggregatorPair,
       alphaPerThousand: blockchainConfig.alphaPercentPerThousand,
       heartbeatSeconds: blockchainConfig.heartBeatSeconds,
-      oracleAddresses: this._pacemakerConfig.oracleAddresses
+      oracleLedger: this._oracleLedger
     });
 
     this._timerProgress.restart();
@@ -167,6 +173,10 @@ export class PacemakerService {
     };
   }
 
+  private async _updateOracleLedger(): Promise<void> {
+    this._oracleLedger = await this._contractService.getOraclesAddresses(this._pacemakerConfig.aggregatorAddress);
+  }
+
   @useMutex()
   private async _onProgress(aggregatorAddress: string): Promise<void> {
     if (aggregatorAddress !== this._pacemakerConfig.aggregatorAddress) {
@@ -187,11 +197,14 @@ export class PacemakerService {
 
   @useMutex()
   private async _onResendTimerTimeout(): Promise<void> {
+    await this._updateOracleLedger();
     await this._sendNewEpoch(this._newEpoch);
   }
 
   @useMutex()
   private async _onProgressTimerTimeout(): Promise<void> {
+    await this._updateOracleLedger();
+
     if (this._epochAndLeader === undefined) {
       // Round is not initialized yet
       return;
@@ -208,6 +221,8 @@ export class PacemakerService {
 
   @useMutex()
   private async _onChangeLeader(aggregatorAddress: string): Promise<void> {
+    await this._updateOracleLedger();
+    
     if (this._epochAndLeader === undefined) {
       // Round is not initialized yet
       return;
@@ -229,9 +244,7 @@ export class PacemakerService {
       return;
     }
 
-    if (
-      !this._pacemakerConfig.oracleAddresses.map((oracle) => oracle.oraclePeerId).includes(from.toString())
-    ) {
+    if (!this._oracleLedger.map((oracle) => oracle.oraclePeerId).includes(from.toString())) {
       this._logger.warn(`Received newEpoch message from unknown oracle: ${from.toString()}`);
       return;
     }
@@ -268,7 +281,7 @@ export class PacemakerService {
       .sort()
       .reverse();
 
-    const f = computeFValueFrom(this._pacemakerConfig.oracleAddresses.length);
+    const f = computeFValueFrom(this._oracleLedger.length);
 
     // Tmp value to check against if amplification check fails
     let epoch = -1;
@@ -321,7 +334,7 @@ export class PacemakerService {
       .sort()
       .reverse();
 
-    const f = computeFValueFrom(this._pacemakerConfig.oracleAddresses.length);
+    const f = computeFValueFrom(this._oracleLedger.length);
 
     // Tmp value to check against if agreement check fails
     let epochAccumulator = -1;
@@ -351,7 +364,7 @@ export class PacemakerService {
     // Set the current epoch and compute the new leader
     this._epochAndLeader = {
       epoch: epochAccumulator,
-      leader: this._leaderForEpoch(this._pacemakerConfig.oracleAddresses, epochAccumulator)
+      leader: this._leaderForEpoch(this._oracleLedger, epochAccumulator)
     };
 
     let aggregatorConfig: IAggregatorConfig;
@@ -380,7 +393,7 @@ export class PacemakerService {
       aggregatorPair: this._pacemakerConfig.aggregatorPair,
       alphaPerThousand: aggregatorConfig.alphaPercentPerThousand,
       heartbeatSeconds: aggregatorConfig.heartBeatSeconds,
-      oracleAddresses: this._pacemakerConfig.oracleAddresses
+      oracleLedger: this._oracleLedger
     });
 
     this._timerProgress.restart();
@@ -398,7 +411,7 @@ export class PacemakerService {
   /**
    * Compute the leader for a given epoch
    *
-   * @param oracleAddresses - Information about the oracles (pk, pkh and peer id)
+   * @param oracleLedger - Information about the oracles (pk, pkh and peer id)
    * @param epoch - Current epoch
    *
    * @private
@@ -409,8 +422,8 @@ export class PacemakerService {
    *
    * See "The leader function", section 5.2 in {@link https://research.chain.link/ocr.pdf}
    */
-  private _leaderForEpoch(oracleAddresses: IOracleInformations[], epoch: number): string {
-    const oraclePeersIdList: string[] = [...oracleAddresses.values()].map((infos) => infos.oraclePeerId);
+  private _leaderForEpoch(oracleLedger: IOracleInformations[], epoch: number): string {
+    const oraclePeersIdList: string[] = [...oracleLedger.values()].map((infos) => infos.oraclePeerId);
     const oracleLeaderIndex = epoch % oraclePeersIdList.length;
 
     return oraclePeersIdList[oracleLeaderIndex];

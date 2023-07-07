@@ -2,9 +2,10 @@ import {
   ContractServiceMock,
   mockedBlockchainConfig,
   mockedLastBlockchainReportEpoch,
-  mockedLastBlockchainReportPrice,
+  mockedLastBlockchainReportData,
   mockedLastBlockchainReportRound,
   mockedLastBlockchainReportTime,
+  mockedLastBlockchainReportPercentOracleResponse,
   mockedOracleAddresses,
   mockGetLastBlockchainReport
 } from '../../contract/__mocks__/contract.service.mock.js';
@@ -23,7 +24,7 @@ import { PacemakerNetworkService } from '../pacemaker.network.service.js';
 import { EventHubService, IEventHubEvents } from '../../event-hub/index.js';
 import { ContractService } from '../../contract/index.js';
 import { ReportGenFactoryService } from '../../reportgen/index.js';
-import { IOracleInformations } from '@tezosdynamics/contracts';
+import { IOracleInformations } from '@mavrykdynamics/contracts';
 import { beforeEach, expect, jest } from '@jest/globals';
 import { TimerMock } from '../__mocks__/timer.mock.js';
 import { PeerId } from '@libp2p/interface-peer-id';
@@ -52,9 +53,10 @@ describe('PacemakerService', () => {
   beforeEach(async () => {
     mockGetLastBlockchainReport.mockResolvedValue({
       epoch: mockedLastBlockchainReportEpoch,
-      price: mockedLastBlockchainReportPrice,
+      data: mockedLastBlockchainReportData,
       round: mockedLastBlockchainReportRound,
-      time: mockedLastBlockchainReportTime
+      percentOracleResponse: mockedLastBlockchainReportPercentOracleResponse,
+      lastUpdatedAt: mockedLastBlockchainReportTime
     });
     pacemakerService = new PacemakerService(
       OracleConfigMock,
@@ -99,15 +101,16 @@ describe('PacemakerService', () => {
       });
     });
 
-    // Take only the first 3 addresses so we can test that it cycle
-    const oracleAddresses: IOracleInformations[] = mockedOracleAddresses.slice(0, 3);
-
     test.each`
       epoch | leaderPeerId
       ${0}  | ${'oracle1/peerId'}
       ${1}  | ${'oracle2/peerId'}
       ${2}  | ${'oracle3/peerId'}
-      ${3}  | ${'oracle1/peerId'}
+      ${3}  | ${'oracle4/peerId'}
+      ${4}  | ${'oracle5/peerId'}
+      ${5}  | ${'oracle6/peerId'}
+      ${6}  | ${'oracle7/peerId'}
+      ${7}  | ${'oracle1/peerId'}
     `('should initialize the leader correctly for epoch $epoch', async ({ epoch, leaderPeerId }) => {
       pacemakerService = new PacemakerService(
         OracleConfigMock,
@@ -116,16 +119,16 @@ describe('PacemakerService', () => {
         contractServiceMock as unknown as ContractService,
         reportGenFactoryMock as unknown as ReportGenFactoryService,
         {
-          ...PacemakerConfigMock,
-          oracleAddresses // Override oracle addresses
+          ...PacemakerConfigMock
         }
       );
 
       mockGetLastBlockchainReport.mockResolvedValue({
         epoch,
-        price: mockedLastBlockchainReportPrice,
+        data: mockedLastBlockchainReportData,
         round: mockedLastBlockchainReportRound,
-        time: mockedLastBlockchainReportTime
+        percentOracleResponse: mockedLastBlockchainReportPercentOracleResponse,
+        lastUpdatedAt: mockedLastBlockchainReportTime
       });
 
       await pacemakerService.initialize();
@@ -148,7 +151,7 @@ describe('PacemakerService', () => {
         alphaPerThousand: mockedBlockchainConfig.alphaPercentPerThousand,
         heartbeatSeconds: mockedBlockchainConfig.heartBeatSeconds,
         leader: mockedOracleAddresses[2].oraclePeerId, // Mocked epoch is 2
-        oracleAddresses: mockedOracleAddresses
+        oracleLedger: mockedOracleAddresses
       });
     });
 
@@ -398,7 +401,7 @@ describe('PacemakerService', () => {
           aggregatorPair: PacemakerConfigMock.aggregatorPair,
           alphaPerThousand: mockedBlockchainConfig.alphaPercentPerThousand,
           heartbeatSeconds: mockedBlockchainConfig.heartBeatSeconds,
-          oracleAddresses: PacemakerConfigMock.oracleAddresses
+          oracleLedger: mockedOracleAddresses
         });
       } else {
         expect(mockStartReportGen).not.toHaveBeenCalled();

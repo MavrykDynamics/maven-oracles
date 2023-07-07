@@ -6,6 +6,7 @@ import { ContractService } from '../contract/index.js';
 import { PacemakerService } from './pacemaker.service.js';
 import { IPacemakerConfig } from './pacemaker.config.js';
 import { ReportGenFactoryService } from '../reportgen/index.js';
+import { cp } from 'fs';
 
 @Injectable()
 export class PacemakerFactoryService implements OnModuleInit {
@@ -21,22 +22,27 @@ export class PacemakerFactoryService implements OnModuleInit {
   ) {}
 
   public async onModuleInit(): Promise<void> {
-    // we get the factory address to get informations on aggregators
-    const { aggregatorFactoryAddress } = this._oracleConfig;
-    const aggregatorInformations = await this._contractService.getAggregatorAddresses(
-      aggregatorFactoryAddress
-    );
+    // we get the aggregator addresses and pairs from the config
+    const { aggregatorAddresses } = this._oracleConfig;
+    const aggregatorAddressesArray = this._contractService.getAggregatorAddresses(aggregatorAddresses);
 
     // for each aggregator, we start a new pacemaker service
-    for (const { pair, aggregatorAddress } of aggregatorInformations) {
-      const oracleAddresses = await this._contractService.getOraclesAddresses(aggregatorAddress);
+    for (const aggregatorAddress of aggregatorAddressesArray) {
+      const aggregatorName = await this._contractService.getName(aggregatorAddress);
+      const pairArray = aggregatorName.split('/');
+
+      // Check if the pair is correct
+      if (pairArray.length !== 2) {
+        throw new Error(`${aggregatorName} is not a pair`);
+      }
+
+      const pair: [string, string] = [pairArray[0], pairArray[1]];
 
       await this._startPacemaker({
         aggregatorAddress,
         aggregatorPair: pair,
         timerProgressDurationMiliseconds: 30 * 1000,
         timerResendDurationMiliseconds: 15 * 1000,
-        oracleAddresses
       });
     }
   }

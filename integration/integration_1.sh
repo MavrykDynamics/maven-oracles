@@ -12,12 +12,8 @@ then
     cp "$envExample" "$env"
 fi
 
-docker-compose up -d flextesa
-sleep 10
-
+bash $PRJT_ROOT/scripts/start-sandbox.sh
 (cd $PRJT_ROOT/libs/contracts && rushx migrate)
-docker-compose up -d elastic db api indexer metrics gui signatory
-sleep 20
 
 # load envs
 if [ ! -f .env ] || export $(grep -v '^/' .env | xargs)
@@ -26,14 +22,14 @@ then
 fi
 
 echo "STEP 1"
-docker-compose up -d --build bootstrap oracle-1 oracle-2 oracle-3 oracle-4 oracle-5
+docker-compose up -d --build oracle-1 oracle-2 oracle-3 oracle-4 oracle-5
 echo "waiting 3 min for oracles setup"
 sleep 180
 
 echo "Running integration_1 test"
 cd apps/node
 
-if node ../../common/scripts/install-run-rushx.js test:integration -t "step-1" -- integration_1.test.ts -factoryAddress=$AGGREGATOR_FACTORY_SMART_CONTRACT_ADDRESS ; then
+if node ../../common/scripts/install-run-rushx.js test:integration -t "step-1" -- integration_1.test.ts -aggregatorAddress=$AGGREGATOR_SMART_CONTRACT_ADDRESSES ; then
     echo "TEST RESULT: SUCCESS"
 else
     echo "TEST RESULT: ERROR"
@@ -44,7 +40,7 @@ docker-compose stop oracle-5
 echo "waiting 4 min for oracles setup"
 sleep 240
 
-if node ../../common/scripts/install-run-rushx.js test:integration -t "step-2" -- integration_1.test.ts -factoryAddress=$AGGREGATOR_FACTORY_SMART_CONTRACT_ADDRESS ; then
+if node ../../common/scripts/install-run-rushx.js test:integration -t "step-2" -- integration_1.test.ts -aggregatorAddress=$AGGREGATOR_SMART_CONTRACT_ADDRESSES ; then
     echo "TEST RESULT: SUCCESS"
 else
     echo "TEST RESULT: ERROR"
@@ -55,7 +51,7 @@ docker-compose up -d oracle-5
 echo "waiting 4 min for oracles setup"
 sleep 240
 
-if node ../../common/scripts/install-run-rushx.js test:integration -t "step-3" -- integration_1.test.ts -factoryAddress=$AGGREGATOR_FACTORY_SMART_CONTRACT_ADDRESS ; then
+if node ../../common/scripts/install-run-rushx.js test:integration -t "step-3" -- integration_1.test.ts -aggregatorAddress=$AGGREGATOR_SMART_CONTRACT_ADDRESSES ; then
     echo "TEST RESULT: SUCCESS"
 else
     echo "TEST RESULT: ERROR"
