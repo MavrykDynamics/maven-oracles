@@ -80,22 +80,22 @@ export const networkConfig: INetworkConfig = {
       rpc: 'https://jakartanet.ecadinfra.com',
       port: 443,
       network_id: '*',
-      secretKey: accountPerNetwork.ithacanet.alice.sk,
-      pkh: accountPerNetwork.ithacanet.alice.pkh
+      secretKey: accountPerNetwork.jakartanet.alice.sk,
+      pkh: accountPerNetwork.jakartanet.alice.pkh
     },
     kathmandunet: {
       rpc: 'https://kathmandunet.ecadinfra.com',
       port: 443,
       network_id: '*',
-      secretKey: accountPerNetwork.ithacanet.alice.sk,
-      pkh: accountPerNetwork.ithacanet.alice.pkh
+      secretKey: accountPerNetwork.kathmandunet.alice.sk,
+      pkh: accountPerNetwork.kathmandunet.alice.pkh
     },
     limanet: {
       rpc: 'https://limanet.ecadinfra.com',
       port: 443,
       network_id: '*',
-      secretKey: accountPerNetwork.ithacanet.alice.sk,
-      pkh: accountPerNetwork.ithacanet.alice.pkh
+      secretKey: accountPerNetwork.limanet.alice.sk,
+      pkh: accountPerNetwork.limanet.alice.pkh
     },
     mainnet: {
       rpc: 'https://mainnet.api.tez.ie',

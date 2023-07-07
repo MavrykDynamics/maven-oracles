@@ -7,7 +7,7 @@ import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 
 // eslint-disable-next-line @rushstack/typedef-var
-const AggregatorRaw                     = require('./contracts/json/aggregatorFactory.json');
+const AggregatorFactoryRaw              = require('./contracts/json/aggregatorFactory.json');
 const AggregatorFactoryLambdasRaw: any  = require('./contracts/json/lambdas/aggregatorFactoryLambdas.json');
 const AggregatorLambdasRaw: any         = require('./contracts/json/lambdas/aggregatorLambdas.json');
 
@@ -23,7 +23,7 @@ import {
 } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 
-export const AggregatorFactoryCode: any     = AggregatorRaw.michelson;
+export const AggregatorFactoryCode: any     = AggregatorFactoryRaw.michelson;
 export const AggregatorFactoryLambdas: any  = AggregatorFactoryLambdasRaw;
 export const AggregatorLambdas: any         = AggregatorLambdasRaw;
 
