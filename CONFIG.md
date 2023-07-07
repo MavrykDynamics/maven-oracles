@@ -15,7 +15,7 @@
 | TEZOS_PUBLIC_KEY                          | Tezos public key                                                    | string                                      | None                             |
 | TEZOS_ADDRESS                             | Tezos address (public key hash)                                     | string                                      | None                             |
 | LOG_LEVEL                                 | Logger level.                                                       | 'error', 'warn', 'info', 'verbose', 'debug' | 'info'                           |
-| USE_FAKE_DATA                           | Dev flag to generate fake prices instead of requesting data source. | boolean                                     | false                            |
+| USE_FAKE_DATA                           | Dev flag to generate fake data instead of requesting data source. | boolean                                     | false                            |
 
 
 ## Transaction manager config

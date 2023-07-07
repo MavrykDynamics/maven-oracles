@@ -151,7 +151,7 @@ export default async function (
             'ascii',
         ).toString('hex')
 
-    const createAggregator1Op = await aggregatorFactory.methods.createAggregator(
+    const createAggregatorOperation = await aggregatorFactory.methods.createAggregator(
         'BTC/USD',
         false,
         oracleLedger,
@@ -164,7 +164,7 @@ export default async function (
         aggregatorMetadata
     ).send();
 
-    await createAggregator1Op.confirmation();
+    await createAggregatorOperation.confirmation();
     console.log(`Aggregator creation done for pair: USD/BTC`);
 
     const contractStorage           = await aggregatorFactory.storage();

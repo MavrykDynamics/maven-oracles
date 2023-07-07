@@ -6,7 +6,6 @@ import { ContractService } from '../contract/index.js';
 import { PacemakerService } from './pacemaker.service.js';
 import { IPacemakerConfig } from './pacemaker.config.js';
 import { ReportGenFactoryService } from '../reportgen/index.js';
-import { cp } from 'fs';
 
 @Injectable()
 export class PacemakerFactoryService implements OnModuleInit {
