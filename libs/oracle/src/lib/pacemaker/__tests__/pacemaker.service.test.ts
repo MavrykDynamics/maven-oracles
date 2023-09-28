@@ -149,7 +149,7 @@ describe('PacemakerService', () => {
         aggregatorAddress: PacemakerConfigMock.aggregatorAddress,
         aggregatorPair: PacemakerConfigMock.aggregatorPair,
         alphaPerThousand: mockedBlockchainConfig.alphaPercentPerThousand,
-        heartbeatSeconds: mockedBlockchainConfig.heartBeatSeconds,
+        heartbeatSeconds: mockedBlockchainConfig.heartbeatSeconds,
         leader: mockedOracleAddresses[2].oraclePeerId, // Mocked epoch is 2
         oracleLedger: mockedOracleAddresses
       });
@@ -400,7 +400,7 @@ describe('PacemakerService', () => {
           aggregatorAddress: PacemakerConfigMock.aggregatorAddress,
           aggregatorPair: PacemakerConfigMock.aggregatorPair,
           alphaPerThousand: mockedBlockchainConfig.alphaPercentPerThousand,
-          heartbeatSeconds: mockedBlockchainConfig.heartBeatSeconds,
+          heartbeatSeconds: mockedBlockchainConfig.heartbeatSeconds,
           oracleLedger: mockedOracleAddresses
         });
       } else {

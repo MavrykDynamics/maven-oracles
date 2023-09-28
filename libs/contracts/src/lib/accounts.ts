@@ -135,7 +135,7 @@ export const oracleLedger: MichelsonMap<MichelsonMapKey, unknown> = MichelsonMap
   }
 });
 
-export const heartBeatSeconds: BigNumber = new BigNumber(300);
+export const heartbeatSeconds: BigNumber = new BigNumber(300);
 export const alphaPercentPerThousand: BigNumber = new BigNumber(2);
 export const percentOracleThreshold: BigNumber = new BigNumber(60);
 export const rewardAmountStakedMvk: BigNumber = new BigNumber(10000000);

@@ -22,7 +22,7 @@ then
 fi
 
 echo "STEP 1"
-docker-compose up -d --build bootstrap oracle-1 oracle-2 oracle-3 oracle-4 oracle-5
+docker compose up -d --build bootstrap oracle-1 oracle-2 oracle-3 oracle-4 oracle-5
 echo "waiting 3 min for oracles setup"
 sleep 180
 
@@ -36,7 +36,7 @@ else
 fi
 
 echo "STEP 2"
-docker-compose stop oracle-5
+docker compose stop oracle-5
 echo "waiting 4 min for oracles setup"
 sleep 240
 
@@ -47,7 +47,7 @@ else
 fi
 
 echo "STEP 3"
-docker-compose up -d oracle-5
+docker compose up -d oracle-5
 echo "waiting 4 min for oracles setup"
 sleep 240
 

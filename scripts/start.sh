@@ -22,4 +22,4 @@ sleep 10 # Wait for it to be up
 (cd $PRJT_ROOT/libs/contracts && rushx migrate)
 
 # Start all oracles
-docker-compose up -d --build
+docker compose up -d --build

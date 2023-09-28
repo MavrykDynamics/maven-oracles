@@ -134,6 +134,7 @@ services:
       - TEZOS_PUBLIC_KEY=edpku9qEgcyfNNDK6EpMvu5SqXDqWRLuxdMxdyH12ivTUuB1KXfGP4
       - ALPHAVANTAGE_API_KEY=LOKAGZEB6UK7JJWS
       - MESSARI_API_KEY=7a4ace98-90a6-4792-81ad-5364afc6698d
+      - COINGECKO_SUPPORTED_PLATFORMS=ethereum
       - RPC_URL=http://flextesa:20000
       - USE_FAKE_DATA=true
       - LOG_LEVEL=debug
@@ -161,6 +162,7 @@ services:
       - TEZOS_PUBLIC_KEY=edpkv3sej4FWX2cUg8DR9F9QmsEb3YdodhDbVg1o1ooeWUDkuRGTsg
       - ALPHAVANTAGE_API_KEY=2XLQOTBRS8Y122VT
       - MESSARI_API_KEY=3dc85b02-55ee-4aaa-96ff-96d70a426407
+      - COINGECKO_SUPPORTED_PLATFORMS=ethereum
       - RPC_URL=http://flextesa:20000
       - USE_FAKE_DATA=true
       - LOG_LEVEL=debug
@@ -188,6 +190,7 @@ services:
       - TEZOS_PUBLIC_KEY=edpkuVjyKad7yCnNrCbGea7hi5Zh1zp5Cb1TvxUmnxC33fwKhq7daN
       - ALPHAVANTAGE_API_KEY=2NGJX9KAASPRJKDL
       - MESSARI_API_KEY=4d9734a2-99e7-4f54-81d9-71f5042a2e92
+      - COINGECKO_SUPPORTED_PLATFORMS=ethereum
       - RPC_URL=http://flextesa:20000
       - USE_FAKE_DATA=true
       - LOG_LEVEL=debug
@@ -215,6 +218,7 @@ services:
       - TEZOS_PUBLIC_KEY=edpku7vkvS6XaWzFjmPDYULNyYrS7Rf1vHuoQ9FD8zVcaFNJ51bJ82
       - ALPHAVANTAGE_API_KEY=MZ42VQU1CNPC9X1U
       - MESSARI_API_KEY=bd9fcbaf-06d4-4f8d-80c3-0862ef6c53b1
+      - COINGECKO_SUPPORTED_PLATFORMS=ethereum
       - RPC_URL=http://flextesa:20000
       - USE_FAKE_DATA=true
       - LOG_LEVEL=debug
@@ -242,6 +246,7 @@ services:
       - TEZOS_PUBLIC_KEY=edpkuqoXhgeXYZxn6yVWuy9UrWKazyahPaAbwnuZYknRefeLVVK3ar
       - ALPHAVANTAGE_API_KEY=17MO51H19VMUJAPU
       - MESSARI_API_KEY=ee29b84c-34fd-4d60-827f-35f4315ac4bd
+      - COINGECKO_SUPPORTED_PLATFORMS=ethereum
       - RPC_URL=http://flextesa:20000
       - USE_FAKE_DATA=true
       - LOG_LEVEL=debug
@@ -269,6 +274,7 @@ services:
       - TEZOS_PUBLIC_KEY=edpkv6xHMqShSMr4CK3Vzg7mD1hina7eBkokrMoKpuYj55BVd18rjN
       - ALPHAVANTAGE_API_KEY=9BP42KVMZ0BNFVL8
       - MESSARI_API_KEY=
+      - COINGECKO_SUPPORTED_PLATFORMS=ethereum
       - RPC_URL=http://flextesa:20000
       - USE_FAKE_DATA=true
       - LOG_LEVEL=debug

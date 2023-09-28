@@ -6,6 +6,7 @@ import BigNumber from 'bignumber.js';
 import { CoingeckoFetcherConfig } from './coingecko-fetcher.config.js';
 import { IDataFetcher } from '@mavrykdynamics/data-fetcher';
 import { getLogger } from './logger.js';
+import { map } from 'rxjs/operators';
 import { Logger } from 'winston';
 
 @Injectable()
@@ -46,7 +47,7 @@ export class CoingeckoFetcherService implements IDataFetcher, OnModuleInit {
     let response: AxiosResponse;
 
     try {
-      const response$ = this._httpService.get(`${this._baseUrl}/coins/list`, {
+      const response$ = this._httpService.get(`${this._baseUrl}/coins/list?include_platform=true`, {
         //headers: {
         //  'x-messari-api-key': this.config.messariApiKey,
         //},
@@ -66,9 +67,23 @@ export class CoingeckoFetcherService implements IDataFetcher, OnModuleInit {
     }
 
     const coins = response.data;
+    const supportedPlatforms =
+      this._config.coingeckoSupportedPlatforms.length === 0
+        ? []
+        : this._config.coingeckoSupportedPlatforms.split(',');
+    this._logger.verbose(`Supports ${supportedPlatforms.length} platforms`);
 
     for (const coin of coins) {
-      this._symbolToId.set(coin.symbol, coin.id);
+      // TODO: refactor coingecko configuration process
+      if (Object.keys(coin.platforms).length === 0) {
+        this._symbolToId.set(coin.symbol, coin.id);
+      } else {
+        supportedPlatforms.forEach((platform) => {
+          if (coin.platforms.hasOwnProperty(platform.toLowerCase())) {
+            this._symbolToId.set(coin.symbol, coin.id);
+          }
+        });
+      }
     }
 
     this._logger.verbose(`Fetched ids of ${this._symbolToId.size} coins`);
@@ -121,12 +136,14 @@ export class CoingeckoFetcherService implements IDataFetcher, OnModuleInit {
 
     let response: AxiosResponse;
     try {
-      const response$ = this._httpService.get(`${this._baseUrl}/simple/price`, {
-        params: {
-          ids: this._symbolToId.get(coin),
-          vs_currencies: vsCurrency
-        }
-      });
+      const response$ = this._httpService
+        .get(`${this._baseUrl}/simple/price`, {
+          params: {
+            ids: this._symbolToId.get(coin),
+            vs_currencies: vsCurrency
+          }
+        })
+        .pipe(map((response) => response.data));
 
       response = await firstValueFrom(response$);
     } catch (e) {

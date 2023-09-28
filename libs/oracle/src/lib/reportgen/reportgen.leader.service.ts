@@ -86,7 +86,7 @@ export class ReportGenLeaderService {
 
   // Timer duration constants
   private readonly _timerGraceDurationMiliseconds: number = 2 * 1000;
-  private readonly _timerRoundDurationMiliseconds: number = 15 * 1000;
+  private readonly _timerRoundDurationMiliseconds: number = 150 * 1000;
 
   // Timers
   private _timerRound: Timer = new Timer(

@@ -6,6 +6,7 @@ import BigNumber from 'bignumber.js';
 import { MessariFetcherConfig } from './messari-fetcher.config.js';
 import { IDataFetcher } from '@mavrykdynamics/data-fetcher';
 import { getLogger } from './logger.js';
+import { map } from 'rxjs/operators';
 import { Logger } from 'winston';
 
 @Injectable()
@@ -34,18 +35,20 @@ export class MessariFetcherService implements IDataFetcher {
 
     let response: AxiosResponse;
     try {
-      const response$ = this._httpService.get(`${this._baseUrl}/assets/${coin}/metrics/market-data`, {
-        headers: {
-          'x-messari-api-key': this._config.messariApiKey
-        }
-      });
+      const response$ = this._httpService
+        .get(`${this._baseUrl}/assets/${coin}/metrics/market-data`, {
+          headers: {
+            'x-messari-api-key': this._config.messariApiKey
+          }
+        })
+        .pipe(map((response) => response.data));
 
       response = await firstValueFrom(response$);
     } catch (e) {
       throw new Error(`Failed to fetch market data of coin ${coin} from Messari API: ${e.toString()}`);
     }
 
-    const data: number = response.data?.data?.market_data?.[`price_${vsCurrency}`];
+    const data: number = response.data?.market_data?.[`price_${vsCurrency}`];
 
     if (data === undefined || data === null) {
       this._logger.verbose(`Could not parse data from response: ${JSON.stringify(response)}`);

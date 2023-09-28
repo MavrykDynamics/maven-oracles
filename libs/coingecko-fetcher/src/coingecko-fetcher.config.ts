@@ -7,4 +7,11 @@ export class CoingeckoFetcherConfig {
     format: String
   })
   public coingeckoApiKey: string;
+
+  @Property({
+    default: '',
+    env: 'COINGECKO_SUPPORTED_PLATFORMS',
+    format: String
+  })
+  public coingeckoSupportedPlatforms: string;
 }

@@ -6,6 +6,7 @@ import BigNumber from 'bignumber.js';
 import { AlphavantageFetcherConfig } from './alphavantage-fetcher.config.js';
 import { IDataFetcher } from '@mavrykdynamics/data-fetcher';
 import { getLogger } from './logger.js';
+import { map } from 'rxjs/operators';
 import { Logger } from 'winston';
 
 @Injectable()
@@ -33,9 +34,11 @@ export class AlphavantageFetcherService implements IDataFetcher {
     const vsCurrency = pair2.toLowerCase();
     let response: AxiosResponse;
     try {
-      const response$ = this._httpService.get(
-        `${this._baseUrl}&symbol=${coin}&market=${vsCurrency}&interval=${this._config.alphavantageInterval}min&apikey=${this._config.alphavantageApiKey}`
-      );
+      const response$ = this._httpService
+        .get(
+          `${this._baseUrl}&symbol=${coin}&market=${vsCurrency}&interval=${this._config.alphavantageInterval}min&apikey=${this._config.alphavantageApiKey}`
+        )
+        .pipe(map((response) => response.data));
 
       response = await firstValueFrom(response$);
     } catch (e) {

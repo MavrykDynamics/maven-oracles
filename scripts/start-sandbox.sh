@@ -1,6 +1,6 @@
 #!/bin/bash
 
-docker-compose -f docker-compose.yml up -d flextesa db api indexer gui
+docker compose -f docker-compose.yml up -d flextesa db api indexer gui
 
 MAIN_SANDBOX_V="3e9dad7a"
 APPLE_SANDBOX_V="3e9dad7a"

@@ -10,7 +10,7 @@
 | P2P_PEER_ID                               | Libp2p peer id                                                      | string                                      | None                             |
 | P2P_PEER_PUBLIC_KEY                       | Libp2p public key                                                   | string                                      | None                             |
 | P2P_PEER_PRIVATE_KEY                      | Libp2p private key                                                  | string                                      | None                             |
-| AGGREGATOR_SMART_CONTRACT_ADDRESSES | Aggregator smart contract addresses (split by comma)                           | string                                      | None                             |
+| AGGREGATOR_SMART_CONTRACT_ADDRESSES | Aggregator smart contract addresses (separated by a comma)                           | string                                      | None                             |
 | RPC_URL                                   | Tezos RPC url                                                       | string                                      | https://ithacanet.ecadinfra.com/ |
 | TEZOS_PUBLIC_KEY                          | Tezos public key                                                    | string                                      | None                             |
 | TEZOS_ADDRESS                             | Tezos address (public key hash)                                     | string                                      | None                             |
@@ -39,6 +39,7 @@
 | Key               | Description       | Type   | Default value |
 |-------------------|-------------------|:-------|---------------|
 | COINGECKO_API_KEY | Coingecko api key | string | None          |
+| COINGECKO_SUPPORTED_PLATFORMS | List of coingecko supported platforms (separated by a comma) | string | None          |
 
 
 ## Messari fetcher config

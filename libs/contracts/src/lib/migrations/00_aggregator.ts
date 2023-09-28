@@ -15,7 +15,7 @@ import {
     MavrykLiteContractAbstraction,
     IMavrykLiteStorage
 } from '../mavrykLite.js';
-import { alphaPercentPerThousand, percentOracleThreshold, rewardAmountStakedMvk, rewardAmountXtz, decimals, heartBeatSeconds, oracleLedger, satelliteLedger, accounts } from '../accounts.js';
+import { alphaPercentPerThousand, percentOracleThreshold, rewardAmountStakedMvk, rewardAmountXtz, decimals, heartbeatSeconds, oracleLedger, satelliteLedger, accounts } from '../accounts.js';
 
 export const AGGREGATOR_SMART_CONTRACT_ADDRESSES: unique symbol = Symbol(
     'AGGREGATOR_SMART_CONTRACT_ADDRESSES'
@@ -158,7 +158,7 @@ export default async function (
         decimals,
         alphaPercentPerThousand,
         percentOracleThreshold,
-        heartBeatSeconds,
+        heartbeatSeconds,
         rewardAmountStakedMvk,
         rewardAmountXtz,
         aggregatorMetadata
