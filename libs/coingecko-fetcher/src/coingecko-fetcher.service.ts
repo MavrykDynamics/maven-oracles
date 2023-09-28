@@ -152,6 +152,6 @@ export class CoingeckoFetcherService implements IDataFetcher, OnModuleInit {
       );
     }
 
-    return response.data[coinId][vsCurrency];
+    return response[coinId][vsCurrency];
   }
 }

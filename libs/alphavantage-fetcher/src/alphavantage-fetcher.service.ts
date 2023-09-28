@@ -45,7 +45,7 @@ export class AlphavantageFetcherService implements IDataFetcher {
       throw new Error(`Failed to fetch market data of coin ${coin} from Alphavantage API: ${e.toString()}`);
     }
 
-    const dataList = response.data?.[`Time Series Crypto (${this._config.alphavantageInterval}min)`];
+    const dataList = response?.[`Time Series Crypto (${this._config.alphavantageInterval}min)`];
     const dataObject = dataList[Object.keys(dataList)[0]];
 
     const dataHigh = new BigNumber(dataObject['2. high']);
