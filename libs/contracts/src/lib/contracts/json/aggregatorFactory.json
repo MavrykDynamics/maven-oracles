@@ -92,7 +92,7 @@
                                     {
                                       "prim": "nat",
                                       "annots": [
-                                        "%rewardAmountStakedMvk"
+                                        "%rewardAmountStakedMvn"
                                       ]
                                     },
                                     {
@@ -134,12 +134,12 @@
                                 {
                                   "prim": "nat",
                                   "annots": [
-                                    "%totalStakedMvkReward"
+                                    "%totalStakedMvnReward"
                                   ]
                                 }
                               ],
                               "annots": [
-                                "%distributeRewardStakedMvk"
+                                "%distributeRewardStakedMvn"
                               ]
                             }
                           ]
@@ -346,7 +346,7 @@
                                             {
                                               "prim": "bool",
                                               "annots": [
-                                                "%distributeRewardStakedMvk"
+                                                "%distributeRewardStakedMvn"
                                               ]
                                             }
                                           ]
@@ -619,7 +619,7 @@
             {
               "prim": "address",
               "annots": [
-                "%mvkTokenAddress"
+                "%mvnTokenAddress"
               ]
             },
             {
@@ -669,7 +669,7 @@
                 {
                   "prim": "bool",
                   "annots": [
-                    "%distributeRewardStakedMvkIsPaused"
+                    "%distributeRewardStakedMvnIsPaused"
                   ]
                 }
               ],
@@ -1545,7 +1545,7 @@
                                                     {
                                                       "prim": "nat",
                                                       "annots": [
-                                                        "%rewardAmountStakedMvk"
+                                                        "%rewardAmountStakedMvn"
                                                       ]
                                                     },
                                                     {
@@ -1587,12 +1587,12 @@
                                                 {
                                                   "prim": "nat",
                                                   "annots": [
-                                                    "%totalStakedMvkReward"
+                                                    "%totalStakedMvnReward"
                                                   ]
                                                 }
                                               ],
                                               "annots": [
-                                                "%lambdaDistributeRewardStakedMvk"
+                                                "%lambdaDistributeRewardStakedMvn"
                                               ]
                                             }
                                           ]
@@ -1744,7 +1744,7 @@
                                                             {
                                                               "prim": "bool",
                                                               "annots": [
-                                                                "%distributeRewardStakedMvk"
+                                                                "%distributeRewardStakedMvn"
                                                               ]
                                                             }
                                                           ]
@@ -2017,7 +2017,7 @@
                             {
                               "prim": "address",
                               "annots": [
-                                "%mvkTokenAddress"
+                                "%mvnTokenAddress"
                               ]
                             },
                             {
@@ -2067,7 +2067,7 @@
                                 {
                                   "prim": "bool",
                                   "annots": [
-                                    "%distributeRewardStakedMvkIsPaused"
+                                    "%distributeRewardStakedMvnIsPaused"
                                   ]
                                 }
                               ],
@@ -2187,7 +2187,7 @@
                             {
                               "prim": "address",
                               "annots": [
-                                "%mvkTokenAddress"
+                                "%mvnTokenAddress"
                               ]
                             },
                             {
@@ -2237,7 +2237,7 @@
                                 {
                                   "prim": "bool",
                                   "annots": [
-                                    "%distributeRewardStakedMvkIsPaused"
+                                    "%distributeRewardStakedMvnIsPaused"
                                   ]
                                 }
                               ],
@@ -2832,7 +2832,7 @@
                                               "prim": "string"
                                             },
                                             {
-                                              "string": "lambdaDistributeRewardStakedMvk"
+                                              "string": "lambdaDistributeRewardStakedMvn"
                                             }
                                           ]
                                         },

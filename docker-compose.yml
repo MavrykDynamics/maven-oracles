@@ -60,7 +60,7 @@ services:
       p2p:
 
   flextesa:
-    container_name: mavryk-sandbox
+    container_name: maven-sandbox
     restart: always
     image: oxheadalpha/flextesa:20230313
     command: limabox start

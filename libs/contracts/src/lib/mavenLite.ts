@@ -6,7 +6,7 @@ import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 
 // eslint-disable-next-line @rushstack/typedef-var
-const MavrykLiteRaw = require('./contracts/json/mavrykLite.json');
+const MavenLiteRaw = require('./contracts/json/mavenLite.json');
 
 import { MichelsonMap, MichelsonMapKey } from '@taquito/michelson-encoder';
 import BigNumber from 'bignumber.js';
@@ -20,9 +20,9 @@ import {
 } from '@taquito/taquito';
 import { OnChainView } from '@taquito/taquito/dist/types/contract/contract-methods/contract-on-chain-view';
 
-export const MavrykLiteCode: any = MavrykLiteRaw.michelson;
-export type MavrykLiteConfigType = {
-    minimumStakedMvkBalance             : BigNumber;
+export const MavenLiteCode: any = MavenLiteRaw.michelson;
+export type MavenLiteConfigType = {
+    minimumStakedMvnBalance             : BigNumber;
     delegationRatio                     : BigNumber;
     maxSatellites                       : BigNumber;
     satelliteNameMaxLength              : BigNumber;
@@ -31,39 +31,39 @@ export type MavrykLiteConfigType = {
     satelliteWebsiteMaxLength           : BigNumber;
 };
 
-export type IMavrykLiteStorage = {
+export type IMavenLiteStorage = {
 
-    config                  : MavrykLiteConfigType;
+    config                  : MavenLiteConfigType;
     generalContracts        : MichelsonMap<MichelsonMapKey, unknown>;
     satelliteLedger         : MichelsonMap<MichelsonMapKey, unknown>;
 
 };
 
-type MavrykLiteContractMethods<T extends ContractProvider | Wallet> = {
-    distributeReward: (eligibleSatellites: Array<string>, totalStakedMvkReward: number) => ContractMethod<T>;
+type MavenLiteContractMethods<T extends ContractProvider | Wallet> = {
+    distributeReward: (eligibleSatellites: Array<string>, totalStakedMvnReward: number) => ContractMethod<T>;
     setAggregatorReference: (aggregatorAddress: string, oldName: string, newName: string) => ContractMethod<T>;
     updateGeneralContracts: (generalContractName: string, generalContractAddress: string, updateType: string) => ContractMethod<T>;
     transfer: (transfers: Array<any>) => ContractMethod<T>;
 };
 
-type MavrykLiteContractMethodObject<T extends ContractProvider | Wallet> = Record<
+type MavenLiteContractMethodObject<T extends ContractProvider | Wallet> = Record<
   string,
   (...args: unknown[]) => ContractMethodObject<T>
 >;
 
-type MavrykLiteViews = Record<string, (...args: unknown[]) => ContractView>;
+type MavenLiteViews = Record<string, (...args: unknown[]) => ContractView>;
 
-type MavrykLiteOnChainViews = {
+type MavenLiteOnChainViews = {
     getConfig: () => OnChainView;
     getGeneralContractOpt: () => OnChainView;
     getSatelliteOpt: () => OnChainView;
 };
 
-export type MavrykLiteContractAbstraction<T extends ContractProvider | Wallet = any> = ContractAbstraction<
+export type MavenLiteContractAbstraction<T extends ContractProvider | Wallet = any> = ContractAbstraction<
   T,
-  MavrykLiteContractMethods<T>,
-  MavrykLiteContractMethodObject<T>,
-  MavrykLiteViews,
-  MavrykLiteOnChainViews,
-  IMavrykLiteStorage
+  MavenLiteContractMethods<T>,
+  MavenLiteContractMethodObject<T>,
+  MavenLiteViews,
+  MavenLiteOnChainViews,
+  IMavenLiteStorage
 >;

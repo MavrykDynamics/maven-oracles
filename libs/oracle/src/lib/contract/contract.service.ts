@@ -398,7 +398,7 @@ export class ContractService implements OnModuleInit {
       percentOracleThreshold              : storage.config.percentOracleThreshold,
       heartbeatSeconds                    : storage.config.heartbeatSeconds,
       rewardAmountXtz                     : storage.config.rewardAmountXtz,
-      rewardAmountStakedMvk               : storage.config.rewardAmountStakedMvk
+      rewardAmountStakedMvn               : storage.config.rewardAmountStakedMvn
     };
   }
 }

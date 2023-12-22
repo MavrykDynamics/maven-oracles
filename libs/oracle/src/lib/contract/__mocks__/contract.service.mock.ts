@@ -97,7 +97,7 @@ export const mockedBlockchainConfig: IAggregatorConfig = {
   percentOracleThreshold: new BigNumber(500),
   heartbeatSeconds: new BigNumber(30),
   rewardAmountXtz: new BigNumber(1300),
-  rewardAmountStakedMvk: new BigNumber(1300),
+  rewardAmountStakedMvn: new BigNumber(1300),
 };
 export const mockGetAggregatorConfig = jest
   .fn<ContractService['getAggregatorConfig']>()

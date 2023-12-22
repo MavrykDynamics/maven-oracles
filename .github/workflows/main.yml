@@ -67,7 +67,7 @@ jobs:
           context: .
           push: true
           file: images/node.Dockerfile
-          tags: tezosdynamics/mavryk-oracle:${{ github.sha }},tezosdynamics/mavryk-oracle:latest
+          tags: mavrykdynamics/maven-oracle:${{ github.sha }},mavrykdynamics/maven-oracle:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
           platforms: linux/amd64,linux/arm/v7,linux/arm/v6
@@ -78,7 +78,7 @@ jobs:
           context: .
           push: true
           file: images/bootstrap-node.Dockerfile
-          tags: tezosdynamics/mavryk-oracle-bootstrap:${{ github.sha }},tezosdynamics/mavryk-oracle-bootstrap:latest
+          tags: mavrykdynamics/maven-oracle-bootstrap:${{ github.sha }},mavrykdynamics/maven-oracle-bootstrap:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
           platforms: linux/amd64,linux/arm/v7,linux/arm/v6

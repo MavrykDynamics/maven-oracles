@@ -36,7 +36,7 @@ export type IAggregatorFactoryStorage = {
         trackAggregatorIsPaused               : boolean;
         untrackAggregatorIsPaused             : boolean;
         distributeRewardXtzIsPaused           : boolean;
-        distributeRewardStakedMvkIsPaused     : boolean;
+        distributeRewardStakedMvnIsPaused     : boolean;
     };
     config                    : {
         aggregatorNameMaxLength               : BigNumber;
@@ -45,7 +45,7 @@ export type IAggregatorFactoryStorage = {
     generalContracts          : MichelsonMap<MichelsonMapKey, unknown>;
     whitelistContracts        : MichelsonMap<MichelsonMapKey, unknown>;
 
-    mvkTokenAddress           : string;
+    mvnTokenAddress           : string;
     governanceAddress         : string;
     
     trackedAggregators        : Array<string>;
@@ -74,14 +74,14 @@ type AggregatorFactoryContractMethods<T extends ContractProvider | Wallet> = {
         alphaPercentPerThousand: BigNumber,
         percentOracleThreshold: BigNumber,
         heartbeatSeconds: BigNumber,
-        rewardAmountStakedMvk: BigNumber,
+        rewardAmountStakedMvn: BigNumber,
         rewardAmountXtz: BigNumber,
         metadata: string
     ) => ContractMethod<T>;
     trackAggregator: (aggregatorAddress: string) => ContractMethod<T>;
     untrackAggregator: (aggregatorAddress: string) => ContractMethod<T>;
     distributeRewardXtz: (recipient: string, reward: number) => ContractMethod<T>;
-    distributeRewardStakedMvk: (eligibleSatellites: Array<string>, totalStakedMvkReward: number) => ContractMethod<T>;
+    distributeRewardStakedMvn: (eligibleSatellites: Array<string>, totalStakedMvnReward: number) => ContractMethod<T>;
     setLambda: (name: string, func_bytes: string) => ContractMethod<T>;
     setProductLambda: (name: string, func_bytes: string) => ContractMethod<T>;
 };

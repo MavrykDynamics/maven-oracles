@@ -28,7 +28,7 @@ version: '3.7'
 services:
   oracle:
     restart: always
-    image: mavrykdynamics/mavryk-oracle:latest
+    image: mavrykdynamics/maven-oracle:latest
     env_file:
       - .env
     environment:

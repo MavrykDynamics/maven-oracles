@@ -30,7 +30,7 @@ export type AggregatorConfigType = {
     heartbeatSeconds                    : BigNumber;
     
     rewardAmountXtz                     : BigNumber;
-    rewardAmountStakedMvk               : BigNumber;
+    rewardAmountStakedMvn               : BigNumber;
 
 };
 
@@ -78,10 +78,10 @@ export type IAggregatorStorage = {
     breakGlassConfig            : {
         updateDataIsPaused                  : boolean;
         withdrawRewardXtzIsPaused           : boolean;
-        withdrawRewardStakedMvkIsPaused     : boolean;
+        withdrawRewardStakedMvnIsPaused     : boolean;
     };
 
-    mvkTokenAddress             : string;
+    mvnTokenAddress             : string;
     governanceAddress           : string;
 
     whitelistContracts          : MichelsonMap<MichelsonMapKey, unknown>;
@@ -91,7 +91,7 @@ export type IAggregatorStorage = {
     
     lastCompletedData           : OracleLastResultType;
 
-    oracleRewardStakedMvk       : MichelsonMap<MichelsonMapKey, unknown>;
+    oracleRewardStakedMvn       : MichelsonMap<MichelsonMapKey, unknown>;
     oracleRewardXtz             : MichelsonMap<MichelsonMapKey, unknown>;
 
     lambdaLedger                : MichelsonMap<MichelsonMapKey, unknown>;
@@ -114,7 +114,7 @@ type AggregatorContractMethods<T extends ContractProvider | Wallet> = {
   togglePauseEntrypoint: (entrypoint: string, pause: boolean) => ContractMethod<T>;
   updateData: (oracleObservations: MichelsonMap<string, unknown>, signatures: MichelsonMap<string, unknown>) => ContractMethod<T>;
   withdrawRewardXtz: (address: string) => ContractMethod<T>;
-  withdrawRewardStakedMvk: (address: string) => ContractMethod<T>;
+  withdrawRewardStakedMvn: (address: string) => ContractMethod<T>;
   setLambda: (name: string, func_bytes: string) => ContractMethod<T>;
 };
 
@@ -135,7 +135,7 @@ type AggregatorOnChainViews = {
     getGeneralContractOpt: () => OnChainView;
     getOracleLedger: () => OnChainView;
     getOracleOpt: () => OnChainView;
-    getOracleRewardStakedMvkOpt: () => OnChainView;
+    getOracleRewardStakedMvnOpt: () => OnChainView;
     getOracleRewardXtzOpt: () => OnChainView;
     getLastCompletedData: () => OnChainView;
     getDecimals: () => OnChainView;

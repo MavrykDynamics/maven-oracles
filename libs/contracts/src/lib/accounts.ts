@@ -6,7 +6,7 @@ const currentTimestamp: number = Math.round(new Date().getTime() / 1000);
 export const satelliteLedger: MichelsonMap<MichelsonMapKey, unknown> = MichelsonMap.fromLiteral({
   tz1MnmtP4uAcgMpeZN6JtyziXeFqqwQG6yn6: {
     status: "ACTIVE",
-    stakedMvkBalance: new BigNumber(1000000000000),
+    stakedMvnBalance: new BigNumber(1000000000000),
     satelliteFee: new BigNumber(200),
     totalDelegatedAmount: new BigNumber(10000000000),
     name: "satelliteName",
@@ -19,7 +19,7 @@ export const satelliteLedger: MichelsonMap<MichelsonMapKey, unknown> = Michelson
   },
   tz1NdjbFHLxbKEUXhXgjyLfQSCbq6oy5b7Px: {
     status: "ACTIVE",
-    stakedMvkBalance: new BigNumber(1000000000000),
+    stakedMvnBalance: new BigNumber(1000000000000),
     satelliteFee: new BigNumber(200),
     totalDelegatedAmount: new BigNumber(10000000000),
     name: "satelliteName",
@@ -32,7 +32,7 @@ export const satelliteLedger: MichelsonMap<MichelsonMapKey, unknown> = Michelson
   },
   tz1PSmvRd3ySbh5aviFEMYGD6542LL5QnrMk: {
     status: "ACTIVE",
-    stakedMvkBalance: new BigNumber(1000000000000),
+    stakedMvnBalance: new BigNumber(1000000000000),
     satelliteFee: new BigNumber(200),
     totalDelegatedAmount: new BigNumber(10000000000),
     name: "satelliteName",
@@ -45,7 +45,7 @@ export const satelliteLedger: MichelsonMap<MichelsonMapKey, unknown> = Michelson
   },
   tz1KrELvNVY4xKnujkXwrVLWuzWJEg9FvA8v: {
     status: "ACTIVE",
-    stakedMvkBalance: new BigNumber(1000000000000),
+    stakedMvnBalance: new BigNumber(1000000000000),
     satelliteFee: new BigNumber(200),
     totalDelegatedAmount: new BigNumber(10000000000),
     name: "satelliteName",
@@ -58,7 +58,7 @@ export const satelliteLedger: MichelsonMap<MichelsonMapKey, unknown> = Michelson
   },
   tz1YKquTvvSE2B5kvGyf1AYeXD6b6cMDSzDe: {
     status: "ACTIVE",
-    stakedMvkBalance: new BigNumber(1000000000000),
+    stakedMvnBalance: new BigNumber(1000000000000),
     satelliteFee: new BigNumber(200),
     totalDelegatedAmount: new BigNumber(10000000000),
     name: "satelliteName",
@@ -71,7 +71,7 @@ export const satelliteLedger: MichelsonMap<MichelsonMapKey, unknown> = Michelson
   },
   tz1TQ4fpSFNZ6D9vrcwBz9yzM2SNjDj5YoU7: {
     status: "ACTIVE",
-    stakedMvkBalance: new BigNumber(1000000000000),
+    stakedMvnBalance: new BigNumber(1000000000000),
     satelliteFee: new BigNumber(200),
     totalDelegatedAmount: new BigNumber(10000000000),
     name: "satelliteName",
@@ -84,7 +84,7 @@ export const satelliteLedger: MichelsonMap<MichelsonMapKey, unknown> = Michelson
   },
   tz1bPLbmiseCCWtW7RZ9t2RkNyboB9XT4exJ: {
     status: "ACTIVE",
-    stakedMvkBalance: new BigNumber(1000000000000),
+    stakedMvnBalance: new BigNumber(1000000000000),
     satelliteFee: new BigNumber(200),
     totalDelegatedAmount: new BigNumber(10000000000),
     name: "satelliteName",
@@ -138,7 +138,7 @@ export const oracleLedger: MichelsonMap<MichelsonMapKey, unknown> = MichelsonMap
 export const heartbeatSeconds: BigNumber = new BigNumber(300);
 export const alphaPercentPerThousand: BigNumber = new BigNumber(2);
 export const percentOracleThreshold: BigNumber = new BigNumber(60);
-export const rewardAmountStakedMvk: BigNumber = new BigNumber(10000000);
+export const rewardAmountStakedMvn: BigNumber = new BigNumber(10000000);
 export const rewardAmountXtz: BigNumber = new BigNumber(1300);
 export const decimals: BigNumber = new BigNumber(8);
 export const zeroAddress: string = 'tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg';

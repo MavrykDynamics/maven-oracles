@@ -6,5 +6,5 @@ export interface IAggregatorConfig {
   percentOracleThreshold: BigNumber;
   heartbeatSeconds: BigNumber;
   rewardAmountXtz: BigNumber;
-  rewardAmountStakedMvk: BigNumber;
+  rewardAmountStakedMvn: BigNumber;
 }

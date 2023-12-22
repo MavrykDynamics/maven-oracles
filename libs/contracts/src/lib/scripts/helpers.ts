@@ -16,7 +16,7 @@ import {
     AggregatorFactoryLambdas,
     AggregatorLambdas
 } from '../aggregatorFactory.js'
-import { MavrykLiteContractAbstraction } from '../mavrykLite.js';
+import { MavenLiteContractAbstraction } from '../mavenLite.js';
 export const getLigo = (
   isDockerizedLigo: boolean,
   ligoVersion: string = networkConfig.ligoVersion,
@@ -348,14 +348,14 @@ export const setAggregatorFactoryProductLambdas = async (
     }
 };
 
-export const setMavrykLiteGeneralContracts = async (
+export const setMavenLiteGeneralContracts = async (
     tezosToolkit: TezosToolkit,
-    mavrykLite: MavrykLiteContractAbstraction,
+    mavenLite: MavenLiteContractAbstraction,
 ): Promise<void> => {
     const generalContractsBatch = tezosToolkit.wallet.batch()
-    .withContractCall(mavrykLite.methods.updateGeneralContracts("aggregatorTreasury", mavrykLite.address, "update"))
-    .withContractCall(mavrykLite.methods.updateGeneralContracts("delegation", mavrykLite.address, "update"))
-    .withContractCall(mavrykLite.methods.updateGeneralContracts("governanceSatellite", mavrykLite.address, "update"))
+    .withContractCall(mavenLite.methods.updateGeneralContracts("aggregatorTreasury", mavenLite.address, "update"))
+    .withContractCall(mavenLite.methods.updateGeneralContracts("delegation", mavenLite.address, "update"))
+    .withContractCall(mavenLite.methods.updateGeneralContracts("governanceSatellite", mavenLite.address, "update"))
     const generalContractsOperation = await generalContractsBatch.send()
     await confirmOperation(tezosToolkit, generalContractsOperation.opHash);
 };
