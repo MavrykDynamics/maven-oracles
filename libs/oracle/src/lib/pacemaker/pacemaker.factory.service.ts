@@ -40,7 +40,7 @@ export class PacemakerFactoryService implements OnModuleInit {
       await this._startPacemaker({
         aggregatorAddress,
         aggregatorPair: pair,
-        timerProgressDurationMiliseconds: 1800 * 1000,
+        timerProgressDurationMiliseconds: 3600 * 1000,
         timerResendDurationMiliseconds: 15 * 1000,
       });
     }
