@@ -1,5 +1,5 @@
-import { OriginationOperation, TezosToolkit } from '@taquito/taquito';
-import { MichelsonMap } from '@taquito/michelson-encoder';
+import { OriginationOperation, TezosToolkit } from '@mavrykdynamics/taquito';
+import { MichelsonMap } from '@mavrykdynamics/taquito-michelson-encoder';
 import {
   AggregatorFactoryCode,
   AggregatorFactoryContractAbstraction,
@@ -7,7 +7,7 @@ import {
 } from '../lib/aggregatorFactory';
 import { alphaPercentPerThousand, decimals, heartbeatSeconds, oracleLedger } from '../lib/accounts';
 import { networkConfig } from '../lib/scripts/env';
-import { InMemorySigner } from '@taquito/signer';
+import { InMemorySigner } from '@mavrykdynamics/taquito-signer';
 import { expect } from 'chai';
 
 describe('Create Aggregator Factory', () => {

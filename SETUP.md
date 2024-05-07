@@ -60,9 +60,9 @@ P2P_PEER_ID=
 P2P_PEER_PUBLIC_KEY=
 P2P_PEER_PRIVATE_KEY=
 
-# Tezos public key and public key hash (= Address)
-TEZOS_ADDRESS=
-TEZOS_PUBLIC_KEY=
+# Mavryk public key and public key hash (= Address)
+MAVRYK_ADDRESS=
+MAVRYK_PUBLIC_KEY=
 
 # Put your Alphavantage API key here
 ALPHAVANTAGE_API_KEY=""
@@ -70,8 +70,8 @@ ALPHAVANTAGE_API_KEY=""
 # Put your Messari API key here
 MESSARI_API_KEY=""
 
-# Tezos polling interval for taquito. Must be lower than block time
-TEZOS_POLLING_INTERVAL_MILLISECONDS=2000
+# Mavryk polling interval for taquito. Must be lower than block time
+MAVRYK_POLLING_INTERVAL_MILLISECONDS=2000
 
 # Aggregator smart contract addresses, separated by a comma. Change this based on which network you are operating on. Only list the aggregator you want to push data too and where you are registered on.
 AGGREGATOR_SMART_CONTRACT_ADDRESSES=KT1Qq4RD4vWcFshShSMt5vGLXP7gZBdiykEU
@@ -97,8 +97,8 @@ vaults:
       file: /etc/secret.json
 
 # List enabled public keys hashes here
-tezos:
-  YOUR_TEZOS_ADDRESS: # Your tezos address
+mavryk:
+  YOUR_MAVRYK_ADDRESS: # Your mavryk address
     log_payloads: true
     allowed_operations:
       # List of [generic, block, endorsement]
@@ -118,7 +118,7 @@ Create `secret.json` file (THIS IS NOT RECOMMENDED FOR PRODUCTION, Use local key
 [
   {
     "name": "oracle1",
-    "value": "YOUR_TEZOS_PRIVATE_KEY"
+    "value": "YOUR_MAVRYK_PRIVATE_KEY"
   }
 ]
 ```

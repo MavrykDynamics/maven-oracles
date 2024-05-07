@@ -39,12 +39,12 @@ describe('ContractService', () => {
   const aggregatorAddress: string = "KT1JWK133K5MssC645G7X7kQ3CXTimdTXApB";
   const oracleLedger: IOracleInformations[] = [
     {
-      oracleAddress: "tz1MnmtP4uAcgMpeZN6JtyziXeFqqwQG6yn6",
+      oracleAddress: "mv1AAFByPGTyFdbshgfA8ogjgf7pQKuR7ATp",
       oraclePublicKey: "edpku9qEgcyfNNDK6EpMvu5SqXDqWRLuxdMxdyH12ivTUuB1KXfGP4",
       oraclePeerId: "12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1"
     },
     {
-      oracleAddress: "tz1NdjbFHLxbKEUXhXgjyLfQSCbq6oy5b7Px",
+      oracleAddress: "mv1B1CtqbiFwtWFkqrFbDAMRbDTofCSjHokn",
       oraclePublicKey: "edpkv3sej4FWX2cUg8DR9F9QmsEb3YdodhDbVg1o1ooeWUDkuRGTsg",
       oraclePeerId: "12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2"
     }
@@ -85,7 +85,7 @@ describe('ContractService', () => {
         oracleLedger,
         report,
         {
-          oracle: "tz1NdjbFHLxbKEUXhXgjyLfQSCbq6oy5b7Px",
+          oracle: "mv1B1CtqbiFwtWFkqrFbDAMRbDTofCSjHokn",
           signature
         }
       );
@@ -158,7 +158,7 @@ describe('ContractService', () => {
         oracleLedger,
         report,
         {
-          oracle: "tz1NdjbFHLxbKEUXhXgjyLfQSCbq6oy5b7Px",
+          oracle: "mv1B1CtqbiFwtWFkqrFbDAMRbDTofCSjHokn",
           signature
         }
       );
@@ -198,7 +198,7 @@ describe('ContractService', () => {
         oracleLedger,
         report,
         {
-          oracle: "tz1TQ4fpSFNZ6D9vrcwBz9yzM2SNjDj5YoU7",
+          oracle: "mv1FmXyQkcfufUw9zwW3Dyg1W3JMHcDZ8rV5",
           signature
         }
       );
@@ -246,11 +246,11 @@ describe('ContractService', () => {
         observations,
         signatures: [
           {
-            oracle: "tz1MnmtP4uAcgMpeZN6JtyziXeFqqwQG6yn6",
+            oracle: "mv1AAFByPGTyFdbshgfA8ogjgf7pQKuR7ATp",
             signature: signature1
           },
           {
-            oracle: "tz1NdjbFHLxbKEUXhXgjyLfQSCbq6oy5b7Px",
+            oracle: "mv1B1CtqbiFwtWFkqrFbDAMRbDTofCSjHokn",
             signature: signature2
           }
         ]
@@ -290,11 +290,11 @@ describe('ContractService', () => {
         observations,
         signatures: [
           {
-            oracle: "tz1KrELvNVY4xKnujkXwrVLWuzWJEg9FvA8v",
+            oracle: "mv18DheWgrqRXba8t56o6K2Y51NGo4gMucGx",
             signature: signature1
           },
           {
-            oracle: "tz1NdjbFHLxbKEUXhXgjyLfQSCbq6oy5b7Px",
+            oracle: "mv1B1CtqbiFwtWFkqrFbDAMRbDTofCSjHokn",
             signature: signature2
           }
         ]
@@ -344,11 +344,11 @@ describe('ContractService', () => {
         ],
         signatures: [
           {
-            oracle: "tz1MnmtP4uAcgMpeZN6JtyziXeFqqwQG6yn6",
+            oracle: "mv1AAFByPGTyFdbshgfA8ogjgf7pQKuR7ATp",
             signature: signature1
           },
           {
-            oracle: "tz1NdjbFHLxbKEUXhXgjyLfQSCbq6oy5b7Px",
+            oracle: "mv1B1CtqbiFwtWFkqrFbDAMRbDTofCSjHokn",
             signature: signature2
           }
         ]
@@ -387,11 +387,11 @@ describe('ContractService', () => {
         observations,
         signatures: [
           {
-            oracle: "tz1MnmtP4uAcgMpeZN6JtyziXeFqqwQG6yn6",
+            oracle: "mv1AAFByPGTyFdbshgfA8ogjgf7pQKuR7ATp",
             signature: signature1
           },
           {
-            oracle: "tz1NdjbFHLxbKEUXhXgjyLfQSCbq6oy5b7Px",
+            oracle: "mv1B1CtqbiFwtWFkqrFbDAMRbDTofCSjHokn",
             signature: signature2
           }
         ]

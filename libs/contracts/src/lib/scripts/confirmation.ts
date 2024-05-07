@@ -2,8 +2,8 @@
 /* eslint-disable @rushstack/no-new-null */
 import { networkConfig } from './env.js';
 
-import { BlockResponse, OperationEntry } from '@taquito/rpc';
-import { TezosToolkit } from '@taquito/taquito';
+import { BlockResponse, OperationEntry } from '@mavrykdynamics/taquito-rpc';
+import { TezosToolkit } from '@mavrykdynamics/taquito';
 
 export const SYNC_INTERVAL: number = networkConfig.syncInterval;
 export const CONFIRM_TIMEOUT: number = networkConfig.confirmTimeout;
@@ -15,7 +15,7 @@ export interface IConfirmOperationOptions {
 }
 
 export async function confirmOperation(
-  tezos: TezosToolkit,
+  mavryk: TezosToolkit,
   opHash: string,
   { initializedAt, fromBlockLevel, signal }: IConfirmOperationOptions = {}
 ): Promise<OperationEntry> {
@@ -31,13 +31,13 @@ export async function confirmOperation(
   let currentBlockLevel = -1;
 
   try {
-    const currentBlock: BlockResponse = await tezos.rpc.getBlock();
+    const currentBlock: BlockResponse = await mavryk.rpc.getBlock();
 
     currentBlockLevel = currentBlock.header.level;
 
     for (let i: number = fromBlockLevel ?? currentBlockLevel; i <= currentBlockLevel; i++) {
       const block: BlockResponse =
-        i === currentBlockLevel ? currentBlock : await tezos.rpc.getBlock({ block: i as any });
+        i === currentBlockLevel ? currentBlock : await mavryk.rpc.getBlock({ block: i as any });
       const opEntry: any = await findOperation(block, opHash);
 
       if (opEntry) {
@@ -59,7 +59,7 @@ export async function confirmOperation(
   // eslint-disable-next-line promise/param-names
   await new Promise((r) => setTimeout(r, timeToWait));
 
-  return confirmOperation(tezos, opHash, {
+  return confirmOperation(mavryk, opHash, {
     initializedAt,
     fromBlockLevel: currentBlockLevel !== -1 ? currentBlockLevel + 1 : fromBlockLevel,
     signal

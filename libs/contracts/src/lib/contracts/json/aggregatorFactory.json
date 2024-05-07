@@ -222,7 +222,7 @@
                                         {
                                           "prim": "unit",
                                           "annots": [
-                                            "%tez"
+                                            "%mav"
                                           ]
                                         }
                                       ],
@@ -1675,7 +1675,7 @@
                                                         {
                                                           "prim": "unit",
                                                           "annots": [
-                                                            "%tez"
+                                                            "%mav"
                                                           ]
                                                         }
                                                       ],
@@ -2370,7 +2370,7 @@
             "prim": "PUSH",
             "args": [
               {
-                "prim": "mutez"
+                "prim": "mumav"
               },
               {
                 "int": "0"
@@ -9094,5 +9094,5 @@
     "name": "ligo",
     "version": "0.60.0"
   },
-  "networkType": "Tezos"
+  "networkType": "Mavryk"
 }

@@ -17,21 +17,21 @@ export class TxManagerConfig {
 
   @Property({
     default: '',
-    env: 'TEZOS_ADDRESS',
+    env: 'MAVRYK_ADDRESS',
     format: String
   })
-  public tezosPublicKeyHash: string;
+  public mavrykPublicKeyHash: string;
 
   @Property({
     default: '',
-    env: 'TEZOS_SECRET_KEY',
+    env: 'MAVRYK_SECRET_KEY',
     format: String
   })
-  public tezosSecretKey: string;
+  public mavrykSecretKey: string;
 
   @Property({
     default: 5000,
-    env: 'TEZOS_POLLING_INTERVAL_MILLISECONDS',
+    env: 'MAVRYK_POLLING_INTERVAL_MILLISECONDS',
     format: Number
   })
   public pollingIntervalMilliseconds: number;

@@ -543,7 +543,7 @@ export class ReportGenFollowerService {
   }
 
   /**
-   * Sign compressed report using tezos private key
+   * Sign compressed report using mavryk private key
    *
    * @param report
    * @private
@@ -558,7 +558,7 @@ export class ReportGenFollowerService {
       report.round
     );
     return {
-      oracle: this._oracleConfig.tezosAddress,
+      oracle: this._oracleConfig.mavrykAddress,
       signature
     };
   }

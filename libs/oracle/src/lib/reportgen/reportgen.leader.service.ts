@@ -249,7 +249,7 @@ export class ReportGenLeaderService {
    *
    * @param from - Sender of the message
    * @param compressedReport - Received report
-   * @param signature - Report signature, using Tezos private key
+   * @param signature - Report signature, using Mavryk private key
    * @param aggregatorAddress - Aggregator smart contract address
    * @private
    *
@@ -486,7 +486,7 @@ export class ReportGenLeaderService {
    * Check report signature
    *
    * @param report - Report
-   * @param signature - Report signature using Tezos private key
+   * @param signature - Report signature using Mavryk private key
    * @private
    */
   private async _verifyReportSignature(report: ICompressedReport, signature: ISignature): Promise<boolean> {

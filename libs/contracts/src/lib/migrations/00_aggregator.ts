@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { INetworkConfig, NetworkName } from '../scripts/env';
-import { OriginationOperation, TezosToolkit } from '@taquito/taquito';
-import { InMemorySigner } from '@taquito/signer';
+import { OriginationOperation, TezosToolkit } from '@mavrykdynamics/taquito';
+import { InMemorySigner } from '@mavrykdynamics/taquito-signer';
 import BigNumber from 'bignumber.js';
 import { saveContractAddress, setAggregatorFactoryLambdas, setAggregatorFactoryProductLambdas, setMavenLiteGeneralContracts } from '../scripts/helpers.js';
-import { MichelsonMap } from '@taquito/michelson-encoder';
+import { MichelsonMap } from '@mavrykdynamics/taquito-michelson-encoder';
 import {
     AggregatorFactoryCode,
     AggregatorFactoryContractAbstraction,
@@ -16,6 +16,7 @@ import {
     IMavenLiteStorage
 } from '../mavenLite.js';
 import { alphaPercentPerThousand, percentOracleThreshold, rewardAmountStakedMvn, rewardAmountXtz, decimals, heartbeatSeconds, oracleLedger, satelliteLedger, accounts } from '../accounts.js';
+import { exit } from 'process';
 
 export const AGGREGATOR_SMART_CONTRACT_ADDRESSES: unique symbol = Symbol(
     'AGGREGATOR_SMART_CONTRACT_ADDRESSES'
@@ -29,7 +30,7 @@ export default async function (
     networkConfig: INetworkConfig,
     networkName: NetworkName,
     saveToEnv: boolean = true
-): Promise<IMigrationResult> {
+) {
     const toolkit = new TezosToolkit(networkConfig.networks[networkName].rpc);
 
     toolkit.setProvider({
@@ -178,7 +179,5 @@ export default async function (
         );
     }
 
-    return {
-        [AGGREGATOR_SMART_CONTRACT_ADDRESSES]: aggregatorAddress
-    };
+    exit()
 }

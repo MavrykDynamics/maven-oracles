@@ -11,9 +11,9 @@
 | P2P_PEER_PUBLIC_KEY                       | Libp2p public key                                                   | string                                      | None                             |
 | P2P_PEER_PRIVATE_KEY                      | Libp2p private key                                                  | string                                      | None                             |
 | AGGREGATOR_SMART_CONTRACT_ADDRESSES | Aggregator smart contract addresses (separated by a comma)                           | string                                      | None                             |
-| RPC_URL                                   | Tezos RPC url                                                       | string                                      | https://ithacanet.ecadinfra.com/ |
-| TEZOS_PUBLIC_KEY                          | Tezos public key                                                    | string                                      | None                             |
-| TEZOS_ADDRESS                             | Tezos address (public key hash)                                     | string                                      | None                             |
+| RPC_URL                                   | Mavryk RPC url                                                       | string                                      | https://ithacanet.ecadinfra.com/ |
+| MAVRYK_PUBLIC_KEY                          | Mavryk public key                                                    | string                                      | None                             |
+| MAVRYK_ADDRESS                             | Mavryk address (public key hash)                                     | string                                      | None                             |
 | LOG_LEVEL                                 | Logger level.                                                       | 'error', 'warn', 'info', 'verbose', 'debug' | 'info'                           |
 | USE_FAKE_DATA                           | Dev flag to generate fake data instead of requesting data source. | boolean                                     | false                            |
 
@@ -23,7 +23,7 @@
 | Key                                 | Description              | Type   | Default value |
 |-------------------------------------|--------------------------|:-------|---------------|
 | SIGNER_URL                          | Signatory url            | string | None          |
-| TEZOS_POLLING_INTERVAL_MILLISECONDS | Taquito polling interval | number | 5000          |
+| MAVRYK_POLLING_INTERVAL_MILLISECONDS | Taquito polling interval | number | 5000          |
 
 
 ## Alphavantage fetcher config
