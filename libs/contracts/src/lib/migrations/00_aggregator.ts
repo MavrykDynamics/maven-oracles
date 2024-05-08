@@ -62,7 +62,7 @@ export default async function (
     console.log(`Maven Lite origination done at: ${opMavenLite.contractAddress}`);
 
     if (opMavenLite.contractAddress === undefined) {
-        throw new Error('Factory smart contract address not received');
+        throw new Error('Maven Lite smart contract address not received');
     }
 
     await opMavenLite.confirmation();
