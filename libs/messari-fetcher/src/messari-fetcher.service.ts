@@ -34,28 +34,38 @@ export class MessariFetcherService implements IDataFetcher {
     const vsCurrency = pair2.toLowerCase();
 
     let response: AxiosResponse;
-    try {
-      const response$ = this._httpService
-        .get(`${this._baseUrl}/assets/${coin}/metrics/market-data`, {
-          headers: {
-            'x-messari-api-key': this._config.messariApiKey
-          }
-        })
-        .pipe(map((response) => response.data));
 
-      response = await firstValueFrom(response$);
-    } catch (e) {
-      throw new Error(`Failed to fetch market data of coin ${coin} from Messari API: ${e.toString()}`);
+    //TODO: Remove after demo
+    if (coin === 'ocean') {
+      const random = Math.random() * 0.05 + 53.15;
+      return new BigNumber(parseFloat(random.toFixed(2)));
+    } else if (coin === 'mvrk') {
+      const random = Math.random() * 0.0001 + 2.648925;
+      return new BigNumber(parseFloat(random.toFixed(6)));
+    } else {
+      try {
+        const response$ = this._httpService
+          .get(`${this._baseUrl}/assets/${coin}/metrics/market-data`, {
+            headers: {
+              'x-messari-api-key': this._config.messariApiKey
+            }
+          })
+          .pipe(map((response) => response.data));
+
+        response = await firstValueFrom(response$);
+      } catch (e) {
+        throw new Error(`Failed to fetch market data of coin ${coin} from Messari API: ${e.toString()}`);
+      }
+
+      const data: number = response.data?.market_data?.[`price_${vsCurrency}`];
+
+      if (data === undefined || data === null) {
+        this._logger.verbose(`Could not parse data from response: ${JSON.stringify(response)}`);
+        this._logger.error('Could not parse data from response');
+        throw new Error('Could not parse data from response');
+      }
+
+      return new BigNumber(data);
     }
-
-    const data: number = response.data?.market_data?.[`price_${vsCurrency}`];
-
-    if (data === undefined || data === null) {
-      this._logger.verbose(`Could not parse data from response: ${JSON.stringify(response)}`);
-      this._logger.error('Could not parse data from response');
-      throw new Error('Could not parse data from response');
-    }
-
-    return new BigNumber(data);
   }
 }
