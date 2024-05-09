@@ -9,7 +9,6 @@ import { Mutex } from 'async-mutex';
 import { randomUUID } from 'crypto';
 import { ParamsWithKind } from '@mavrykdynamics/taquito/dist/types/operations/types';
 import { CronJob } from 'cron';
-// import { RemoteSigner } from '@mavrykdynamics/taquito-remote-signer';
 import { getLogger } from './logger.js';
 import { Logger } from 'winston';
 import { RemoteSigner } from '@mavrykdynamics/taquito-remote-signer';
