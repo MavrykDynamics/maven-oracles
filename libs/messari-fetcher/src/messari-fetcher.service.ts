@@ -37,8 +37,11 @@ export class MessariFetcherService implements IDataFetcher {
 
     //TODO: Remove after demo
     if (coin === 'ocean') {
-      const random = Math.random() * 0.05 + 53.15;
-      return new BigNumber(parseFloat(random.toFixed(2)));
+      const random = Math.random() * 0.005 + 53.155;
+      return new BigNumber(parseFloat(random.toFixed(3)));
+    } else if (coin === 'mars1') {
+      const random = Math.random() * 0.005 + 420.69;
+      return new BigNumber(parseFloat(random.toFixed(3)));
     } else if (coin === 'mvrk') {
       const random = Math.random() * 0.0001 + 2.648925;
       return new BigNumber(parseFloat(random.toFixed(6)));
