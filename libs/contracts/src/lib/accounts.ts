@@ -30,7 +30,7 @@ export const satelliteLedger: MichelsonMap<MichelsonMapKey, unknown> = Michelson
     oraclePublicKey: 'edpkv3sej4FWX2cUg8DR9F9QmsEb3YdodhDbVg1o1ooeWUDkuRGTsg',
     oraclePeerId: '12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2'
   },
-  mv1BpFE1wRGoAxrp52p5bMxEF5uztiYNshBJ: {
+  mv18PbrKkCWNMJdfgiWqeT9CZ41ugskLqAWb: {
     status: "ACTIVE",
     stakedMvnBalance: new BigNumber(1000000000000),
     satelliteFee: new BigNumber(200),
@@ -40,10 +40,10 @@ export const satelliteLedger: MichelsonMap<MichelsonMapKey, unknown> = Michelson
     image: "satelliteImage",
     website: "satelliteWebsite",
     registeredDateTime: currentTimestamp.toString(), 
-    oraclePublicKey: 'edpkuVjyKad7yCnNrCbGea7hi5Zh1zp5Cb1TvxUmnxC33fwKhq7daN',
+    oraclePublicKey: 'edpkuPANijWBa9ym9kyiJZw1vaJ5tgyB5i92NaBaqerboGYsAqKdQY',
     oraclePeerId: '12D3KooWLL2Y1JmrAXkY7r8xbuSRtasfJLAarXmAaZPYxPnzgAJ3'
   },
-  mv18DheWgrqRXba8t56o6K2Y51NGo4gMucGx: {
+  mv1PBrrrLGrp1oTnsoeTKtaSMNMmaosqhLgR: {
     status: "ACTIVE",
     stakedMvnBalance: new BigNumber(1000000000000),
     satelliteFee: new BigNumber(200),
@@ -53,10 +53,10 @@ export const satelliteLedger: MichelsonMap<MichelsonMapKey, unknown> = Michelson
     image: "satelliteImage",
     website: "satelliteWebsite",
     registeredDateTime: currentTimestamp.toString(), 
-    oraclePublicKey: 'edpku7vkvS6XaWzFjmPDYULNyYrS7Rf1vHuoQ9FD8zVcaFNJ51bJ82',
+    oraclePublicKey: 'edpkttTiMroeueToLvjEo7zQqeTDFNT5iq1gKrPwA2DMqjD5uMmxpp',
     oraclePeerId: '12D3KooWK87KmBGJZZMP3keux62VF515mFRbNRFwbYxib7wWQR34'
   },
-  mv1LhKD4FHjabSrz4bYWEzEfgDxZezuJbGc2: {
+  mv1BDR7SeuTfJmP12mcpSXCEMCbVUotCcmM5: {
     status: "ACTIVE",
     stakedMvnBalance: new BigNumber(1000000000000),
     satelliteFee: new BigNumber(200),
@@ -66,7 +66,7 @@ export const satelliteLedger: MichelsonMap<MichelsonMapKey, unknown> = Michelson
     image: "satelliteImage",
     website: "satelliteWebsite",
     registeredDateTime: currentTimestamp.toString(), 
-    oraclePublicKey: 'edpkuqoXhgeXYZxn6yVWuy9UrWKazyahPaAbwnuZYknRefeLVVK3ar',
+    oraclePublicKey: 'edpku9xhspeP5aSSpSAA4aopgTH9pRjBMMoitoJN45bdye4RSGhFoF',
     oraclePeerId: '12D3KooWDgabT39cFp5j5mvJgiGPEppMuVgDCsNtBCh1Q8ejBCA5'
   },
   mv1FmXyQkcfufUw9zwW3Dyg1W3JMHcDZ8rV5: {
@@ -108,19 +108,19 @@ export const oracleLedger: MichelsonMap<MichelsonMapKey, unknown> = MichelsonMap
     oraclePublicKey: 'edpkv3sej4FWX2cUg8DR9F9QmsEb3YdodhDbVg1o1ooeWUDkuRGTsg',
     oraclePeerId: '12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2'
   },
-  mv1BpFE1wRGoAxrp52p5bMxEF5uztiYNshBJ: {
+  mv18PbrKkCWNMJdfgiWqeT9CZ41ugskLqAWb: {
     // oracle3
-    oraclePublicKey: 'edpkuVjyKad7yCnNrCbGea7hi5Zh1zp5Cb1TvxUmnxC33fwKhq7daN',
+    oraclePublicKey: 'edpkuPANijWBa9ym9kyiJZw1vaJ5tgyB5i92NaBaqerboGYsAqKdQY',
     oraclePeerId: '12D3KooWLL2Y1JmrAXkY7r8xbuSRtasfJLAarXmAaZPYxPnzgAJ3'
   },
-  mv18DheWgrqRXba8t56o6K2Y51NGo4gMucGx: {
+  mv1PBrrrLGrp1oTnsoeTKtaSMNMmaosqhLgR: {
     // oracle4
-    oraclePublicKey: 'edpku7vkvS6XaWzFjmPDYULNyYrS7Rf1vHuoQ9FD8zVcaFNJ51bJ82',
+    oraclePublicKey: 'edpkttTiMroeueToLvjEo7zQqeTDFNT5iq1gKrPwA2DMqjD5uMmxpp',
     oraclePeerId: '12D3KooWK87KmBGJZZMP3keux62VF515mFRbNRFwbYxib7wWQR34'
   },
-  mv1LhKD4FHjabSrz4bYWEzEfgDxZezuJbGc2: {
+  mv1BDR7SeuTfJmP12mcpSXCEMCbVUotCcmM5: {
     // oracle5
-    oraclePublicKey: 'edpkuqoXhgeXYZxn6yVWuy9UrWKazyahPaAbwnuZYknRefeLVVK3ar',
+    oraclePublicKey: 'edpku9xhspeP5aSSpSAA4aopgTH9pRjBMMoitoJN45bdye4RSGhFoF',
     oraclePeerId: '12D3KooWDgabT39cFp5j5mvJgiGPEppMuVgDCsNtBCh1Q8ejBCA5'
   },
   mv1FmXyQkcfufUw9zwW3Dyg1W3JMHcDZ8rV5: {
@@ -215,9 +215,9 @@ export const accounts: Record<AccountName, IAccount> = {
 
 // mavkit-client import secret key alice-test unencrypted:edsk3Sb16jcx9KrgMDsbZDmKnuN11v4AbTtPBgBSBTqYftd8Cq3i1e  --force && mavkit-client show address alice-test
 // mavkit-client import secret key alice-test unencrypted:edskRpPWgoNUfJgZRiycPg9539KMX6Ksw5yNVDw2ukds8VEgqXLLuBDrB6dr6m7fgsAZrLMDpPkxN7kRpcNyRzwkPYhoWsBJsZ  --force && mavkit-client show address alice-test
-// mavkit-client import secret key alice-test unencrypted:edskRzrnZoreVanzsedvSDgWV1DkNycfjMXyri9LQLVYdXTXJrxNHzdtpouGJTQ1CrQiWK6ECvHCpoYfQ2LM7j8GjJdkjqrsLE  --force && mavkit-client show address alice-test
-// mavkit-client import secret key alice-test unencrypted:edskRjjhoUjvSZ2eGgGpvcMk6SrtpajjkzGUXDpr2EAa25VTfdtNSoD1JLhEoEnotYR6ZtRC2bCk56kwf79eqgygrMeR145ENq  --force && mavkit-client show address alice-test
-// mavkit-client import secret key alice-test unencrypted:edskRts3yovQnSAaK6WbyiaZdBnLk1cSeq8UEWo24xNyo1T6gZZ9yQpQ48YmvCwjjW1FpSgJ1LPZ9T3jazmh3HXLLKHDaJZVx2  --force && mavkit-client show address alice-test
+// mavkit-client import secret key alice-test unencrypted:edsk3Kny3RjsnGRi4cZ8hfm4MraAv7KZWRuKYHNPoBWw3TvfKbXQaU  --force && mavkit-client show address alice-test
+// mavkit-client import secret key alice-test unencrypted:edsk3ZeMrkM5j3aCpfVU2N3ivtyxDuanzuRzhBWdzBBTuk2Yfdnddr  --force && mavkit-client show address alice-test
+// mavkit-client import secret key alice-test unencrypted:edsk3RcKtYv9XxbfbYJj7uZw75ffewdQJTXFYweve9nkHgG6cJfEL9  --force && mavkit-client show address alice-test
 
 export const testnetAccounts: Record<AccountName, IAccount> = {
   alice: {

@@ -290,7 +290,7 @@ describe('ContractService', () => {
         observations,
         signatures: [
           {
-            oracle: "mv18DheWgrqRXba8t56o6K2Y51NGo4gMucGx",
+            oracle: "mv1PBrrrLGrp1oTnsoeTKtaSMNMmaosqhLgR",
             signature: signature1
           },
           {

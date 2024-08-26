@@ -1,4 +1,3 @@
-version: '3.6'
 services:
   db:
     image: timescale/timescaledb:latest-pg15
@@ -20,7 +19,7 @@ services:
 
   api:
     restart: always
-    image: ghcr.io/mavryk-network/bcdhub-api:4.7.7
+    image: ghcr.io/mavryk-network/bcdhub-api:4.7.9
     environment:
       - BCD_ENV=sandbox
       - GIN_MODE=debug
@@ -44,7 +43,7 @@ services:
 
   indexer:
     restart: always
-    image: ghcr.io/mavryk-network/bcdhub-indexer:4.7.7
+    image: ghcr.io/mavryk-network/bcdhub-indexer:4.7.9
     environment:
       - BCD_ENV=sandbox
       - POSTGRES_USER=root
@@ -64,15 +63,15 @@ services:
   flexmasa:
     container_name: maven-sandbox
     restart: always
-    image: registry.gitlab.com/mavryk-network/flexmasa:atlas-update-run
-    command: atlasbox start
+    image: mavrykdynamics/flexmasa:boreas-update-run
+    command: boreasbox start
       --add-bootstrap-account "eve,edpku9qEgcyfNNDK6EpMvu5SqXDqWRLuxdMxdyH12ivTUuB1KXfGP4,mv1AAFByPGTyFdbshgfA8ogjgf7pQKuR7ATp,unencrypted:edsk3Sb16jcx9KrgMDsbZDmKnuN11v4AbTtPBgBSBTqYftd8Cq3i1e@2_000_000_000_000"
       --no-daemons-for=eve
-      --add-bootstrap-account "mallory,edpkuVjyKad7yCnNrCbGea7hi5Zh1zp5Cb1TvxUmnxC33fwKhq7daN,mv1BpFE1wRGoAxrp52p5bMxEF5uztiYNshBJ,unencrypted:edskRzrnZoreVanzsedvSDgWV1DkNycfjMXyri9LQLVYdXTXJrxNHzdtpouGJTQ1CrQiWK6ECvHCpoYfQ2LM7j8GjJdkjqrsLE@2_000_000_000_000"
+      --add-bootstrap-account "mallory,edpkuPANijWBa9ym9kyiJZw1vaJ5tgyB5i92NaBaqerboGYsAqKdQY,mv18PbrKkCWNMJdfgiWqeT9CZ41ugskLqAWb,unencrypted:edsk3Kny3RjsnGRi4cZ8hfm4MraAv7KZWRuKYHNPoBWw3TvfKbXQaU@2_000_000_000_000"
       --no-daemons-for=mallory
-      --add-bootstrap-account "oscar,edpku7vkvS6XaWzFjmPDYULNyYrS7Rf1vHuoQ9FD8zVcaFNJ51bJ82,mv18DheWgrqRXba8t56o6K2Y51NGo4gMucGx,unencrypted:edskRjjhoUjvSZ2eGgGpvcMk6SrtpajjkzGUXDpr2EAa25VTfdtNSoD1JLhEoEnotYR6ZtRC2bCk56kwf79eqgygrMeR145ENq@2_000_000_000_000"
+      --add-bootstrap-account "oscar,edpkttTiMroeueToLvjEo7zQqeTDFNT5iq1gKrPwA2DMqjD5uMmxpp,mv1PBrrrLGrp1oTnsoeTKtaSMNMmaosqhLgR,unencrypted:edsk3ZeMrkM5j3aCpfVU2N3ivtyxDuanzuRzhBWdzBBTuk2Yfdnddr@2_000_000_000_000"
       --no-daemons-for=oscar
-      --add-bootstrap-account "trudy,edpkuqoXhgeXYZxn6yVWuy9UrWKazyahPaAbwnuZYknRefeLVVK3ar,mv1LhKD4FHjabSrz4bYWEzEfgDxZezuJbGc2,unencrypted:edskRts3yovQnSAaK6WbyiaZdBnLk1cSeq8UEWo24xNyo1T6gZZ9yQpQ48YmvCwjjW1FpSgJ1LPZ9T3jazmh3HXLLKHDaJZVx2@2_000_000_000_000"
+      --add-bootstrap-account "trudy,edpku9xhspeP5aSSpSAA4aopgTH9pRjBMMoitoJN45bdye4RSGhFoF,mv1BDR7SeuTfJmP12mcpSXCEMCbVUotCcmM5,unencrypted:edsk3RcKtYv9XxbfbYJj7uZw75ffewdQJTXFYweve9nkHgG6cJfEL9@2_000_000_000_000"
       --no-daemons-for=trudy
       --add-bootstrap-account "isaac,edpkv6xHMqShSMr4CK3Vzg7mD1hina7eBkokrMoKpuYj55BVd18rjN,mv1FmXyQkcfufUw9zwW3Dyg1W3JMHcDZ8rV5,unencrypted:edsk2vtJ2rVoHoA3GbgDjyT5zbeVMDXZ6R4YjDskKaapgsRtiEWpaP@2_000_000_000_000"
       --no-daemons-for=isaac
@@ -96,7 +95,7 @@ services:
   gui:
     container_name: sandbox-gui
     restart: always
-    image: ghcr.io/mavryk-network/bcdhub-gui:4.7.7
+    image: ghcr.io/mavryk-network/bcdhub-gui:4.7.9
     depends_on:
       - api
     ports:
@@ -190,8 +189,8 @@ services:
       - P2P_PEER_ID=12D3KooWLL2Y1JmrAXkY7r8xbuSRtasfJLAarXmAaZPYxPnzgAJ3
       - P2P_PEER_PUBLIC_KEY=CAESIJwuGA2Ua44At3SqYSvFPk/S4ZK8JIChdtEIHowkTCno
       - P2P_PEER_PRIVATE_KEY=CAESQP9bMHtXPkMTF4/sitPzQuuSsR7rBsyCZIlwT8bLo0gvnC4YDZRrjgC3dKphK8U+T9LhkrwkgKF20QgejCRMKeg=
-      - MAVRYK_ADDRESS=mv1BpFE1wRGoAxrp52p5bMxEF5uztiYNshBJ
-      - MAVRYK_PUBLIC_KEY=edpkuVjyKad7yCnNrCbGea7hi5Zh1zp5Cb1TvxUmnxC33fwKhq7daN
+      - MAVRYK_ADDRESS=mv18PbrKkCWNMJdfgiWqeT9CZ41ugskLqAWb
+      - MAVRYK_PUBLIC_KEY=edpkuPANijWBa9ym9kyiJZw1vaJ5tgyB5i92NaBaqerboGYsAqKdQY
       - ALPHAVANTAGE_API_KEY=2NGJX9KAASPRJKDL
       - MESSARI_API_KEY=4d9734a2-99e7-4f54-81d9-71f5042a2e92
       - COINGECKO_SUPPORTED_PLATFORMS=ethereum
@@ -219,8 +218,8 @@ services:
       - P2P_PEER_ID=12D3KooWK87KmBGJZZMP3keux62VF515mFRbNRFwbYxib7wWQR34
       - P2P_PEER_PUBLIC_KEY=CAESIIpE2iakPl9DwCEBQe8byn/AbxyFyp/6wswDEjAzTPV/
       - P2P_PEER_PRIVATE_KEY=CAESQFT7tBloxfCzLLLww4EZzm2l0qZiVBuEuAbD3jzLPbWZikTaJqQ+X0PAIQFB7xvKf8BvHIXKn/rCzAMSMDNM9X8=
-      - MAVRYK_ADDRESS=mv18DheWgrqRXba8t56o6K2Y51NGo4gMucGx
-      - MAVRYK_PUBLIC_KEY=edpku7vkvS6XaWzFjmPDYULNyYrS7Rf1vHuoQ9FD8zVcaFNJ51bJ82
+      - MAVRYK_ADDRESS=mv1PBrrrLGrp1oTnsoeTKtaSMNMmaosqhLgR
+      - MAVRYK_PUBLIC_KEY=edpkttTiMroeueToLvjEo7zQqeTDFNT5iq1gKrPwA2DMqjD5uMmxpp
       - ALPHAVANTAGE_API_KEY=MZ42VQU1CNPC9X1U
       - MESSARI_API_KEY=bd9fcbaf-06d4-4f8d-80c3-0862ef6c53b1
       - COINGECKO_SUPPORTED_PLATFORMS=ethereum
@@ -248,8 +247,8 @@ services:
       - P2P_PEER_ID=12D3KooWDgabT39cFp5j5mvJgiGPEppMuVgDCsNtBCh1Q8ejBCA5
       - P2P_PEER_PUBLIC_KEY=CAESIDlwJrvH3HgJbcpLpzROMCyxhAGuaodYse7n0tDQmtYq
       - P2P_PEER_PRIVATE_KEY=CAESQJSzbjMCYU/EeohKGea7wk+CXTbkBI7QXYJRLyXMosRTOXAmu8fceAltykunNE4wLLGEAa5qh1ix7ufS0NCa1io=
-      - MAVRYK_ADDRESS=mv1LhKD4FHjabSrz4bYWEzEfgDxZezuJbGc2
-      - MAVRYK_PUBLIC_KEY=edpkuqoXhgeXYZxn6yVWuy9UrWKazyahPaAbwnuZYknRefeLVVK3ar
+      - MAVRYK_ADDRESS=mv1BDR7SeuTfJmP12mcpSXCEMCbVUotCcmM5
+      - MAVRYK_PUBLIC_KEY=edpku9xhspeP5aSSpSAA4aopgTH9pRjBMMoitoJN45bdye4RSGhFoF
       - ALPHAVANTAGE_API_KEY=17MO51H19VMUJAPU
       - MESSARI_API_KEY=ee29b84c-34fd-4d60-827f-35f4315ac4bd
       - COINGECKO_SUPPORTED_PLATFORMS=ethereum
@@ -318,12 +317,19 @@ services:
       - .env
 
   signatory:
-    image: mavrykdynamics/signatory:v0.3.3-beta-rc1-amd64
+    image: mavrykdynamics/signatory:v1.1.8
     ports:
       - '6732:6732'
     volumes:
       - ./signatory.dev.yaml:/etc/signatory.yaml
       - ./secret.json:/etc/secret.json
+    command: serve
+    healthcheck:
+      test: 'curl --fail http://localhost:9583/healthz || exit 1'
+      interval: 1s
+      timeout: 1s
+      retries: 10
+      start_period: 1s
     networks:
       p2p:
 
