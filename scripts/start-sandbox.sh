@@ -22,4 +22,4 @@ do
 done
 
 # Restart indexer container (needed sometimes)
-docker restart mavryk-oracles-indexer-1
+docker restart maven-oracles-indexer-1

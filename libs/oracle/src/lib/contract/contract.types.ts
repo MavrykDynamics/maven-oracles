@@ -4,7 +4,7 @@ export interface IAggregatorConfig {
   decimals: BigNumber;
   alphaPercentPerThousand: BigNumber;
   percentOracleThreshold: BigNumber;
-  heartbeatSeconds: BigNumber;
+  heartBeatSeconds: BigNumber;
   rewardAmountXtz: BigNumber;
   rewardAmountStakedMvk: BigNumber;
 }

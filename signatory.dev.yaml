@@ -24,7 +24,7 @@ tezos:
       - transaction
 
   # Default policy allows "block" and "endorsement" operations
-  tz1MBNfBnNn8fZCJVrrXV95FSgyuUxbmt3Mm: # Oracle 2
+  tz1NdjbFHLxbKEUXhXgjyLfQSCbq6oy5b7Px: # Oracle 2
     log_payloads: true
     allowed_operations:
       # List of [generic, block, endorsement]

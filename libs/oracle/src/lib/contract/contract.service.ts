@@ -173,6 +173,7 @@ export class ContractService implements OnModuleInit {
     const signature_observations = await toolkit.signer.sign(
       `0x${await this._packObservations(oracleDataResponsesForPack)}`
     );
+    this._logger.warn(`Packed ${signature_observations.sig}`);
     return signature_observations.sig;
   }
 
@@ -396,7 +397,7 @@ export class ContractService implements OnModuleInit {
       decimals                            : storage.config.decimals,
       alphaPercentPerThousand             : storage.config.alphaPercentPerThousand,
       percentOracleThreshold              : storage.config.percentOracleThreshold,
-      heartbeatSeconds                    : storage.config.heartbeatSeconds,
+      heartBeatSeconds                    : storage.config.heartBeatSeconds,
       rewardAmountXtz                     : storage.config.rewardAmountXtz,
       rewardAmountStakedMvk               : storage.config.rewardAmountStakedMvk
     };

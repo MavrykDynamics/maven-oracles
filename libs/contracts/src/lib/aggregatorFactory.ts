@@ -73,7 +73,7 @@ type AggregatorFactoryContractMethods<T extends ContractProvider | Wallet> = {
         decimals: BigNumber,
         alphaPercentPerThousand: BigNumber,
         percentOracleThreshold: BigNumber,
-        heartbeatSeconds: BigNumber,
+        heartBeatSeconds: BigNumber,
         rewardAmountStakedMvk: BigNumber,
         rewardAmountXtz: BigNumber,
         metadata: string
