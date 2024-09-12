@@ -33,7 +33,7 @@ tezos:
     allowed_kinds:
       # List of [endorsement, ballot, reveal, transaction, origination, delegation, seed_nonce_revelation, activate_account]
       - transaction
-  tz1PSmvRd3ySbh5aviFEMYGD6542LL5QnrMk: # Oracle 3
+  tz1SXiR856EDBB7iAiaZN6uo4gGsSasCNWX9: # Oracle 3
     log_payloads: true
     allowed_operations:
       # List of [generic, block, endorsement]
@@ -42,7 +42,7 @@ tezos:
     allowed_kinds:
       # List of [endorsement, ballot, reveal, transaction, origination, delegation, seed_nonce_revelation, activate_account]
       - transaction
-  tz1KrELvNVY4xKnujkXwrVLWuzWJEg9FvA8v: # Oracle 4
+  tz1VhgrWVr8TMekJvya6iW6CCKeFg5PcpCDJ: # Oracle 4
     log_payloads: true
     allowed_operations:
       # List of [generic, block, endorsement]
@@ -51,7 +51,7 @@ tezos:
     allowed_kinds:
       # List of [endorsement, ballot, reveal, transaction, origination, delegation, seed_nonce_revelation, activate_account]
       - transaction
-  tz1YKquTvvSE2B5kvGyf1AYeXD6b6cMDSzDe: # Oracle 5
+  tz1QY2afC8hah8ZugPvYSM7GXrc8Em6iGEMm: # Oracle 5
     log_payloads: true
     allowed_operations:
       # List of [generic, block, endorsement]

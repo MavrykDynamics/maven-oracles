@@ -30,7 +30,7 @@ export const satelliteLedger: MichelsonMap<MichelsonMapKey, unknown> = Michelson
     oraclePublicKey: 'edpkv3sej4FWX2cUg8DR9F9QmsEb3YdodhDbVg1o1ooeWUDkuRGTsg',
     oraclePeerId: '12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2'
   },
-  tz1PSmvRd3ySbh5aviFEMYGD6542LL5QnrMk: {
+  tz1SXiR856EDBB7iAiaZN6uo4gGsSasCNWX9: {
     status: "ACTIVE",
     stakedMvkBalance: new BigNumber(1000000000000),
     satelliteFee: new BigNumber(200),
@@ -40,10 +40,10 @@ export const satelliteLedger: MichelsonMap<MichelsonMapKey, unknown> = Michelson
     image: "satelliteImage",
     website: "satelliteWebsite",
     registeredDateTime: currentTimestamp.toString(), 
-    oraclePublicKey: 'edpkuVjyKad7yCnNrCbGea7hi5Zh1zp5Cb1TvxUmnxC33fwKhq7daN',
+    oraclePublicKey: 'edpkuGTrdt3jMDMnhJzaFusDvDKZSSezqEN8HKTjCKEMRS6DG1UMk4',
     oraclePeerId: '12D3KooWLL2Y1JmrAXkY7r8xbuSRtasfJLAarXmAaZPYxPnzgAJ3'
   },
-  tz1KrELvNVY4xKnujkXwrVLWuzWJEg9FvA8v: {
+  tz1VhgrWVr8TMekJvya6iW6CCKeFg5PcpCDJ: {
     status: "ACTIVE",
     stakedMvkBalance: new BigNumber(1000000000000),
     satelliteFee: new BigNumber(200),
@@ -53,10 +53,10 @@ export const satelliteLedger: MichelsonMap<MichelsonMapKey, unknown> = Michelson
     image: "satelliteImage",
     website: "satelliteWebsite",
     registeredDateTime: currentTimestamp.toString(), 
-    oraclePublicKey: 'edpku7vkvS6XaWzFjmPDYULNyYrS7Rf1vHuoQ9FD8zVcaFNJ51bJ82',
+    oraclePublicKey: 'edpkvZC9j635vqBQ7GKXKcCmyWpjd94q3V1fKCHmLX31S5CdPSrxpM',
     oraclePeerId: '12D3KooWK87KmBGJZZMP3keux62VF515mFRbNRFwbYxib7wWQR34'
   },
-  tz1YKquTvvSE2B5kvGyf1AYeXD6b6cMDSzDe: {
+  tz1QY2afC8hah8ZugPvYSM7GXrc8Em6iGEMm: {
     status: "ACTIVE",
     stakedMvkBalance: new BigNumber(1000000000000),
     satelliteFee: new BigNumber(200),
@@ -66,7 +66,7 @@ export const satelliteLedger: MichelsonMap<MichelsonMapKey, unknown> = Michelson
     image: "satelliteImage",
     website: "satelliteWebsite",
     registeredDateTime: currentTimestamp.toString(), 
-    oraclePublicKey: 'edpkuqoXhgeXYZxn6yVWuy9UrWKazyahPaAbwnuZYknRefeLVVK3ar',
+    oraclePublicKey: 'edpkvQ7CZBV1DAjSCoGMWzXQg64gznq6tYQCQ8w9kZ3NdyoV8nhjHb',
     oraclePeerId: '12D3KooWDgabT39cFp5j5mvJgiGPEppMuVgDCsNtBCh1Q8ejBCA5'
   },
   tz1TQ4fpSFNZ6D9vrcwBz9yzM2SNjDj5YoU7: {
@@ -108,19 +108,19 @@ export const oracleLedger: MichelsonMap<MichelsonMapKey, unknown> = MichelsonMap
     oraclePublicKey: 'edpkv3sej4FWX2cUg8DR9F9QmsEb3YdodhDbVg1o1ooeWUDkuRGTsg',
     oraclePeerId: '12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2'
   },
-  tz1PSmvRd3ySbh5aviFEMYGD6542LL5QnrMk: {
+  tz1SXiR856EDBB7iAiaZN6uo4gGsSasCNWX9: {
     // oracle3
-    oraclePublicKey: 'edpkuVjyKad7yCnNrCbGea7hi5Zh1zp5Cb1TvxUmnxC33fwKhq7daN',
+    oraclePublicKey: 'edpkuGTrdt3jMDMnhJzaFusDvDKZSSezqEN8HKTjCKEMRS6DG1UMk4',
     oraclePeerId: '12D3KooWLL2Y1JmrAXkY7r8xbuSRtasfJLAarXmAaZPYxPnzgAJ3'
   },
-  tz1KrELvNVY4xKnujkXwrVLWuzWJEg9FvA8v: {
+  tz1VhgrWVr8TMekJvya6iW6CCKeFg5PcpCDJ: {
     // oracle4
-    oraclePublicKey: 'edpku7vkvS6XaWzFjmPDYULNyYrS7Rf1vHuoQ9FD8zVcaFNJ51bJ82',
+    oraclePublicKey: 'edpkvZC9j635vqBQ7GKXKcCmyWpjd94q3V1fKCHmLX31S5CdPSrxpM',
     oraclePeerId: '12D3KooWK87KmBGJZZMP3keux62VF515mFRbNRFwbYxib7wWQR34'
   },
-  tz1YKquTvvSE2B5kvGyf1AYeXD6b6cMDSzDe: {
+  tz1QY2afC8hah8ZugPvYSM7GXrc8Em6iGEMm: {
     // oracle5
-    oraclePublicKey: 'edpkuqoXhgeXYZxn6yVWuy9UrWKazyahPaAbwnuZYknRefeLVVK3ar',
+    oraclePublicKey: 'edpkvQ7CZBV1DAjSCoGMWzXQg64gznq6tYQCQ8w9kZ3NdyoV8nhjHb',
     oraclePeerId: '12D3KooWDgabT39cFp5j5mvJgiGPEppMuVgDCsNtBCh1Q8ejBCA5'
   },
   tz1TQ4fpSFNZ6D9vrcwBz9yzM2SNjDj5YoU7: {
@@ -215,9 +215,9 @@ export const accounts: Record<AccountName, IAccount> = {
 
 // tezos-client import secret key alice-test unencrypted:edsk3Sb16jcx9KrgMDsbZDmKnuN11v4AbTtPBgBSBTqYftd8Cq3i1e  --force && tezos-client show address alice-test
 // tezos-client import secret key alice-test unencrypted:edskRpPWgoNUfJgZRiycPg9539KMX6Ksw5yNVDw2ukds8VEgqXLLuBDrB6dr6m7fgsAZrLMDpPkxN7kRpcNyRzwkPYhoWsBJsZ  --force && tezos-client show address alice-test
-// tezos-client import secret key alice-test unencrypted:edskRzrnZoreVanzsedvSDgWV1DkNycfjMXyri9LQLVYdXTXJrxNHzdtpouGJTQ1CrQiWK6ECvHCpoYfQ2LM7j8GjJdkjqrsLE  --force && tezos-client show address alice-test
-// tezos-client import secret key alice-test unencrypted:edskRjjhoUjvSZ2eGgGpvcMk6SrtpajjkzGUXDpr2EAa25VTfdtNSoD1JLhEoEnotYR6ZtRC2bCk56kwf79eqgygrMeR145ENq  --force && tezos-client show address alice-test
-// tezos-client import secret key alice-test unencrypted:edskRts3yovQnSAaK6WbyiaZdBnLk1cSeq8UEWo24xNyo1T6gZZ9yQpQ48YmvCwjjW1FpSgJ1LPZ9T3jazmh3HXLLKHDaJZVx2  --force && tezos-client show address alice-test
+// tezos-client import secret key alice-test unencrypted:edsk44hePmDvTJjNc2Yd2kbCFtZqbkDJntMjrpm2qavGEt6XFwqXww  --force && tezos-client show address alice-test
+// tezos-client import secret key alice-test unencrypted:edsk4TfP2H7LjhQkhEcqpahkWxzJFx7f5PRfiHACxvNvnMkSmryE8n  --force && tezos-client show address alice-test
+// tezos-client import secret key alice-test unencrypted:edsk2kb8U3sEVZJ1Y7xphof6wBHW4AHKwA541JHzNTQGGhNwa4kJgr  --force && tezos-client show address alice-test
 
 export const testnetAccounts: Record<AccountName, IAccount> = {
   alice: {

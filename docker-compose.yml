@@ -65,11 +65,11 @@ services:
     command: limabox start
       --add-bootstrap-account "eve,edpku9qEgcyfNNDK6EpMvu5SqXDqWRLuxdMxdyH12ivTUuB1KXfGP4,tz1MnmtP4uAcgMpeZN6JtyziXeFqqwQG6yn6,unencrypted:edsk3Sb16jcx9KrgMDsbZDmKnuN11v4AbTtPBgBSBTqYftd8Cq3i1e@2_000_000_000_000"
       --no-daemons-for=eve
-      --add-bootstrap-account "mallory,edpkuVjyKad7yCnNrCbGea7hi5Zh1zp5Cb1TvxUmnxC33fwKhq7daN,tz1PSmvRd3ySbh5aviFEMYGD6542LL5QnrMk,unencrypted:edskRzrnZoreVanzsedvSDgWV1DkNycfjMXyri9LQLVYdXTXJrxNHzdtpouGJTQ1CrQiWK6ECvHCpoYfQ2LM7j8GjJdkjqrsLE@2_000_000_000_000"
+      --add-bootstrap-account "mallory,edpkuGTrdt3jMDMnhJzaFusDvDKZSSezqEN8HKTjCKEMRS6DG1UMk4,tz1SXiR856EDBB7iAiaZN6uo4gGsSasCNWX9,unencrypted:edsk44hePmDvTJjNc2Yd2kbCFtZqbkDJntMjrpm2qavGEt6XFwqXww@2_000_000_000_000"
       --no-daemons-for=mallory
-      --add-bootstrap-account "oscar,edpku7vkvS6XaWzFjmPDYULNyYrS7Rf1vHuoQ9FD8zVcaFNJ51bJ82,tz1KrELvNVY4xKnujkXwrVLWuzWJEg9FvA8v,unencrypted:edskRjjhoUjvSZ2eGgGpvcMk6SrtpajjkzGUXDpr2EAa25VTfdtNSoD1JLhEoEnotYR6ZtRC2bCk56kwf79eqgygrMeR145ENq@2_000_000_000_000"
+      --add-bootstrap-account "oscar,edpkvZC9j635vqBQ7GKXKcCmyWpjd94q3V1fKCHmLX31S5CdPSrxpM,tz1VhgrWVr8TMekJvya6iW6CCKeFg5PcpCDJ,unencrypted:edsk4TfP2H7LjhQkhEcqpahkWxzJFx7f5PRfiHACxvNvnMkSmryE8n@2_000_000_000_000"
       --no-daemons-for=oscar
-      --add-bootstrap-account "trudy,edpkuqoXhgeXYZxn6yVWuy9UrWKazyahPaAbwnuZYknRefeLVVK3ar,tz1YKquTvvSE2B5kvGyf1AYeXD6b6cMDSzDe,unencrypted:edskRts3yovQnSAaK6WbyiaZdBnLk1cSeq8UEWo24xNyo1T6gZZ9yQpQ48YmvCwjjW1FpSgJ1LPZ9T3jazmh3HXLLKHDaJZVx2@2_000_000_000_000"
+      --add-bootstrap-account "trudy,edpkvQ7CZBV1DAjSCoGMWzXQg64gznq6tYQCQ8w9kZ3NdyoV8nhjHb,tz1QY2afC8hah8ZugPvYSM7GXrc8Em6iGEMm,unencrypted:edsk2kb8U3sEVZJ1Y7xphof6wBHW4AHKwA541JHzNTQGGhNwa4kJgr@2_000_000_000_000"
       --no-daemons-for=trudy
       --add-bootstrap-account "isaac,edpkv6xHMqShSMr4CK3Vzg7mD1hina7eBkokrMoKpuYj55BVd18rjN,tz1TQ4fpSFNZ6D9vrcwBz9yzM2SNjDj5YoU7,unencrypted:edsk2vtJ2rVoHoA3GbgDjyT5zbeVMDXZ6R4YjDskKaapgsRtiEWpaP@2_000_000_000_000"
       --no-daemons-for=isaac
@@ -133,7 +133,7 @@ services:
       - TEZOS_PUBLIC_KEY=edpku9qEgcyfNNDK6EpMvu5SqXDqWRLuxdMxdyH12ivTUuB1KXfGP4
       - ALPHAVANTAGE_API_KEY=LOKAGZEB6UK7JJWS
       - MESSARI_API_KEY=7a4ace98-90a6-4792-81ad-5364afc6698d
-      - COINGECKO_SUPPORTED_PLATFORMS=ethereum
+      - COINGECKO_SUPPORTED_IDS=bitcoin
       - RPC_URL=http://flextesa:20000
       - USE_FAKE_DATA=true
       - LOG_LEVEL=debug
@@ -161,7 +161,7 @@ services:
       - TEZOS_PUBLIC_KEY=edpkv3sej4FWX2cUg8DR9F9QmsEb3YdodhDbVg1o1ooeWUDkuRGTsg
       - ALPHAVANTAGE_API_KEY=2XLQOTBRS8Y122VT
       - MESSARI_API_KEY=3dc85b02-55ee-4aaa-96ff-96d70a426407
-      - COINGECKO_SUPPORTED_PLATFORMS=ethereum
+      - COINGECKO_SUPPORTED_IDS=bitcoin
       - RPC_URL=http://flextesa:20000
       - USE_FAKE_DATA=true
       - LOG_LEVEL=debug
@@ -185,11 +185,11 @@ services:
       - P2P_PEER_ID=12D3KooWLL2Y1JmrAXkY7r8xbuSRtasfJLAarXmAaZPYxPnzgAJ3
       - P2P_PEER_PUBLIC_KEY=CAESIJwuGA2Ua44At3SqYSvFPk/S4ZK8JIChdtEIHowkTCno
       - P2P_PEER_PRIVATE_KEY=CAESQP9bMHtXPkMTF4/sitPzQuuSsR7rBsyCZIlwT8bLo0gvnC4YDZRrjgC3dKphK8U+T9LhkrwkgKF20QgejCRMKeg=
-      - TEZOS_ADDRESS=tz1PSmvRd3ySbh5aviFEMYGD6542LL5QnrMk
-      - TEZOS_PUBLIC_KEY=edpkuVjyKad7yCnNrCbGea7hi5Zh1zp5Cb1TvxUmnxC33fwKhq7daN
+      - TEZOS_ADDRESS=tz1SXiR856EDBB7iAiaZN6uo4gGsSasCNWX9
+      - TEZOS_PUBLIC_KEY=edpkuGTrdt3jMDMnhJzaFusDvDKZSSezqEN8HKTjCKEMRS6DG1UMk4
       - ALPHAVANTAGE_API_KEY=2NGJX9KAASPRJKDL
       - MESSARI_API_KEY=4d9734a2-99e7-4f54-81d9-71f5042a2e92
-      - COINGECKO_SUPPORTED_PLATFORMS=ethereum
+      - COINGECKO_SUPPORTED_IDS=bitcoin
       - RPC_URL=http://flextesa:20000
       - USE_FAKE_DATA=true
       - LOG_LEVEL=debug
@@ -213,11 +213,11 @@ services:
       - P2P_PEER_ID=12D3KooWK87KmBGJZZMP3keux62VF515mFRbNRFwbYxib7wWQR34
       - P2P_PEER_PUBLIC_KEY=CAESIIpE2iakPl9DwCEBQe8byn/AbxyFyp/6wswDEjAzTPV/
       - P2P_PEER_PRIVATE_KEY=CAESQFT7tBloxfCzLLLww4EZzm2l0qZiVBuEuAbD3jzLPbWZikTaJqQ+X0PAIQFB7xvKf8BvHIXKn/rCzAMSMDNM9X8=
-      - TEZOS_ADDRESS=tz1KrELvNVY4xKnujkXwrVLWuzWJEg9FvA8v
-      - TEZOS_PUBLIC_KEY=edpku7vkvS6XaWzFjmPDYULNyYrS7Rf1vHuoQ9FD8zVcaFNJ51bJ82
+      - TEZOS_ADDRESS=tz1VhgrWVr8TMekJvya6iW6CCKeFg5PcpCDJ
+      - TEZOS_PUBLIC_KEY=edpkvZC9j635vqBQ7GKXKcCmyWpjd94q3V1fKCHmLX31S5CdPSrxpM
       - ALPHAVANTAGE_API_KEY=MZ42VQU1CNPC9X1U
       - MESSARI_API_KEY=bd9fcbaf-06d4-4f8d-80c3-0862ef6c53b1
-      - COINGECKO_SUPPORTED_PLATFORMS=ethereum
+      - COINGECKO_SUPPORTED_IDS=bitcoin
       - RPC_URL=http://flextesa:20000
       - USE_FAKE_DATA=true
       - LOG_LEVEL=debug
@@ -241,11 +241,11 @@ services:
       - P2P_PEER_ID=12D3KooWDgabT39cFp5j5mvJgiGPEppMuVgDCsNtBCh1Q8ejBCA5
       - P2P_PEER_PUBLIC_KEY=CAESIDlwJrvH3HgJbcpLpzROMCyxhAGuaodYse7n0tDQmtYq
       - P2P_PEER_PRIVATE_KEY=CAESQJSzbjMCYU/EeohKGea7wk+CXTbkBI7QXYJRLyXMosRTOXAmu8fceAltykunNE4wLLGEAa5qh1ix7ufS0NCa1io=
-      - TEZOS_ADDRESS=tz1YKquTvvSE2B5kvGyf1AYeXD6b6cMDSzDe
-      - TEZOS_PUBLIC_KEY=edpkuqoXhgeXYZxn6yVWuy9UrWKazyahPaAbwnuZYknRefeLVVK3ar
+      - TEZOS_ADDRESS=tz1QY2afC8hah8ZugPvYSM7GXrc8Em6iGEMm
+      - TEZOS_PUBLIC_KEY=edpkvQ7CZBV1DAjSCoGMWzXQg64gznq6tYQCQ8w9kZ3NdyoV8nhjHb
       - ALPHAVANTAGE_API_KEY=17MO51H19VMUJAPU
       - MESSARI_API_KEY=ee29b84c-34fd-4d60-827f-35f4315ac4bd
-      - COINGECKO_SUPPORTED_PLATFORMS=ethereum
+      - COINGECKO_SUPPORTED_IDS=bitcoin
       - RPC_URL=http://flextesa:20000
       - USE_FAKE_DATA=true
       - LOG_LEVEL=debug
@@ -273,7 +273,7 @@ services:
       - TEZOS_PUBLIC_KEY=edpkv6xHMqShSMr4CK3Vzg7mD1hina7eBkokrMoKpuYj55BVd18rjN
       - ALPHAVANTAGE_API_KEY=9BP42KVMZ0BNFVL8
       - MESSARI_API_KEY=
-      - COINGECKO_SUPPORTED_PLATFORMS=ethereum
+      - COINGECKO_SUPPORTED_IDS=bitcoin
       - RPC_URL=http://flextesa:20000
       - USE_FAKE_DATA=true
       - LOG_LEVEL=debug

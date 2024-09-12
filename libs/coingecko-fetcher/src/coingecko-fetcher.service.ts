@@ -67,23 +67,20 @@ export class CoingeckoFetcherService implements IDataFetcher, OnModuleInit {
     }
 
     const coins = response.data;
-    const supportedPlatforms =
-      this._config.coingeckoSupportedPlatforms.length === 0
-        ? []
-        : this._config.coingeckoSupportedPlatforms.split(',');
-    this._logger.verbose(`Supports ${supportedPlatforms.length} platforms`);
+    const supportedIds =
+      this._config.coingeckoSupportedIds.length === 0 ? [] : this._config.coingeckoSupportedIds.split(',');
+
+    if (supportedIds.length === 0) {
+      throw new Error(
+        '`COINGECKO_SUPPORTED_IDS` environment variable not set, the data fetcher is disabled as a safety measure'
+      );
+    }
+
+    this._logger.verbose(`Supports ${supportedIds.length} ids`);
 
     for (const coin of coins) {
       // TODO: refactor coingecko configuration process
-      if (Object.keys(coin.platforms).length === 0) {
-        this._symbolToId.set(coin.symbol, coin.id);
-      } else {
-        supportedPlatforms.forEach((platform) => {
-          if (coin.platforms.hasOwnProperty(platform.toLowerCase())) {
-            this._symbolToId.set(coin.symbol, coin.id);
-          }
-        });
-      }
+      if (supportedIds.indexOf(coin.id) > -1) this._symbolToId.set(coin.symbol, coin.id);
     }
 
     this._logger.verbose(`Fetched ids of ${this._symbolToId.size} coins`);
@@ -139,7 +136,7 @@ export class CoingeckoFetcherService implements IDataFetcher, OnModuleInit {
       const response$ = this._httpService
         .get(`${this._baseUrl}/simple/price`, {
           params: {
-            ids: this._symbolToId.get(coin),
+            ids: coinId,
             vs_currencies: vsCurrency
           }
         })
