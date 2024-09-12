@@ -27,7 +27,7 @@ export type AggregatorConfigType = {
     alphaPercentPerThousand             : BigNumber;
 
     percentOracleThreshold              : BigNumber;
-    heartbeatSeconds                    : BigNumber;
+    heartBeatSeconds                    : BigNumber;
     
     rewardAmountXtz                     : BigNumber;
     rewardAmountStakedMvn               : BigNumber;

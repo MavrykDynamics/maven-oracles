@@ -39,7 +39,7 @@
 | Key               | Description       | Type   | Default value |
 |-------------------|-------------------|:-------|---------------|
 | COINGECKO_API_KEY | Coingecko api key | string | None          |
-| COINGECKO_SUPPORTED_PLATFORMS | List of coingecko supported platforms (separated by a comma) | string | None          |
+| COINGECKO_SUPPORTED_IDS | List of coingecko supported coin ids (separated by a comma) | string | None          |
 
 
 ## Messari fetcher config

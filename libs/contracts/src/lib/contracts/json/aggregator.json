@@ -576,7 +576,7 @@
                 {
                   "prim": "nat",
                   "annots": [
-                    "%heartbeatSeconds"
+                    "%heartBeatSeconds"
                   ]
                 },
                 {
@@ -2054,7 +2054,7 @@
                                 {
                                   "prim": "nat",
                                   "annots": [
-                                    "%heartbeatSeconds"
+                                    "%heartBeatSeconds"
                                   ]
                                 },
                                 {
@@ -2311,7 +2311,7 @@
                                 {
                                   "prim": "nat",
                                   "annots": [
-                                    "%heartbeatSeconds"
+                                    "%heartBeatSeconds"
                                   ]
                                 },
                                 {
@@ -9617,7 +9617,7 @@
             {
               "prim": "nat",
               "annots": [
-                "%heartbeatSeconds"
+                "%heartBeatSeconds"
               ]
             },
             {

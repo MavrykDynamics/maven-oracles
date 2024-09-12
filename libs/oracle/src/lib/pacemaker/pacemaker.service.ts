@@ -145,7 +145,7 @@ export class PacemakerService {
       aggregatorAddress: this._pacemakerConfig.aggregatorAddress,
       aggregatorPair: this._pacemakerConfig.aggregatorPair,
       alphaPerThousand: blockchainConfig.alphaPercentPerThousand,
-      heartbeatSeconds: blockchainConfig.heartbeatSeconds,
+      heartBeatSeconds: blockchainConfig.heartBeatSeconds,
       oracleLedger: this._oracleLedger
     });
 
@@ -392,7 +392,7 @@ export class PacemakerService {
       aggregatorAddress: this._pacemakerConfig.aggregatorAddress,
       aggregatorPair: this._pacemakerConfig.aggregatorPair,
       alphaPerThousand: aggregatorConfig.alphaPercentPerThousand,
-      heartbeatSeconds: aggregatorConfig.heartbeatSeconds,
+      heartBeatSeconds: aggregatorConfig.heartBeatSeconds,
       oracleLedger: this._oracleLedger
     });
 

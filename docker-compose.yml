@@ -135,7 +135,7 @@ services:
       - MAVRYK_PUBLIC_KEY=edpku9qEgcyfNNDK6EpMvu5SqXDqWRLuxdMxdyH12ivTUuB1KXfGP4
       - ALPHAVANTAGE_API_KEY=LOKAGZEB6UK7JJWS
       - MESSARI_API_KEY=7a4ace98-90a6-4792-81ad-5364afc6698d
-      - COINGECKO_SUPPORTED_PLATFORMS=ethereum
+      - COINGECKO_SUPPORTED_IDS=bitcoin
       - RPC_URL=http://flexmasa:20000
       - USE_FAKE_DATA=true
       - LOG_LEVEL=debug
@@ -164,7 +164,7 @@ services:
       - MAVRYK_PUBLIC_KEY=edpkv3sej4FWX2cUg8DR9F9QmsEb3YdodhDbVg1o1ooeWUDkuRGTsg
       - ALPHAVANTAGE_API_KEY=2XLQOTBRS8Y122VT
       - MESSARI_API_KEY=3dc85b02-55ee-4aaa-96ff-96d70a426407
-      - COINGECKO_SUPPORTED_PLATFORMS=ethereum
+      - COINGECKO_SUPPORTED_IDS=bitcoin
       - RPC_URL=http://flexmasa:20000
       - USE_FAKE_DATA=true
       - LOG_LEVEL=debug
@@ -193,7 +193,7 @@ services:
       - MAVRYK_PUBLIC_KEY=edpkuPANijWBa9ym9kyiJZw1vaJ5tgyB5i92NaBaqerboGYsAqKdQY
       - ALPHAVANTAGE_API_KEY=2NGJX9KAASPRJKDL
       - MESSARI_API_KEY=4d9734a2-99e7-4f54-81d9-71f5042a2e92
-      - COINGECKO_SUPPORTED_PLATFORMS=ethereum
+      - COINGECKO_SUPPORTED_IDS=bitcoin
       - RPC_URL=http://flexmasa:20000
       - USE_FAKE_DATA=true
       - LOG_LEVEL=debug
@@ -222,7 +222,7 @@ services:
       - MAVRYK_PUBLIC_KEY=edpkttTiMroeueToLvjEo7zQqeTDFNT5iq1gKrPwA2DMqjD5uMmxpp
       - ALPHAVANTAGE_API_KEY=MZ42VQU1CNPC9X1U
       - MESSARI_API_KEY=bd9fcbaf-06d4-4f8d-80c3-0862ef6c53b1
-      - COINGECKO_SUPPORTED_PLATFORMS=ethereum
+      - COINGECKO_SUPPORTED_IDS=bitcoin
       - RPC_URL=http://flexmasa:20000
       - USE_FAKE_DATA=true
       - LOG_LEVEL=debug
@@ -251,7 +251,7 @@ services:
       - MAVRYK_PUBLIC_KEY=edpku9xhspeP5aSSpSAA4aopgTH9pRjBMMoitoJN45bdye4RSGhFoF
       - ALPHAVANTAGE_API_KEY=17MO51H19VMUJAPU
       - MESSARI_API_KEY=ee29b84c-34fd-4d60-827f-35f4315ac4bd
-      - COINGECKO_SUPPORTED_PLATFORMS=ethereum
+      - COINGECKO_SUPPORTED_IDS=bitcoin
       - RPC_URL=http://flexmasa:20000
       - USE_FAKE_DATA=true
       - LOG_LEVEL=debug
@@ -280,7 +280,7 @@ services:
       - MAVRYK_PUBLIC_KEY=edpkv6xHMqShSMr4CK3Vzg7mD1hina7eBkokrMoKpuYj55BVd18rjN
       - ALPHAVANTAGE_API_KEY=9BP42KVMZ0BNFVL8
       - MESSARI_API_KEY=
-      - COINGECKO_SUPPORTED_PLATFORMS=ethereum
+      - COINGECKO_SUPPORTED_IDS=bitcoin
       - RPC_URL=http://flexmasa:20000
       - USE_FAKE_DATA=true
       - LOG_LEVEL=debug
@@ -307,6 +307,7 @@ services:
       - P2P_PEER_PRIVATE_KEY=CAESQHqJ13l1im8Zw4UM57IclZxhxqsxYwjrNXXhNQEx7UGQ5Zh1DDcgfuoJCDn4tWAsSx6xGV1xUl0PCnL9M1LEC3I=
       - MAVRYK_ADDRESS=mv1PkouN3EwYmnfjFk817r7mXzTmjY1r5M1e
       - MAVRYK_PUBLIC_KEY=edpku8MxEyEKHPsPeUBSBz5a5QbemdPbiQVsobdC3SnC9UDf4yMHTL
+      - COINGECKO_SUPPORTED_IDS=bitcoin
       - RPC_URL=http://flexmasa:20000
       - USE_FAKE_DATA=true
       - LOG_LEVEL=debug
@@ -317,19 +318,12 @@ services:
       - .env
 
   signatory:
-    image: mavrykdynamics/signatory:v1.1.8
+    image: mavrykdynamics/signatory:v0.3.3-beta-rc1-amd64
     ports:
       - '6732:6732'
     volumes:
       - ./signatory.dev.yaml:/etc/signatory.yaml
       - ./secret.json:/etc/secret.json
-    command: serve
-    healthcheck:
-      test: 'curl --fail http://localhost:9583/healthz || exit 1'
-      interval: 1s
-      timeout: 1s
-      retries: 10
-      start_period: 1s
     networks:
       p2p:
 
