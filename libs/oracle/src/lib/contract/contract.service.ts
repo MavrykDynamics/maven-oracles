@@ -397,7 +397,7 @@ export class ContractService implements OnModuleInit {
       decimals                            : storage.config.decimals,
       alphaPercentPerThousand             : storage.config.alphaPercentPerThousand,
       percentOracleThreshold              : storage.config.percentOracleThreshold,
-      heartBeatSeconds                    : storage.config.heartBeatSeconds,
+      heartbeatSeconds                    : storage.config.heartbeatSeconds,
       rewardAmountXtz                     : storage.config.rewardAmountXtz,
       rewardAmountStakedMvn               : storage.config.rewardAmountStakedMvn
     };

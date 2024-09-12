@@ -33,7 +33,7 @@ mavryk:
     allowed_kinds:
       # List of [endorsement, ballot, reveal, transaction, origination, delegation, seed_nonce_revelation, activate_account]
       - transaction
-  mv1BpFE1wRGoAxrp52p5bMxEF5uztiYNshBJ: # Oracle 3
+  mv18PbrKkCWNMJdfgiWqeT9CZ41ugskLqAWb: # Oracle 3
     log_payloads: true
     allowed_operations:
       # List of [generic, block, endorsement]
@@ -42,7 +42,7 @@ mavryk:
     allowed_kinds:
       # List of [endorsement, ballot, reveal, transaction, origination, delegation, seed_nonce_revelation, activate_account]
       - transaction
-  mv18DheWgrqRXba8t56o6K2Y51NGo4gMucGx: # Oracle 4
+  mv1PBrrrLGrp1oTnsoeTKtaSMNMmaosqhLgR: # Oracle 4
     log_payloads: true
     allowed_operations:
       # List of [generic, block, endorsement]
@@ -51,7 +51,7 @@ mavryk:
     allowed_kinds:
       # List of [endorsement, ballot, reveal, transaction, origination, delegation, seed_nonce_revelation, activate_account]
       - transaction
-  mv1LhKD4FHjabSrz4bYWEzEfgDxZezuJbGc2: # Oracle 5
+  mv1BDR7SeuTfJmP12mcpSXCEMCbVUotCcmM5: # Oracle 5
     log_payloads: true
     allowed_operations:
       # List of [generic, block, endorsement]

@@ -95,7 +95,7 @@ export const mockedBlockchainConfig: IAggregatorConfig = {
   decimals: new BigNumber(8),
   alphaPercentPerThousand: new BigNumber(500),
   percentOracleThreshold: new BigNumber(500),
-  heartBeatSeconds: new BigNumber(30),
+  heartbeatSeconds: new BigNumber(30),
   rewardAmountXtz: new BigNumber(1300),
   rewardAmountStakedMvn: new BigNumber(1300),
 };
