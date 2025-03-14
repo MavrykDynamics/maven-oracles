@@ -127,10 +127,16 @@ export class CoingeckoFetcherService implements IDataFetcher, OnModuleInit {
 
     //TODO: Remove after demo
     if (coin === 'ocean') {
-      const random = Math.random() * 0.005 + 53.155;
+      const random = Math.random() * 0.005 + 50;
       return new BigNumber(parseFloat(random.toFixed(3)));
     } else if (coin === 'mars1') {
-      const random = Math.random() * 0.005 + 420.69;
+      const random = Math.random() * 0.005 + 75;
+      return new BigNumber(parseFloat(random.toFixed(3)));
+    } else if (coin === 'queen') {
+      const random = Math.random() * 0.005 + 100;
+      return new BigNumber(parseFloat(random.toFixed(3)));
+    } else if (coin === 'ntbm') {
+      const random = Math.random() * 0.005 + 100;
       return new BigNumber(parseFloat(random.toFixed(3)));
     } else if (coin === 'mvrk') {
       const random = Math.random() * 0.0001 + 2.648925;
