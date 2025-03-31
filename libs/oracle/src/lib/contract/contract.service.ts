@@ -1,11 +1,11 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { MichelsonType, packDataBytes } from '@taquito/michel-codec';
-import { verifySignature } from '@taquito/utils';
+import { MichelsonType, packDataBytes } from '@mavrykdynamics/taquito-michel-codec';
+import { verifySignature } from '@mavrykdynamics/taquito-utils';
 
 import { OracleConfig } from '../oracle.config.js';
-import { MichelsonMap, OpKind } from '@taquito/taquito';
+import { MichelsonMap, OpKind } from '@mavrykdynamics/taquito';
 import BigNumber from 'bignumber.js';
-import { Schema } from '@taquito/michelson-encoder';
+import { Schema } from '@mavrykdynamics/taquito-michelson-encoder';
 import { IAttestedReport, ICompressedReport, IObservation, ISignature } from '../reportgen';
 import { toTimestamp } from './helpers.js';
 import { TxManagerService } from '@mavrykdynamics/tx-manager';
@@ -173,6 +173,7 @@ export class ContractService implements OnModuleInit {
     const signature_observations = await toolkit.signer.sign(
       `0x${await this._packObservations(oracleDataResponsesForPack)}`
     );
+    this._logger.warn(`Packed ${signature_observations.sig}`);
     return signature_observations.sig;
   }
 

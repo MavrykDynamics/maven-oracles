@@ -11,6 +11,6 @@ export const OracleConfigMock: OracleConfig = {
   peerPrivateKey: '',
   aggregatorAddresses: '',
   rpcUrl: '',
-  tezosAddress: '',
+  mavrykAddress: '',
   useFakeData: false
 };

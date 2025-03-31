@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { INetworkConfig, NetworkName } from '../scripts/env';
-import { OriginationOperation, TezosToolkit } from '@taquito/taquito';
-import { InMemorySigner } from '@taquito/signer';
+import { OriginationOperation, TezosToolkit } from '@mavrykdynamics/taquito';
+import { InMemorySigner } from '@mavrykdynamics/taquito-signer';
 import BigNumber from 'bignumber.js';
 import { saveContractAddress, setAggregatorFactoryLambdas, setAggregatorFactoryProductLambdas, setMavenLiteGeneralContracts } from '../scripts/helpers.js';
-import { MichelsonMap } from '@taquito/michelson-encoder';
+import { MichelsonMap } from '@mavrykdynamics/taquito-michelson-encoder';
 import {
     AggregatorFactoryCode,
     AggregatorFactoryContractAbstraction,
@@ -62,7 +62,7 @@ export default async function (
     console.log(`Maven Lite origination done at: ${opMavenLite.contractAddress}`);
 
     if (opMavenLite.contractAddress === undefined) {
-        throw new Error('Factory smart contract address not received');
+        throw new Error('Maven Lite smart contract address not received');
     }
 
     await opMavenLite.confirmation();

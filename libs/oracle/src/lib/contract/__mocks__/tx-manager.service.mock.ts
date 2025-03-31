@@ -1,6 +1,6 @@
 import { jest } from '@jest/globals';
-import { InMemorySigner } from '@taquito/signer';
-import { TezosToolkit } from '@taquito/taquito';
+import { InMemorySigner } from '@mavrykdynamics/taquito-signer';
+import { TezosToolkit } from '@mavrykdynamics/taquito';
 import { TxManagerService } from '@mavrykdynamics/tx-manager';
 
 export const mockaddBatch = jest.fn();
@@ -9,9 +9,9 @@ export const TxManagerServiceMock = jest.fn().mockImplementation((secretKey: str
   const mockGetTezosToolkit = jest
   .fn<TxManagerService['getTezosToolkit']>()
   .mockImplementation(async () => {
-    const tezos = await new TezosToolkit("rpc");
-    tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(secretKey) });
-    return tezos;
+    const mavryk = await new TezosToolkit("rpc");
+    mavryk.setProvider({ signer: await InMemorySigner.fromSecretKey(secretKey) });
+    return mavryk;
   });
   return {
     addBatch: mockaddBatch,

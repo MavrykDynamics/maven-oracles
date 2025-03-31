@@ -13,7 +13,7 @@
 The Maven system relies on Satellites to provide accurate and reliable pricing information for its collateral asset
 classes.
 Satellites are incentivized to provide correct data by rewarding them MVN for every data they send on the blockchain.  
-Satellites are part of an oracle network. Their purpose is to provide data feed on the Tezos blockchain in exchange for
+Satellites are part of an oracle network. Their purpose is to provide data feed on the Mavryk blockchain in exchange for
 MVN reward. Data is then aggregated on the blockchain.
 
 
@@ -52,7 +52,7 @@ cd maven-oracles
 ## Start
 
 This will start an environment with:
-  - A local blokchain (flextesa)
+  - A local blokchain (flexmasa)
   - A blockchain explorer (better call dev)
   - 7 oracles
 

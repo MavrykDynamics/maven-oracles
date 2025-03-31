@@ -10,8 +10,8 @@ export class CoingeckoFetcherConfig {
 
   @Property({
     default: '',
-    env: 'COINGECKO_SUPPORTED_PLATFORMS',
+    env: 'COINGECKO_SUPPORTED_IDS',
     format: String
   })
-  public coingeckoSupportedPlatforms: string;
+  public coingeckoSupportedIds: string;
 }

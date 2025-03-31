@@ -67,23 +67,20 @@ export class CoingeckoFetcherService implements IDataFetcher, OnModuleInit {
     }
 
     const coins = response.data;
-    const supportedPlatforms =
-      this._config.coingeckoSupportedPlatforms.length === 0
-        ? []
-        : this._config.coingeckoSupportedPlatforms.split(',');
-    this._logger.verbose(`Supports ${supportedPlatforms.length} platforms`);
+    const supportedIds =
+      this._config.coingeckoSupportedIds.length === 0 ? [] : this._config.coingeckoSupportedIds.split(',');
+
+    if (supportedIds.length === 0) {
+      throw new Error(
+        '`COINGECKO_SUPPORTED_IDS` environment variable not set, the data fetcher is disabled as a safety measure'
+      );
+    }
+
+    this._logger.verbose(`Supports ${supportedIds.length} ids`);
 
     for (const coin of coins) {
       // TODO: refactor coingecko configuration process
-      if (Object.keys(coin.platforms).length === 0) {
-        this._symbolToId.set(coin.symbol, coin.id);
-      } else {
-        supportedPlatforms.forEach((platform) => {
-          if (coin.platforms.hasOwnProperty(platform.toLowerCase())) {
-            this._symbolToId.set(coin.symbol, coin.id);
-          }
-        });
-      }
+      if (supportedIds.indexOf(coin.id) > -1) this._symbolToId.set(coin.symbol, coin.id);
     }
 
     this._logger.verbose(`Fetched ids of ${this._symbolToId.size} coins`);
@@ -128,30 +125,48 @@ export class CoingeckoFetcherService implements IDataFetcher, OnModuleInit {
       throw new Error(`Not supported ${vsCurrency} as VS currency`);
     }
 
-    const coinId = this._symbolToId.get(coin);
+    //TODO: Remove after demo
+    if (coin === 'ocean') {
+      const random = Math.random() * 0.005 + 50;
+      return new BigNumber(parseFloat(random.toFixed(3)));
+    } else if (coin === 'mars1') {
+      const random = Math.random() * 0.005 + 75;
+      return new BigNumber(parseFloat(random.toFixed(3)));
+    } else if (coin === 'queen') {
+      const random = Math.random() * 0.005 + 100;
+      return new BigNumber(parseFloat(random.toFixed(3)));
+    } else if (coin === 'ntbm') {
+      const random = Math.random() * 0.005 + 100;
+      return new BigNumber(parseFloat(random.toFixed(3)));
+    } else if (coin === 'mvrk') {
+      const random = Math.random() * 0.0001 + 2.648925;
+      return new BigNumber(parseFloat(random.toFixed(6)));
+    } else {
+      const coinId = this._symbolToId.get(coin);
 
-    if (coinId === undefined) {
-      throw new Error(`Not supported ${coin} as coin`);
+      if (coinId === undefined) {
+        throw new Error(`Not supported ${coin} as coin`);
+      }
+
+      let response: AxiosResponse;
+      try {
+        const response$ = this._httpService
+          .get(`${this._baseUrl}/simple/price`, {
+            params: {
+              ids: this._symbolToId.get(coin),
+              vs_currencies: vsCurrency
+            }
+          })
+          .pipe(map((response) => response.data));
+
+        response = await firstValueFrom(response$);
+      } catch (e) {
+        throw new Error(
+          `Failed to fetch supportedVsCurrencies data from Coingecko, the data fetcher won't work correctly: ${e.toString()}`
+        );
+      }
+
+      return response[coinId][vsCurrency];
     }
-
-    let response: AxiosResponse;
-    try {
-      const response$ = this._httpService
-        .get(`${this._baseUrl}/simple/price`, {
-          params: {
-            ids: this._symbolToId.get(coin),
-            vs_currencies: vsCurrency
-          }
-        })
-        .pipe(map((response) => response.data));
-
-      response = await firstValueFrom(response$);
-    } catch (e) {
-      throw new Error(
-        `Failed to fetch supportedVsCurrencies data from Coingecko, the data fetcher won't work correctly: ${e.toString()}`
-      );
-    }
-
-    return response[coinId][vsCurrency];
   }
 }

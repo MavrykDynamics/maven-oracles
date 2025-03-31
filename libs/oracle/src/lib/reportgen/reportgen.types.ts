@@ -78,14 +78,14 @@ export interface ISignedObservation {
 /**
  * Report signature.
  * This is signature of the whole report.
- * This is signed by the Tezos private key
+ * This is signed by the Mavryk private key
  * Do not mix with {@link ISignedObservation}, which is a signed observation.
  */
 export interface ISignature {
   // Signing oracle public key hash
   oracle: string;
 
-  // Signed using tezos private key
+  // Signed using mavryk private key
   signature: string;
 }
 

@@ -2,13 +2,8 @@ import { accountPerNetwork } from '../accounts.js';
 
 export type NetworkName =
   | 'development'
-  | 'hangzhounet'
-  | 'ithacanet'
-  | 'ithacanet-kms'
-  | 'jakartanet'
-  | 'kathmandunet'
-  | 'limanet'
-  | 'ghostnet'
+  | 'atlasnet'
+  | 'basenet'
   | 'mainnet';
 
 export interface INetwork {
@@ -48,57 +43,22 @@ export const networkConfig: INetworkConfig = {
       pkh: accountPerNetwork.development.alice.pkh,
       port: 8732
     },
-    ghostnet: {
-      rpc: 'https://rpc.ghostnet.teztnets.xyz',
+    basenet: {
+      rpc: 'https://basenet.rpc.mavryk.network',
       port: 443,
       network_id: '*',
-      secretKey: accountPerNetwork.hangzhounet.alice.sk,
-      pkh: accountPerNetwork.hangzhounet.alice.pkh
+      secretKey: accountPerNetwork.basenet.alice.sk,
+      pkh: accountPerNetwork.basenet.alice.pkh
     },
-    hangzhounet: {
-      rpc: 'https://hangzhounet.api.tez.ie/',
+    atlasnet: {
+      rpc: 'https://atlasnet.rpc.mavryk.network',
       port: 443,
       network_id: '*',
-      secretKey: accountPerNetwork.hangzhounet.alice.sk,
-      pkh: accountPerNetwork.hangzhounet.alice.pkh
-    },
-    ithacanet: {
-      rpc: 'https://ithacanet.ecadinfra.com',
-      port: 443,
-      network_id: '*',
-      secretKey: accountPerNetwork.ithacanet.alice.sk,
-      pkh: accountPerNetwork.ithacanet.alice.pkh
-    },
-    'ithacanet-kms': {
-      rpc: 'https://ithacanet.ecadinfra.com',
-      port: 443,
-      network_id: '*',
-      secretKey: accountPerNetwork.ithacanet.alice.sk,
-      pkh: accountPerNetwork.ithacanet.alice.pkh
-    },
-    jakartanet: {
-      rpc: 'https://jakartanet.ecadinfra.com',
-      port: 443,
-      network_id: '*',
-      secretKey: accountPerNetwork.jakartanet.alice.sk,
-      pkh: accountPerNetwork.jakartanet.alice.pkh
-    },
-    kathmandunet: {
-      rpc: 'https://kathmandunet.ecadinfra.com',
-      port: 443,
-      network_id: '*',
-      secretKey: accountPerNetwork.kathmandunet.alice.sk,
-      pkh: accountPerNetwork.kathmandunet.alice.pkh
-    },
-    limanet: {
-      rpc: 'https://limanet.ecadinfra.com',
-      port: 443,
-      network_id: '*',
-      secretKey: accountPerNetwork.limanet.alice.sk,
-      pkh: accountPerNetwork.limanet.alice.pkh
+      secretKey: accountPerNetwork.atlasnet.alice.sk,
+      pkh: accountPerNetwork.atlasnet.alice.pkh
     },
     mainnet: {
-      rpc: 'https://mainnet.api.tez.ie',
+      rpc: 'https://mainnet.rpc.mavryk.network',
       port: 443,
       network_id: '*',
       secretKey: accountPerNetwork.mainnet.alice.sk,

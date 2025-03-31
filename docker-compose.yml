@@ -1,7 +1,6 @@
-version: '3.6'
 services:
   db:
-    image: postgres:14
+    image: timescale/timescaledb:latest-pg15
     shm_size: 1g
     restart: always
     environment:
@@ -20,7 +19,7 @@ services:
 
   api:
     restart: always
-    image: ghcr.io/baking-bad/bcdhub-api:4.4.0
+    image: ghcr.io/mavryk-network/bcdhub-api:4.7.9
     environment:
       - BCD_ENV=sandbox
       - GIN_MODE=debug
@@ -35,14 +34,16 @@ services:
     volumes:
       - bcdshare:/etc/bcd
     links:
-      - 'flextesa:sandbox'
+      - 'flexmasa:sandbox'
+    expose:
+      - 14000/tcp
     logging: *bcd-logging
     networks:
       p2p:
 
   indexer:
     restart: always
-    image: ghcr.io/baking-bad/bcdhub-indexer:4.4.0
+    image: ghcr.io/mavryk-network/bcdhub-indexer:4.7.9
     environment:
       - BCD_ENV=sandbox
       - POSTGRES_USER=root
@@ -52,35 +53,35 @@ services:
     depends_on:
       - db
     links:
-      - 'flextesa:sandbox'
+      - 'flexmasa:sandbox'
     volumes:
       - bcdshare:/etc/bcd
     logging: *bcd-logging
     networks:
       p2p:
 
-  flextesa:
+  flexmasa:
     container_name: maven-sandbox
     restart: always
-    image: oxheadalpha/flextesa:20230313
-    command: limabox start
-      --add-bootstrap-account "eve,edpku9qEgcyfNNDK6EpMvu5SqXDqWRLuxdMxdyH12ivTUuB1KXfGP4,tz1MnmtP4uAcgMpeZN6JtyziXeFqqwQG6yn6,unencrypted:edsk3Sb16jcx9KrgMDsbZDmKnuN11v4AbTtPBgBSBTqYftd8Cq3i1e@2_000_000_000_000"
+    image: mavrykdynamics/flexmasa:boreas-update-run
+    command: boreasbox start
+      --add-bootstrap-account "eve,edpku9qEgcyfNNDK6EpMvu5SqXDqWRLuxdMxdyH12ivTUuB1KXfGP4,mv1AAFByPGTyFdbshgfA8ogjgf7pQKuR7ATp,unencrypted:edsk3Sb16jcx9KrgMDsbZDmKnuN11v4AbTtPBgBSBTqYftd8Cq3i1e@2_000_000_000_000"
       --no-daemons-for=eve
-      --add-bootstrap-account "mallory,edpkuVjyKad7yCnNrCbGea7hi5Zh1zp5Cb1TvxUmnxC33fwKhq7daN,tz1PSmvRd3ySbh5aviFEMYGD6542LL5QnrMk,unencrypted:edskRzrnZoreVanzsedvSDgWV1DkNycfjMXyri9LQLVYdXTXJrxNHzdtpouGJTQ1CrQiWK6ECvHCpoYfQ2LM7j8GjJdkjqrsLE@2_000_000_000_000"
+      --add-bootstrap-account "mallory,edpkuPANijWBa9ym9kyiJZw1vaJ5tgyB5i92NaBaqerboGYsAqKdQY,mv18PbrKkCWNMJdfgiWqeT9CZ41ugskLqAWb,unencrypted:edsk3Kny3RjsnGRi4cZ8hfm4MraAv7KZWRuKYHNPoBWw3TvfKbXQaU@2_000_000_000_000"
       --no-daemons-for=mallory
-      --add-bootstrap-account "oscar,edpku7vkvS6XaWzFjmPDYULNyYrS7Rf1vHuoQ9FD8zVcaFNJ51bJ82,tz1KrELvNVY4xKnujkXwrVLWuzWJEg9FvA8v,unencrypted:edskRjjhoUjvSZ2eGgGpvcMk6SrtpajjkzGUXDpr2EAa25VTfdtNSoD1JLhEoEnotYR6ZtRC2bCk56kwf79eqgygrMeR145ENq@2_000_000_000_000"
+      --add-bootstrap-account "oscar,edpkttTiMroeueToLvjEo7zQqeTDFNT5iq1gKrPwA2DMqjD5uMmxpp,mv1PBrrrLGrp1oTnsoeTKtaSMNMmaosqhLgR,unencrypted:edsk3ZeMrkM5j3aCpfVU2N3ivtyxDuanzuRzhBWdzBBTuk2Yfdnddr@2_000_000_000_000"
       --no-daemons-for=oscar
-      --add-bootstrap-account "trudy,edpkuqoXhgeXYZxn6yVWuy9UrWKazyahPaAbwnuZYknRefeLVVK3ar,tz1YKquTvvSE2B5kvGyf1AYeXD6b6cMDSzDe,unencrypted:edskRts3yovQnSAaK6WbyiaZdBnLk1cSeq8UEWo24xNyo1T6gZZ9yQpQ48YmvCwjjW1FpSgJ1LPZ9T3jazmh3HXLLKHDaJZVx2@2_000_000_000_000"
+      --add-bootstrap-account "trudy,edpku9xhspeP5aSSpSAA4aopgTH9pRjBMMoitoJN45bdye4RSGhFoF,mv1BDR7SeuTfJmP12mcpSXCEMCbVUotCcmM5,unencrypted:edsk3RcKtYv9XxbfbYJj7uZw75ffewdQJTXFYweve9nkHgG6cJfEL9@2_000_000_000_000"
       --no-daemons-for=trudy
-      --add-bootstrap-account "isaac,edpkv6xHMqShSMr4CK3Vzg7mD1hina7eBkokrMoKpuYj55BVd18rjN,tz1TQ4fpSFNZ6D9vrcwBz9yzM2SNjDj5YoU7,unencrypted:edsk2vtJ2rVoHoA3GbgDjyT5zbeVMDXZ6R4YjDskKaapgsRtiEWpaP@2_000_000_000_000"
+      --add-bootstrap-account "isaac,edpkv6xHMqShSMr4CK3Vzg7mD1hina7eBkokrMoKpuYj55BVd18rjN,mv1FmXyQkcfufUw9zwW3Dyg1W3JMHcDZ8rV5,unencrypted:edsk2vtJ2rVoHoA3GbgDjyT5zbeVMDXZ6R4YjDskKaapgsRtiEWpaP@2_000_000_000_000"
       --no-daemons-for=isaac
-      --add-bootstrap-account "david,edpku8MxEyEKHPsPeUBSBz5a5QbemdPbiQVsobdC3SnC9UDf4yMHTL,tz1bPLbmiseCCWtW7RZ9t2RkNyboB9XT4exJ,unencrypted:edsk4AzUdwSFu383eMf8eve56Q2pJxy1eWt4BnzKkLKMdKurHgTeaf@2_000_000_000_000"
+      --add-bootstrap-account "david,edpku8MxEyEKHPsPeUBSBz5a5QbemdPbiQVsobdC3SnC9UDf4yMHTL,mv1PkouN3EwYmnfjFk817r7mXzTmjY1r5M1e,unencrypted:edsk4AzUdwSFu383eMf8eve56Q2pJxy1eWt4BnzKkLKMdKurHgTeaf@2_000_000_000_000"
       --no-daemons-for=david
-      --add-bootstrap-account "trudy,edpkv3sej4FWX2cUg8DR9F9QmsEb3YdodhDbVg1o1ooeWUDkuRGTsg,tz1NdjbFHLxbKEUXhXgjyLfQSCbq6oy5b7Px,unencrypted:edsk3ZBmJ3e34AhZViEanGN87QvayUQupJ28Q89xUpFFSv18xF2Lqf@2_000_000_000_000"
+      --add-bootstrap-account "trudy,edpkv3sej4FWX2cUg8DR9F9QmsEb3YdodhDbVg1o1ooeWUDkuRGTsg,mv1B1CtqbiFwtWFkqrFbDAMRbDTofCSjHokn,unencrypted:edsk3ZBmJ3e34AhZViEanGN87QvayUQupJ28Q89xUpFFSv18xF2Lqf@2_000_000_000_000"
       --no-daemons-for=trudy
     environment:
       - block_time=4
-      - flextesa_node_cors_origin=*
+      - flexmasa_node_cors_origin=*
     ports:
       - 127.0.0.1:20000:20000
       - 127.0.0.1:8732:20000
@@ -94,7 +95,7 @@ services:
   gui:
     container_name: sandbox-gui
     restart: always
-    image: ghcr.io/baking-bad/bcdhub-gui:4.4.0
+    image: ghcr.io/mavryk-network/bcdhub-gui:4.7.9
     depends_on:
       - api
     ports:
@@ -124,18 +125,18 @@ services:
       - './apps:/home/node/apps'
       - './libs:/home/node/libs'
     environment:
-      - TEZOS_POLLING_INTERVAL_MILLISECONDS=2000
+      - MAVRYK_POLLING_INTERVAL_MILLISECONDS=2000
       - SIGNER_URL=http://signatory:6732
       - P2P_BOOTSTRAP_PEERS=/ip4/172.24.2.100/tcp/23456/p2p/QmcrQZ6RJdpYuGvZqD5QEHAv6qX4BrQLJLQPQUrTrzdcgm /ip4/172.24.2.2/tcp/23456/p2p/12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2 /ip4/172.24.2.3/tcp/23456/p2p/12D3KooWLL2Y1JmrAXkY7r8xbuSRtasfJLAarXmAaZPYxPnzgAJ3 /ip4/172.24.2.4/tcp/23456/p2p/12D3KooWK87KmBGJZZMP3keux62VF515mFRbNRFwbYxib7wWQR34 /ip4/172.24.2.5/tcp/23456/p2p/12D3KooWDgabT39cFp5j5mvJgiGPEppMuVgDCsNtBCh1Q8ejBCA5 /ip4/172.24.2.6/tcp/23456/p2p/12D3KooWEKXXjviRoWwoB37UzBT4qjUBbQH8bypWy3YWmyfvR736 /ip4/172.24.2.7/tcp/23456/p2p/12D3KooWRGcN9uh633ucfUJ3XQ69n31mB2jPHKtrw7mfCSJdLz97
       - P2P_PEER_ID=12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1
       - P2P_PEER_PUBLIC_KEY=CAESIH+cTTTZ4gyqjEsn4L17gs9BTYU1ZeAnrBbUqQQQ9uW2
       - P2P_PEER_PRIVATE_KEY=CAESQENvWXyvlXtuw58TMrMF45ffJUza23h8zHSvssitueRgf5xNNNniDKqMSyfgvXuCz0FNhTVl4CesFtSpBBD25bY=
-      - TEZOS_ADDRESS=tz1MnmtP4uAcgMpeZN6JtyziXeFqqwQG6yn6
-      - TEZOS_PUBLIC_KEY=edpku9qEgcyfNNDK6EpMvu5SqXDqWRLuxdMxdyH12ivTUuB1KXfGP4
+      - MAVRYK_ADDRESS=mv1AAFByPGTyFdbshgfA8ogjgf7pQKuR7ATp
+      - MAVRYK_PUBLIC_KEY=edpku9qEgcyfNNDK6EpMvu5SqXDqWRLuxdMxdyH12ivTUuB1KXfGP4
       - ALPHAVANTAGE_API_KEY=LOKAGZEB6UK7JJWS
       - MESSARI_API_KEY=7a4ace98-90a6-4792-81ad-5364afc6698d
-      - COINGECKO_SUPPORTED_PLATFORMS=ethereum
-      - RPC_URL=http://flextesa:20000
+      - COINGECKO_SUPPORTED_IDS=bitcoin
+      - RPC_URL=http://flexmasa:20000
       - USE_FAKE_DATA=true
       - LOG_LEVEL=debug
     networks:
@@ -143,6 +144,7 @@ services:
         ipv4_address: 172.24.2.1
     env_file:
       - .env
+
   oracle-2:
     container_name: oracle-2
     build:
@@ -152,18 +154,18 @@ services:
       - './apps:/home/node/apps'
       - './libs:/home/node/libs'
     environment:
-      - TEZOS_POLLING_INTERVAL_MILLISECONDS=2000
+      - MAVRYK_POLLING_INTERVAL_MILLISECONDS=2000
       - SIGNER_URL=http://signatory:6732
       - P2P_BOOTSTRAP_PEERS=/ip4/172.24.2.100/tcp/23456/p2p/QmcrQZ6RJdpYuGvZqD5QEHAv6qX4BrQLJLQPQUrTrzdcgm /ip4/172.24.2.1/tcp/23456/p2p/12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1 /ip4/172.24.2.3/tcp/23456/p2p/12D3KooWLL2Y1JmrAXkY7r8xbuSRtasfJLAarXmAaZPYxPnzgAJ3 /ip4/172.24.2.4/tcp/23456/p2p/12D3KooWK87KmBGJZZMP3keux62VF515mFRbNRFwbYxib7wWQR34 /ip4/172.24.2.5/tcp/23456/p2p/12D3KooWDgabT39cFp5j5mvJgiGPEppMuVgDCsNtBCh1Q8ejBCA5 /ip4/172.24.2.6/tcp/23456/p2p/12D3KooWEKXXjviRoWwoB37UzBT4qjUBbQH8bypWy3YWmyfvR736 /ip4/172.24.2.7/tcp/23456/p2p/12D3KooWRGcN9uh633ucfUJ3XQ69n31mB2jPHKtrw7mfCSJdLz97
       - P2P_PEER_ID=12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2
       - P2P_PEER_PUBLIC_KEY=CAESIB3LuOsvQXa/QtLkCtHqfEdDnXDiDtGIKB42deJZQSZb
       - P2P_PEER_PRIVATE_KEY=CAESQJhgTKhCqif5bg/4RS4mPfjIp/TNA6c7licLcTFumPchHcu46y9Bdr9C0uQK0ep8R0OdcOIO0YgoHjZ14llBJls=
-      - TEZOS_ADDRESS=tz1NdjbFHLxbKEUXhXgjyLfQSCbq6oy5b7Px
-      - TEZOS_PUBLIC_KEY=edpkv3sej4FWX2cUg8DR9F9QmsEb3YdodhDbVg1o1ooeWUDkuRGTsg
+      - MAVRYK_ADDRESS=mv1B1CtqbiFwtWFkqrFbDAMRbDTofCSjHokn
+      - MAVRYK_PUBLIC_KEY=edpkv3sej4FWX2cUg8DR9F9QmsEb3YdodhDbVg1o1ooeWUDkuRGTsg
       - ALPHAVANTAGE_API_KEY=2XLQOTBRS8Y122VT
       - MESSARI_API_KEY=3dc85b02-55ee-4aaa-96ff-96d70a426407
-      - COINGECKO_SUPPORTED_PLATFORMS=ethereum
-      - RPC_URL=http://flextesa:20000
+      - COINGECKO_SUPPORTED_IDS=bitcoin
+      - RPC_URL=http://flexmasa:20000
       - USE_FAKE_DATA=true
       - LOG_LEVEL=debug
     networks:
@@ -171,6 +173,7 @@ services:
         ipv4_address: 172.24.2.2
     env_file:
       - .env
+
   oracle-3:
     container_name: oracle-3
     build:
@@ -180,18 +183,18 @@ services:
       - './apps:/home/node/apps'
       - './libs:/home/node/libs'
     environment:
-      - TEZOS_POLLING_INTERVAL_MILLISECONDS=2000
+      - MAVRYK_POLLING_INTERVAL_MILLISECONDS=2000
       - SIGNER_URL=http://signatory:6732
       - P2P_BOOTSTRAP_PEERS=/ip4/172.24.2.100/tcp/23456/p2p/QmcrQZ6RJdpYuGvZqD5QEHAv6qX4BrQLJLQPQUrTrzdcgm /ip4/172.24.2.1/tcp/23456/p2p/12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1 /ip4/172.24.2.2/tcp/23456/p2p/12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2 /ip4/172.24.2.4/tcp/23456/p2p/12D3KooWK87KmBGJZZMP3keux62VF515mFRbNRFwbYxib7wWQR34 /ip4/172.24.2.5/tcp/23456/p2p/12D3KooWDgabT39cFp5j5mvJgiGPEppMuVgDCsNtBCh1Q8ejBCA5 /ip4/172.24.2.6/tcp/23456/p2p/12D3KooWEKXXjviRoWwoB37UzBT4qjUBbQH8bypWy3YWmyfvR736 /ip4/172.24.2.7/tcp/23456/p2p/12D3KooWRGcN9uh633ucfUJ3XQ69n31mB2jPHKtrw7mfCSJdLz97
       - P2P_PEER_ID=12D3KooWLL2Y1JmrAXkY7r8xbuSRtasfJLAarXmAaZPYxPnzgAJ3
       - P2P_PEER_PUBLIC_KEY=CAESIJwuGA2Ua44At3SqYSvFPk/S4ZK8JIChdtEIHowkTCno
       - P2P_PEER_PRIVATE_KEY=CAESQP9bMHtXPkMTF4/sitPzQuuSsR7rBsyCZIlwT8bLo0gvnC4YDZRrjgC3dKphK8U+T9LhkrwkgKF20QgejCRMKeg=
-      - TEZOS_ADDRESS=tz1PSmvRd3ySbh5aviFEMYGD6542LL5QnrMk
-      - TEZOS_PUBLIC_KEY=edpkuVjyKad7yCnNrCbGea7hi5Zh1zp5Cb1TvxUmnxC33fwKhq7daN
+      - MAVRYK_ADDRESS=mv18PbrKkCWNMJdfgiWqeT9CZ41ugskLqAWb
+      - MAVRYK_PUBLIC_KEY=edpkuPANijWBa9ym9kyiJZw1vaJ5tgyB5i92NaBaqerboGYsAqKdQY
       - ALPHAVANTAGE_API_KEY=2NGJX9KAASPRJKDL
       - MESSARI_API_KEY=4d9734a2-99e7-4f54-81d9-71f5042a2e92
-      - COINGECKO_SUPPORTED_PLATFORMS=ethereum
-      - RPC_URL=http://flextesa:20000
+      - COINGECKO_SUPPORTED_IDS=bitcoin
+      - RPC_URL=http://flexmasa:20000
       - USE_FAKE_DATA=true
       - LOG_LEVEL=debug
     networks:
@@ -199,6 +202,7 @@ services:
         ipv4_address: 172.24.2.3
     env_file:
       - .env
+
   oracle-4:
     container_name: oracle-4
     build:
@@ -208,18 +212,18 @@ services:
       - './apps:/home/node/apps'
       - './libs:/home/node/libs'
     environment:
-      - TEZOS_POLLING_INTERVAL_MILLISECONDS=2000
+      - MAVRYK_POLLING_INTERVAL_MILLISECONDS=2000
       - SIGNER_URL=http://signatory:6732
       - P2P_BOOTSTRAP_PEERS=/ip4/172.24.2.100/tcp/23456/p2p/QmcrQZ6RJdpYuGvZqD5QEHAv6qX4BrQLJLQPQUrTrzdcgm /ip4/172.24.2.1/tcp/23456/p2p/12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1 /ip4/172.24.2.2/tcp/23456/p2p/12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2 /ip4/172.24.2.3/tcp/23456/p2p/12D3KooWLL2Y1JmrAXkY7r8xbuSRtasfJLAarXmAaZPYxPnzgAJ3 /ip4/172.24.2.5/tcp/23456/p2p/12D3KooWDgabT39cFp5j5mvJgiGPEppMuVgDCsNtBCh1Q8ejBCA5 /ip4/172.24.2.6/tcp/23456/p2p/12D3KooWEKXXjviRoWwoB37UzBT4qjUBbQH8bypWy3YWmyfvR736 /ip4/172.24.2.7/tcp/23456/p2p/12D3KooWRGcN9uh633ucfUJ3XQ69n31mB2jPHKtrw7mfCSJdLz97
       - P2P_PEER_ID=12D3KooWK87KmBGJZZMP3keux62VF515mFRbNRFwbYxib7wWQR34
       - P2P_PEER_PUBLIC_KEY=CAESIIpE2iakPl9DwCEBQe8byn/AbxyFyp/6wswDEjAzTPV/
       - P2P_PEER_PRIVATE_KEY=CAESQFT7tBloxfCzLLLww4EZzm2l0qZiVBuEuAbD3jzLPbWZikTaJqQ+X0PAIQFB7xvKf8BvHIXKn/rCzAMSMDNM9X8=
-      - TEZOS_ADDRESS=tz1KrELvNVY4xKnujkXwrVLWuzWJEg9FvA8v
-      - TEZOS_PUBLIC_KEY=edpku7vkvS6XaWzFjmPDYULNyYrS7Rf1vHuoQ9FD8zVcaFNJ51bJ82
+      - MAVRYK_ADDRESS=mv1PBrrrLGrp1oTnsoeTKtaSMNMmaosqhLgR
+      - MAVRYK_PUBLIC_KEY=edpkttTiMroeueToLvjEo7zQqeTDFNT5iq1gKrPwA2DMqjD5uMmxpp
       - ALPHAVANTAGE_API_KEY=MZ42VQU1CNPC9X1U
       - MESSARI_API_KEY=bd9fcbaf-06d4-4f8d-80c3-0862ef6c53b1
-      - COINGECKO_SUPPORTED_PLATFORMS=ethereum
-      - RPC_URL=http://flextesa:20000
+      - COINGECKO_SUPPORTED_IDS=bitcoin
+      - RPC_URL=http://flexmasa:20000
       - USE_FAKE_DATA=true
       - LOG_LEVEL=debug
     networks:
@@ -227,6 +231,7 @@ services:
         ipv4_address: 172.24.2.4
     env_file:
       - .env
+
   oracle-5:
     container_name: oracle-5
     build:
@@ -236,18 +241,18 @@ services:
       - './apps:/home/node/apps'
       - './libs:/home/node/libs'
     environment:
-      - TEZOS_POLLING_INTERVAL_MILLISECONDS=2000
+      - MAVRYK_POLLING_INTERVAL_MILLISECONDS=2000
       - SIGNER_URL=http://signatory:6732
       - P2P_BOOTSTRAP_PEERS=/ip4/172.24.2.100/tcp/23456/p2p/QmcrQZ6RJdpYuGvZqD5QEHAv6qX4BrQLJLQPQUrTrzdcgm /ip4/172.24.2.1/tcp/23456/p2p/12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1 /ip4/172.24.2.2/tcp/23456/p2p/12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2 /ip4/172.24.2.3/tcp/23456/p2p/12D3KooWLL2Y1JmrAXkY7r8xbuSRtasfJLAarXmAaZPYxPnzgAJ3 /ip4/172.24.2.4/tcp/23456/p2p/12D3KooWK87KmBGJZZMP3keux62VF515mFRbNRFwbYxib7wWQR34 /ip4/172.24.2.6/tcp/23456/p2p/12D3KooWEKXXjviRoWwoB37UzBT4qjUBbQH8bypWy3YWmyfvR736 /ip4/172.24.2.7/tcp/23456/p2p/12D3KooWRGcN9uh633ucfUJ3XQ69n31mB2jPHKtrw7mfCSJdLz97
       - P2P_PEER_ID=12D3KooWDgabT39cFp5j5mvJgiGPEppMuVgDCsNtBCh1Q8ejBCA5
       - P2P_PEER_PUBLIC_KEY=CAESIDlwJrvH3HgJbcpLpzROMCyxhAGuaodYse7n0tDQmtYq
       - P2P_PEER_PRIVATE_KEY=CAESQJSzbjMCYU/EeohKGea7wk+CXTbkBI7QXYJRLyXMosRTOXAmu8fceAltykunNE4wLLGEAa5qh1ix7ufS0NCa1io=
-      - TEZOS_ADDRESS=tz1YKquTvvSE2B5kvGyf1AYeXD6b6cMDSzDe
-      - TEZOS_PUBLIC_KEY=edpkuqoXhgeXYZxn6yVWuy9UrWKazyahPaAbwnuZYknRefeLVVK3ar
+      - MAVRYK_ADDRESS=mv1BDR7SeuTfJmP12mcpSXCEMCbVUotCcmM5
+      - MAVRYK_PUBLIC_KEY=edpku9xhspeP5aSSpSAA4aopgTH9pRjBMMoitoJN45bdye4RSGhFoF
       - ALPHAVANTAGE_API_KEY=17MO51H19VMUJAPU
       - MESSARI_API_KEY=ee29b84c-34fd-4d60-827f-35f4315ac4bd
-      - COINGECKO_SUPPORTED_PLATFORMS=ethereum
-      - RPC_URL=http://flextesa:20000
+      - COINGECKO_SUPPORTED_IDS=bitcoin
+      - RPC_URL=http://flexmasa:20000
       - USE_FAKE_DATA=true
       - LOG_LEVEL=debug
     networks:
@@ -255,6 +260,7 @@ services:
         ipv4_address: 172.24.2.5
     env_file:
       - .env
+
   oracle-6:
     container_name: oracle-6
     build:
@@ -264,18 +270,18 @@ services:
       - './apps:/home/node/apps'
       - './libs:/home/node/libs'
     environment:
-      - TEZOS_POLLING_INTERVAL_MILLISECONDS=2000
+      - MAVRYK_POLLING_INTERVAL_MILLISECONDS=2000
       - SIGNER_URL=http://signatory:6732
       - P2P_BOOTSTRAP_PEERS=/ip4/172.24.2.100/tcp/23456/p2p/QmcrQZ6RJdpYuGvZqD5QEHAv6qX4BrQLJLQPQUrTrzdcgm/ip4/172.24.2.100/tcp/23456/p2p/QmcrQZ6RJdpYuGvZqD5QEHAv6qX4BrQLJLQPQUrTrzdcgm /ip4/172.24.2.1/tcp/23456/p2p/12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1 /ip4/172.24.2.2/tcp/23456/p2p/12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2 /ip4/172.24.2.3/tcp/23456/p2p/12D3KooWLL2Y1JmrAXkY7r8xbuSRtasfJLAarXmAaZPYxPnzgAJ3 /ip4/172.24.2.4/tcp/23456/p2p/12D3KooWK87KmBGJZZMP3keux62VF515mFRbNRFwbYxib7wWQR34 /ip4/172.24.2.5/tcp/23456/p2p/12D3KooWDgabT39cFp5j5mvJgiGPEppMuVgDCsNtBCh1Q8ejBCA5 /ip4/172.24.2.7/tcp/23456/p2p/12D3KooWRGcN9uh633ucfUJ3XQ69n31mB2jPHKtrw7mfCSJdLz97
       - P2P_PEER_ID=12D3KooWEKXXjviRoWwoB37UzBT4qjUBbQH8bypWy3YWmyfvR736
       - P2P_PEER_PUBLIC_KEY=CAESIELnLURmP5HStRjp47jIZPuoySSCSKWSiEvE7eaD1XQh
       - P2P_PEER_PRIVATE_KEY=CAESQDLrycxtQYRWmXFn5H1Z2s+FGpxHRGcpxy8qzGBS4uyFQuctRGY/kdK1GOnjuMhk+6jJJIJIpZKIS8Tt5oPVdCE=
-      - TEZOS_ADDRESS=tz1TQ4fpSFNZ6D9vrcwBz9yzM2SNjDj5YoU7
-      - TEZOS_PUBLIC_KEY=edpkv6xHMqShSMr4CK3Vzg7mD1hina7eBkokrMoKpuYj55BVd18rjN
+      - MAVRYK_ADDRESS=mv1FmXyQkcfufUw9zwW3Dyg1W3JMHcDZ8rV5
+      - MAVRYK_PUBLIC_KEY=edpkv6xHMqShSMr4CK3Vzg7mD1hina7eBkokrMoKpuYj55BVd18rjN
       - ALPHAVANTAGE_API_KEY=9BP42KVMZ0BNFVL8
       - MESSARI_API_KEY=
-      - COINGECKO_SUPPORTED_PLATFORMS=ethereum
-      - RPC_URL=http://flextesa:20000
+      - COINGECKO_SUPPORTED_IDS=bitcoin
+      - RPC_URL=http://flexmasa:20000
       - USE_FAKE_DATA=true
       - LOG_LEVEL=debug
     networks:
@@ -283,6 +289,7 @@ services:
         ipv4_address: 172.24.2.6
     env_file:
       - .env
+
   oracle-7:
     container_name: oracle-7
     build:
@@ -292,15 +299,16 @@ services:
       - './apps:/home/node/apps'
       - './libs:/home/node/libs'
     environment:
-      - TEZOS_POLLING_INTERVAL_MILLISECONDS=2000
+      - MAVRYK_POLLING_INTERVAL_MILLISECONDS=2000
       - SIGNER_URL=http://signatory:6732
       - P2P_BOOTSTRAP_PEERS=/ip4/172.24.2.100/tcp/23456/p2p/QmcrQZ6RJdpYuGvZqD5QEHAv6qX4BrQLJLQPQUrTrzdcgm /ip4/172.24.2.1/tcp/23456/p2p/12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1 /ip4/172.24.2.2/tcp/23456/p2p/12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2 /ip4/172.24.2.3/tcp/23456/p2p/12D3KooWLL2Y1JmrAXkY7r8xbuSRtasfJLAarXmAaZPYxPnzgAJ3 /ip4/172.24.2.4/tcp/23456/p2p/12D3KooWK87KmBGJZZMP3keux62VF515mFRbNRFwbYxib7wWQR34 /ip4/172.24.2.5/tcp/23456/p2p/12D3KooWDgabT39cFp5j5mvJgiGPEppMuVgDCsNtBCh1Q8ejBCA5 /ip4/172.24.2.6/tcp/23456/p2p/12D3KooWEKXXjviRoWwoB37UzBT4qjUBbQH8bypWy3YWmyfvR736
       - P2P_PEER_ID=12D3KooWRGcN9uh633ucfUJ3XQ69n31mB2jPHKtrw7mfCSJdLz97
       - P2P_PEER_PUBLIC_KEY=CAESIOWYdQw3IH7qCQg5+LVgLEsesRldcVJdDwpy/TNSxAty
       - P2P_PEER_PRIVATE_KEY=CAESQHqJ13l1im8Zw4UM57IclZxhxqsxYwjrNXXhNQEx7UGQ5Zh1DDcgfuoJCDn4tWAsSx6xGV1xUl0PCnL9M1LEC3I=
-      - TEZOS_ADDRESS=tz1bPLbmiseCCWtW7RZ9t2RkNyboB9XT4exJ
-      - TEZOS_PUBLIC_KEY=edpku8MxEyEKHPsPeUBSBz5a5QbemdPbiQVsobdC3SnC9UDf4yMHTL
-      - RPC_URL=http://flextesa:20000
+      - MAVRYK_ADDRESS=mv1PkouN3EwYmnfjFk817r7mXzTmjY1r5M1e
+      - MAVRYK_PUBLIC_KEY=edpku8MxEyEKHPsPeUBSBz5a5QbemdPbiQVsobdC3SnC9UDf4yMHTL
+      - COINGECKO_SUPPORTED_IDS=bitcoin
+      - RPC_URL=http://flexmasa:20000
       - USE_FAKE_DATA=true
       - LOG_LEVEL=debug
     networks:
@@ -310,7 +318,7 @@ services:
       - .env
 
   signatory:
-    image: ecadlabs/signatory:v0.3.3-beta-rc1-amd64
+    image: mavrykdynamics/signatory:v0.3.3-beta-rc1-amd64
     ports:
       - '6732:6732'
     volumes:
@@ -329,4 +337,4 @@ networks:
     ipam:
       driver: default
       config:
-        - subnet: '172.24.2.0/16'
+        - subnet: '172.24.0.0/16'

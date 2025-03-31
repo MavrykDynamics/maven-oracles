@@ -124,7 +124,7 @@
                                 {
                                   "prim": "unit",
                                   "annots": [
-                                    "%tez"
+                                    "%mav"
                                   ]
                                 }
                               ],
@@ -888,5 +888,5 @@
     "name": "ligo",
     "version": "0.60.0"
   },
-  "networkType": "Tezos"
+  "networkType": "Mavryk"
 }
