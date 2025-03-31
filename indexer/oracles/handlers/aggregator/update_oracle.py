@@ -1,0 +1,28 @@
+from dipdup.context import HandlerContext
+from dipdup.models.tezos import TezosTransaction
+from oracles import models as models
+from oracles.types.aggregator.tezos_parameters.update_oracle import UpdateOracleParameter
+from oracles.types.aggregator.tezos_storage import AggregatorStorage
+
+
+async def update_oracle(
+    ctx: HandlerContext,
+    update_oracle: TezosTransaction[UpdateOracleParameter, AggregatorStorage],
+) -> None:
+    # Get operation info
+    aggregator_address      = update_oracle.data.target_address
+    oracle_address          = update_oracle.data.sender_address
+    oracle_storage          = update_oracle.storage.oracleLedger[oracle_address]
+    oracle_pk               = oracle_storage.oraclePublicKey
+    oracle_peer_id          = oracle_storage.oraclePeerId
+
+    # Create record
+    oracle                  = await models.oracle_user_cache.get(network='atlasnet', address=oracle_address)
+    aggregator              = await models.Aggregator.get(network='atlasnet', address=aggregator_address)
+    await models.AggregatorOracle.filter(
+        aggregator  = aggregator,
+        user        = oracle
+    ).update(
+        peer_id       = oracle_peer_id,
+        public_key    = oracle_pk
+    )
