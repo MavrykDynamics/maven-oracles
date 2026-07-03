@@ -86,7 +86,7 @@ export class ReportGenLeaderService {
 
   // Timer duration constants
   private readonly _timerGraceDurationMiliseconds: number = 2 * 1000;
-  private readonly _timerRoundDurationMiliseconds: number = 15 * 1000;
+  private readonly _timerRoundDurationMiliseconds: number = 1800 * 1000;
 
   // Timers
   private _timerRound: Timer = new Timer(
@@ -249,7 +249,7 @@ export class ReportGenLeaderService {
    *
    * @param from - Sender of the message
    * @param compressedReport - Received report
-   * @param signature - Report signature, using Tezos private key
+   * @param signature - Report signature, using Mavryk private key
    * @param aggregatorAddress - Aggregator smart contract address
    * @private
    *
@@ -486,7 +486,7 @@ export class ReportGenLeaderService {
    * Check report signature
    *
    * @param report - Report
-   * @param signature - Report signature using Tezos private key
+   * @param signature - Report signature using Mavryk private key
    * @private
    */
   private async _verifyReportSignature(report: ICompressedReport, signature: ISignature): Promise<boolean> {

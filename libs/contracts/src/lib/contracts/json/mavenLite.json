@@ -1,5 +1,5 @@
 {
-  "contractName": "mavrykLite",
+  "contractName": "mavenLite",
   "michelson": [
     {
       "prim": "parameter",
@@ -30,7 +30,7 @@
                         {
                           "prim": "nat",
                           "annots": [
-                            "%totalStakedMvkReward"
+                            "%totalStakedMvnReward"
                           ]
                         }
                       ],
@@ -124,7 +124,7 @@
                                 {
                                   "prim": "unit",
                                   "annots": [
-                                    "%tez"
+                                    "%mav"
                                   ]
                                 }
                               ],
@@ -208,7 +208,7 @@
                     {
                       "prim": "nat",
                       "annots": [
-                        "%minimumStakedMvkBalance"
+                        "%minimumStakedMvnBalance"
                       ]
                     },
                     {
@@ -286,7 +286,7 @@
                     {
                       "prim": "nat",
                       "annots": [
-                        "%stakedMvkBalance"
+                        "%stakedMvnBalance"
                       ]
                     },
                     {
@@ -733,7 +733,7 @@
                 {
                   "prim": "nat",
                   "annots": [
-                    "%stakedMvkBalance"
+                    "%stakedMvnBalance"
                   ]
                 },
                 {
@@ -828,7 +828,7 @@
             {
               "prim": "nat",
               "annots": [
-                "%minimumStakedMvkBalance"
+                "%minimumStakedMvnBalance"
               ]
             },
             {
@@ -888,5 +888,5 @@
     "name": "ligo",
     "version": "0.60.0"
   },
-  "networkType": "Tezos"
+  "networkType": "Mavryk"
 }

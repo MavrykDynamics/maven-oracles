@@ -1,20 +1,20 @@
 <br/>
 <p align="center">
-<a href="https://mavryk.finance/" target="_blank">
-<img src="https://mavryk.finance/logo.svg" width="225" alt="Chainlink logo">
+<a href="https://mavenfinance.io/" target="_blank">
+<img src="https://mavenfinance.io/logo.svg" width="225" alt="Chainlink logo">
 </a>
 </p>
 <br/>
 
-# Mavryk oracle node
+# Maven oracle node
 
 # Description
 
-The Mavryk system relies on Satellites to provide accurate and reliable pricing information for its collateral asset
+The Maven system relies on Satellites to provide accurate and reliable pricing information for its collateral asset
 classes.
-Satellites are incentivized to provide correct data by rewarding them MVK for every data they send on the blockchain.  
-Satellites are part of an oracle network. Their purpose is to provide data feed on the Tezos blockchain in exchange for
-MVK reward. Data is then aggregated on the blockchain.
+Satellites are incentivized to provide correct data by rewarding them MVN for every data they send on the blockchain.  
+Satellites are part of an oracle network. Their purpose is to provide data feed on the Mavryk blockchain in exchange for
+MVN reward. Data is then aggregated on the blockchain.
 
 
 ## How it works
@@ -43,8 +43,8 @@ See [Setup guide](./SETUP.md) to know how to set up your own node
 ## Install
 
 ```shell
-git clone git@github.com:mavrykfinance/mavryk-oracles.git
-cd mavryk-oracles
+git clone git@github.com:maven-finance/maven-oracles.git
+cd maven-oracles
 
 ./scripts/install.sh
 ```
@@ -52,7 +52,7 @@ cd mavryk-oracles
 ## Start
 
 This will start an environment with:
-  - A local blokchain (flextesa)
+  - A local blokchain (flexmasa)
   - A blockchain explorer (better call dev)
   - 7 oracles
 

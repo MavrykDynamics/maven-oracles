@@ -86,13 +86,13 @@
                                     {
                                       "prim": "nat",
                                       "annots": [
-                                        "%heartBeatSeconds"
+                                        "%heartbeatSeconds"
                                       ]
                                     },
                                     {
                                       "prim": "nat",
                                       "annots": [
-                                        "%rewardAmountStakedMvk"
+                                        "%rewardAmountStakedMvn"
                                       ]
                                     },
                                     {
@@ -134,12 +134,12 @@
                                 {
                                   "prim": "nat",
                                   "annots": [
-                                    "%totalStakedMvkReward"
+                                    "%totalStakedMvnReward"
                                   ]
                                 }
                               ],
                               "annots": [
-                                "%distributeRewardStakedMvk"
+                                "%distributeRewardStakedMvn"
                               ]
                             }
                           ]
@@ -222,7 +222,7 @@
                                         {
                                           "prim": "unit",
                                           "annots": [
-                                            "%tez"
+                                            "%mav"
                                           ]
                                         }
                                       ],
@@ -346,7 +346,7 @@
                                             {
                                               "prim": "bool",
                                               "annots": [
-                                                "%distributeRewardStakedMvk"
+                                                "%distributeRewardStakedMvn"
                                               ]
                                             }
                                           ]
@@ -619,7 +619,7 @@
             {
               "prim": "address",
               "annots": [
-                "%mvkTokenAddress"
+                "%mvnTokenAddress"
               ]
             },
             {
@@ -669,7 +669,7 @@
                 {
                   "prim": "bool",
                   "annots": [
-                    "%distributeRewardStakedMvkIsPaused"
+                    "%distributeRewardStakedMvnIsPaused"
                   ]
                 }
               ],
@@ -1539,13 +1539,13 @@
                                                     {
                                                       "prim": "nat",
                                                       "annots": [
-                                                        "%heartBeatSeconds"
+                                                        "%heartbeatSeconds"
                                                       ]
                                                     },
                                                     {
                                                       "prim": "nat",
                                                       "annots": [
-                                                        "%rewardAmountStakedMvk"
+                                                        "%rewardAmountStakedMvn"
                                                       ]
                                                     },
                                                     {
@@ -1587,12 +1587,12 @@
                                                 {
                                                   "prim": "nat",
                                                   "annots": [
-                                                    "%totalStakedMvkReward"
+                                                    "%totalStakedMvnReward"
                                                   ]
                                                 }
                                               ],
                                               "annots": [
-                                                "%lambdaDistributeRewardStakedMvk"
+                                                "%lambdaDistributeRewardStakedMvn"
                                               ]
                                             }
                                           ]
@@ -1675,7 +1675,7 @@
                                                         {
                                                           "prim": "unit",
                                                           "annots": [
-                                                            "%tez"
+                                                            "%mav"
                                                           ]
                                                         }
                                                       ],
@@ -1744,7 +1744,7 @@
                                                             {
                                                               "prim": "bool",
                                                               "annots": [
-                                                                "%distributeRewardStakedMvk"
+                                                                "%distributeRewardStakedMvn"
                                                               ]
                                                             }
                                                           ]
@@ -2017,7 +2017,7 @@
                             {
                               "prim": "address",
                               "annots": [
-                                "%mvkTokenAddress"
+                                "%mvnTokenAddress"
                               ]
                             },
                             {
@@ -2067,7 +2067,7 @@
                                 {
                                   "prim": "bool",
                                   "annots": [
-                                    "%distributeRewardStakedMvkIsPaused"
+                                    "%distributeRewardStakedMvnIsPaused"
                                   ]
                                 }
                               ],
@@ -2187,7 +2187,7 @@
                             {
                               "prim": "address",
                               "annots": [
-                                "%mvkTokenAddress"
+                                "%mvnTokenAddress"
                               ]
                             },
                             {
@@ -2237,7 +2237,7 @@
                                 {
                                   "prim": "bool",
                                   "annots": [
-                                    "%distributeRewardStakedMvkIsPaused"
+                                    "%distributeRewardStakedMvnIsPaused"
                                   ]
                                 }
                               ],
@@ -2370,7 +2370,7 @@
             "prim": "PUSH",
             "args": [
               {
-                "prim": "mutez"
+                "prim": "mumav"
               },
               {
                 "int": "0"
@@ -2832,7 +2832,7 @@
                                               "prim": "string"
                                             },
                                             {
-                                              "string": "lambdaDistributeRewardStakedMvk"
+                                              "string": "lambdaDistributeRewardStakedMvn"
                                             }
                                           ]
                                         },
@@ -9094,5 +9094,5 @@
     "name": "ligo",
     "version": "0.60.0"
   },
-  "networkType": "Tezos"
+  "networkType": "Mavryk"
 }

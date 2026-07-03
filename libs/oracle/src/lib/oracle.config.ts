@@ -66,10 +66,10 @@ export class OracleConfig {
 
   @Property({
     default: '',
-    env: 'TEZOS_ADDRESS',
+    env: 'MAVRYK_ADDRESS',
     format: String
   })
-  public tezosAddress: string;
+  public mavrykAddress: string;
 
   @Property({
     default: false,

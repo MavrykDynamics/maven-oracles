@@ -1,21 +1,21 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { INetworkConfig, NetworkName } from '../scripts/env';
-import { OriginationOperation, TezosToolkit } from '@taquito/taquito';
-import { InMemorySigner } from '@taquito/signer';
+import { OriginationOperation, TezosToolkit } from '@mavrykdynamics/taquito';
+import { InMemorySigner } from '@mavrykdynamics/taquito-signer';
 import BigNumber from 'bignumber.js';
-import { saveContractAddress, setAggregatorFactoryLambdas, setAggregatorFactoryProductLambdas, setMavrykLiteGeneralContracts } from '../scripts/helpers.js';
-import { MichelsonMap } from '@taquito/michelson-encoder';
+import { saveContractAddress, setAggregatorFactoryLambdas, setAggregatorFactoryProductLambdas, setMavenLiteGeneralContracts } from '../scripts/helpers.js';
+import { MichelsonMap } from '@mavrykdynamics/taquito-michelson-encoder';
 import {
     AggregatorFactoryCode,
     AggregatorFactoryContractAbstraction,
     IAggregatorFactoryStorage
 } from '../aggregatorFactory.js';
 import {
-    MavrykLiteCode,
-    MavrykLiteContractAbstraction,
-    IMavrykLiteStorage
-} from '../mavrykLite.js';
-import { alphaPercentPerThousand, percentOracleThreshold, rewardAmountStakedMvk, rewardAmountXtz, decimals, heartBeatSeconds, oracleLedger, satelliteLedger, accounts } from '../accounts.js';
+    MavenLiteCode,
+    MavenLiteContractAbstraction,
+    IMavenLiteStorage
+} from '../mavenLite.js';
+import { alphaPercentPerThousand, percentOracleThreshold, rewardAmountStakedMvn, rewardAmountXtz, decimals, heartbeatSeconds, oracleLedger, satelliteLedger, accounts } from '../accounts.js';
 
 export const AGGREGATOR_SMART_CONTRACT_ADDRESSES: unique symbol = Symbol(
     'AGGREGATOR_SMART_CONTRACT_ADDRESSES'
@@ -39,9 +39,9 @@ export default async function (
         signer: await InMemorySigner.fromSecretKey(networkConfig.networks[networkName].secretKey)
     });
 
-    // MAVRYK LITE CONTRACT ORIGINATION
-    const mavrykLiteConfig = {
-        minimumStakedMvkBalance             : new BigNumber(10000000000),
+    // MAVEN LITE CONTRACT ORIGINATION
+    const mavenLiteConfig = {
+        minimumStakedMvnBalance             : new BigNumber(10000000000),
         delegationRatio                     : new BigNumber(1000),
         maxSatellites                       : new BigNumber(100),
         satelliteNameMaxLength              : new BigNumber(400),
@@ -49,33 +49,33 @@ export default async function (
         satelliteImageMaxLength             : new BigNumber(400),
         satelliteWebsiteMaxLength           : new BigNumber(400),
     }
-    const mavrykLiteStorage: IMavrykLiteStorage = {
-        config                  : mavrykLiteConfig,
+    const mavenLiteStorage: IMavenLiteStorage = {
+        config                  : mavenLiteConfig,
         generalContracts        : MichelsonMap.fromLiteral({}),
         satelliteLedger         : satelliteLedger
     };
-    console.log('Originating Mavryk Lite');
-    const opMavrykLite: OriginationOperation = await toolkit.contract.originate({
-        code: MavrykLiteCode,
-        storage: mavrykLiteStorage
+    console.log('Originating Maven Lite');
+    const opMavenLite: OriginationOperation = await toolkit.contract.originate({
+        code: MavenLiteCode,
+        storage: mavenLiteStorage
     });
-    console.log(`Mavryk Lite origination done at: ${opMavrykLite.contractAddress}`);
+    console.log(`Maven Lite origination done at: ${opMavenLite.contractAddress}`);
 
-    if (opMavrykLite.contractAddress === undefined) {
-        throw new Error('Factory smart contract address not received');
+    if (opMavenLite.contractAddress === undefined) {
+        throw new Error('Maven Lite smart contract address not received');
     }
 
-    await opMavrykLite.confirmation();
+    await opMavenLite.confirmation();
 
-    console.log(`Mavryk Lite origination confirmed`);
+    console.log(`Maven Lite origination confirmed`);
 
     // SET GENERAL CONTRACTS
-    const mavrykLite = await toolkit.contract.at<MavrykLiteContractAbstraction>(
-        opMavrykLite.contractAddress
+    const mavenLite = await toolkit.contract.at<MavenLiteContractAbstraction>(
+        opMavenLite.contractAddress
     );
-    await setMavrykLiteGeneralContracts(toolkit, mavrykLite);
+    await setMavenLiteGeneralContracts(toolkit, mavenLite);
 
-    console.log(`Mavryk Lite general contracts set`);
+    console.log(`Maven Lite general contracts set`);
 
     // AGGREGATOR FACTORY CONTRACT ORIGINATION
     const aggregatorConfig = {
@@ -86,15 +86,15 @@ export default async function (
         trackAggregatorIsPaused               : false,
         untrackAggregatorIsPaused             : false,
         distributeRewardXtzIsPaused           : false,
-        distributeRewardStakedMvkIsPaused     : false,
+        distributeRewardStakedMvnIsPaused     : false,
     }
     const aggregatorFactoryMetadata = MichelsonMap.fromLiteral({
         '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
         data: Buffer.from(
             JSON.stringify({
-            name: 'MAVRYK Aggregator Factory Contract',
+            name: 'MAVEN Aggregator Factory Contract',
             version: 'v1.0.0',
-            authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+            authors: ['MAVEN Dev Team <contact@mavenfinance.io>'],
             }),
             'ascii',
         ).toString('hex'),
@@ -104,8 +104,8 @@ export default async function (
         metadata                : aggregatorFactoryMetadata,
         config                  : aggregatorConfig,
 
-        mvkTokenAddress         : opMavrykLite.contractAddress,
-        governanceAddress       : opMavrykLite.contractAddress,
+        mvnTokenAddress         : opMavenLite.contractAddress,
+        governanceAddress       : opMavenLite.contractAddress,
 
         generalContracts        : MichelsonMap.fromLiteral({}),
         whitelistContracts      : MichelsonMap.fromLiteral({}),
@@ -144,9 +144,9 @@ export default async function (
     // AGGREGATORS CONTRACT ORIGINATION
     const aggregatorMetadata = Buffer.from(
             JSON.stringify({
-            name: 'MAVRYK Aggregator Contract',
+            name: 'MAVEN Aggregator Contract',
             version: 'v1.0.0',
-            authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+            authors: ['MAVEN Dev Team <contact@mavenfinance.io>'],
             }),
             'ascii',
         ).toString('hex')
@@ -158,8 +158,8 @@ export default async function (
         decimals,
         alphaPercentPerThousand,
         percentOracleThreshold,
-        heartBeatSeconds,
-        rewardAmountStakedMvk,
+        heartbeatSeconds,
+        rewardAmountStakedMvn,
         rewardAmountXtz,
         aggregatorMetadata
     ).send();

@@ -1,6 +1,6 @@
-import { TezosToolkit } from '@taquito/taquito';
+import { TezosToolkit } from '@mavrykdynamics/taquito';
 import { networkConfig, AggregatorContractAbstraction, IAggregatorStorage } from '@mavrykdynamics/contracts';
-import { InMemorySigner } from '@taquito/signer';
+import { InMemorySigner } from '@mavrykdynamics/taquito-signer';
 
 describe('Integration test 1', () => {
   let toolkit: TezosToolkit;

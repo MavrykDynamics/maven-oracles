@@ -33,30 +33,50 @@ export class AlphavantageFetcherService implements IDataFetcher {
     const coin = pair1.toLowerCase();
     const vsCurrency = pair2.toLowerCase();
     let response: AxiosResponse;
-    try {
-      const response$ = this._httpService
-        .get(
-          `${this._baseUrl}&symbol=${coin}&market=${vsCurrency}&interval=${this._config.alphavantageInterval}min&apikey=${this._config.alphavantageApiKey}`
-        )
-        .pipe(map((response) => response.data));
 
-      response = await firstValueFrom(response$);
-    } catch (e) {
-      throw new Error(`Failed to fetch market data of coin ${coin} from Alphavantage API: ${e.toString()}`);
+    //TODO: Remove after demo
+    if (coin === 'ocean') {
+      const random = Math.random() * 0.005 + 50;
+      return new BigNumber(parseFloat(random.toFixed(3)));
+    } else if (coin === 'mars1') {
+      const random = Math.random() * 0.005 + 75;
+      return new BigNumber(parseFloat(random.toFixed(3)));
+    } else if (coin === 'queen') {
+      const random = Math.random() * 0.005 + 100;
+      return new BigNumber(parseFloat(random.toFixed(3)));
+    } else if (coin === 'ntbm') {
+      const random = Math.random() * 0.005 + 100;
+      return new BigNumber(parseFloat(random.toFixed(3)));
+    } else if (coin === 'mvrk') {
+      const random = Math.random() * 0.0001 + 2.648925;
+      return new BigNumber(parseFloat(random.toFixed(6)));
+    } else {
+      try {
+        const response$ = this._httpService
+          .get(
+            `${this._baseUrl}&symbol=${coin}&market=${vsCurrency}&interval=${this._config.alphavantageInterval}min&apikey=${this._config.alphavantageApiKey}`
+          )
+          .pipe(map((response) => response.data));
+
+        response = await firstValueFrom(response$);
+      } catch (e) {
+        throw new Error(`Failed to fetch market data of coin ${coin} from Alphavantage API: ${e.toString()}`);
+      }
+
+      const dataList = response?.[`Time Series Crypto (${this._config.alphavantageInterval}min)`];
+      const dataObject = dataList[Object.keys(dataList)[0]];
+
+      const dataHigh = new BigNumber(dataObject['2. high']);
+      const dataLow = new BigNumber(dataObject['3. low']);
+      const data = dataHigh.plus(dataLow).dividedBy(2);
+
+      if (data === undefined || data === null || isNaN(data.toNumber())) {
+        this._logger.verbose(`Could not parse data from response: ${JSON.stringify(response)}`);
+        this._logger.error('Could not parse data from response');
+        throw new Error('Could not parse data from response');
+      }
+
+      return data;
     }
-
-    const dataList = response?.[`Time Series Crypto (${this._config.alphavantageInterval}min)`];
-    const dataObject = dataList[Object.keys(dataList)[0]];
-
-    const dataHigh = new BigNumber(dataObject['2. high']);
-    const dataLow = new BigNumber(dataObject['3. low']);
-    const data = dataHigh.plus(dataLow).dividedBy(2);
-
-    if (data === undefined || data === null || isNaN(data.toNumber())) {
-      this._logger.verbose(`Could not parse data from response: ${JSON.stringify(response)}`);
-      this._logger.error('Could not parse data from response');
-      throw new Error('Could not parse data from response');
-    }
-    return data;
   }
 }

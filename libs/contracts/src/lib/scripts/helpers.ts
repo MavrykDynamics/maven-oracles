@@ -4,7 +4,7 @@ import * as fs from 'fs';
 
 import { execSync } from 'child_process';
 
-import { OriginationOperation, TezosToolkit } from '@taquito/taquito';
+import { OriginationOperation, TezosToolkit } from '@mavrykdynamics/taquito';
 
 import { confirmOperation } from './confirmation.js';
 
@@ -16,7 +16,7 @@ import {
     AggregatorFactoryLambdas,
     AggregatorLambdas
 } from '../aggregatorFactory.js'
-import { MavrykLiteContractAbstraction } from '../mavrykLite.js';
+import { MavenLiteContractAbstraction } from '../mavenLite.js';
 export const getLigo = (
   isDockerizedLigo: boolean,
   ligoVersion: string = networkConfig.ligoVersion,
@@ -27,9 +27,9 @@ export const getLigo = (
 
   if (isDockerizedLigo) {
     if (isAppleM1) {
-      path = `docker run --platform=linux/amd64 -v $PWD:$PWD --rm -i ligolang/ligo:${ligoVersion}`;
+      path = `docker run --platform=linux/amd64 -v $PWD:$PWD --rm -i mavrykdynamics/ligo:${ligoVersion}`;
     } else {
-      path = `docker run -v $PWD:$PWD  --rm -i ligolang/ligo:${ligoVersion}`;
+      path = `docker run -v $PWD:$PWD  --rm -i mavrykdynamics/ligo:${ligoVersion}`;
     }
 
     try {
@@ -43,9 +43,9 @@ export const getLigo = (
       execSync(`${path}  --help`);
     } catch (err) {
       if (isAppleM1) {
-        path = `docker run --platform=linux/amd64 -v $PWD:$PWD --rm -i ligolang/ligo:next`;
+        path = `docker run --platform=linux/amd64 -v $PWD:$PWD --rm -i mavrykdynamics/ligo:next`;
       } else {
-        path = `docker run -v $PWD:$PWD --rm -i ligolang/ligo:${ligoVersion}`;
+        path = `docker run -v $PWD:$PWD --rm -i mavrykdynamics/ligo:${ligoVersion}`;
       }
 
       execSync(`${path}  --help`);
@@ -102,7 +102,7 @@ export const compile = async (
               name: 'ligo',
               version: ligoVersion
             },
-            networkType: 'tezos'
+            networkType: 'mavryk'
           },
           null,
           2
@@ -188,7 +188,7 @@ export const compileParameters = async (
 };
 
 export const migrate = async (
-  tezos: TezosToolkit,
+  mavryk: TezosToolkit,
   contract: string,
   storage: any
 ): Promise<string | undefined> => {
@@ -200,11 +200,11 @@ export const migrate = async (
     );
 
     // console.log('running migrations')
-    // console.log(tezos)
+    // console.log(mavryk)
     // console.log('artifacts')
     // console.log(artifacts)
 
-    const operation: OriginationOperation = await tezos.contract.originate({
+    const operation: OriginationOperation = await mavryk.contract.originate({
       code: artifacts.michelson,
       storage: storage
     });
@@ -217,7 +217,7 @@ export const migrate = async (
     console.log('show operation');
     console.log(operation);
 
-    await confirmOperation(tezos, operation.hash);
+    await confirmOperation(mavryk, operation.hash);
 
     artifacts.networks[networkConfig.network] = {
       [contract]: operation.contractAddress
@@ -291,7 +291,7 @@ export const saveContractAddress = async (
 };
 
 export const setAggregatorFactoryLambdas = async (
-    tezosToolkit: TezosToolkit,
+    mavrykToolkit: TezosToolkit,
     aggregatorFactory: AggregatorFactoryContractAbstraction,
 ): Promise<void> => {
     const lambdasPerBatch   = 10;
@@ -301,7 +301,7 @@ export const setAggregatorFactoryLambdas = async (
 
     for(let i = 0; i < batchesCount; i++) {
         
-        const batch = tezosToolkit.wallet.batch();
+        const batch = mavrykToolkit.wallet.batch();
         let index   = 0;
 
         for (const lambdaName in lambdas) {
@@ -315,12 +315,12 @@ export const setAggregatorFactoryLambdas = async (
         }
 
         const setupLambdasOperation = await batch.send()
-        await confirmOperation(tezosToolkit, setupLambdasOperation.opHash);
+        await confirmOperation(mavrykToolkit, setupLambdasOperation.opHash);
     }
 };
 
 export const setAggregatorFactoryProductLambdas = async (
-    tezosToolkit: TezosToolkit,
+    mavrykToolkit: TezosToolkit,
     aggregatorFactory: AggregatorFactoryContractAbstraction,
 ): Promise<void> => {
     const lambdasPerBatch   = 10;
@@ -330,7 +330,7 @@ export const setAggregatorFactoryProductLambdas = async (
 
     for(let i = 0; i < batchesCount; i++) {
         
-        const batch = tezosToolkit.wallet.batch();
+        const batch = mavrykToolkit.wallet.batch();
         let index   = 0;
 
         for (const lambdaName in lambdas) {
@@ -344,18 +344,18 @@ export const setAggregatorFactoryProductLambdas = async (
         }
 
         const setupProductLambdasOperation = await batch.send()
-        await confirmOperation(tezosToolkit, setupProductLambdasOperation.opHash);
+        await confirmOperation(mavrykToolkit, setupProductLambdasOperation.opHash);
     }
 };
 
-export const setMavrykLiteGeneralContracts = async (
-    tezosToolkit: TezosToolkit,
-    mavrykLite: MavrykLiteContractAbstraction,
+export const setMavenLiteGeneralContracts = async (
+    mavrykToolkit: TezosToolkit,
+    mavenLite: MavenLiteContractAbstraction,
 ): Promise<void> => {
-    const generalContractsBatch = tezosToolkit.wallet.batch()
-    .withContractCall(mavrykLite.methods.updateGeneralContracts("aggregatorTreasury", mavrykLite.address, "update"))
-    .withContractCall(mavrykLite.methods.updateGeneralContracts("delegation", mavrykLite.address, "update"))
-    .withContractCall(mavrykLite.methods.updateGeneralContracts("governanceSatellite", mavrykLite.address, "update"))
+    const generalContractsBatch = mavrykToolkit.wallet.batch()
+    .withContractCall(mavenLite.methods.updateGeneralContracts("aggregatorTreasury", mavenLite.address, "update"))
+    .withContractCall(mavenLite.methods.updateGeneralContracts("delegation", mavenLite.address, "update"))
+    .withContractCall(mavenLite.methods.updateGeneralContracts("governanceSatellite", mavenLite.address, "update"))
     const generalContractsOperation = await generalContractsBatch.send()
-    await confirmOperation(tezosToolkit, generalContractsOperation.opHash);
+    await confirmOperation(mavrykToolkit, generalContractsOperation.opHash);
 };

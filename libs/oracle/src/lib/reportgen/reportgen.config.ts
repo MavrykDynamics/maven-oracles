@@ -7,6 +7,6 @@ export interface IReportGenConfig {
   aggregatorAddress: string;
   aggregatorPair: [string, string];
   alphaPerThousand: BigNumber; // 0.2% - 0.5% recommended by OCR white paper
-  heartBeatSeconds: BigNumber; // 5m - 24h recommended by OCR white paper
+  heartbeatSeconds: BigNumber; // 5m - 24h recommended by OCR white paper
   oracleLedger: IOracleInformations[];
 }

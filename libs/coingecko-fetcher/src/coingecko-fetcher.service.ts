@@ -125,30 +125,48 @@ export class CoingeckoFetcherService implements IDataFetcher, OnModuleInit {
       throw new Error(`Not supported ${vsCurrency} as VS currency`);
     }
 
-    const coinId = this._symbolToId.get(coin);
+    //TODO: Remove after demo
+    if (coin === 'ocean') {
+      const random = Math.random() * 0.005 + 50;
+      return new BigNumber(parseFloat(random.toFixed(3)));
+    } else if (coin === 'mars1') {
+      const random = Math.random() * 0.005 + 75;
+      return new BigNumber(parseFloat(random.toFixed(3)));
+    } else if (coin === 'queen') {
+      const random = Math.random() * 0.005 + 100;
+      return new BigNumber(parseFloat(random.toFixed(3)));
+    } else if (coin === 'ntbm') {
+      const random = Math.random() * 0.005 + 100;
+      return new BigNumber(parseFloat(random.toFixed(3)));
+    } else if (coin === 'mvrk') {
+      const random = Math.random() * 0.0001 + 2.648925;
+      return new BigNumber(parseFloat(random.toFixed(6)));
+    } else {
+      const coinId = this._symbolToId.get(coin);
 
-    if (coinId === undefined) {
-      throw new Error(`Not supported ${coin} as coin`);
+      if (coinId === undefined) {
+        throw new Error(`Not supported ${coin} as coin`);
+      }
+
+      let response: AxiosResponse;
+      try {
+        const response$ = this._httpService
+          .get(`${this._baseUrl}/simple/price`, {
+            params: {
+              ids: this._symbolToId.get(coin),
+              vs_currencies: vsCurrency
+            }
+          })
+          .pipe(map((response) => response.data));
+
+        response = await firstValueFrom(response$);
+      } catch (e) {
+        throw new Error(
+          `Failed to fetch supportedVsCurrencies data from Coingecko, the data fetcher won't work correctly: ${e.toString()}`
+        );
+      }
+
+      return response[coinId][vsCurrency];
     }
-
-    let response: AxiosResponse;
-    try {
-      const response$ = this._httpService
-        .get(`${this._baseUrl}/simple/price`, {
-          params: {
-            ids: coinId,
-            vs_currencies: vsCurrency
-          }
-        })
-        .pipe(map((response) => response.data));
-
-      response = await firstValueFrom(response$);
-    } catch (e) {
-      throw new Error(
-        `Failed to fetch supportedVsCurrencies data from Coingecko, the data fetcher won't work correctly: ${e.toString()}`
-      );
-    }
-
-    return response[coinId][vsCurrency];
   }
 }

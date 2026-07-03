@@ -1,13 +1,13 @@
-import { OriginationOperation, TezosToolkit } from '@taquito/taquito';
-import { MichelsonMap } from '@taquito/michelson-encoder';
+import { OriginationOperation, TezosToolkit } from '@mavrykdynamics/taquito';
+import { MichelsonMap } from '@mavrykdynamics/taquito-michelson-encoder';
 import {
   AggregatorFactoryCode,
   AggregatorFactoryContractAbstraction,
   IAggregatorFactoryStorage
 } from '../lib/aggregatorFactory';
-import { alphaPercentPerThousand, decimals, heartBeatSeconds, oracleLedger } from '../lib/accounts';
+import { alphaPercentPerThousand, decimals, heartbeatSeconds, oracleLedger } from '../lib/accounts';
 import { networkConfig } from '../lib/scripts/env';
-import { InMemorySigner } from '@taquito/signer';
+import { InMemorySigner } from '@mavrykdynamics/taquito-signer';
 import { expect } from 'chai';
 
 describe('Create Aggregator Factory', () => {
@@ -50,7 +50,7 @@ describe('Create Aggregator Factory', () => {
       );
 
       const createAggregator1Op = await aggregatorFactory.methods
-        .createAggregator(pair[0], pair[1], alphaPercentPerThousand, decimals, heartBeatSeconds, oracleLedger)
+        .createAggregator(pair[0], pair[1], alphaPercentPerThousand, decimals, heartbeatSeconds, oracleLedger)
         .send();
 
       await createAggregator1Op.confirmation();

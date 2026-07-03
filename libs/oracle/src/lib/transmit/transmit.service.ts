@@ -306,7 +306,7 @@ export class TransmitService implements OnModuleInit {
       seed
     );
 
-    const k = permuted.findIndex((oracle) => oracle === this._config.tezosAddress);
+    const k = permuted.findIndex((oracle) => oracle === this._config.mavrykAddress);
     return k * this._delta;
   }
 

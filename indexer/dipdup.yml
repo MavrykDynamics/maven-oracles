@@ -1,0 +1,43 @@
+indexes:
+  aggregator:
+    kind: tezos.operations
+    datasources:
+      - mvkt
+    types:
+      - origination
+      - transaction
+    contracts:
+      - aggregator
+    handlers:
+      - callback: aggregator.origination
+        pattern:
+          - type: origination
+            originated_contract: aggregator
+      - callback: aggregator.set_name
+        pattern:
+          - destination: aggregator
+            entrypoint: setName
+      - callback: aggregator.update_metadata
+        pattern:
+          - destination: aggregator
+            entrypoint: updateMetadata
+      - callback: aggregator.update_config
+        pattern:
+          - destination: aggregator
+            entrypoint: updateConfig
+      - callback: aggregator.update_data
+        pattern:
+          - destination: aggregator
+            entrypoint: updateData
+      - callback: aggregator.add_oracle
+        pattern:
+          - destination: aggregator
+            entrypoint: addOracle
+      - callback: aggregator.update_oracle
+        pattern:
+          - destination: aggregator
+            entrypoint: updateOracle
+      - callback: aggregator.remove_oracle
+        pattern:
+          - destination: aggregator
+            entrypoint: removeOracle

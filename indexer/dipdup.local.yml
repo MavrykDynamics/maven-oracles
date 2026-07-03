@@ -1,0 +1,38 @@
+spec_version: 3.0
+
+package: oracles
+
+database:
+  kind: postgres
+  host: 127.0.0.1
+  port: '5432'
+  user: dipdup
+  password: dipdup12345
+  database: dipdup
+  schema_name: public
+  connection_timeout: 60
+
+hasura:
+  url: http://127.0.0.1:42000
+  allow_aggregations: false
+  admin_secret: hasura12345
+  select_limit: 1000
+  rest: true
+
+advanced:
+  early_realtime: true
+  reindex:
+    manual: wipe
+    migration: exception
+    rollback: ignore
+    config_modified: ignore
+    schema_modified: wipe
+
+datasources:
+  metadata:
+    kind: tzip_metadata
+    url: https://dipdup-metadata-api.mavryk.network
+    network: oxfordnet
+  mvkt:
+    kind: tezos.tzkt
+    url: https://basenet.api.mavryk.network

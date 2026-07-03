@@ -53,6 +53,7 @@ yargs(hideBin(process.argv))
         argv.ligo_version,
         argv.is_apple_silicon
       );
+      process.exit()
     }
   )
   .command(
@@ -72,6 +73,7 @@ yargs(hideBin(process.argv))
     },
     async (argv) => {
       await compileLambdas(argv.json, argv.contract);
+      process.exit()
     }
   )
   .command(
@@ -91,6 +93,7 @@ yargs(hideBin(process.argv))
     },
     async (argv) => {
       await compileParameters(argv.json, argv.contract);
+      process.exit()
     }
   )
   .command(
@@ -115,6 +118,7 @@ yargs(hideBin(process.argv))
     },
     async (argv) => {
       await runMigrations(argv.from, argv.to, argv.network as NetworkName);
+      process.exit()
     }
   )
   .help()

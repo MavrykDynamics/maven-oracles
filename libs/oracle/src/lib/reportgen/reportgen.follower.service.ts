@@ -543,7 +543,7 @@ export class ReportGenFollowerService {
   }
 
   /**
-   * Sign compressed report using tezos private key
+   * Sign compressed report using mavryk private key
    *
    * @param report
    * @private
@@ -558,7 +558,7 @@ export class ReportGenFollowerService {
       report.round
     );
     return {
-      oracle: this._oracleConfig.tezosAddress,
+      oracle: this._oracleConfig.mavrykAddress,
       signature
     };
   }
@@ -572,7 +572,7 @@ export class ReportGenFollowerService {
    * Steps:
    *  - Fetch last blockchain report
    *  - Check if report has a deviation of as least `alphaPerThousand`
-   *  - Check if last report was older than `heartBeatSeconds`
+   *  - Check if last report was older than `heartbeatSeconds`
    *
    *  If any of these checks pass, return true, false otherwise
    */
@@ -585,13 +585,10 @@ export class ReportGenFollowerService {
       return true;
     }
 
-    this._logger.debug(
-      `REPORTGEN CONFIG: ${this._reportGenConfig}`
-    );
     const secondsMultiplicator = 1000;
     if (
       Date.now() - lastReport.lastUpdatedAt >
-      this._reportGenConfig.heartBeatSeconds.toNumber() * secondsMultiplicator
+      this._reportGenConfig.heartbeatSeconds.toNumber() * secondsMultiplicator
     ) {
       return true;
     }

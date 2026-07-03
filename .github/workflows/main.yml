@@ -3,6 +3,11 @@ on:
   push:
     branches:
       - main
+    tags:
+      - '*.*.*'
+  pull_request:
+    branches:
+      - main
 
 jobs:
   tests:
@@ -41,6 +46,10 @@ jobs:
     needs: tests
     name: Build base image
     runs-on: ubuntu-latest
+    env:
+      ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+      DOCKER_REGISTRY: ghcr.io
+      DOCKER_IMAGE_BASE: ${{ github.repository }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -55,30 +64,45 @@ jobs:
       - name: Available platforms
         run: echo ${{ steps.buildx.outputs.platforms }}
 
-      - name: Login to DockerHub
+      - name: Log in to the registry
         uses: docker/login-action@v2
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          registry: ${{ env.DOCKER_REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build node image
+      - name: Oracle image tags & labels
+        id: meta-oracle
+        uses: docker/metadata-action@v3
+        with:
+          images: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE_BASE }}
+
+      - name: Oracle image build & push
         uses: docker/build-push-action@v2
         with:
           context: .
-          push: true
           file: images/node.Dockerfile
-          tags: tezosdynamics/mavryk-oracle:${{ github.sha }},tezosdynamics/mavryk-oracle:latest
+          push: true
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          tags: ${{ steps.meta-oracle.outputs.tags }}
+          labels: ${{ steps.meta-oracle.outputs.labels }}
           platforms: linux/amd64,linux/arm/v7,linux/arm/v6
 
-      - name: Build bootstrap node image
+      - name: Bootstrap image tags & labels
+        id: meta-bootstrap
+        uses: docker/metadata-action@v3
+        with:
+          images: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE_BASE }}-bootstrap
+
+      - name: Bootstrap image build & push
         uses: docker/build-push-action@v2
         with:
           context: .
-          push: true
           file: images/bootstrap-node.Dockerfile
-          tags: tezosdynamics/mavryk-oracle-bootstrap:${{ github.sha }},tezosdynamics/mavryk-oracle-bootstrap:latest
+          push: true
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          tags: ${{ steps.meta-bootstrap.outputs.tags }}
+          labels: ${{ steps.meta-bootstrap.outputs.labels }}
           platforms: linux/amd64,linux/arm/v7,linux/arm/v6

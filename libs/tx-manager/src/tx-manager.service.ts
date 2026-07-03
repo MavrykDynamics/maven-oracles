@@ -1,18 +1,17 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { WalletParamsWithKind } from '@taquito/taquito/dist/types/wallet/wallet';
-import { PollingSubscribeProvider, TezosToolkit } from '@taquito/taquito';
+import { WalletParamsWithKind } from '@mavrykdynamics/taquito/dist/types/wallet/wallet';
+import { PollingSubscribeProvider, TezosToolkit } from '@mavrykdynamics/taquito';
 import { TxManagerConfig } from './tx-manager.config.js';
 import { filter, firstValueFrom, Subject } from 'rxjs';
-import { BatchWalletOperation } from '@taquito/taquito/dist/types/wallet/batch-operation';
+import { BatchWalletOperation } from '@mavrykdynamics/taquito/dist/types/wallet/batch-operation';
 import { CronExpression } from '@nestjs/schedule';
 import { Mutex } from 'async-mutex';
 import { randomUUID } from 'crypto';
-import { ParamsWithKind } from '@taquito/taquito/dist/types/operations/types';
+import { ParamsWithKind } from '@mavrykdynamics/taquito/dist/types/operations/types';
 import { CronJob } from 'cron';
-// import { RemoteSigner } from '@taquito/remote-signer';
 import { getLogger } from './logger.js';
 import { Logger } from 'winston';
-import { RemoteSigner } from '@taquito/remote-signer';
+import { RemoteSigner } from '@mavrykdynamics/taquito-remote-signer';
 
 interface IBatchQueueRequest {
   uuid: string;
@@ -42,7 +41,7 @@ export class TxManagerService implements OnModuleInit {
     }
   });
   private _pool: Pool = [];
-  private _tezosToolkit: TezosToolkit;
+  private _mavrykToolkit: TezosToolkit;
   private _batchResponse$: Subject<BatchQueueResponse> = new Subject();
   private _mutex: Mutex = new Mutex();
   private _cronJob: CronJob;
@@ -154,14 +153,14 @@ export class TxManagerService implements OnModuleInit {
   }
 
   public async getTezosToolkit(): Promise<TezosToolkit> {
-    if (this._tezosToolkit) {
-      return this._tezosToolkit;
+    if (this._mavrykToolkit) {
+      return this._mavrykToolkit;
     }
 
     const toolkit = new TezosToolkit(this._txManagerConfig.rpcUrl);
-    // const signer = new InMemorySigner(this._txManagerConfig.tezosSecretKey);
+    // const signer = new InMemorySigner(this._txManagerConfig.mavrykSecretKey);
     const signer = new RemoteSigner(
-      this._txManagerConfig.tezosPublicKeyHash,
+      this._txManagerConfig.mavrykPublicKeyHash,
       this._txManagerConfig.signerUrl
     );
 
@@ -173,7 +172,7 @@ export class TxManagerService implements OnModuleInit {
       })
     );
 
-    this._tezosToolkit = toolkit;
+    this._mavrykToolkit = toolkit;
 
     return toolkit;
   }

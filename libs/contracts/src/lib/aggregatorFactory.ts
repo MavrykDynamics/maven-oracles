@@ -11,8 +11,8 @@ const AggregatorFactoryRaw              = require('./contracts/json/aggregatorFa
 const AggregatorFactoryLambdasRaw: any  = require('./contracts/json/lambdas/aggregatorFactoryLambdas.json');
 const AggregatorLambdasRaw: any         = require('./contracts/json/lambdas/aggregatorLambdas.json');
 
-import { MichelsonMap, MichelsonMapKey } from '@taquito/michelson-encoder';
-import { OnChainView } from '@taquito/taquito/dist/types/contract/contract-methods/contract-on-chain-view';
+import { MichelsonMap, MichelsonMapKey } from '@mavrykdynamics/taquito-michelson-encoder';
+import { OnChainView } from '@mavrykdynamics/taquito/dist/types/contract/contract-methods/contract-on-chain-view';
 import {
     ContractAbstraction,
     ContractMethod,
@@ -20,7 +20,7 @@ import {
     ContractProvider,
     ContractView,
     Wallet
-} from '@taquito/taquito';
+} from '@mavrykdynamics/taquito';
 import BigNumber from 'bignumber.js';
 
 export const AggregatorFactoryCode: any     = AggregatorFactoryRaw.michelson;
@@ -36,7 +36,7 @@ export type IAggregatorFactoryStorage = {
         trackAggregatorIsPaused               : boolean;
         untrackAggregatorIsPaused             : boolean;
         distributeRewardXtzIsPaused           : boolean;
-        distributeRewardStakedMvkIsPaused     : boolean;
+        distributeRewardStakedMvnIsPaused     : boolean;
     };
     config                    : {
         aggregatorNameMaxLength               : BigNumber;
@@ -45,7 +45,7 @@ export type IAggregatorFactoryStorage = {
     generalContracts          : MichelsonMap<MichelsonMapKey, unknown>;
     whitelistContracts        : MichelsonMap<MichelsonMapKey, unknown>;
 
-    mvkTokenAddress           : string;
+    mvnTokenAddress           : string;
     governanceAddress         : string;
     
     trackedAggregators        : Array<string>;
@@ -73,15 +73,15 @@ type AggregatorFactoryContractMethods<T extends ContractProvider | Wallet> = {
         decimals: BigNumber,
         alphaPercentPerThousand: BigNumber,
         percentOracleThreshold: BigNumber,
-        heartBeatSeconds: BigNumber,
-        rewardAmountStakedMvk: BigNumber,
+        heartbeatSeconds: BigNumber,
+        rewardAmountStakedMvn: BigNumber,
         rewardAmountXtz: BigNumber,
         metadata: string
     ) => ContractMethod<T>;
     trackAggregator: (aggregatorAddress: string) => ContractMethod<T>;
     untrackAggregator: (aggregatorAddress: string) => ContractMethod<T>;
     distributeRewardXtz: (recipient: string, reward: number) => ContractMethod<T>;
-    distributeRewardStakedMvk: (eligibleSatellites: Array<string>, totalStakedMvkReward: number) => ContractMethod<T>;
+    distributeRewardStakedMvn: (eligibleSatellites: Array<string>, totalStakedMvnReward: number) => ContractMethod<T>;
     setLambda: (name: string, func_bytes: string) => ContractMethod<T>;
     setProductLambda: (name: string, func_bytes: string) => ContractMethod<T>;
 };

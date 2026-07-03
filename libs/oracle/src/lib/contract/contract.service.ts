@@ -1,11 +1,11 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { MichelsonType, packDataBytes } from '@taquito/michel-codec';
-import { verifySignature } from '@taquito/utils';
+import { MichelsonType, packDataBytes } from '@mavrykdynamics/taquito-michel-codec';
+import { verifySignature } from '@mavrykdynamics/taquito-utils';
 
 import { OracleConfig } from '../oracle.config.js';
-import { MichelsonMap, OpKind } from '@taquito/taquito';
+import { MichelsonMap, OpKind } from '@mavrykdynamics/taquito';
 import BigNumber from 'bignumber.js';
-import { Schema } from '@taquito/michelson-encoder';
+import { Schema } from '@mavrykdynamics/taquito-michelson-encoder';
 import { IAttestedReport, ICompressedReport, IObservation, ISignature } from '../reportgen';
 import { toTimestamp } from './helpers.js';
 import { TxManagerService } from '@mavrykdynamics/tx-manager';
@@ -397,9 +397,9 @@ export class ContractService implements OnModuleInit {
       decimals                            : storage.config.decimals,
       alphaPercentPerThousand             : storage.config.alphaPercentPerThousand,
       percentOracleThreshold              : storage.config.percentOracleThreshold,
-      heartBeatSeconds                    : storage.config.heartBeatSeconds,
+      heartbeatSeconds                    : storage.config.heartbeatSeconds,
       rewardAmountXtz                     : storage.config.rewardAmountXtz,
-      rewardAmountStakedMvk               : storage.config.rewardAmountStakedMvk
+      rewardAmountStakedMvn               : storage.config.rewardAmountStakedMvn
     };
   }
 }
