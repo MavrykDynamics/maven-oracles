@@ -19,8 +19,8 @@ async def add_oracle(
     init_epoch                      = int(add_oracle.storage.lastCompletedData.epoch)
 
     # Create record
-    oracle                          = await models.oracle_user_cache.get(network='atlasnet', address=oracle_address)
-    aggregator                      = await models.Aggregator.get(network='atlasnet',address=aggregator_address)
+    oracle                          = await models.oracle_user_cache.get(network='basenet', address=oracle_address)
+    aggregator                      = await models.Aggregator.get(network='basenet',address=aggregator_address)
     aggregator_oracle               = models.AggregatorOracle(
         aggregator  = aggregator,
         user        = oracle,

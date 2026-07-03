@@ -15,7 +15,7 @@ async def set_name(
 
     # Update contract
     await models.Aggregator.filter(
-        network = 'atlasnet',
+        network = 'basenet',
         address = aggregator_address
     ).update(
         name    = name

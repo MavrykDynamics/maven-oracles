@@ -15,7 +15,7 @@ async def update_config(
 
     # Update contract
     await models.Aggregator.filter(
-        network = 'atlasnet',
+        network = 'basenet',
         address = aggregator_address
     ).update(
         last_updated_at  = timestamp,

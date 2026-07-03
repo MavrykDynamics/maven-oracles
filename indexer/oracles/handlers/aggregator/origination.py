@@ -40,7 +40,7 @@ async def origination(
 
     # Create record
     aggregator                  = models.Aggregator(
-        network                                     = 'atlasnet',
+        network                                     = 'basenet',
         address                                     = aggregator_address,
         metadata                                    = contract_metadata,
         admin                                       = admin,
@@ -65,7 +65,7 @@ async def origination(
         oracle_peer_id          = oracle_storage_record.oraclePeerId
 
         # Create record
-        oracle                  = await models.oracle_user_cache.get(network='atlasnet', address=oracle_address)
+        oracle                  = await models.oracle_user_cache.get(network='basenet', address=oracle_address)
         aggregator_oracle       = models.AggregatorOracle(
             aggregator  = aggregator,
             user        = oracle,

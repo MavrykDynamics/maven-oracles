@@ -6,7 +6,7 @@
     "build": "heft build --clean",
     "build:watch": "heft build",
     "migrate": "node --loader ts-node/esm  src/lib/scripts/cli.ts migrate --bail --timeout 900000 --exit",
-    "migrate-testnet": "node --loader ts-node/esm  src/lib/scripts/cli.ts migrate atlasnet --bail --timeout 900000 --exit",
+    "migrate-testnet": "node --loader ts-node/esm  src/lib/scripts/cli.ts migrate basenet --bail --timeout 900000 --exit",
     "migrate-testnet-kms": "node --loader ts-node/esm  src/lib/scripts/cli.ts migrate ithacanet-kms --bail --timeout 900000 --exit",
     "migrate-only": "node --loader ts-node/esm  src/lib/scripts/cli.ts migrate --bail --timeout 900000 --exit",
     "test-net-deploy": "NODE_ENV=development NETWORK_TO_MIGRATE_TO=hangzhounet ts-mocha --paths test/deploy/00_test_deployments.spec.ts --bail --timeout 900000 --exit",

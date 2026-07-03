@@ -1,5 +1,5 @@
 async def get_contract_metadata(ctx, contract_address):
-    metadata_datasource_name    = 'metadata_atlasnet'
+    metadata_datasource_name    = 'metadata'
     metadata_datasource         = None
     contract_metadata           = None
 

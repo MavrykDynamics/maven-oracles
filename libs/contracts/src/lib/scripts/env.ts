@@ -2,7 +2,7 @@ import { accountPerNetwork } from '../accounts.js';
 
 export type NetworkName =
   | 'development'
-  | 'atlasnet'
+  | 'basenet'
   | 'basenet'
   | 'mainnet';
 
@@ -50,12 +50,12 @@ export const networkConfig: INetworkConfig = {
       secretKey: accountPerNetwork.basenet.alice.sk,
       pkh: accountPerNetwork.basenet.alice.pkh
     },
-    atlasnet: {
-      rpc: 'https://atlasnet.rpc.mavryk.network',
+    basenet: {
+      rpc: 'https://basenet.rpc.mavryk.network',
       port: 443,
       network_id: '*',
-      secretKey: accountPerNetwork.atlasnet.alice.sk,
-      pkh: accountPerNetwork.atlasnet.alice.pkh
+      secretKey: accountPerNetwork.basenet.alice.sk,
+      pkh: accountPerNetwork.basenet.alice.pkh
     },
     mainnet: {
       rpc: 'https://mainnet.rpc.mavryk.network',

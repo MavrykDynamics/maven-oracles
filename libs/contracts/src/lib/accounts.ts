@@ -329,5 +329,5 @@ export const accountPerNetwork: Record<NetworkName, Record<AccountName, IAccount
   development: accounts,
   mainnet: testnetAccounts,
   basenet: testnetAccounts,
-  atlasnet: testnetAccounts
+  basenet: testnetAccounts
 };

@@ -2,7 +2,7 @@ indexes:
   aggregator:
     kind: tezos.operations
     datasources:
-      - mvkt_atlasnet
+      - mvkt
     types:
       - origination
       - transaction

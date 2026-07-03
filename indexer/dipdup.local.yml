@@ -29,10 +29,10 @@ advanced:
     schema_modified: wipe
 
 datasources:
-  metadata_atlasnet:
+  metadata:
     kind: tzip_metadata
     url: https://dipdup-metadata-api.mavryk.network
     network: oxfordnet
-  mvkt_atlasnet:
+  mvkt:
     kind: tezos.tzkt
-    url: https://atlasnet.api.mavryk.network
+    url: https://basenet.api.mavryk.network
