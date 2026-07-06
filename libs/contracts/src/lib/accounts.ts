@@ -328,6 +328,5 @@ export const testnetKmsAccounts: Record<AccountName, IAccount> = {
 export const accountPerNetwork: Record<NetworkName, Record<AccountName, IAccount>> = {
   development: accounts,
   mainnet: testnetAccounts,
-  basenet: testnetAccounts,
   basenet: testnetAccounts
 };
