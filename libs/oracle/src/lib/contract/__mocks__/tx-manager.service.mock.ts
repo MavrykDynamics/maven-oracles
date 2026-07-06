@@ -1,20 +1,20 @@
 import { jest } from '@jest/globals';
-import { InMemorySigner } from '@mavrykdynamics/taquito-signer';
-import { TezosToolkit } from '@mavrykdynamics/taquito';
+import { InMemorySigner } from '@mavrykdynamics/webmavryk-signer';
+import { MavrykToolkit } from '@mavrykdynamics/webmavryk';
 import { TxManagerService } from '@mavrykdynamics/tx-manager';
 
 export const mockaddBatch = jest.fn();
 
 export const TxManagerServiceMock = jest.fn().mockImplementation((secretKey: string) => {
-  const mockGetTezosToolkit = jest
-  .fn<TxManagerService['getTezosToolkit']>()
+  const mockGetMavrykToolkit = jest
+  .fn<TxManagerService['getMavrykToolkit']>()
   .mockImplementation(async () => {
-    const mavryk = await new TezosToolkit("rpc");
+    const mavryk = await new MavrykToolkit("rpc");
     mavryk.setProvider({ signer: await InMemorySigner.fromSecretKey(secretKey) });
     return mavryk;
   });
   return {
     addBatch: mockaddBatch,
-    getTezosToolkit: mockGetTezosToolkit
+    getMavrykToolkit: mockGetMavrykToolkit
   };
 });

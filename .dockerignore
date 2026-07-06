@@ -6,7 +6,7 @@ common/temp
 .api-keys.*
 .nvmrc
 secret.json
-signatory.dev.yaml
+mavseal.dev.yaml
 *.md
 docker-compose.yml
 .github/

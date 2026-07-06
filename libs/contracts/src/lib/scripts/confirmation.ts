@@ -2,8 +2,8 @@
 /* eslint-disable @rushstack/no-new-null */
 import { networkConfig } from './env.js';
 
-import { BlockResponse, OperationEntry } from '@mavrykdynamics/taquito-rpc';
-import { TezosToolkit } from '@mavrykdynamics/taquito';
+import { BlockResponse, OperationEntry } from '@mavrykdynamics/webmavryk-rpc';
+import { MavrykToolkit } from '@mavrykdynamics/webmavryk';
 
 export const SYNC_INTERVAL: number = networkConfig.syncInterval;
 export const CONFIRM_TIMEOUT: number = networkConfig.confirmTimeout;
@@ -15,7 +15,7 @@ export interface IConfirmOperationOptions {
 }
 
 export async function confirmOperation(
-  mavryk: TezosToolkit,
+  mavryk: MavrykToolkit,
   opHash: string,
   { initializedAt, fromBlockLevel, signal }: IConfirmOperationOptions = {}
 ): Promise<OperationEntry> {

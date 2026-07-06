@@ -23,9 +23,9 @@ importers:
       '@libp2p/websockets': ^5.0.7
       '@mavrykdynamics/config': workspace:*
       '@mavrykdynamics/oracle': workspace:*
-      '@mavrykdynamics/taquito-michel-codec': ^19.2.3
-      '@mavrykdynamics/taquito-michelson-encoder': ^19.2.3
-      '@mavrykdynamics/taquito-remote-signer': ^19.2.3
+      '@mavrykdynamics/taquito-michel-codec': ^2.0.1
+      '@mavrykdynamics/taquito-michelson-encoder': ^2.0.1
+      '@mavrykdynamics/taquito-remote-signer': ^2.0.1
       '@multiformats/multiaddr': ^12.1.0
       '@nestjs/axios': ^0.0.7
       '@nestjs/common': 9.1.1
@@ -84,9 +84,9 @@ importers:
       '@libp2p/websockets': 5.0.7
       '@mavrykdynamics/config': link:../../libs/config
       '@mavrykdynamics/oracle': link:../../libs/oracle
-      '@mavrykdynamics/taquito-michel-codec': 19.2.3
-      '@mavrykdynamics/taquito-michelson-encoder': 19.2.3
-      '@mavrykdynamics/taquito-remote-signer': 19.2.3
+      '@mavrykdynamics/taquito-michel-codec': 2.0.1
+      '@mavrykdynamics/taquito-michelson-encoder': 2.0.1
+      '@mavrykdynamics/taquito-remote-signer': 2.0.1
       '@multiformats/multiaddr': 12.1.0
       '@nestjs/axios': 0.0.7_e377813e5482de2045f500363489f809
       '@nestjs/common': 9.1.1_4f4e0342fc65b321507c56123ad020a6
@@ -145,12 +145,12 @@ importers:
       '@libp2p/websockets': ^3.0.0
       '@mavrykdynamics/contracts': workspace:*
       '@mavrykdynamics/oracle': workspace:*
-      '@mavrykdynamics/taquito': ^19.2.3
-      '@mavrykdynamics/taquito-michel-codec': ^19.2.3
-      '@mavrykdynamics/taquito-michelson-encoder': ^19.2.3
-      '@mavrykdynamics/taquito-remote-signer': ^19.2.3
-      '@mavrykdynamics/taquito-signer': ^19.2.3
-      '@mavrykdynamics/taquito-utils': ^19.2.3
+      '@mavrykdynamics/taquito': ^2.0.1
+      '@mavrykdynamics/taquito-michel-codec': ^2.0.1
+      '@mavrykdynamics/taquito-michelson-encoder': ^2.0.1
+      '@mavrykdynamics/taquito-remote-signer': ^2.0.1
+      '@mavrykdynamics/taquito-signer': ^2.0.1
+      '@mavrykdynamics/taquito-utils': ^2.0.1
       '@multiformats/multiaddr': ~10.3.3
       '@nestjs/axios': ^0.0.7
       '@nestjs/common': 9.1.1
@@ -208,9 +208,9 @@ importers:
       '@libp2p/tcp': 3.1.1
       '@libp2p/websockets': 3.0.4
       '@mavrykdynamics/oracle': link:../../libs/oracle
-      '@mavrykdynamics/taquito-michel-codec': 19.2.3
-      '@mavrykdynamics/taquito-remote-signer': 19.2.3
-      '@mavrykdynamics/taquito-utils': 19.2.3
+      '@mavrykdynamics/taquito-michel-codec': 2.0.1
+      '@mavrykdynamics/taquito-remote-signer': 2.0.1
+      '@mavrykdynamics/taquito-utils': 2.0.1
       '@multiformats/multiaddr': 10.3.5
       '@nestjs/axios': 0.0.7_e377813e5482de2045f500363489f809
       '@nestjs/common': 9.1.1_4f4e0342fc65b321507c56123ad020a6
@@ -233,9 +233,9 @@ importers:
       yarn: 1.22.19
     devDependencies:
       '@mavrykdynamics/contracts': link:../../libs/contracts
-      '@mavrykdynamics/taquito': 19.2.3
-      '@mavrykdynamics/taquito-michelson-encoder': 19.2.3
-      '@mavrykdynamics/taquito-signer': 19.2.3
+      '@mavrykdynamics/taquito': 2.0.1
+      '@mavrykdynamics/taquito-michelson-encoder': 2.0.1
+      '@mavrykdynamics/taquito-signer': 2.0.1
       '@nestjs/schematics': 8.0.11_typescript@4.5.5
       '@nestjs/testing': 9.1.1_c93934594c4719050fc1e7b765786cf1
       '@rushstack/eslint-config': 3.0.1_eslint@8.22.0+typescript@4.5.5
@@ -408,13 +408,13 @@ importers:
 
   ../../libs/contracts:
     specifiers:
-      '@mavrykdynamics/taquito': ^19.2.3
-      '@mavrykdynamics/taquito-michel-codec': ^19.2.3
-      '@mavrykdynamics/taquito-michelson-encoder': ^19.2.3
-      '@mavrykdynamics/taquito-remote-signer': ^19.2.3
-      '@mavrykdynamics/taquito-rpc': ^19.2.3
-      '@mavrykdynamics/taquito-signer': ^19.2.3
-      '@mavrykdynamics/taquito-utils': ^19.2.3
+      '@mavrykdynamics/taquito': ^2.0.1
+      '@mavrykdynamics/taquito-michel-codec': ^2.0.1
+      '@mavrykdynamics/taquito-michelson-encoder': ^2.0.1
+      '@mavrykdynamics/taquito-remote-signer': ^2.0.1
+      '@mavrykdynamics/taquito-rpc': ^2.0.1
+      '@mavrykdynamics/taquito-signer': ^2.0.1
+      '@mavrykdynamics/taquito-utils': ^2.0.1
       '@multiformats/multiaddr': ~10.3.3
       '@nestjs/axios': ^0.0.7
       '@nestjs/common': 9.1.1
@@ -463,13 +463,13 @@ importers:
       webpack-node-externals: ^3.0.0
       yargs: ^17.5.1
     dependencies:
-      '@mavrykdynamics/taquito': 19.2.3
-      '@mavrykdynamics/taquito-michel-codec': 19.2.3
-      '@mavrykdynamics/taquito-michelson-encoder': 19.2.3
-      '@mavrykdynamics/taquito-remote-signer': 19.2.3
-      '@mavrykdynamics/taquito-rpc': 19.2.3
-      '@mavrykdynamics/taquito-signer': 19.2.3
-      '@mavrykdynamics/taquito-utils': 19.2.3
+      '@mavrykdynamics/taquito': 2.0.1
+      '@mavrykdynamics/taquito-michel-codec': 2.0.1
+      '@mavrykdynamics/taquito-michelson-encoder': 2.0.1
+      '@mavrykdynamics/taquito-remote-signer': 2.0.1
+      '@mavrykdynamics/taquito-rpc': 2.0.1
+      '@mavrykdynamics/taquito-signer': 2.0.1
+      '@mavrykdynamics/taquito-utils': 2.0.1
       '@multiformats/multiaddr': 10.3.5
       '@nestjs/axios': 0.0.7_e377813e5482de2045f500363489f809
       '@nestjs/common': 9.1.1_4f4e0342fc65b321507c56123ad020a6
@@ -645,12 +645,12 @@ importers:
       '@mavrykdynamics/contracts': workspace:*
       '@mavrykdynamics/data-fetcher': workspace:*
       '@mavrykdynamics/messari-fetcher': workspace:*
-      '@mavrykdynamics/taquito': ^19.2.3
-      '@mavrykdynamics/taquito-michel-codec': ^19.2.3
-      '@mavrykdynamics/taquito-michelson-encoder': ^19.2.3
-      '@mavrykdynamics/taquito-remote-signer': ^19.2.3
-      '@mavrykdynamics/taquito-signer': ^19.2.3
-      '@mavrykdynamics/taquito-utils': ^19.2.3
+      '@mavrykdynamics/taquito': ^2.0.1
+      '@mavrykdynamics/taquito-michel-codec': ^2.0.1
+      '@mavrykdynamics/taquito-michelson-encoder': ^2.0.1
+      '@mavrykdynamics/taquito-remote-signer': ^2.0.1
+      '@mavrykdynamics/taquito-signer': ^2.0.1
+      '@mavrykdynamics/taquito-utils': ^2.0.1
       '@mavrykdynamics/tx-manager': workspace:*
       '@multiformats/multiaddr': ^12.1.0
       '@nestjs/axios': ^0.0.7
@@ -736,12 +736,12 @@ importers:
       '@mavrykdynamics/contracts': link:../contracts
       '@mavrykdynamics/data-fetcher': link:../data-fetcher
       '@mavrykdynamics/messari-fetcher': link:../messari-fetcher
-      '@mavrykdynamics/taquito': 19.2.3
-      '@mavrykdynamics/taquito-michel-codec': 19.2.3
-      '@mavrykdynamics/taquito-michelson-encoder': 19.2.3
-      '@mavrykdynamics/taquito-remote-signer': 19.2.3
-      '@mavrykdynamics/taquito-signer': 19.2.3
-      '@mavrykdynamics/taquito-utils': 19.2.3
+      '@mavrykdynamics/taquito': 2.0.1
+      '@mavrykdynamics/taquito-michel-codec': 2.0.1
+      '@mavrykdynamics/taquito-michelson-encoder': 2.0.1
+      '@mavrykdynamics/taquito-remote-signer': 2.0.1
+      '@mavrykdynamics/taquito-signer': 2.0.1
+      '@mavrykdynamics/taquito-utils': 2.0.1
       '@mavrykdynamics/tx-manager': link:../tx-manager
       '@multiformats/multiaddr': 12.1.0
       '@nestjs/axios': 0.0.7_e377813e5482de2045f500363489f809
@@ -815,9 +815,9 @@ importers:
   ../../libs/tx-manager:
     specifiers:
       '@mavrykdynamics/config': workspace:*
-      '@mavrykdynamics/taquito': ^19.2.3
-      '@mavrykdynamics/taquito-remote-signer': ^19.2.3
-      '@mavrykdynamics/taquito-signer': ^19.2.3
+      '@mavrykdynamics/taquito': ^2.0.1
+      '@mavrykdynamics/taquito-remote-signer': ^2.0.1
+      '@mavrykdynamics/taquito-signer': ^2.0.1
       '@nestjs/common': 9.1.1
       '@nestjs/schedule': ^2.1.0
       '@rushstack/eslint-config': ~2.6.1
@@ -842,9 +842,9 @@ importers:
       winston: ^3.8.2
     dependencies:
       '@mavrykdynamics/config': link:../config
-      '@mavrykdynamics/taquito': 19.2.3
-      '@mavrykdynamics/taquito-remote-signer': 19.2.3
-      '@mavrykdynamics/taquito-signer': 19.2.3
+      '@mavrykdynamics/taquito': 2.0.1
+      '@mavrykdynamics/taquito-remote-signer': 2.0.1
+      '@mavrykdynamics/taquito-signer': 2.0.1
       '@nestjs/common': 9.1.1_rxjs@7.5.6
       '@nestjs/schedule': 2.1.0_@nestjs+common@9.1.1
       async-mutex: 0.3.2
@@ -4183,55 +4183,55 @@ packages:
       - utf-8-validate
     dev: false
 
-  /@mavrykdynamics/taquito-core/19.2.3:
+  /@mavrykdynamics/taquito-core/2.0.1:
     resolution: {integrity: sha512-mwHOJCJoBsb/S5BiUe7hDuvn9imzMvkJn6KGF5/Xk/VZ8b43y37FjfV6lw7haGEnOzrkE1lWG/q1/fKIka5qkw==}
     engines: {node: '>=18'}
     dependencies:
       json-stringify-safe: 5.0.1
 
-  /@mavrykdynamics/taquito-http-utils/19.2.3:
+  /@mavrykdynamics/taquito-http-utils/2.0.1:
     resolution: {integrity: sha512-GhAkzIJOWFyKIriXPFJ2Nbh29DAgPFgo27Fzy09ILdp5x+ERh+1nUjj3F3UeCqhQT0W3MofGdoXK2k2ueRDGWg==}
     engines: {node: '>=18'}
     dependencies:
-      '@mavrykdynamics/taquito-core': 19.2.3
+      '@mavrykdynamics/taquito-core': 2.0.1
       node-fetch: 2.7.0
     transitivePeerDependencies:
       - encoding
 
-  /@mavrykdynamics/taquito-local-forging/19.2.3:
+  /@mavrykdynamics/taquito-local-forging/2.0.1:
     resolution: {integrity: sha512-VzM2NRCvcNe/IcBjMrn9h9MwmLN6O0TPNsZmldOCnjUZjruGSmG8EzWGf6nFgZPPpwT34uuU5SNyEyRjh+Fn/g==}
     engines: {node: '>=18'}
     dependencies:
-      '@mavrykdynamics/taquito-core': 19.2.3
-      '@mavrykdynamics/taquito-utils': 19.2.3
+      '@mavrykdynamics/taquito-core': 2.0.1
+      '@mavrykdynamics/taquito-utils': 2.0.1
       bignumber.js: 9.1.2
 
-  /@mavrykdynamics/taquito-michel-codec/19.2.3:
+  /@mavrykdynamics/taquito-michel-codec/2.0.1:
     resolution: {integrity: sha512-EayMuyFl10DJTm6E/57ZsVOl6zFObOX7F/6N9WZ1JZsQ0HDafXf3YWt7JCX3/UpYcBzyMvQhsMdwUAKrOfassA==}
     engines: {node: '>=18'}
     dependencies:
-      '@mavrykdynamics/taquito-core': 19.2.3
+      '@mavrykdynamics/taquito-core': 2.0.1
 
-  /@mavrykdynamics/taquito-michelson-encoder/19.2.3:
+  /@mavrykdynamics/taquito-michelson-encoder/2.0.1:
     resolution: {integrity: sha512-pJnW1DTXAKJzwZ7gSoXOilUMKKRAmy+x6y74z/04Q/Pae2sqxoeTCP3LDyaW53QCjvb7xMS1JQ97AyFL6EgAjw==}
     engines: {node: '>=18'}
     dependencies:
-      '@mavrykdynamics/taquito-core': 19.2.3
-      '@mavrykdynamics/taquito-rpc': 19.2.3
-      '@mavrykdynamics/taquito-utils': 19.2.3
+      '@mavrykdynamics/taquito-core': 2.0.1
+      '@mavrykdynamics/taquito-rpc': 2.0.1
+      '@mavrykdynamics/taquito-utils': 2.0.1
       bignumber.js: 9.1.2
       fast-json-stable-stringify: 2.1.0
     transitivePeerDependencies:
       - encoding
 
-  /@mavrykdynamics/taquito-remote-signer/19.2.3:
+  /@mavrykdynamics/taquito-remote-signer/2.0.1:
     resolution: {integrity: sha512-i7vv4Hb0ZekXvVJvNTFP8+yJIQM52/C4MXpMaZ1HI1xOUtllnlufX/TsMfT3VMex1ZXru2gU/4lkJ1NMd9UmOw==}
     engines: {node: '>=18'}
     dependencies:
-      '@mavrykdynamics/taquito': 19.2.3
-      '@mavrykdynamics/taquito-core': 19.2.3
-      '@mavrykdynamics/taquito-http-utils': 19.2.3
-      '@mavrykdynamics/taquito-utils': 19.2.3
+      '@mavrykdynamics/taquito': 2.0.1
+      '@mavrykdynamics/taquito-core': 2.0.1
+      '@mavrykdynamics/taquito-http-utils': 2.0.1
+      '@mavrykdynamics/taquito-utils': 2.0.1
       '@stablelib/blake2b': 1.0.1
       '@stablelib/ed25519': 1.0.3
       typedarray-to-buffer: 4.0.0
@@ -4239,24 +4239,24 @@ packages:
       - encoding
     dev: false
 
-  /@mavrykdynamics/taquito-rpc/19.2.3:
+  /@mavrykdynamics/taquito-rpc/2.0.1:
     resolution: {integrity: sha512-dRB4XcO/0nq7IBHRrjhMBbQLsxebvXxr0q8DH/fRKvsudtg8mLX+HNWzcsHIzpTQCF54THcyrcw69DqG42Kodw==}
     engines: {node: '>=18'}
     dependencies:
-      '@mavrykdynamics/taquito-core': 19.2.3
-      '@mavrykdynamics/taquito-http-utils': 19.2.3
-      '@mavrykdynamics/taquito-utils': 19.2.3
+      '@mavrykdynamics/taquito-core': 2.0.1
+      '@mavrykdynamics/taquito-http-utils': 2.0.1
+      '@mavrykdynamics/taquito-utils': 2.0.1
       bignumber.js: 9.1.2
     transitivePeerDependencies:
       - encoding
 
-  /@mavrykdynamics/taquito-signer/19.2.3:
+  /@mavrykdynamics/taquito-signer/2.0.1:
     resolution: {integrity: sha512-ZM1uoURdBo9Tx8VHA5/qwRclSmCENeQz8fSOeitvRxLrGMIDhM+YNpZ/5LbTtvgMzLKrGJy7fF++LMeqsghI8Q==}
     engines: {node: '>=18'}
     dependencies:
-      '@mavrykdynamics/taquito': 19.2.3
-      '@mavrykdynamics/taquito-core': 19.2.3
-      '@mavrykdynamics/taquito-utils': 19.2.3
+      '@mavrykdynamics/taquito': 2.0.1
+      '@mavrykdynamics/taquito-core': 2.0.1
+      '@mavrykdynamics/taquito-utils': 2.0.1
       '@stablelib/blake2b': 1.0.1
       '@stablelib/ed25519': 1.0.3
       '@stablelib/hmac': 1.0.1
@@ -4271,11 +4271,11 @@ packages:
     transitivePeerDependencies:
       - encoding
 
-  /@mavrykdynamics/taquito-utils/19.2.3:
+  /@mavrykdynamics/taquito-utils/2.0.1:
     resolution: {integrity: sha512-5FEK29k1Oh/RPCayuBTH+ZkXz0WNrQBUbZaKJjTsJeYzWTzgWnmI3IV2gxiR7ZYyy7DJ8eWfUap+pPszMx5e2g==}
     engines: {node: '>=18'}
     dependencies:
-      '@mavrykdynamics/taquito-core': 19.2.3
+      '@mavrykdynamics/taquito-core': 2.0.1
       '@stablelib/blake2b': 1.0.1
       '@stablelib/ed25519': 1.0.3
       '@types/bs58check': 2.1.0
@@ -4286,18 +4286,18 @@ packages:
       elliptic: 6.5.4
       typedarray-to-buffer: 4.0.0
 
-  /@mavrykdynamics/taquito/19.2.3:
+  /@mavrykdynamics/taquito/2.0.1:
     resolution: {integrity: sha512-LMtnaF9SwM11Bwtcy3lciEbXWAMrHQcgiX9zsUghHHgHfqmyDvCFkodWTStqZ8UB9S0JuHyvefGe4o9Vwv4YEw==}
     engines: {node: '>=18'}
     requiresBuild: true
     dependencies:
-      '@mavrykdynamics/taquito-core': 19.2.3
-      '@mavrykdynamics/taquito-http-utils': 19.2.3
-      '@mavrykdynamics/taquito-local-forging': 19.2.3
-      '@mavrykdynamics/taquito-michel-codec': 19.2.3
-      '@mavrykdynamics/taquito-michelson-encoder': 19.2.3
-      '@mavrykdynamics/taquito-rpc': 19.2.3
-      '@mavrykdynamics/taquito-utils': 19.2.3
+      '@mavrykdynamics/taquito-core': 2.0.1
+      '@mavrykdynamics/taquito-http-utils': 2.0.1
+      '@mavrykdynamics/taquito-local-forging': 2.0.1
+      '@mavrykdynamics/taquito-michel-codec': 2.0.1
+      '@mavrykdynamics/taquito-michelson-encoder': 2.0.1
+      '@mavrykdynamics/taquito-rpc': 2.0.1
+      '@mavrykdynamics/taquito-utils': 2.0.1
       bignumber.js: 9.1.2
       rxjs: 7.8.1
     transitivePeerDependencies:

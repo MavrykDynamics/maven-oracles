@@ -1,17 +1,17 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { WalletParamsWithKind } from '@mavrykdynamics/taquito/dist/types/wallet/wallet';
-import { PollingSubscribeProvider, TezosToolkit } from '@mavrykdynamics/taquito';
+import { WalletParamsWithKind } from '@mavrykdynamics/webmavryk/dist/types/wallet/wallet';
+import { PollingSubscribeProvider, MavrykToolkit, Signer } from '@mavrykdynamics/webmavryk';
 import { TxManagerConfig } from './tx-manager.config.js';
 import { filter, firstValueFrom, Subject } from 'rxjs';
-import { BatchWalletOperation } from '@mavrykdynamics/taquito/dist/types/wallet/batch-operation';
+import { BatchWalletOperation } from '@mavrykdynamics/webmavryk/dist/types/wallet/batch-operation';
 import { CronExpression } from '@nestjs/schedule';
 import { Mutex } from 'async-mutex';
 import { randomUUID } from 'crypto';
-import { ParamsWithKind } from '@mavrykdynamics/taquito/dist/types/operations/types';
+import { ParamsWithKind } from '@mavrykdynamics/webmavryk/dist/types/operations/types';
 import { CronJob } from 'cron';
 import { getLogger } from './logger.js';
 import { Logger } from 'winston';
-import { RemoteSigner } from '@mavrykdynamics/taquito-remote-signer';
+import { RemoteSigner } from '@mavrykdynamics/webmavryk-remote-signer';
 
 interface IBatchQueueRequest {
   uuid: string;
@@ -41,7 +41,7 @@ export class TxManagerService implements OnModuleInit {
     }
   });
   private _pool: Pool = [];
-  private _mavrykToolkit: TezosToolkit;
+  private _mavrykToolkit: MavrykToolkit;
   private _batchResponse$: Subject<BatchQueueResponse> = new Subject();
   private _mutex: Mutex = new Mutex();
   private _cronJob: CronJob;
@@ -112,7 +112,7 @@ export class TxManagerService implements OnModuleInit {
       return;
     }
 
-    const toolkit = await this.getTezosToolkit();
+    const toolkit = await this.getMavrykToolkit();
 
     const pkh = await toolkit.wallet.pkh();
     const estimateInput: ParamsWithKind[] = requests.map((value) => ({
@@ -152,19 +152,24 @@ export class TxManagerService implements OnModuleInit {
     }
   }
 
-  public async getTezosToolkit(): Promise<TezosToolkit> {
+  public async getMavrykToolkit(): Promise<MavrykToolkit> {
     if (this._mavrykToolkit) {
       return this._mavrykToolkit;
     }
 
-    const toolkit = new TezosToolkit(this._txManagerConfig.rpcUrl);
+    const toolkit = new MavrykToolkit(this._txManagerConfig.rpcUrl);
     // const signer = new InMemorySigner(this._txManagerConfig.mavrykSecretKey);
     const signer = new RemoteSigner(
       this._txManagerConfig.mavrykPublicKeyHash,
       this._txManagerConfig.signerUrl
     );
 
-    toolkit.setSignerProvider(signer);
+    // webmavryk-remote-signer implements the webmavryk Signer interface, which is
+    // structurally identical to webmavryk's (same fork lineage: publicKey /
+    // publicKeyHash / secretKey / sign -> { bytes, sig, prefixSig, sbytes }).
+    // The cast bridges the two nominally-distinct toolkit types while the rest
+    // of the app still runs on webmavryk's MavrykToolkit.
+    toolkit.setSignerProvider(signer as unknown as Signer);
 
     toolkit.setStreamProvider(
       toolkit.getFactory(PollingSubscribeProvider)({

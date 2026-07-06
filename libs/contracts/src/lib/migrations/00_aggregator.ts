@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { INetworkConfig, NetworkName } from '../scripts/env';
-import { OriginationOperation, TezosToolkit } from '@mavrykdynamics/taquito';
-import { InMemorySigner } from '@mavrykdynamics/taquito-signer';
+import { OriginationOperation, MavrykToolkit } from '@mavrykdynamics/webmavryk';
+import { InMemorySigner } from '@mavrykdynamics/webmavryk-signer';
 import BigNumber from 'bignumber.js';
 import { saveContractAddress, setAggregatorFactoryLambdas, setAggregatorFactoryProductLambdas, setMavenLiteGeneralContracts } from '../scripts/helpers.js';
-import { MichelsonMap } from '@mavrykdynamics/taquito-michelson-encoder';
+import { MichelsonMap } from '@mavrykdynamics/webmavryk-michelson-encoder';
 import {
     AggregatorFactoryCode,
     AggregatorFactoryContractAbstraction,
@@ -30,7 +30,7 @@ export default async function (
     networkName: NetworkName,
     saveToEnv: boolean = true
 ): Promise<IMigrationResult> {
-    const toolkit = new TezosToolkit(networkConfig.networks[networkName].rpc);
+    const toolkit = new MavrykToolkit(networkConfig.networks[networkName].rpc);
 
     toolkit.setProvider({
         config: {
@@ -89,7 +89,7 @@ export default async function (
         distributeRewardStakedMvnIsPaused     : false,
     }
     const aggregatorFactoryMetadata = MichelsonMap.fromLiteral({
-        '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
+        '': Buffer.from('mavryk-storage:data', 'ascii').toString('hex'),
         data: Buffer.from(
             JSON.stringify({
             name: 'MAVEN Aggregator Factory Contract',

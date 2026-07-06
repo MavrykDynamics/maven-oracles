@@ -8,7 +8,7 @@ const require = createRequire(import.meta.url);
 // eslint-disable-next-line @rushstack/typedef-var
 const AggregatorRaw = require('./contracts/json/aggregator.json');
 
-import { MichelsonMap, MichelsonMapKey } from '@mavrykdynamics/taquito-michelson-encoder';
+import { MichelsonMap, MichelsonMapKey } from '@mavrykdynamics/webmavryk-michelson-encoder';
 import BigNumber from 'bignumber.js';
 import {
   ContractAbstraction,
@@ -17,8 +17,8 @@ import {
   ContractProvider,
   ContractView,
   Wallet
-} from '@mavrykdynamics/taquito';
-import { OnChainView } from '@mavrykdynamics/taquito/dist/types/contract/contract-methods/contract-on-chain-view';
+} from '@mavrykdynamics/webmavryk';
+import { OnChainView } from '@mavrykdynamics/webmavryk/dist/types/contract/contract-methods/contract-on-chain-view';
 
 export const AggregatorCode: any = AggregatorRaw.michelson;
 export type AggregatorConfigType = {

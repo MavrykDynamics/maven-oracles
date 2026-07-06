@@ -11,8 +11,8 @@ const AggregatorFactoryRaw              = require('./contracts/json/aggregatorFa
 const AggregatorFactoryLambdasRaw: any  = require('./contracts/json/lambdas/aggregatorFactoryLambdas.json');
 const AggregatorLambdasRaw: any         = require('./contracts/json/lambdas/aggregatorLambdas.json');
 
-import { MichelsonMap, MichelsonMapKey } from '@mavrykdynamics/taquito-michelson-encoder';
-import { OnChainView } from '@mavrykdynamics/taquito/dist/types/contract/contract-methods/contract-on-chain-view';
+import { MichelsonMap, MichelsonMapKey } from '@mavrykdynamics/webmavryk-michelson-encoder';
+import { OnChainView } from '@mavrykdynamics/webmavryk/dist/types/contract/contract-methods/contract-on-chain-view';
 import {
     ContractAbstraction,
     ContractMethod,
@@ -20,7 +20,7 @@ import {
     ContractProvider,
     ContractView,
     Wallet
-} from '@mavrykdynamics/taquito';
+} from '@mavrykdynamics/webmavryk';
 import BigNumber from 'bignumber.js';
 
 export const AggregatorFactoryCode: any     = AggregatorFactoryRaw.michelson;

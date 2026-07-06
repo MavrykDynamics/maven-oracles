@@ -12,9 +12,9 @@
   "type": "module",
   "dependencies": {
     "@nestjs/common": "9.1.1",
-    "@mavrykdynamics/taquito-signer": "^19.2.3",
-    "@mavrykdynamics/taquito-remote-signer": "^19.2.3",
-    "@mavrykdynamics/taquito": "^19.2.3",
+    "@mavrykdynamics/webmavryk-signer": "^2.0.1",
+    "@mavrykdynamics/webmavryk-remote-signer": "^2.0.1",
+    "@mavrykdynamics/webmavryk": "^2.0.1",
     "@nestjs/schedule": "^2.1.0",
     "async-mutex": "^0.3.2",
     "cron": "^2.1.0",
