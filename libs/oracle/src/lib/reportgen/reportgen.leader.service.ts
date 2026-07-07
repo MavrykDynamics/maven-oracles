@@ -24,6 +24,9 @@ import { Mutex } from 'async-mutex';
 import { getLogger } from '../logger.js';
 import { Logger } from 'winston';
 
+// Mavryk basenet block time. The round timer is kept as a slow multiple of it to avoid draining the price APIs.
+const BLOCK_TIME_MILLISECONDS = 10 * 1000;
+
 /**
  * Report Generation Leader service as described in {@link https://research.chain.link/ocr.pdf} Section 5.3
  *
@@ -86,7 +89,7 @@ export class ReportGenLeaderService {
 
   // Timer duration constants
   private readonly _timerGraceDurationMiliseconds: number = 2 * 1000;
-  private readonly _timerRoundDurationMiliseconds: number = 1800 * 1000;
+  private readonly _timerRoundDurationMiliseconds: number = 180 * BLOCK_TIME_MILLISECONDS;
 
   // Timers
   private _timerRound: Timer = new Timer(

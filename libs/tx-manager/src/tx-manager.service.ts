@@ -50,7 +50,7 @@ export class TxManagerService implements OnModuleInit {
 
   public onModuleInit(): void {
     this._logger.verbose(
-      `Using confirmation polling interval: ${this._txManagerConfig.pollingIntervalMilliseconds}s`
+      `Using confirmation polling interval: ${this._txManagerConfig.pollingIntervalMilliseconds}ms`
     );
 
     this._cronJob = new CronJob(CronExpression.EVERY_SECOND, async () => {
