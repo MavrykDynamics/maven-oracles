@@ -35,7 +35,7 @@ advanced:
 datasources:
   metadata:
     kind: tzip_metadata
-    url: https://dipdup-metadata-api.mavryk.network
+    url: https://basenet.metadata.mavryk.network
     network: oxfordnet
   mvkt:
     kind: tezos.tzkt
