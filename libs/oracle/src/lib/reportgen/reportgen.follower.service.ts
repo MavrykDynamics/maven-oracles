@@ -191,21 +191,31 @@ export class ReportGenFollowerService {
     this._completedRound = false;
     this._receivedEcho = new Map();
 
-    const { decimals } = await this._contractService.getAggregatorConfig(
-      this._reportGenConfig.aggregatorAddress
-    );
+    // Fetching the price can fail (all data sources down, RPC error, ...). A failure to
+    // observe a single round must NOT crash the whole process — it would take every
+    // aggregator and the consensus layer down with it. Skip this round instead: the
+    // leader will simply not receive our observation and move on.
+    try {
+      const { decimals } = await this._contractService.getAggregatorConfig(
+        this._reportGenConfig.aggregatorAddress
+      );
 
-    const observation = await this._dataService.getData(decimals, this._reportGenConfig.aggregatorPair);
+      const observation = await this._dataService.getData(decimals, this._reportGenConfig.aggregatorPair);
 
-    const signature = await this._signObservation(observation);
+      const signature = await this._signObservation(observation);
 
-    await this._reportGenNetworkService.sendObserve(from, {
-      aggregatorAddress: this._reportGenConfig.aggregatorAddress,
-      epoch: this._epoch,
-      round: observeReqMessage.round,
-      observation,
-      signature
-    });
+      await this._reportGenNetworkService.sendObserve(from, {
+        aggregatorAddress: this._reportGenConfig.aggregatorAddress,
+        epoch: this._epoch,
+        round: observeReqMessage.round,
+        observation,
+        signature
+      });
+    } catch (e) {
+      this._logger.warn(
+        `${this._reportGenConfig.aggregatorAddress}/${this._epoch}/${this._round} - Failed to produce observation, skipping round: ${e?.toString()}`
+      );
+    }
   }
 
   /**
