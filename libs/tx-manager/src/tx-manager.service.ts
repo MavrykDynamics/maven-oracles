@@ -39,7 +39,7 @@ type BatchQueueResponse = IBatchQueueResponseSuccess | IBatchQueueResponseError;
 // an error lets the mutex release and the next report retry (and surfaces the cause).
 function withTimeout<T>(promise: Promise<T>, milliseconds: number, label: string): Promise<T> {
   let timer: NodeJS.Timeout;
-  const timeout = new Promise<never>((_resolve, reject) => {
+  const timeout = new Promise<never>((resolve, reject) => {
     timer = setTimeout(() => reject(new Error(`${label} timed out after ${milliseconds}ms`)), milliseconds);
     timer.unref?.();
   });
