@@ -48,9 +48,6 @@ export class MessariFetcherService implements IDataFetcher {
     } else if (coin === 'ntbm') {
       const random = Math.random() * 0.005 + 100;
       return new BigNumber(parseFloat(random.toFixed(3)));
-    } else if (coin === 'mvrk') {
-      const random = Math.random() * 0.0001 + 2.648925;
-      return new BigNumber(parseFloat(random.toFixed(6)));
     } else {
       try {
         const response$ = this._httpService

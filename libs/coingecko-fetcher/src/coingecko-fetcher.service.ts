@@ -20,6 +20,7 @@ export class CoingeckoFetcherService implements IDataFetcher, OnModuleInit {
   // anonymous access live on the public host. Set once from config in the constructor.
   private readonly _isPro: boolean;
   private readonly _baseUrl: string;
+  private readonly _apiKey: string;
 
   private _symbolToId: Map<string, string> = new Map<string, string>();
   private _supportedVsCurrencies: Set<string> = new Set<string>();
@@ -30,8 +31,11 @@ export class CoingeckoFetcherService implements IDataFetcher, OnModuleInit {
   ) {
     this._isPro = _config.coingeckoApiPlan.toLowerCase() === 'pro';
     this._baseUrl = this._isPro ? 'https://pro-api.coingecko.com/api/v3' : 'https://api.coingecko.com/api/v3';
+    // Trim so a trailing newline/space in the injected secret (common with `echo key | base64`)
+    // isn't sent in the auth header and silently rejected as an anonymous request.
+    this._apiKey = (_config.coingeckoApiKey ?? '').trim();
 
-    if (_config.coingeckoApiKey === '') {
+    if (this._apiKey === '') {
       this._logger.warn(
         'No Coingecko API key set. You may hit the api request limit. Set the COINGECKO_API_KEY env variable with your API Key'
       );
@@ -55,12 +59,10 @@ export class CoingeckoFetcherService implements IDataFetcher, OnModuleInit {
    * public, heavily rate-limited API is used.
    */
   private _authHeaders(): Record<string, string> {
-    if (this._config.coingeckoApiKey === '') {
+    if (this._apiKey === '') {
       return {};
     }
-    return this._isPro
-      ? { 'x-cg-pro-api-key': this._config.coingeckoApiKey }
-      : { 'x-cg-demo-api-key': this._config.coingeckoApiKey };
+    return this._isPro ? { 'x-cg-pro-api-key': this._apiKey } : { 'x-cg-demo-api-key': this._apiKey };
   }
 
   /**
@@ -184,9 +186,6 @@ export class CoingeckoFetcherService implements IDataFetcher, OnModuleInit {
     } else if (coin === 'ntbm') {
       const random = Math.random() * 0.005 + 100;
       return new BigNumber(parseFloat(random.toFixed(3)));
-    } else if (coin === 'mvrk') {
-      const random = Math.random() * 0.0001 + 2.648925;
-      return new BigNumber(parseFloat(random.toFixed(6)));
     } else {
       const coinId = this._symbolToId.get(coin);
 
