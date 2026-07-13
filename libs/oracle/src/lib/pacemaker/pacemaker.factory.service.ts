@@ -43,9 +43,7 @@ export class PacemakerFactoryService implements OnModuleInit {
       await this._startPacemaker({
         aggregatorAddress,
         aggregatorPair: pair,
-        // Production cadence: 30s progress / 20s resend (restored from the 360x/1h
-        // slowdown that had been applied only to conserve price-API rate limits).
-        timerProgressDurationMiliseconds: 3 * BLOCK_TIME_MILLISECONDS,
+        timerProgressDurationMiliseconds: 360 * BLOCK_TIME_MILLISECONDS,
         timerResendDurationMiliseconds: 2 * BLOCK_TIME_MILLISECONDS,
       });
     }
