@@ -318,7 +318,7 @@ services:
       - .env
 
   mavseal:
-    image: ghcr.io/mavryk-network/mavseal:mavryk-v1.2.3-amd64
+    image: ghcr.io/mavryk-network/mavseal:mavryk-v1.2.4-amd64
     ports:
       - '6732:6732'
     volumes:

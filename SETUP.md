@@ -19,7 +19,7 @@ See [manual install instructions](https://docs.docker.com/engine/install/debian/
 ### Set up
 Create `docker-compose.yml` file:
 
-*Note: if you are deploying on a raspberry pi (64-bit OS), use the `ghcr.io/mavryk-network/mavseal:mavryk-v1.2.3-arm64` docker image for mavseal instead of the `-amd64` image.*
+*Note: if you are deploying on a raspberry pi (64-bit OS), use the `ghcr.io/mavryk-network/mavseal:mavryk-v1.2.4-arm64` docker image for mavseal instead of the `-amd64` image.*
 
 ```yaml
 # docker-compose.yml
@@ -36,7 +36,7 @@ services:
     network_mode: host
 
   mavseal:
-    image: ghcr.io/mavryk-network/mavseal:mavryk-v1.2.3-amd64
+    image: ghcr.io/mavryk-network/mavseal:mavryk-v1.2.4-amd64
     ports:
       - '6732:6732'
     volumes:
