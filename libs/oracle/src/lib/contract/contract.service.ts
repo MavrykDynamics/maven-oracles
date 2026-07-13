@@ -324,7 +324,7 @@ export class ContractService implements OnModuleInit {
     });
 
     try {
-      this._logger.info(`Sending report ${report.epoch}/${report.round} sent to the blockchain!`);
+      this._logger.info(`Submitting report ${report.epoch}/${report.round} to the blockchain...`);
       const response = await this._txManagerService.addBatch([
         {
           ...op.toTransferParams(),

@@ -33,6 +33,19 @@ interface IBatchQueueResponseError {
 
 type BatchQueueResponse = IBatchQueueResponseSuccess | IBatchQueueResponseError;
 
+// Reject a promise if it does not settle in time. Without this a stalled webmavryk
+// estimate/send/confirmation call hangs `_executeBatch` forever while holding the
+// async-mutex, which silently freezes every subsequent transmit. Turning a stall into
+// an error lets the mutex release and the next report retry (and surfaces the cause).
+function withTimeout<T>(promise: Promise<T>, milliseconds: number, label: string): Promise<T> {
+  let timer: NodeJS.Timeout;
+  const timeout = new Promise<never>((_resolve, reject) => {
+    timer = setTimeout(() => reject(new Error(`${label} timed out after ${milliseconds}ms`)), milliseconds);
+    timer.unref?.();
+  });
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(timer)) as Promise<T>;
+}
+
 @Injectable()
 export class TxManagerService implements OnModuleInit {
   private readonly _logger: Logger = getLogger({
@@ -121,33 +134,31 @@ export class TxManagerService implements OnModuleInit {
     }));
 
     try {
-      await toolkit.estimate.batch(estimateInput);
-    } catch (e) {
-      this._logger.error(`Estimate failed with params: ${JSON.stringify(estimateInput)}: ${e.toString()}`);
-      this._batchResponse$.next({
-        type: 'error',
-        uuid: uuid,
-        error: e
-      });
-    }
+      // Each webmavryk step is logged and time-boxed so we can see exactly where the
+      // transmit stalls (previously a hang here produced no log and no response at all).
+      this._logger.debug(`Estimating batch of ${requests.length} op(s) for ${pkh}`);
+      await withTimeout(toolkit.estimate.batch(estimateInput), 60_000, 'estimate.batch');
 
-    try {
-      const batchResult1 = await toolkit.wallet.batch(requests);
-      const batchResult2 = await batchResult1.send();
-      await batchResult2.confirmation();
+      this._logger.debug(`Forging/signing/injecting batch of ${requests.length} op(s)`);
+      const batchOp = await withTimeout(toolkit.wallet.batch(requests).send(), 60_000, 'wallet.batch.send');
+      this._logger.info(`Injected op ${batchOp.opHash}, awaiting confirmation`);
 
-      this._logger.verbose(`Batched ${requests.length} transactions`);
+      await withTimeout(batchOp.confirmation(), 120_000, 'confirmation');
+
+      this._logger.verbose(`Batched ${requests.length} transactions (op ${batchOp.opHash})`);
       this._batchResponse$.next({
         type: 'success',
         uuid: uuid,
-        response: batchResult2
+        response: batchOp
       });
     } catch (e) {
-      this._logger.error(e.toString());
+      this._logger.error(
+        `Batch execution failed for ${JSON.stringify(estimateInput)}: ${e?.toString?.() ?? e}`
+      );
       this._batchResponse$.next({
         type: 'error',
         uuid: uuid,
-        error: e
+        error: e as Error
       });
     }
   }
