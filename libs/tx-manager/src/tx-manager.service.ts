@@ -2,7 +2,7 @@ import { Injectable, OnModuleInit } from '@nestjs/common';
 import { WalletParamsWithKind } from '@mavrykdynamics/webmavryk/dist/types/wallet/wallet';
 import { PollingSubscribeProvider, MavrykToolkit, Signer } from '@mavrykdynamics/webmavryk';
 import { TxManagerConfig } from './tx-manager.config.js';
-import { filter, firstValueFrom, Subject } from 'rxjs';
+import { filter, firstValueFrom, Subject, timeout } from 'rxjs';
 import { BatchWalletOperation } from '@mavrykdynamics/webmavryk/dist/types/wallet/batch-operation';
 import { CronExpression } from '@nestjs/schedule';
 import { Mutex } from 'async-mutex';
@@ -85,7 +85,14 @@ export class TxManagerService implements OnModuleInit {
       requests: batch
     });
 
-    return await firstValueFrom(this._batchResponse$.pipe(filter((response) => response.uuid === uuid)));
+    // Bounded wait: if the executor never emits for this uuid, time out so the caller (and the
+    // transmit timer that awaits it) keeps moving instead of freezing every future transmit.
+    return await firstValueFrom(
+      this._batchResponse$.pipe(
+        filter((response) => response.uuid === uuid),
+        timeout({ first: 300_000 })
+      )
+    );
   }
 
   private async _executeBatches(): Promise<void> {
@@ -125,21 +132,23 @@ export class TxManagerService implements OnModuleInit {
       return;
     }
 
-    const toolkit = await this.getMavrykToolkit();
-
-    const pkh = await toolkit.wallet.pkh();
-    const estimateInput: ParamsWithKind[] = requests.map((value) => ({
-      ...value,
-      source: pkh
-    }));
+    // All network calls (toolkit/remote-signer setup, estimate, sign, inject, confirmation) run
+    // inside this try and are time-boxed, so a stalled webmavryk/mavseal call always emits a
+    // response and releases the async-mutex instead of holding it forever.
+    this._logger.debug(`Executing batch ${uuid} (${requests.length} op(s))`);
 
     try {
-      // Each webmavryk step is logged and time-boxed so we can see exactly where the
-      // transmit stalls (previously a hang here produced no log and no response at all).
-      this._logger.debug(`Estimating batch of ${requests.length} op(s) for ${pkh}`);
+      const toolkit = await this.getMavrykToolkit();
+      const pkh = await toolkit.wallet.pkh();
+      const estimateInput: ParamsWithKind[] = requests.map((value) => ({
+        ...value,
+        source: pkh
+      }));
+
+      this._logger.debug(`Estimating batch ${uuid} for ${pkh}`);
       await withTimeout(toolkit.estimate.batch(estimateInput), 60_000, 'estimate.batch');
 
-      this._logger.debug(`Forging/signing/injecting batch of ${requests.length} op(s)`);
+      this._logger.debug(`Forging/signing/injecting batch ${uuid}`);
       const batchOp = await withTimeout(toolkit.wallet.batch(requests).send(), 60_000, 'wallet.batch.send');
       this._logger.info(`Injected op ${batchOp.opHash}, awaiting confirmation`);
 
@@ -152,9 +161,7 @@ export class TxManagerService implements OnModuleInit {
         response: batchOp
       });
     } catch (e) {
-      this._logger.error(
-        `Batch execution failed for ${JSON.stringify(estimateInput)}: ${e?.toString?.() ?? e}`
-      );
+      this._logger.error(`Batch execution ${uuid} failed: ${e?.toString?.() ?? e}`);
       this._batchResponse$.next({
         type: 'error',
         uuid: uuid,

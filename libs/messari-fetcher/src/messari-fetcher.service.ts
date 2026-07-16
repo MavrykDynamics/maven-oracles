@@ -16,7 +16,7 @@ export class MessariFetcherService implements IDataFetcher {
       service: MessariFetcherService.name
     }
   });
-  private readonly _baseUrl: string = 'https://data.messari.io/api/v1';
+  private readonly _baseUrl: string = 'https://api.messari.io/metrics/v1';
 
   public constructor(
     private readonly _httpService: HttpService,

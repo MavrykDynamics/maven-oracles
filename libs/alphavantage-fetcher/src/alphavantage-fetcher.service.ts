@@ -24,7 +24,7 @@ export class AlphavantageFetcherService implements IDataFetcher {
   ) {
     if (_config.alphavantageApiKey === '') {
       this._logger.warn(
-        'No Alphavantage API key set. You may hit the api request limit. Set the MESSARI_API_KEY env variable with your API Key'
+        'No Alphavantage API key set. You may hit the api request limit. Set the ALPHAVANTAGE_API_KEY env variable with your API Key'
       );
     }
   }
