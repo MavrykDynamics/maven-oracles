@@ -51,6 +51,7 @@
     "@mavrykdynamics/alphavantage-fetcher": "workspace:*",
     "@mavrykdynamics/coingecko-fetcher": "workspace:*",
     "@mavrykdynamics/messari-fetcher": "workspace:*",
+    "@mavrykdynamics/coinbase-fetcher": "workspace:*",
     "async-mutex": "~0.3.2",
     "axios": "~0.27.2",
     "bignumber.js": "^9.0.2",

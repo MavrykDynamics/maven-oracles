@@ -492,6 +492,10 @@
       "projectFolder": "libs/messari-fetcher"
     },
     {
+      "packageName": "@mavrykdynamics/coinbase-fetcher",
+      "projectFolder": "libs/coinbase-fetcher"
+    },
+    {
       "packageName": "@mavrykdynamics/config",
       "projectFolder": "libs/config"
     }

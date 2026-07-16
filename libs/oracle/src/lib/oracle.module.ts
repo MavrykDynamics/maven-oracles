@@ -7,7 +7,9 @@ import { ReportGenNetworkService } from './reportgen/reportgen.network.service.j
 import { EventHubService } from './event-hub/event-hub.service.js';
 import { ContractService } from './contract/contract.service.js';
 import { DataService } from './data/data.service.js';
-import { MessariFetcherModule } from '@mavrykdynamics/messari-fetcher';
+// Messari market-data now requires an Enterprise plan; replaced by Coinbase. Kept for future reactivation.
+// import { MessariFetcherModule } from '@mavrykdynamics/messari-fetcher';
+import { CoinbaseFetcherModule } from '@mavrykdynamics/coinbase-fetcher';
 import { CoingeckoFetcherModule } from '@mavrykdynamics/coingecko-fetcher';
 import { AlphavantageFetcherModule } from '@mavrykdynamics/alphavantage-fetcher';
 import { PacemakerFactoryService } from './pacemaker/pacemaker.factory.service.js';
@@ -22,7 +24,8 @@ import { ConfigModule } from '@mavrykdynamics/config';
     HttpModule,
     ConfigModule.forConfig(OracleConfig),
     TxManagerModule,
-    MessariFetcherModule,
+    // MessariFetcherModule,
+    CoinbaseFetcherModule,
     CoingeckoFetcherModule,
     AlphavantageFetcherModule
   ],

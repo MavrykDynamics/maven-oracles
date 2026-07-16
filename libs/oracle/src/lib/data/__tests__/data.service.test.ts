@@ -13,10 +13,12 @@ import {
 } from '../../reportgen/__mocks__/reportgen.helpers.mock.js';
 import BigNumber from 'bignumber.js';
 import { TimerMock } from '../../pacemaker/__mocks__/timer.mock.js';
-import { MessariFetcherService } from '@mavrykdynamics/messari-fetcher';
+// import { MessariFetcherService } from '@mavrykdynamics/messari-fetcher';
+import { CoinbaseFetcherService } from '@mavrykdynamics/coinbase-fetcher';
 import { CoingeckoFetcherService } from '@mavrykdynamics/coingecko-fetcher';
 import { AlphavantageFetcherService } from '@mavrykdynamics/alphavantage-fetcher';
-import { MessariFetcherServiceMock } from '../__mocks__/messari-fetcher.service.mock.js';
+// import { MessariFetcherServiceMock } from '../__mocks__/messari-fetcher.service.mock.js';
+import { CoinbaseFetcherServiceMock } from '../__mocks__/coinbase-fetcher.service.mock.js';
 import { AlphavantageFetcherServiceMock } from '../__mocks__/alphavantage-fetcher.service.mock.js';
 import { CoingeckoFetcherServiceMock } from '../__mocks__/coingecko-fetcher.service.mock.js';
 
@@ -36,14 +38,15 @@ const { DataService } = await import('../data.service.js');
 describe('DataService', () => {
   let dataService: DataServiceType;
   let dataFetchers: any;
-  const messariFetcherServiceMock = new MessariFetcherServiceMock();
+  // const messariFetcherServiceMock = new MessariFetcherServiceMock();
+  const coinbaseFetcherServiceMock = new CoinbaseFetcherServiceMock();
   const coingeckoFetcherServiceMock = new CoingeckoFetcherServiceMock();
   const alphavantageFetcherServiceMock = new AlphavantageFetcherServiceMock();
 
   beforeEach(async () => {
 
     dataService = new DataService(
-      messariFetcherServiceMock as MessariFetcherService,
+      coinbaseFetcherServiceMock as CoinbaseFetcherService,
       coingeckoFetcherServiceMock as CoingeckoFetcherService,
       alphavantageFetcherServiceMock as AlphavantageFetcherService,
       OracleConfigMock
@@ -68,7 +71,7 @@ describe('DataService', () => {
     const pair: [string, string] = ['usd','btc'];
     test('getData without fakeData', async () => {
       const data = await dataService.getData(decimals, pair);
-      expect((messariFetcherServiceMock as any).getData).toHaveBeenCalled();
+      expect((coinbaseFetcherServiceMock as any).getData).toHaveBeenCalled();
       expect((coingeckoFetcherServiceMock as any).getData).toHaveBeenCalled();
       expect((alphavantageFetcherServiceMock as any).getData).toHaveBeenCalled();
       expect(data.toNumber()).toEqual(15000); // 15 * 1000 (3 decimals)
@@ -77,19 +80,19 @@ describe('DataService', () => {
     test('getData without fakeData and on fetcher fail', async () => {
       dataFetchers[2] = AlphavantageFetcherServiceMock;
       const data = await dataService.getData(decimals, pair);
-      expect((messariFetcherServiceMock as any).getData).toHaveBeenCalled();
+      expect((coinbaseFetcherServiceMock as any).getData).toHaveBeenCalled();
       expect((coingeckoFetcherServiceMock as any).getData).toHaveBeenCalled();
       expect((alphavantageFetcherServiceMock as any).getData).not.toHaveBeenCalled();
       expect(data.toNumber()).toEqual(20000); // (15 + 25) / 2 * 1000 (3 decimals)
     });
 
     test('getData without fakeData should fail because 0/3 fetcher answer', async () => {
-      dataFetchers[0] = MessariFetcherServiceMock;
+      dataFetchers[0] = CoinbaseFetcherServiceMock;
       dataFetchers[1] = CoingeckoFetcherServiceMock;
       dataFetchers[2] = AlphavantageFetcherServiceMock;
 
       await expect(dataService.getData(decimals, pair)).rejects.toThrow(`All data fetcher failed to fetch value for pair ${pair[0]}/${pair[1]}`);
-      expect((messariFetcherServiceMock as any).getData).not.toHaveBeenCalled();
+      expect((coinbaseFetcherServiceMock as any).getData).not.toHaveBeenCalled();
       expect((coingeckoFetcherServiceMock as any).getData).not.toHaveBeenCalled();
       expect((alphavantageFetcherServiceMock as any).getData).not.toHaveBeenCalled();
     });
@@ -97,14 +100,14 @@ describe('DataService', () => {
     test('getData with fakeData', async () => {
       OracleConfigMock.useFakeData = true;
       dataService = new DataService(
-        messariFetcherServiceMock as MessariFetcherService,
+        coinbaseFetcherServiceMock as CoinbaseFetcherService,
         coingeckoFetcherServiceMock as CoingeckoFetcherService,
         alphavantageFetcherServiceMock as AlphavantageFetcherService,
         OracleConfigMock
       );
 
       const data = await dataService.getData(decimals, pair);
-      expect((messariFetcherServiceMock as any).getData).not.toHaveBeenCalled();
+      expect((coinbaseFetcherServiceMock as any).getData).not.toHaveBeenCalled();
       expect((coingeckoFetcherServiceMock as any).getData).not.toHaveBeenCalled();
       expect((alphavantageFetcherServiceMock as any).getData).not.toHaveBeenCalled();
 
