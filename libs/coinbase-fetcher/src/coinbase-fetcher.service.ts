@@ -3,37 +3,33 @@ import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import { AxiosResponse } from 'axios';
 import BigNumber from 'bignumber.js';
-import { MessariFetcherConfig } from './messari-fetcher.config.js';
+import { CoinbaseFetcherConfig } from './coinbase-fetcher.config.js';
 import { IDataFetcher } from '@mavrykdynamics/data-fetcher';
 import { getLogger } from './logger.js';
-import { map } from 'rxjs/operators';
 import { Logger } from 'winston';
 
+interface ICoinbaseTickerResponse {
+  price: string;
+}
+
 @Injectable()
-export class MessariFetcherService implements IDataFetcher {
+export class CoinbaseFetcherService implements IDataFetcher {
   private readonly _logger: Logger = getLogger({
     defaultMeta: {
-      service: MessariFetcherService.name
+      service: CoinbaseFetcherService.name
     }
   });
-  private readonly _baseUrl: string = 'https://api.messari.io/metrics/v1';
 
   public constructor(
     private readonly _httpService: HttpService,
-    private readonly _config: MessariFetcherConfig
-  ) {
-    if (_config.messariApiKey === '') {
-      this._logger.warn(
-        'No Messari API key set. You may hit the api request limit. Set the MESSARI_API_KEY env variable with your API Key'
-      );
-    }
-  }
+    private readonly _config: CoinbaseFetcherConfig
+  ) {}
 
   public async getData([pair1, pair2]: [string, string]): Promise<BigNumber> {
     const coin = pair1.toLowerCase();
     const vsCurrency = pair2.toLowerCase();
 
-    let response: AxiosResponse;
+    let response: AxiosResponse<ICoinbaseTickerResponse>;
 
     //TODO: Remove after demo
     if (coin === 'ocean') {
@@ -50,23 +46,19 @@ export class MessariFetcherService implements IDataFetcher {
       return new BigNumber(parseFloat(random.toFixed(3)));
     } else {
       try {
-        const response$ = this._httpService
-          .get(`${this._baseUrl}/assets/${coin}/metrics/market-data`, {
-            headers: {
-              'x-messari-api-key': this._config.messariApiKey
-            }
-          })
-          .pipe(map((response) => response.data));
+        const response$ = this._httpService.get<ICoinbaseTickerResponse>(
+          `${this._config.coinbaseApiUrl}/products/${coin}-${vsCurrency}/ticker`
+        );
 
         response = await firstValueFrom(response$);
       } catch (e) {
-        throw new Error(`Failed to fetch market data of coin ${coin} from Messari API: ${e.toString()}`);
+        throw new Error(`Failed to fetch market data of coin ${coin} from Coinbase API: ${e.toString()}`);
       }
 
-      const data: number = response.data?.market_data?.[`price_${vsCurrency}`];
+      const data: string = response.data?.price;
 
       if (data === undefined || data === null) {
-        this._logger.verbose(`Could not parse data from response: ${JSON.stringify(response)}`);
+        this._logger.verbose(`Could not parse data from response: ${JSON.stringify(response.data)}`);
         this._logger.error('Could not parse data from response');
         throw new Error('Could not parse data from response');
       }

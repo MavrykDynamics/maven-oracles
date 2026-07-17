@@ -82,6 +82,10 @@ export class PacemakerService {
   // List containing the information of all oracles
   private _oracleLedger: IOracleInformations[];
 
+  // Cached aggregator on-chain config. Refreshed together with the oracle ledger,
+  // off the epoch-transition hot path, so _checkAgreementRule never blocks on an RPC.
+  private _aggregatorConfig: IAggregatorConfig;
+
   public constructor(
     private readonly _config: OracleConfig,
     private readonly _pacemakerNetworkService: PacemakerNetworkService,
@@ -112,7 +116,7 @@ export class PacemakerService {
     this._pacemakerNetworkService.addListener('newEpoch', this._newEpochListener);
 
     // Update the oracle list 
-    await this._updateOracleLedger();
+    await this._refreshOnChainState();
 
     // Read epoch from aggregator smart contract
     const lastBlockchainReport = await this._contractService.getLastBlockchainReport(
@@ -135,17 +139,14 @@ export class PacemakerService {
     };
     this._newEpoch = epoch;
 
-    const blockchainConfig = await this._contractService.getAggregatorConfig(
-      this._pacemakerConfig.aggregatorAddress
-    );
-
+    // _aggregatorConfig was populated by _refreshOnChainState() above.
     this._reportGenFactoryService.startReportGen({
       epoch: this._epochAndLeader.epoch,
       leader: this._epochAndLeader.leader,
       aggregatorAddress: this._pacemakerConfig.aggregatorAddress,
       aggregatorPair: this._pacemakerConfig.aggregatorPair,
-      alphaPerThousand: blockchainConfig.alphaPercentPerThousand,
-      heartbeatSeconds: blockchainConfig.heartbeatSeconds,
+      alphaPerThousand: this._aggregatorConfig.alphaPercentPerThousand,
+      heartbeatSeconds: this._aggregatorConfig.heartbeatSeconds,
       oracleLedger: this._oracleLedger
     });
 
@@ -173,8 +174,11 @@ export class PacemakerService {
     };
   }
 
-  private async _updateOracleLedger(): Promise<void> {
+  private async _refreshOnChainState(): Promise<void> {
     this._oracleLedger = await this._contractService.getOraclesAddresses(this._pacemakerConfig.aggregatorAddress);
+    this._aggregatorConfig = await this._contractService.getAggregatorConfig(
+      this._pacemakerConfig.aggregatorAddress
+    );
   }
 
   @useMutex()
@@ -197,13 +201,13 @@ export class PacemakerService {
 
   @useMutex()
   private async _onResendTimerTimeout(): Promise<void> {
-    await this._updateOracleLedger();
+    await this._refreshOnChainState();
     await this._sendNewEpoch(this._newEpoch);
   }
 
   @useMutex()
   private async _onProgressTimerTimeout(): Promise<void> {
-    await this._updateOracleLedger();
+    await this._refreshOnChainState();
 
     if (this._epochAndLeader === undefined) {
       // Round is not initialized yet
@@ -221,7 +225,7 @@ export class PacemakerService {
 
   @useMutex()
   private async _onChangeLeader(aggregatorAddress: string): Promise<void> {
-    await this._updateOracleLedger();
+    await this._refreshOnChainState();
     
     if (this._epochAndLeader === undefined) {
       // Round is not initialized yet
@@ -367,19 +371,10 @@ export class PacemakerService {
       leader: this._leaderForEpoch(this._oracleLedger, epochAccumulator)
     };
 
-    let aggregatorConfig: IAggregatorConfig;
-    try {
-      aggregatorConfig = await this._contractService.getAggregatorConfig(
-        this._pacemakerConfig.aggregatorAddress
-      );
-    } catch (e) {
-      this._logger.error(
-        `${this._pacemakerConfig.aggregatorAddress}/${epochAccumulator} - Failed to fetch aggregator config`
-      );
-      return;
-    }
-
-    // Stop the previous report generation instance
+    // Stop the previous report generation instance and immediately start the new one.
+    // The aggregator config is read from cache (refreshed off the hot path in
+    // _refreshOnChainState) so this transition performs no blocking RPC. That keeps
+    // followers from lagging behind the new leader and rejecting its round messages.
     this._reportGenFactoryService.stopReportGen(this._pacemakerConfig.aggregatorAddress);
 
     // Update newEpoch
@@ -391,8 +386,8 @@ export class PacemakerService {
       leader: this._epochAndLeader.leader,
       aggregatorAddress: this._pacemakerConfig.aggregatorAddress,
       aggregatorPair: this._pacemakerConfig.aggregatorPair,
-      alphaPerThousand: aggregatorConfig.alphaPercentPerThousand,
-      heartbeatSeconds: aggregatorConfig.heartbeatSeconds,
+      alphaPerThousand: this._aggregatorConfig.alphaPercentPerThousand,
+      heartbeatSeconds: this._aggregatorConfig.heartbeatSeconds,
       oracleLedger: this._oracleLedger
     });
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-docker compose -f docker-compose.yml up -d flexmasa db api indexer gui signatory
+docker compose -f docker-compose.yml up -d flexmasa db api indexer gui mavseal
 
 MAIN_SANDBOX_V="e072107c"
 APPLE_SANDBOX_V="e072107c"

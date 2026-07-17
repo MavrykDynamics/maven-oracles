@@ -616,14 +616,14 @@ describe('PacemakerService', () => {
       expect(listenerMock).not.toHaveBeenCalled();
     });
 
-    test('should silently fail if aggregator config getter throws ', async () => {
+    test('should use cached aggregator config for the epoch transition even if the live getter throws', async () => {
       // Since there is 7 mocked oracles, f is 2.
       // So, agreement rule should pass with 5 newEpoch values over the current epoch (2)
 
+      // The aggregator config is cached off the hot path (see _refreshOnChainState), populated
+      // by initialize() in beforeEach. A failing getAggregatorConfig RPC must therefore NOT
+      // block the epoch transition: the report generation still starts from the cached config.
       contractServiceMock.getAggregatorConfig.mockRejectedValue(new Error('AggregatorConfigError'));
-
-      const listenerMock = jest.fn();
-      eventHubServiceMock.addListener('startepoch', listenerMock);
 
       const values = [4, 4, 4, 4, 4, 4, 4];
       const ids = mockedOracleAddresses.map(
@@ -642,7 +642,12 @@ describe('PacemakerService', () => {
         )
       );
 
-      expect(mockStartReportGen).not.toHaveBeenCalled();
+      expect(mockStartReportGen).toHaveBeenCalledWith(
+        expect.objectContaining({
+          alphaPerThousand: mockedBlockchainConfig.alphaPercentPerThousand,
+          heartbeatSeconds: mockedBlockchainConfig.heartbeatSeconds
+        })
+      );
     });
   });
 });

@@ -24,7 +24,7 @@ export class AlphavantageFetcherService implements IDataFetcher {
   ) {
     if (_config.alphavantageApiKey === '') {
       this._logger.warn(
-        'No Alphavantage API key set. You may hit the api request limit. Set the MESSARI_API_KEY env variable with your API Key'
+        'No Alphavantage API key set. You may hit the api request limit. Set the ALPHAVANTAGE_API_KEY env variable with your API Key'
       );
     }
   }
@@ -47,9 +47,6 @@ export class AlphavantageFetcherService implements IDataFetcher {
     } else if (coin === 'ntbm') {
       const random = Math.random() * 0.005 + 100;
       return new BigNumber(parseFloat(random.toFixed(3)));
-    } else if (coin === 'mvrk') {
-      const random = Math.random() * 0.0001 + 2.648925;
-      return new BigNumber(parseFloat(random.toFixed(6)));
     } else {
       try {
         const response$ = this._httpService

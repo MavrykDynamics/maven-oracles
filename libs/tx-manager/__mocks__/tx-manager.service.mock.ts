@@ -1,15 +1,15 @@
 import { jest } from '@jest/globals';
-import { TezosToolkit } from '@mavrykdynamics/taquito';
+import { MavrykToolkit } from '@mavrykdynamics/webmavryk';
 import { TxManagerService } from '@mavrykdynamics/tx-manager';
 
-export const mockedTezosToolkit = new TezosToolkit('rpc');
+export const mockedMavrykToolkit = new MavrykToolkit('rpc');
 export const mockaddBatch = jest.fn();
-export const mockGetTezosToolkit = jest
-  .fn<TxManagerService['getTezosToolkit']>()
-  .mockResolvedValue(mockedTezosToolkit);
+export const mockGetMavrykToolkit = jest
+  .fn<TxManagerService['getMavrykToolkit']>()
+  .mockResolvedValue(mockedMavrykToolkit);
 export const TxManagerServiceMock = jest.fn().mockImplementation(() => {
   return {
     addBatch: mockaddBatch,
-    getTezosToolkit: mockGetTezosToolkit
+    getMavrykToolkit: mockGetMavrykToolkit
   };
 });

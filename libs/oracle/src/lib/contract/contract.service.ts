@@ -1,11 +1,11 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { MichelsonType, packDataBytes } from '@mavrykdynamics/taquito-michel-codec';
-import { verifySignature } from '@mavrykdynamics/taquito-utils';
+import { MichelsonType, packDataBytes } from '@mavrykdynamics/webmavryk-michel-codec';
+import { verifySignature } from '@mavrykdynamics/webmavryk-utils';
 
 import { OracleConfig } from '../oracle.config.js';
-import { MichelsonMap, OpKind } from '@mavrykdynamics/taquito';
+import { MichelsonMap, OpKind } from '@mavrykdynamics/webmavryk';
 import BigNumber from 'bignumber.js';
-import { Schema } from '@mavrykdynamics/taquito-michelson-encoder';
+import { Schema } from '@mavrykdynamics/webmavryk-michelson-encoder';
 import { IAttestedReport, ICompressedReport, IObservation, ISignature } from '../reportgen';
 import { toTimestamp } from './helpers.js';
 import { TxManagerService } from '@mavrykdynamics/tx-manager';
@@ -45,7 +45,7 @@ export class ContractService implements OnModuleInit {
    */
   public async getOraclesAddresses(aggregatorAddress: string): Promise<IOracleInformations[]> {
     const contractInstance = await (
-      await this._txManagerService.getTezosToolkit()
+      await this._txManagerService.getMavrykToolkit()
     ).contract.at(aggregatorAddress);
     const storage: IAggregatorStorage = await contractInstance.storage();
 
@@ -75,7 +75,7 @@ export class ContractService implements OnModuleInit {
    */
   public async getName(aggregatorAddress: string): Promise<string> {
     const contractInstance = await (
-      await this._txManagerService.getTezosToolkit()
+      await this._txManagerService.getMavrykToolkit()
     ).contract.at(aggregatorAddress);
     const storage: IAggregatorStorage = await contractInstance.storage();
 
@@ -83,7 +83,7 @@ export class ContractService implements OnModuleInit {
   }
 
   /**
-   * Serialize report into Tezos format
+   * Serialize report into Mavryk format
    * @param aggregatorAddress - Aggregator smart contract address
    * @param oracleLedger - Information about the oracles (pk, pkh and peer id)
    * @param report - Report to pack
@@ -115,7 +115,7 @@ export class ContractService implements OnModuleInit {
   }
 
   /**
-   * Serialize observations into Tezos format
+   * Serialize observations into Mavryk format
    * @param oracleDataResponsesForPack - Observations to pack
    *
    * @returns - Packed observation
@@ -160,7 +160,7 @@ export class ContractService implements OnModuleInit {
   }
 
   /**
-   * Sign oracle data using Tezos signer key
+   * Sign oracle data using Mavryk signer key
    *
    * @param oracleDataResponsesForPack - Observation map
    *
@@ -169,7 +169,7 @@ export class ContractService implements OnModuleInit {
   public async signOracleDataResponses(
     oracleDataResponsesForPack: MichelsonMap<string, IOracleObservationType>
   ): Promise<string> {
-    const toolkit = await this._txManagerService.getTezosToolkit();
+    const toolkit = await this._txManagerService.getMavrykToolkit();
     const signature_observations = await toolkit.signer.sign(
       `0x${await this._packObservations(oracleDataResponsesForPack)}`
     );
@@ -178,7 +178,7 @@ export class ContractService implements OnModuleInit {
   }
 
   /**
-   * Sign compressed report using Tezos signer key
+   * Sign compressed report using Mavryk signer key
    *
    * @param aggregatorAddress - Aggregator smart contract address
    * @param oracleLedger - Information about the oracles (pk, pkh and peer id)
@@ -296,7 +296,7 @@ export class ContractService implements OnModuleInit {
     report: IAttestedReport
   ): Promise<void> {
     const contractInstance = await (
-      await this._txManagerService.getTezosToolkit()
+      await this._txManagerService.getMavrykToolkit()
     ).contract.at(aggregatorAddress);
 
     const signatures = new MichelsonMap<string, string>();
@@ -324,7 +324,7 @@ export class ContractService implements OnModuleInit {
     });
 
     try {
-      this._logger.info(`Sending report ${report.epoch}/${report.round} sent to the blockchain!`);
+      this._logger.info(`Submitting report ${report.epoch}/${report.round} to the blockchain...`);
       const response = await this._txManagerService.addBatch([
         {
           ...op.toTransferParams(),
@@ -370,7 +370,7 @@ export class ContractService implements OnModuleInit {
     lastUpdatedAt: number;
   } | null> {
     const contractInstance = await (
-      await this._txManagerService.getTezosToolkit()
+      await this._txManagerService.getMavrykToolkit()
     ).contract.at(aggregatorAddress);
     const storage: IAggregatorStorage = await contractInstance.storage();
 
@@ -390,7 +390,7 @@ export class ContractService implements OnModuleInit {
    */
   public async getAggregatorConfig(aggregatorAddress: string): Promise<IAggregatorConfig> {
     const contractInstance = await (
-      await this._txManagerService.getTezosToolkit()
+      await this._txManagerService.getMavrykToolkit()
     ).contract.at(aggregatorAddress);
     const storage: IAggregatorStorage = await contractInstance.storage();
     return {

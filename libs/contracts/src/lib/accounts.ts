@@ -1,6 +1,6 @@
 import { NetworkName } from './scripts/env.js';
 import BigNumber from 'bignumber.js';
-import { MichelsonMap, MichelsonMapKey } from '@mavrykdynamics/taquito-michelson-encoder';
+import { MichelsonMap, MichelsonMapKey } from '@mavrykdynamics/webmavryk-michelson-encoder';
 
 const currentTimestamp: number = Math.round(new Date().getTime() / 1000);
 export const satelliteLedger: MichelsonMap<MichelsonMapKey, unknown> = MichelsonMap.fromLiteral({
@@ -328,6 +328,5 @@ export const testnetKmsAccounts: Record<AccountName, IAccount> = {
 export const accountPerNetwork: Record<NetworkName, Record<AccountName, IAccount>> = {
   development: accounts,
   mainnet: testnetAccounts,
-  basenet: testnetAccounts,
   basenet: testnetAccounts
 };

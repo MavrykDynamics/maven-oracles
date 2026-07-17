@@ -1,5 +1,5 @@
 import { jest } from '@jest/globals';
-import { MichelsonMap } from '@mavrykdynamics/taquito';
+import { MichelsonMap } from '@mavrykdynamics/webmavryk';
 
 export const mockInitialize = jest.fn();
 export const mockGetAggregatorFactoryStorage = jest.fn().mockReturnValue(new MichelsonMap());

@@ -20,10 +20,10 @@
 
 ## Transaction manager config
 
-| Key                                 | Description              | Type   | Default value |
-|-------------------------------------|--------------------------|:-------|---------------|
-| SIGNER_URL                          | Signatory url            | string | None          |
-| MAVRYK_POLLING_INTERVAL_MILLISECONDS | Taquito polling interval | number | 5000          |
+| Key                                  | Description                | Type   | Default value |
+|--------------------------------------|----------------------------|:-------|---------------|
+| SIGNER_URL                           | Signatory url              | string | None          |
+| MAVRYK_POLLING_INTERVAL_MILLISECONDS | WebMavryk polling interval | number | 5000          |
 
 
 ## Alphavantage fetcher config

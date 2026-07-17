@@ -4,7 +4,7 @@ import * as fs from 'fs';
 
 import { execSync } from 'child_process';
 
-import { OriginationOperation, TezosToolkit } from '@mavrykdynamics/taquito';
+import { OriginationOperation, MavrykToolkit } from '@mavrykdynamics/webmavryk';
 
 import { confirmOperation } from './confirmation.js';
 
@@ -188,7 +188,7 @@ export const compileParameters = async (
 };
 
 export const migrate = async (
-  mavryk: TezosToolkit,
+  mavryk: MavrykToolkit,
   contract: string,
   storage: any
 ): Promise<string | undefined> => {
@@ -291,7 +291,7 @@ export const saveContractAddress = async (
 };
 
 export const setAggregatorFactoryLambdas = async (
-    mavrykToolkit: TezosToolkit,
+    mavrykToolkit: MavrykToolkit,
     aggregatorFactory: AggregatorFactoryContractAbstraction,
 ): Promise<void> => {
     const lambdasPerBatch   = 10;
@@ -320,7 +320,7 @@ export const setAggregatorFactoryLambdas = async (
 };
 
 export const setAggregatorFactoryProductLambdas = async (
-    mavrykToolkit: TezosToolkit,
+    mavrykToolkit: MavrykToolkit,
     aggregatorFactory: AggregatorFactoryContractAbstraction,
 ): Promise<void> => {
     const lambdasPerBatch   = 10;
@@ -349,7 +349,7 @@ export const setAggregatorFactoryProductLambdas = async (
 };
 
 export const setMavenLiteGeneralContracts = async (
-    mavrykToolkit: TezosToolkit,
+    mavrykToolkit: MavrykToolkit,
     mavenLite: MavenLiteContractAbstraction,
 ): Promise<void> => {
     const generalContractsBatch = mavrykToolkit.wallet.batch()

@@ -1,5 +1,5 @@
 {
-  "name": "@mavrykdynamics/tx-manager",
+  "name": "@mavrykdynamics/coinbase-fetcher",
   "version": "0.0.1",
   "license": "MIT",
   "scripts": {
@@ -7,21 +7,19 @@
     "build:watch": "heft build",
     "test": "echo 0"
   },
-  "main": "dist/libs/tx-manager/src/index.js",
-  "typings": "dist/libs/tx-manager/src/index.d.ts",
+  "main": "dist/libs/coinbase-fetcher/src/index.js",
+  "typings": "dist/libs/coinbase-fetcher/src/index.d.ts",
   "type": "module",
   "dependencies": {
+    "@nestjs/axios": "^0.1.0",
     "@nestjs/common": "9.1.1",
-    "@mavrykdynamics/webmavryk-signer": "^2.0.1",
-    "@mavrykdynamics/webmavryk-remote-signer": "^2.0.1",
-    "@mavrykdynamics/webmavryk": "^2.0.1",
-    "@nestjs/schedule": "^2.1.0",
-    "async-mutex": "^0.3.2",
-    "cron": "^2.1.0",
-    "rxjs": "^7.5.6",
+    "axios": "^0.27.2",
+    "bignumber.js": "9.1.0",
+    "rxjs": "^7.0.0",
     "ts-convict": "^1.1.0",
     "tslib": "^2.4.0",
     "@mavrykdynamics/config": "workspace:*",
+    "@mavrykdynamics/data-fetcher": "workspace:*",
     "winston": "^3.8.2"
   },
   "devDependencies": {

@@ -30,7 +30,7 @@ export class TxManagerConfig {
   public mavrykSecretKey: string;
 
   @Property({
-    default: 5000,
+    default: 10000,
     env: 'MAVRYK_POLLING_INTERVAL_MILLISECONDS',
     format: Number
   })

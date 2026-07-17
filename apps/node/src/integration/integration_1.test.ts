@@ -1,9 +1,9 @@
-import { TezosToolkit } from '@mavrykdynamics/taquito';
+import { MavrykToolkit } from '@mavrykdynamics/webmavryk';
 import { networkConfig, AggregatorContractAbstraction, IAggregatorStorage } from '@mavrykdynamics/contracts';
-import { InMemorySigner } from '@mavrykdynamics/taquito-signer';
+import { InMemorySigner } from '@mavrykdynamics/webmavryk-signer';
 
 describe('Integration test 1', () => {
-  let toolkit: TezosToolkit;
+  let toolkit: MavrykToolkit;
   let aggregatorAddress: string;
   const networkName: string = 'development';
 
@@ -15,7 +15,7 @@ describe('Integration test 1', () => {
     }
     aggregatorAddress = aggregatorAddressArg.split('=')[1];
 
-    toolkit = new TezosToolkit(networkConfig.networks[networkName].rpc);
+    toolkit = new MavrykToolkit(networkConfig.networks[networkName].rpc);
     toolkit.setProvider({
       config: {
         confirmationPollingTimeoutSecond: networkConfig.confirmationPollingTimeoutSecond

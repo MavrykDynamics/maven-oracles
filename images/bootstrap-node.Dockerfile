@@ -1,4 +1,4 @@
-FROM node:16.14.0-alpine3.14 AS only-package-json
+FROM node:20.19.3-alpine3.21 AS only-package-json
 
 USER node
 WORKDIR /home/node
@@ -12,7 +12,7 @@ COPY --chown=node:node rush.json ./rush.json
 RUN find libs ! -name "package.json" -type f | xargs rm
 RUN find apps ! -name "package.json" -type f | xargs rm
 
-FROM node:16.14.0-alpine3.14 AS build
+FROM node:20.19.3-alpine3.21 AS build
 
 RUN apk add g++ make py3-pip
 
@@ -28,7 +28,7 @@ COPY --chown=node:node . ./
 RUN node common/scripts/install-run-rush.js build
 RUN node common/scripts/install-run-rush.js deploy --project @mavrykdynamics/bootstrap-node
 
-FROM node:16.14.0-alpine3.14 AS prod-deps
+FROM node:20.19.3-alpine3.21 AS prod-deps
 
 USER node
 WORKDIR /home/node

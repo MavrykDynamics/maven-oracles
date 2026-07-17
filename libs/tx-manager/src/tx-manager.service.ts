@@ -1,17 +1,17 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { WalletParamsWithKind } from '@mavrykdynamics/taquito/dist/types/wallet/wallet';
-import { PollingSubscribeProvider, TezosToolkit } from '@mavrykdynamics/taquito';
+import { WalletParamsWithKind } from '@mavrykdynamics/webmavryk/dist/types/wallet/wallet';
+import { PollingSubscribeProvider, MavrykToolkit, Signer } from '@mavrykdynamics/webmavryk';
 import { TxManagerConfig } from './tx-manager.config.js';
-import { filter, firstValueFrom, Subject } from 'rxjs';
-import { BatchWalletOperation } from '@mavrykdynamics/taquito/dist/types/wallet/batch-operation';
+import { filter, firstValueFrom, Subject, timeout } from 'rxjs';
+import { BatchWalletOperation } from '@mavrykdynamics/webmavryk/dist/types/wallet/batch-operation';
 import { CronExpression } from '@nestjs/schedule';
 import { Mutex } from 'async-mutex';
 import { randomUUID } from 'crypto';
-import { ParamsWithKind } from '@mavrykdynamics/taquito/dist/types/operations/types';
+import { ParamsWithKind } from '@mavrykdynamics/webmavryk/dist/types/operations/types';
 import { CronJob } from 'cron';
 import { getLogger } from './logger.js';
 import { Logger } from 'winston';
-import { RemoteSigner } from '@mavrykdynamics/taquito-remote-signer';
+import { RemoteSigner } from '@mavrykdynamics/webmavryk-remote-signer';
 
 interface IBatchQueueRequest {
   uuid: string;
@@ -33,6 +33,19 @@ interface IBatchQueueResponseError {
 
 type BatchQueueResponse = IBatchQueueResponseSuccess | IBatchQueueResponseError;
 
+// Reject a promise if it does not settle in time. Without this a stalled webmavryk
+// estimate/send/confirmation call hangs `_executeBatch` forever while holding the
+// async-mutex, which silently freezes every subsequent transmit. Turning a stall into
+// an error lets the mutex release and the next report retry (and surfaces the cause).
+function withTimeout<T>(promise: Promise<T>, milliseconds: number, label: string): Promise<T> {
+  let timer: NodeJS.Timeout;
+  const timeout = new Promise<never>((resolve, reject) => {
+    timer = setTimeout(() => reject(new Error(`${label} timed out after ${milliseconds}ms`)), milliseconds);
+    timer.unref?.();
+  });
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(timer)) as Promise<T>;
+}
+
 @Injectable()
 export class TxManagerService implements OnModuleInit {
   private readonly _logger: Logger = getLogger({
@@ -41,7 +54,7 @@ export class TxManagerService implements OnModuleInit {
     }
   });
   private _pool: Pool = [];
-  private _mavrykToolkit: TezosToolkit;
+  private _mavrykToolkit: MavrykToolkit;
   private _batchResponse$: Subject<BatchQueueResponse> = new Subject();
   private _mutex: Mutex = new Mutex();
   private _cronJob: CronJob;
@@ -50,7 +63,7 @@ export class TxManagerService implements OnModuleInit {
 
   public onModuleInit(): void {
     this._logger.verbose(
-      `Using confirmation polling interval: ${this._txManagerConfig.pollingIntervalMilliseconds}s`
+      `Using confirmation polling interval: ${this._txManagerConfig.pollingIntervalMilliseconds}ms`
     );
 
     this._cronJob = new CronJob(CronExpression.EVERY_SECOND, async () => {
@@ -72,7 +85,14 @@ export class TxManagerService implements OnModuleInit {
       requests: batch
     });
 
-    return await firstValueFrom(this._batchResponse$.pipe(filter((response) => response.uuid === uuid)));
+    // Bounded wait: if the executor never emits for this uuid, time out so the caller (and the
+    // transmit timer that awaits it) keeps moving instead of freezing every future transmit.
+    return await firstValueFrom(
+      this._batchResponse$.pipe(
+        filter((response) => response.uuid === uuid),
+        timeout({ first: 300_000 })
+      )
+    );
   }
 
   private async _executeBatches(): Promise<void> {
@@ -112,59 +132,62 @@ export class TxManagerService implements OnModuleInit {
       return;
     }
 
-    const toolkit = await this.getTezosToolkit();
-
-    const pkh = await toolkit.wallet.pkh();
-    const estimateInput: ParamsWithKind[] = requests.map((value) => ({
-      ...value,
-      source: pkh
-    }));
+    // All network calls (toolkit/remote-signer setup, estimate, sign, inject, confirmation) run
+    // inside this try and are time-boxed, so a stalled webmavryk/mavseal call always emits a
+    // response and releases the async-mutex instead of holding it forever.
+    this._logger.debug(`Executing batch ${uuid} (${requests.length} op(s))`);
 
     try {
-      await toolkit.estimate.batch(estimateInput);
-    } catch (e) {
-      this._logger.error(`Estimate failed with params: ${JSON.stringify(estimateInput)}: ${e.toString()}`);
-      this._batchResponse$.next({
-        type: 'error',
-        uuid: uuid,
-        error: e
-      });
-    }
+      const toolkit = await this.getMavrykToolkit();
+      const pkh = await toolkit.wallet.pkh();
+      const estimateInput: ParamsWithKind[] = requests.map((value) => ({
+        ...value,
+        source: pkh
+      }));
 
-    try {
-      const batchResult1 = await toolkit.wallet.batch(requests);
-      const batchResult2 = await batchResult1.send();
-      await batchResult2.confirmation();
+      this._logger.debug(`Estimating batch ${uuid} for ${pkh}`);
+      await withTimeout(toolkit.estimate.batch(estimateInput), 60_000, 'estimate.batch');
 
-      this._logger.verbose(`Batched ${requests.length} transactions`);
+      this._logger.debug(`Forging/signing/injecting batch ${uuid}`);
+      const batchOp = await withTimeout(toolkit.wallet.batch(requests).send(), 60_000, 'wallet.batch.send');
+      this._logger.info(`Injected op ${batchOp.opHash}, awaiting confirmation`);
+
+      await withTimeout(batchOp.confirmation(), 120_000, 'confirmation');
+
+      this._logger.verbose(`Batched ${requests.length} transactions (op ${batchOp.opHash})`);
       this._batchResponse$.next({
         type: 'success',
         uuid: uuid,
-        response: batchResult2
+        response: batchOp
       });
     } catch (e) {
-      this._logger.error(e.toString());
+      this._logger.error(`Batch execution ${uuid} failed: ${e?.toString?.() ?? e}`);
       this._batchResponse$.next({
         type: 'error',
         uuid: uuid,
-        error: e
+        error: e as Error
       });
     }
   }
 
-  public async getTezosToolkit(): Promise<TezosToolkit> {
+  public async getMavrykToolkit(): Promise<MavrykToolkit> {
     if (this._mavrykToolkit) {
       return this._mavrykToolkit;
     }
 
-    const toolkit = new TezosToolkit(this._txManagerConfig.rpcUrl);
+    const toolkit = new MavrykToolkit(this._txManagerConfig.rpcUrl);
     // const signer = new InMemorySigner(this._txManagerConfig.mavrykSecretKey);
     const signer = new RemoteSigner(
       this._txManagerConfig.mavrykPublicKeyHash,
       this._txManagerConfig.signerUrl
     );
 
-    toolkit.setSignerProvider(signer);
+    // webmavryk-remote-signer implements the webmavryk Signer interface, which is
+    // structurally identical to webmavryk's (same fork lineage: publicKey /
+    // publicKeyHash / secretKey / sign -> { bytes, sig, prefixSig, sbytes }).
+    // The cast bridges the two nominally-distinct toolkit types while the rest
+    // of the app still runs on webmavryk's MavrykToolkit.
+    toolkit.setSignerProvider(signer as unknown as Signer);
 
     toolkit.setStreamProvider(
       toolkit.getFactory(PollingSubscribeProvider)({

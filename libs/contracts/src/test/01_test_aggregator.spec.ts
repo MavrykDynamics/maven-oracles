@@ -1,5 +1,5 @@
-import { OriginationOperation, TezosToolkit } from '@mavrykdynamics/taquito';
-import { MichelsonMap } from '@mavrykdynamics/taquito-michelson-encoder';
+import { OriginationOperation, MavrykToolkit } from '@mavrykdynamics/webmavryk';
+import { MichelsonMap } from '@mavrykdynamics/webmavryk-michelson-encoder';
 import {
   AggregatorFactoryCode,
   AggregatorFactoryContractAbstraction,
@@ -7,16 +7,16 @@ import {
 } from '../lib/aggregatorFactory';
 import { alphaPercentPerThousand, decimals, heartbeatSeconds, oracleLedger } from '../lib/accounts';
 import { networkConfig } from '../lib/scripts/env';
-import { InMemorySigner } from '@mavrykdynamics/taquito-signer';
+import { InMemorySigner } from '@mavrykdynamics/webmavryk-signer';
 import { expect } from 'chai';
 
 describe('Create Aggregator Factory', () => {
-  let toolkit: TezosToolkit;
+  let toolkit: MavrykToolkit;
   let opFactory: OriginationOperation;
   let aggregatorAddress: string;
   before('setup', async () => {
     const networkName = 'development';
-    toolkit = new TezosToolkit(networkConfig.networks[networkName].rpc);
+    toolkit = new MavrykToolkit(networkConfig.networks[networkName].rpc);
     toolkit.setProvider({
       config: {
         confirmationPollingTimeoutSecond: networkConfig.confirmationPollingTimeoutSecond

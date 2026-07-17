@@ -1,9 +1,9 @@
 contracts:
   aggregator:
     kind: tezos
-    code_hash: KT1EcA825xZPEd2RKWswmSgkFNnH3ynsbLPW
+    code_hash: KT1C4MmGCHAD9T8k2KgUBVByrcXVXPHbf2ga
     typename: aggregator
   aggregator_factory:
     kind: tezos
-    address: KT1KHUFp4v9k2UhXsZYxftNXUa7FpHbb4YMh
+    address: KT1Q5Rba7Nw8uTr1J6rvYXHVyXnuYWa7rC9j
     typename: aggregator_factory

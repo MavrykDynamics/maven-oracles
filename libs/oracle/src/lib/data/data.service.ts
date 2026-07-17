@@ -4,7 +4,9 @@ import BigNumber from 'bignumber.js';
 
 import { filterNotNull } from './helpers.js';
 import { IDataFetcher } from '@mavrykdynamics/data-fetcher';
-import { MessariFetcherService } from '@mavrykdynamics/messari-fetcher';
+// Messari market-data now requires an Enterprise plan; replaced by Coinbase. Kept for future reactivation.
+// import { MessariFetcherService } from '@mavrykdynamics/messari-fetcher';
+import { CoinbaseFetcherService } from '@mavrykdynamics/coinbase-fetcher';
 import { CoingeckoFetcherService } from '@mavrykdynamics/coingecko-fetcher';
 import { AlphavantageFetcherService } from '@mavrykdynamics/alphavantage-fetcher';
 import { getLogger } from '../logger.js';
@@ -20,7 +22,8 @@ export class DataService {
   private readonly _dataFetchers: IDataFetcher[] = [];
 
   public constructor(
-    messariFetcherService: MessariFetcherService,
+    // messariFetcherService: MessariFetcherService,
+    coinbaseFetcherService: CoinbaseFetcherService,
     coingeckoFetcherService: CoingeckoFetcherService,
     alphavantageFetcherService: AlphavantageFetcherService,
     private readonly _oracleConfig: OracleConfig
@@ -29,7 +32,8 @@ export class DataService {
       this._logger.warn('YOU ARE USING FAKE DATA, DO NOT DO THIS IN PRODUCTION');
     }
     //TODO: get le type de donnée de l'aggrégateur + faire un mapping vers une liste de fetcher
-    this._dataFetchers = [messariFetcherService, coingeckoFetcherService, alphavantageFetcherService];
+    // this._dataFetchers = [messariFetcherService, coingeckoFetcherService, alphavantageFetcherService];
+    this._dataFetchers = [coinbaseFetcherService, coingeckoFetcherService, alphavantageFetcherService];
   }
 
   public async getData(decimals: BigNumber, pair: [string, string]): Promise<BigNumber> {

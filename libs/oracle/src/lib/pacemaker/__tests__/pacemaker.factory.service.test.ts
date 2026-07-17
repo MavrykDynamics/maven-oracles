@@ -71,7 +71,7 @@ describe('PacemakerFactoryService', () => {
         aggregatorAddress: 'USD-ONE/Address',
         aggregatorPair: ['PAIR1', 'PAIR2'],
         timerProgressDurationMiliseconds: 3600 * 1000,
-        timerResendDurationMiliseconds: 15 * 1000,
+        timerResendDurationMiliseconds: 20 * 1000,
       };
 
       expect(PacemakerServiceMock).toHaveBeenCalledWith(
@@ -93,14 +93,14 @@ describe('PacemakerFactoryService', () => {
         aggregatorAddress: 'USD-ONE/Address',
         aggregatorPair: ['PAIR1', 'PAIR2'],
         timerProgressDurationMiliseconds: 3600 * 1000,
-        timerResendDurationMiliseconds: 15 * 1000,
+        timerResendDurationMiliseconds: 20 * 1000,
       };
 
       const expectedConfigTwo: IPacemakerConfig = {
         aggregatorAddress: 'USD-TWO/Address',
         aggregatorPair: ['PAIR1', 'PAIR2'],
         timerProgressDurationMiliseconds: 3600 * 1000,
-        timerResendDurationMiliseconds: 15 * 1000,
+        timerResendDurationMiliseconds: 20 * 1000,
       };
 
       expect(PacemakerServiceMock).toHaveBeenNthCalledWith(

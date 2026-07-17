@@ -7,6 +7,9 @@ import { PacemakerService } from './pacemaker.service.js';
 import { IPacemakerConfig } from './pacemaker.config.js';
 import { ReportGenFactoryService } from '../reportgen/index.js';
 
+// Mavryk basenet block time. Pacemaker timers are kept as slow multiples of it to avoid draining the price APIs.
+const BLOCK_TIME_MILLISECONDS = 10 * 1000;
+
 @Injectable()
 export class PacemakerFactoryService implements OnModuleInit {
   // map of the pacemakers we will start on the init
@@ -40,8 +43,8 @@ export class PacemakerFactoryService implements OnModuleInit {
       await this._startPacemaker({
         aggregatorAddress,
         aggregatorPair: pair,
-        timerProgressDurationMiliseconds: 3600 * 1000,
-        timerResendDurationMiliseconds: 15 * 1000,
+        timerProgressDurationMiliseconds: 360 * BLOCK_TIME_MILLISECONDS,
+        timerResendDurationMiliseconds: 2 * BLOCK_TIME_MILLISECONDS,
       });
     }
   }
